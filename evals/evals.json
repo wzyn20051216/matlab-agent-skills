@@ -1,0 +1,23 @@
+{
+  "skill_name": "matlab-r2026a-agent-skills",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "用 MATLAB R2026a 复现一个论文里的曲线图：先读取数据，生成 figure，并给出数值误差验收。",
+      "expected_output": "应选择 matlab-orchestrator -> matlab-data-analysis -> matlab-testing-ci，要求保存 manifest、图像、日志和误差指标。",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "帮我写一个 Simulink 模型，正弦输入经过 Gain 后输出，自动仿真并确认输出非空。",
+      "expected_output": "应选择 matlab-simulink-modeling，使用 MATLAB/Simulink API 建模，保存 .slx、日志和信号验收结果。",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "把一个 MATLAB 函数转成 MEX，比较 MEX 和原函数误差，然后准备 GitHub Actions。",
+      "expected_output": "应选择 matlab-codegen-deploy 和 matlab-testing-ci，要求先生成 MEX，再做 golden comparison，并输出 CI 建议。",
+      "files": []
+    }
+  ]
+}

@@ -1,0 +1,33 @@
+name: MATLAB Validation
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+
+      - name: Set up MATLAB
+        uses: matlab-actions/setup-matlab@v3
+        with:
+          release: latest
+          products: >
+            MATLAB
+            Simulink
+
+      - name: Run MATLAB smoke validation
+        uses: matlab-actions/run-command@v3
+        with:
+          command: run("matlab/validation/matlab_toolbox_inventory.m"); run("matlab/validation/matlab_skill_smoke.m");
+
+      - name: Upload validation artifacts
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: matlab-validation-artifacts
+          path: artifacts

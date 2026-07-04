@@ -1,0 +1,12 @@
+* text=auto
+*.md text eol=lf
+*.json text eol=lf
+*.m text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+LICENSE text eol=lf
+*.ps1 text eol=crlf
+*.mat binary
+*.mlx binary
+*.slx binary
+*.png binary

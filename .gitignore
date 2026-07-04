@@ -1,0 +1,10 @@
+artifacts/
+*.asv
+*.m~
+*.slxc
+*.mex*
+*.mlx.autosave
+*.log
+*.tmp
+.DS_Store
+Thumbs.db
