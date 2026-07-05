@@ -89,6 +89,10 @@ evals/                  # Skill evaluation prompts
 .github/workflows/      # GitHub Actions validation example
 ```
 
+## Contributing
+
+Contributions are welcome when they make MATLAB agent workflows more executable, measurable, or reproducible. See [CONTRIBUTING.md](CONTRIBUTING.md) and [ROADMAP.md](ROADMAP.md).
+
 ## Paper Reproduction Mode
 
 For open-source papers and engineering examples, the expected loop is:
