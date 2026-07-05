@@ -17,6 +17,18 @@ Start as small as possible, then broaden:
 4. Simulink model simulates and logged signals are checked.
 5. CI workflow runs the same command.
 
+## MATLAB/Simulink Completion Rule
+
+For MATLAB or Simulink engineering tasks, completion means the work has been self-checked after writing:
+
+1. Scripts/functions run without error.
+2. Simulink models load and update/compile without diagram errors.
+3. Simulations reach the requested stop time.
+4. Key logged signals are nonempty and finite.
+5. Generated figures/data/reports exist and are nonempty.
+6. If code generation or deployment is requested, generated code/project/binary artifacts are checked for existence and nonzero size.
+7. If any step cannot be completed, record the exact blocker, the command that failed, and the highest-value next action.
+
 ## MATLAB Unit Test Pattern
 
 Use:

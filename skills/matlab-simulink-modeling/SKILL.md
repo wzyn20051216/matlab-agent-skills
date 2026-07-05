@@ -48,11 +48,24 @@ If SimuBridge MCP tools are available, prefer them for topology audit, library s
 
 A model task passes only when:
 
+- The model diagram updates/compiles after editing, for example with `set_param(modelName,"SimulationCommand","update")` or an equivalent compile/update check.
 - The model loads without errors.
 - Solver and stop time are explicit.
 - Simulation completes to the requested stop time.
 - Required signals are logged and nonempty.
 - Generated `.slx`, `.mat`, `.png`, or report artifacts are saved.
+
+## Post-Edit Self Check
+
+After writing or modifying a Simulink model, run a self-check before reporting completion:
+
+1. Save the model.
+2. Update/compile the diagram with `set_param(modelName,"SimulationCommand","update")`.
+3. Fix unconnected ports, solver/sample-time errors, algebraic loops, missing variables, and block parameter errors found by the update step.
+4. Run the requested simulation or a smoke simulation to the target stop time.
+5. Verify logged signals are nonempty and finite.
+6. If code generation is in scope, continue into Simulink Coder / Embedded Coder after simulation passes, then verify generated files exist and are nonempty.
+7. If any compile, simulation, or code generation step cannot pass because a toolbox, support package, compiler, or hardware target is missing, state the exact blocker and save the current runnable model/artifacts for the next attempt.
 
 ## Risk Checklist
 
