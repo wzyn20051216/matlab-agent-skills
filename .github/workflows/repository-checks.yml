@@ -30,8 +30,15 @@ jobs:
       - name: Check for machine-specific paths in public docs
         shell: pwsh
         run: |
-          $matches = rg -n "C:\\Users\\[^<]|E:\\|D:\\" README.md docs scripts .github -S -g "!repository-checks.yml"
-          if ($LASTEXITCODE -eq 0) {
-            $matches
+          $files = @("README.md")
+          $files += Get-ChildItem docs, scripts, .github -Recurse -File |
+            Where-Object { $_.Name -ne "repository-checks.yml" } |
+            Select-Object -ExpandProperty FullName
+
+          $matches = Select-String -Path $files -Pattern 'C:\\Users\\[^<]|[ED]:\\' -AllMatches
+          if ($matches) {
+            $matches | ForEach-Object {
+              "{0}:{1}:{2}" -f $_.Path, $_.LineNumber, $_.Line.Trim()
+            }
             exit 1
           }
