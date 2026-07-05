@@ -53,6 +53,12 @@ Run local validation:
 powershell -ExecutionPolicy Bypass -File .\scripts\Test-MatlabSkills.ps1
 ```
 
+Run the full embedded acceptance chain for MATLAB + STM32 / Raspberry Pi + CubeMX / Keil / VS Code:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\Test-MatlabEmbeddedStack.ps1 -MatlabPath E:\matlab\bin\matlab.exe
+```
+
 Run a custom MATLAB script with captured logs:
 
 ```powershell
@@ -72,6 +78,9 @@ The smoke test currently verifies:
 - `.mat` export produces a nonempty data artifact.
 - Simulink can create, save, and simulate a minimal model when licensed.
 - Simulink Coder can generate generic C code from a minimal model when licensed.
+- STM32 / Raspberry Pi hardware support can be probed from MATLAB and exported to JSON.
+- VS Code / STM32CubeMX / Keil can be discovered and checked as an embedded toolchain bundle.
+- Key embedded extensions such as `cortex-debug`, `cpptools`, `keil-assistant`, and STM32 VS Code integration can be audited.
 
 Artifacts are written under:
 
