@@ -14,6 +14,7 @@ $invoke = Join-Path $scriptDir "Invoke-MatlabBatch.ps1"
 $smoke = Join-Path $Root "matlab\validation\matlab_skill_smoke.m"
 $inventory = Join-Path $Root "matlab\validation\matlab_toolbox_inventory.m"
 $featureProbe = Join-Path $Root "matlab\validation\matlab_feature_probe.m"
+$compilerChainSmoke = Join-Path $Root "matlab\validation\matlab_compiler_chain_smoke.m"
 $codegenSmoke = Join-Path $Root "matlab\validation\matlab_codegen_smoke.m"
 $simulinkCoderSmoke = Join-Path $Root "matlab\validation\simulink_coder_smoke.m"
 
@@ -28,6 +29,11 @@ if ($LASTEXITCODE -ne 0) {
 }
 
 & $invoke -MatlabPath $MatlabPath -Script $smoke -WorkingDirectory $Root -Label "skill_smoke"
+if ($LASTEXITCODE -ne 0) {
+    exit $LASTEXITCODE
+}
+
+& $invoke -MatlabPath $MatlabPath -Script $compilerChainSmoke -WorkingDirectory $Root -Label "compiler_chain_smoke"
 if ($LASTEXITCODE -ne 0) {
     exit $LASTEXITCODE
 }
