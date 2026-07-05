@@ -65,10 +65,13 @@ The smoke test currently verifies:
 
 - MATLAB R2026a can be launched from the terminal.
 - Installed toolbox inventory can be exported to JSON.
+- Feature probe can distinguish direct-import support, hardware blockset presence, and local agent skill availability.
 - A deterministic numeric fitting task passes tolerance checks.
+- MATLAB Coder can generate standalone C source artifacts in `GenCodeOnly` mode.
 - Figure export produces a nonempty PNG artifact.
 - `.mat` export produces a nonempty data artifact.
 - Simulink can create, save, and simulate a minimal model when licensed.
+- Simulink Coder can generate generic C code from a minimal model when licensed.
 
 Artifacts are written under:
 

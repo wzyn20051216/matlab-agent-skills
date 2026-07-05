@@ -6,5 +6,7 @@ artifacts/
 *.mlx.autosave
 *.log
 *.tmp
+slprj/
+*_grt_rtw/
 .DS_Store
 Thumbs.db
