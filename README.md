@@ -1,18 +1,18 @@
-# MATLAB R2026a Agent Skills
+# MATLAB Agent Skills
 
-> A production-minded Codex skills suite for MATLAB R2026a, Simulink, code generation, engineering simulation, research reproduction, and closed-loop validation.
+> A production-minded Codex skills suite for MATLAB, Simulink, code generation, engineering simulation, research reproduction, and closed-loop validation.
 
-[![MATLAB Validation](https://github.com/wzyn20051216/matlab-r2026a-agent-skills/actions/workflows/matlab-validation.yml/badge.svg)](https://github.com/wzyn20051216/matlab-r2026a-agent-skills/actions/workflows/matlab-validation.yml)
+[![MATLAB Validation](https://github.com/wzyn20051216/matlab-agent-skills/actions/workflows/matlab-validation.yml/badge.svg)](https://github.com/wzyn20051216/matlab-agent-skills/actions/workflows/matlab-validation.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
-[![MATLAB R2026a](https://img.shields.io/badge/MATLAB-R2026a-blue.svg)](https://www.mathworks.com/products/matlab.html)
+[![Validated: R2026a](https://img.shields.io/badge/validated-R2026a-blue.svg)](https://www.mathworks.com/products/matlab.html)
 
-`matlab-r2026a-agent-skills` turns MATLAB from a tool you manually drive into an agent-ready engineering workbench. It packages MATLAB / Simulink / toolbox workflows as Codex skills with one hard rule: every task should end with a runnable command, captured logs, saved artifacts, and an acceptance check.
+`matlab-agent-skills` turns MATLAB from a tool you manually drive into an agent-ready engineering workbench. It packages MATLAB / Simulink / toolbox workflows as Codex skills with one hard rule: every task should end with a runnable command, captured logs, saved artifacts, and an acceptance check.
 
 This project is built for developers, researchers, and model-based engineering teams who want agents to do real MATLAB work, not just write plausible `.m` snippets.
 
 ## Why This Exists
 
-MATLAB R2026a ships with a deep engineering stack: Simulink, MATLAB Coder, Embedded Coder, ROS Toolbox, Control System Toolbox, Optimization Toolbox, Deep Learning Toolbox, Signal Processing Toolbox, Computer Vision Toolbox, and more. Agents can use that power well only when the workflow is explicit.
+Modern MATLAB ships with a deep engineering stack: Simulink, MATLAB Coder, Embedded Coder, ROS Toolbox, Control System Toolbox, Optimization Toolbox, Deep Learning Toolbox, Signal Processing Toolbox, Computer Vision Toolbox, and more. This repository is currently validated on MATLAB R2026a, while the core workflow is designed to stay compatible with recent MATLAB releases whenever APIs allow.
 
 This repository provides that workflow layer:
 
@@ -42,8 +42,8 @@ This repository provides that workflow layer:
 Clone the repository and deploy the skills into your local Codex skill directory:
 
 ```powershell
-git clone https://github.com/wzyn20051216/matlab-r2026a-agent-skills.git
-cd matlab-r2026a-agent-skills
+git clone https://github.com/wzyn20051216/matlab-agent-skills.git
+cd matlab-agent-skills
 powershell -ExecutionPolicy Bypass -File .\scripts\Sync-Skills.ps1
 ```
 

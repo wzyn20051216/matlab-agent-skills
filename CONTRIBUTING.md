@@ -1,6 +1,6 @@
 # Contributing
 
-Thanks for helping improve `matlab-r2026a-agent-skills`.
+Thanks for helping improve `matlab-agent-skills`.
 
 This project values practical MATLAB workflows that can be executed, inspected, and validated. A good contribution should make agent-driven MATLAB work more reliable, not just more verbose.
 

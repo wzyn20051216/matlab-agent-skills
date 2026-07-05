@@ -2,7 +2,7 @@
 
 ## 发布前确认
 
-- 仓库名：建议 `matlab-r2026a-agent-skills`。
+- 仓库名：`matlab-agent-skills`。
 - 许可证：当前使用 MIT。
 - 不提交 `artifacts/`、本机日志、私有数据、论文受限数据集或商业模型。
 - 如需跑完整 MATLAB/Simulink 验收，优先使用 self-hosted runner 绑定本机许可证。
@@ -27,13 +27,13 @@ git commit -m "初始化 MATLAB R2026a agent skills"
 如果已经登录 GitHub CLI：
 
 ```powershell
-gh repo create matlab-r2026a-agent-skills --public --source . --remote origin --push
+gh repo create matlab-agent-skills --public --source . --remote origin --push
 ```
 
 如果不用 GitHub CLI：
 
 ```powershell
-git remote add origin https://github.com/<your-name>/matlab-r2026a-agent-skills.git
+git remote add origin https://github.com/<your-name>/matlab-agent-skills.git
 git branch -M main
 git push -u origin main
 ```
