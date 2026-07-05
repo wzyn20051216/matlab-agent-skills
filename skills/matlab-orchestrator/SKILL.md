@@ -1,6 +1,6 @@
 ---
 name: matlab-orchestrator
-description: MATLAB R2026a agentic workflow router. Use this whenever the user asks for MATLAB, Simulink, .m/.mlx/.slx work, toolbox-driven engineering, paper reproduction, simulation, code generation, data analysis, control, robotics, signal/image/AI workflows, or wants an end-to-end automated MATLAB task with validation.
+description: MATLAB R2026a agentic workflow router. Use this whenever the user asks for MATLAB, Simulink, .m/.mlx/.slx work, toolbox-driven engineering, paper reproduction, simulation, code generation, data analysis, control, robotics, signal/image/AI workflows, or wants an end-to-end automated MATLAB task with validation. For Simulink tasks on this machine, default to a visible workflow: open MATLAB/Simulink windows first so the user can watch modeling, simulation, tuning, and plotting progress.
 ---
 
 # MATLAB Orchestrator
@@ -14,6 +14,16 @@ Use this skill as the entry point for MATLAB R2026a work. The goal is to turn a 
 3. Inspect installed toolboxes with `ver` before choosing toolbox-specific APIs.
 4. Prefer official MathWorks documentation and installed examples over memory.
 5. Treat forum posts and blogs as hints only; verify every API and parameter locally.
+
+## Local Simulink Visualization Preference
+
+The user prefers to see Simulink work happen live, not only receive final files. For Simulink modeling, simulation, control tuning, or code generation tasks:
+
+1. Start by opening a visible MATLAB/Simulink session and the relevant `.slx` model with `load_system` / `open_system`.
+2. If creating a new model, create and save the model early, then open it before continuing with automated block edits.
+3. Use `open_system(modelName)`, `set_param(modelName,"ZoomFactor","FitSystem")`, scopes, figures, and live plots so the user can watch the process.
+4. Prefer a visible demonstration step before or alongside batch validation. Batch logs and exported artifacts are still required for acceptance, but they should not replace the visible model/plot experience.
+5. When an already-open MATLAB window is present, try to execute `open_system` in that visible session or bring the Simulink model window to the front. Confirm the expected model window title in the final report.
 
 ## Routing
 
