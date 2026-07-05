@@ -1,4 +1,7 @@
 artifacts/
+bin/
+.mcp.json
+.vscode/mcp.json
 *.asv
 *.m~
 *.slxc
@@ -8,5 +11,6 @@ artifacts/
 *.tmp
 slprj/
 *_grt_rtw/
+*_ert_rtw/
 .DS_Store
 Thumbs.db

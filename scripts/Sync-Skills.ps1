@@ -1,12 +1,17 @@
 param(
     [string]$RepositoryRoot,
-    [string]$SkillRoot = "E:\desktop\CAD\.agents\skills"
+    [string]$SkillRoot
 )
 
 $ErrorActionPreference = "Stop"
 
 if (-not $RepositoryRoot) {
     $RepositoryRoot = Split-Path -Parent (Split-Path -Parent $MyInvocation.MyCommand.Path)
+}
+
+if (-not $SkillRoot) {
+    $codexHome = if ($env:CODEX_HOME) { $env:CODEX_HOME } else { Join-Path $HOME ".codex" }
+    $SkillRoot = Join-Path $codexHome "skills"
 }
 
 $sourceRoot = Join-Path $RepositoryRoot "skills"

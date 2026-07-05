@@ -1,0 +1,37 @@
+name: Repository Checks
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  powershell-and-docs:
+    runs-on: windows-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Parse PowerShell scripts
+        shell: pwsh
+        run: |
+          $failed = $false
+          Get-ChildItem -Recurse -Filter *.ps1 | ForEach-Object {
+            $tokens = $null
+            $errors = $null
+            [System.Management.Automation.Language.Parser]::ParseFile($_.FullName, [ref]$tokens, [ref]$errors) | Out-Null
+            if ($errors) {
+              $failed = $true
+              Write-Error "PowerShell parse errors in $($_.FullName): $($errors | Out-String)"
+            }
+          }
+          if ($failed) { exit 1 }
+
+      - name: Check for machine-specific paths in public docs
+        shell: pwsh
+        run: |
+          $matches = rg -n "C:\\Users\\[^<]|E:\\|D:\\" README.md docs scripts .github -S -g "!repository-checks.yml"
+          if ($LASTEXITCODE -eq 0) {
+            $matches
+            exit 1
+          }

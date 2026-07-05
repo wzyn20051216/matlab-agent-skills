@@ -7,13 +7,24 @@ description: MATLAB R2026a agentic workflow router. Use this whenever the user a
 
 Use this skill as the entry point for MATLAB R2026a work. The goal is to turn a loose engineering request into a closed-loop workflow: select the right specialist skill, run MATLAB when possible, save artifacts, and verify the result before reporting back.
 
+## Execution Requirement On This Machine
+
+On this machine, MATLAB and Simulink work should default to the official **MATLAB MCP auto** workflow, not a fresh `matlab -batch` session. Treat the visible MATLAB desktop as the primary and expected execution path for engineering tasks, especially Simulink modeling, iterative control tuning, and repeated read-modify-simulate loops.
+
+Use this priority order:
+
+1. Official MATLAB MCP in `auto` mode, reusing an existing shared MATLAB session when present.
+2. Official MATLAB MCP in `existing` / `new` mode only if the user explicitly requests those modes.
+3. `matlab -batch` only if the user explicitly asks for batch, CI, or headless execution.
+
 ## First pass
 
 1. Identify the task family.
-2. Check local MATLAB availability with `matlab -batch "disp(version)"` or the shared runner script.
-3. Inspect installed toolboxes with `ver` before choosing toolbox-specific APIs.
-4. Prefer official MathWorks documentation and installed examples over memory.
-5. Treat forum posts and blogs as hints only; verify every API and parameter locally.
+2. Check whether an official MATLAB MCP auto configuration is available first.
+3. If the task requires MATLAB work on this machine, stay on MCP unless the user explicitly requests a headless/batch path.
+4. Inspect installed toolboxes with `ver` before choosing toolbox-specific APIs.
+5. Prefer official MathWorks documentation and installed examples over memory.
+6. Treat forum posts and blogs as hints only; verify every API and parameter locally.
 
 ## Local Simulink Visualization Preference
 
@@ -24,6 +35,15 @@ The user prefers to see Simulink work happen live, not only receive final files.
 3. Use `open_system(modelName)`, `set_param(modelName,"ZoomFactor","FitSystem")`, scopes, figures, and live plots so the user can watch the process.
 4. Prefer a visible demonstration step before or alongside batch validation. Batch logs and exported artifacts are still required for acceptance, but they should not replace the visible model/plot experience.
 5. When an already-open MATLAB window is present, try to execute `open_system` in that visible session or bring the Simulink model window to the front. Confirm the expected model window title in the final report.
+
+## MCP-Specific Guidance
+
+When an official MATLAB MCP auto path is available:
+
+1. Treat the visible MATLAB desktop session as the primary control plane.
+2. Prefer MCP-driven model edits, simulation commands, workspace inspection, and iterative tuning in that same session.
+3. Do not silently switch to batch mode just because batch would be easier.
+4. In the final report, explicitly say that the task ran through MCP, and note any remaining blocker if a required MCP action could not be completed.
 
 ## Routing
 

@@ -60,6 +60,22 @@ function Resolve-FirstExistingPath {
     return $null
 }
 
+function Get-DrivePathCandidates {
+    param(
+        [string[]]$RelativePaths
+    )
+
+    $candidates = @()
+    $drives = Get-PSDrive -PSProvider FileSystem | Select-Object -ExpandProperty Root
+    foreach ($drive in $drives) {
+        foreach ($relativePath in $RelativePaths) {
+            $candidates += (Join-Path $drive $relativePath)
+        }
+    }
+
+    return $candidates
+}
+
 function Join-PathIfPresent {
     param(
         [string]$BasePath,
@@ -71,6 +87,16 @@ function Join-PathIfPresent {
     }
 
     return (Join-Path $BasePath $ChildPath)
+}
+
+function Get-ParentPathIfPresent {
+    param([string]$Path)
+
+    if ([string]::IsNullOrWhiteSpace($Path)) {
+        return $null
+    }
+
+    return (Split-Path -Parent $Path)
 }
 
 function Get-FileVersionSummary {
@@ -120,22 +146,22 @@ $codeCommand = Get-Command code.cmd -ErrorAction SilentlyContinue
 $resolvedMatlabPath = Resolve-FirstExistingPath @(
     $MatlabPath,
     (Get-Command matlab -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Source -ErrorAction SilentlyContinue),
-    'E:\matlab\bin\matlab.exe'
+    (Get-DrivePathCandidates @('MATLAB\bin\matlab.exe'))
 )
 
 $resolvedVSCodePath = Resolve-FirstExistingPath @(
     $VSCodePath,
     (Join-PathIfPresent $vsCodeRegistry.InstallLocation 'Code.exe'),
-    'E:\Microsoft VS Code\Code.exe',
     'C:\Program Files\Microsoft VS Code\Code.exe',
-    'C:\Users\23201\AppData\Local\Programs\Microsoft VS Code\Code.exe'
+    (Join-Path $env:LOCALAPPDATA 'Programs\Microsoft VS Code\Code.exe'),
+    (Get-DrivePathCandidates @('Microsoft VS Code\Code.exe'))
 )
 
 $resolvedCubeMXPath = Resolve-FirstExistingPath @(
     $CubeMXPath,
     $cubeMxRegistry.DisplayIcon,
     (Join-PathIfPresent $cubeMxRegistry.InstallLocation 'STM32CubeMX.exe'),
-    'C:\Users\23201\AppData\Local\Programs\STM32CubeMX\STM32CubeMX.exe',
+    (Join-Path $env:LOCALAPPDATA 'Programs\STM32CubeMX\STM32CubeMX.exe'),
     'C:\Program Files\STMicroelectronics\STM32Cube\STM32CubeMX\STM32CubeMX.exe',
     'C:\ST\STM32CubeMX\STM32CubeMX.exe'
 )
@@ -144,14 +170,14 @@ $resolvedKeilPath = Resolve-FirstExistingPath @(
     $KeilPath,
     $keilRegistry.DisplayIcon,
     (Join-PathIfPresent $keilRegistry.LastInstallDir 'UV4\UV4.exe'),
-    'E:\keil5\UV4\UV4.exe',
-    'C:\Keil_v5\UV4\UV4.exe'
+    'C:\Keil_v5\UV4\UV4.exe',
+    (Get-DrivePathCandidates @('Keil_v5\UV4\UV4.exe', 'keil5\UV4\UV4.exe'))
 )
 
 $vsCodeCliPath = Resolve-FirstExistingPath @(
     $codeCommand.Source,
-    (Join-Path (Split-Path -Parent $resolvedVSCodePath) 'bin\code.cmd'),
-    'E:\Microsoft VS Code\bin\code.cmd'
+    (Join-PathIfPresent (Get-ParentPathIfPresent $resolvedVSCodePath) 'bin\code.cmd'),
+    (Get-DrivePathCandidates @('Microsoft VS Code\bin\code.cmd'))
 )
 
 $requiredExtensions = @(

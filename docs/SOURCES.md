@@ -22,10 +22,10 @@ Zhihu、MathWorks Answers、GitHub Issues、博客和论坛只作为问题定位
 
 ## 本机基线
 
-当前首轮基线来自本机 `MATLAB R2026a`，可执行文件路径为：
+本机基线应通过脚本自动发现 MATLAB 路径，而不是写死某台机器的安装目录。推荐使用：
 
-```text
-E:\Program Files\MATLAB\R2026a\bin\matlab.exe
+```powershell
+Get-Command matlab
 ```
 
 完整工具箱清单由 `matlab/validation/matlab_toolbox_inventory.m` 生成。

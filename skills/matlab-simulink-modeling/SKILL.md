@@ -10,7 +10,7 @@ Use this skill for model-based design and simulation workflows.
 ## First Checks
 
 1. Confirm `Simulink` is installed with `ver` and licensed with `license('test','Simulink')`.
-2. Open or create the model in a visible MATLAB/Simulink session before substantial edits. Use `load_system`, `open_system`, and `set_param(modelName,"ZoomFactor","FitSystem")` so the user can see the model.
+2. Prefer an official MATLAB MCP auto session tied to a visible MATLAB/Simulink desktop before substantial edits. Use `load_system`, `open_system`, and `set_param(modelName,"ZoomFactor","FitSystem")` so the user can see the model.
 3. Audit topology before editing: blocks, lines, solver config, sample times, logged signals.
 4. Prefer existing model architecture and naming.
 5. Save a copy before destructive edits to user models.
@@ -31,6 +31,15 @@ The user specifically wants to watch Simulink modeling and simulation, not only 
 5. During simulation and tuning, open Scope blocks or MATLAB figures and update/plot each run so the user can see response changes.
 6. If the model window does not appear, do not assume success. Verify the visible window title if possible and retry by focusing MATLAB's command window and executing `open_system` there.
 7. Still export `.slx`, data, figures, logs, and validation reports for reproducibility after the visible demonstration.
+
+## MCP Requirement
+
+For this repository and machine:
+
+1. Use official MATLAB MCP auto-mode control for model creation, block editing, simulation, and tuning by default.
+2. Let MCP reuse an existing shared session when present, otherwise allow it to start visible MATLAB automatically.
+3. Do not replace visible MCP-driven Simulink work with silent batch execution unless the user explicitly asks for headless execution.
+4. In reports, clearly state that the modeling path was MCP-driven and note any exact blocker if a required MCP action could not be completed.
 
 ## Build and Modify
 

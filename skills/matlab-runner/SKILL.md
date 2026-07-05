@@ -1,26 +1,43 @@
 ---
 name: matlab-runner
-description: Run MATLAB R2026a tasks from Codex with reliable batch execution, logs, artifacts, toolbox inventory, smoke tests, and reproducible validation. Use whenever MATLAB code, .m/.mlx scripts, MATLAB tests, local toolbox probing, or command-line automation is needed.
+description: Run MATLAB R2026a tasks from Codex with reliable MCP-based execution, logs, artifacts, toolbox inventory, smoke tests, and reproducible validation. Use whenever MATLAB code, .m/.mlx scripts, MATLAB tests, local toolbox probing, or command-line automation is needed.
 ---
 
 # MATLAB Runner
 
-Use this skill to execute MATLAB work safely and repeatably from the terminal. It is the foundation skill for all other MATLAB skills.
+Use this skill to execute MATLAB work safely and repeatably through the official MATLAB MCP server, preferably in `auto` mode, and only use terminal batch workflows when the user explicitly asks for them. It is the foundation skill for all other MATLAB skills.
 
 ## Execution Rules
 
-1. Prefer `matlab -batch` for noninteractive work.
-2. Capture stdout, stderr, exit code, MATLAB version, working directory, and artifact paths.
-3. Run from a project root, not from a random temporary folder, unless isolation is required.
-4. Put generated files under `artifacts/` or a user-specified output folder.
-5. Keep scripts deterministic: seed random generators and record data sources.
+1. Prefer the official MATLAB MCP auto mode for MATLAB work on this machine.
+2. Do not silently fall back to `matlab -batch` when MCP is expected.
+3. Capture logs, version info, working directory, and artifact paths where applicable.
+4. Run from a project root, not from a random temporary folder, unless isolation is required.
+5. Put generated files under `artifacts/` or a user-specified output folder.
+6. Keep scripts deterministic: seed random generators and record data sources.
+
+## MCP Required By Default
+
+When using this repository on this machine, use this decision rule:
+
+1. Prefer official MATLAB MCP auto mode, so the server can reuse an existing shared session or start MATLAB automatically.
+2. If the task requires repeated model edits, parameter sweeps with live inspection, or user-visible desktop interaction, stay on MCP.
+3. Batch mode is reserved for explicit user requests such as CI, headless smoke tests, or reproducible one-shot runs.
+4. If MCP is unavailable, report the blocker instead of silently changing execution mode.
 
 ## Preferred Wrapper
 
-If this repository exists, prefer:
+If the user explicitly requests batch execution in this repository, prefer:
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File .\scripts\Invoke-MatlabBatch.ps1 -Script .\path\to\script.m
+```
+
+For official MCP auto-mode setup and validation in this repository, prefer:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\Setup-MatlabMcpExistingSession.ps1
+powershell -ExecutionPolicy Bypass -File .\scripts\Test-MatlabMcpExistingSession.ps1
 ```
 
 For a full local smoke test:
@@ -39,9 +56,9 @@ matlab -batch "disp(version); v=ver; disp({v.Name}')"
 
 Use this order to find MATLAB:
 
-1. `$env:MATLAB_EXE`
-2. `Get-Command matlab`
-3. Known install path such as `E:\Program Files\MATLAB\R2026a\bin\matlab.exe`
+1. Official MATLAB MCP auto configuration
+2. Existing official MATLAB shared session metadata when present
+3. `$env:MATLAB_EXE`, `Get-Command matlab`, and known install paths only for setup/verification of the MCP environment
 
 Verify before running expensive work:
 
@@ -60,6 +77,7 @@ When MATLAB fails:
 - Check path ambiguity with `which functionName -all`.
 - Re-run a minimal reproduction before editing large code.
 - Save the failing command and log path.
+- If the failure was on MCP, report the exact MCP blocker and stop hiding it behind a batch rerun.
 
 ## Acceptance Checks
 

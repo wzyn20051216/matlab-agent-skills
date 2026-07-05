@@ -3,12 +3,26 @@
 > A production-minded Codex skills suite for MATLAB, Simulink, code generation, engineering simulation, research reproduction, and closed-loop validation.
 
 [![MATLAB Validation](https://github.com/wzyn20051216/matlab-agent-skills/actions/workflows/matlab-validation.yml/badge.svg)](https://github.com/wzyn20051216/matlab-agent-skills/actions/workflows/matlab-validation.yml)
+[![Repository Checks](https://github.com/wzyn20051216/matlab-agent-skills/actions/workflows/repository-checks.yml/badge.svg)](https://github.com/wzyn20051216/matlab-agent-skills/actions/workflows/repository-checks.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![Validated: R2026a](https://img.shields.io/badge/validated-R2026a-blue.svg)](https://www.mathworks.com/products/matlab.html)
 
 `matlab-agent-skills` turns MATLAB from a tool you manually drive into an agent-ready engineering workbench. It packages MATLAB / Simulink / toolbox workflows as Codex skills with one hard rule: every task should end with a runnable command, captured logs, saved artifacts, and an acceptance check.
 
 This project is built for developers, researchers, and model-based engineering teams who want agents to do real MATLAB work, not just write plausible `.m` snippets.
+
+- Chinese project introduction: `docs/SKILLS_INTRO_ZH.md`
+- Short-video script (Chinese): `docs/SHORT_VIDEO_SCRIPT_ZH.md`
+- Official MATLAB MCP guide: `docs/MCP_EXISTING_SESSION_ZH.md`
+- Changelog: `CHANGELOG.md`
+
+## Highlights
+
+- MCP-first MATLAB / Simulink automation, not prompt-only code generation
+- One-command client install for `Codex` and `Claude Code`
+- Auto-mode MATLAB MCP setup that can reuse or automatically start MATLAB desktop
+- Simulink modeling, tuning, validation, and codegen-oriented workflows
+- Engineering artifacts by default: logs, figures, data, reports, validation JSON
 
 ## Why This Exists
 
@@ -17,11 +31,133 @@ Modern MATLAB ships with a deep engineering stack: Simulink, MATLAB Coder, Embed
 This repository provides that workflow layer:
 
 - Route fuzzy user requests to the right MATLAB specialist skill.
+- Use official MATLAB MCP auto-mode control as the default MATLAB / Simulink execution path on this machine.
 - Run MATLAB from the terminal with logs and reproducible output folders.
 - Build and simulate Simulink models automatically.
 - Reproduce open-source paper projects with manifests and measurable deltas.
 - Generate code through MATLAB Coder / Embedded Coder style workflows.
 - Close every task with tests, smoke checks, or artifact validation.
+
+## Installation
+
+Clone the repository:
+
+```powershell
+git clone https://github.com/wzyn20051216/matlab-agent-skills.git
+cd matlab-agent-skills
+```
+
+Deploy the skills into your local Codex skill directory:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\Sync-Skills.ps1
+```
+
+Windows one-liner bootstrap:
+
+```powershell
+irm https://raw.githubusercontent.com/wzyn20051216/matlab-agent-skills/main/scripts/Bootstrap-MatlabAgentSkills.ps1 | iex
+```
+
+## Clients
+
+Supported MCP client integration paths in this repository:
+
+| Client | Status | Setup |
+| --- | --- | --- |
+| `Codex` | Ready | One-command install |
+| `Claude Code` | Ready | One-command install |
+| `VS Code` | Ready | Writes project-local `.vscode/mcp.json` |
+| `Generic MCP clients` | Ready | Writes project-local `.mcp.json` |
+| `Claude Desktop` | Manual | Prefer official `.mcpb` bundle from MathWorks release |
+
+One-command install for `Codex` + `Claude Code`:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\Install-MatlabMcpClients.ps1 `
+  -Clients codex,claude
+```
+
+Auto-detect installed clients and also write a generic `.mcp.json`:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\Install-MatlabMcpClients.ps1 `
+  -Clients auto
+```
+
+Write project-local `VS Code` MCP config:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\Install-MatlabMcpClients.ps1 `
+  -Clients vscode `
+  -ProjectPath .
+```
+
+## Quick Start
+
+Set up official MATLAB MCP auto-mode control:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\Setup-MatlabMcpExistingSession.ps1 `
+  -McpServerName matlab-official
+```
+
+If auto-discovery fails, provide only the missing path explicitly:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\Setup-MatlabMcpExistingSession.ps1 `
+  -ServerExePath "C:\path\to\matlab-mcp-server-windows-x64.exe" `
+  -MatlabRoot "C:\Program Files\MATLAB\R2026a"
+```
+
+Verify MCP readiness:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\Test-MatlabMcpExistingSession.ps1
+```
+
+Run local validation:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\Test-MatlabSkills.ps1
+```
+
+Run the full embedded acceptance chain for MATLAB + STM32 / Raspberry Pi + CubeMX / Keil / VS Code:
+
+```powershell
+$matlabExe = (Get-Command matlab -ErrorAction SilentlyContinue).Source
+powershell -ExecutionPolicy Bypass -File .\scripts\Test-MatlabEmbeddedStack.ps1 -MatlabPath $matlabExe
+```
+
+Run a custom MATLAB script with captured logs:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\Invoke-MatlabBatch.ps1 -Script .\path\to\script.m
+```
+
+## Architecture
+
+```mermaid
+flowchart LR
+    U["User / AI Client"] --> C["MCP Client\n(Codex / Claude / VS Code / Generic)"]
+    C --> M["MATLAB MCP Server\n(auto mode)"]
+    M --> D["MATLAB Desktop / Simulink"]
+    D --> S["Skills Layer\norchestrator / runner / simulink / codegen / testing"]
+    S --> A["Artifacts\nlogs / models / figures / data / reports / validation"]
+```
+
+## Workflow
+
+```mermaid
+flowchart TD
+    R["Natural-language task"] --> O["matlab-orchestrator"]
+    O --> P["Select specialist skill"]
+    P --> X["Use MCP to control MATLAB / Simulink"]
+    X --> Y["Build or modify model / script"]
+    Y --> Z["Run simulation / analysis / codegen"]
+    Z --> Q["Self-check and validation"]
+    Q --> T["Export artifacts and report"]
+```
 
 ## Skill Suite
 
@@ -36,34 +172,6 @@ This repository provides that workflow layer:
 | `matlab-robotics-autonomy` | ROS, robotics, navigation, UAV, sensor fusion workflows. |
 | `matlab-signal-vision-ai` | Signal, image, vision, lidar, medical imaging, deep learning. |
 | `matlab-testing-ci` | `matlab.unittest`, Simulink Test patterns, GitHub Actions, acceptance reports. |
-
-## Quick Start
-
-Clone the repository and deploy the skills into your local Codex skill directory:
-
-```powershell
-git clone https://github.com/wzyn20051216/matlab-agent-skills.git
-cd matlab-agent-skills
-powershell -ExecutionPolicy Bypass -File .\scripts\Sync-Skills.ps1
-```
-
-Run local validation:
-
-```powershell
-powershell -ExecutionPolicy Bypass -File .\scripts\Test-MatlabSkills.ps1
-```
-
-Run the full embedded acceptance chain for MATLAB + STM32 / Raspberry Pi + CubeMX / Keil / VS Code:
-
-```powershell
-powershell -ExecutionPolicy Bypass -File .\scripts\Test-MatlabEmbeddedStack.ps1 -MatlabPath E:\matlab\bin\matlab.exe
-```
-
-Run a custom MATLAB script with captured logs:
-
-```powershell
-powershell -ExecutionPolicy Bypass -File .\scripts\Invoke-MatlabBatch.ps1 -Script .\path\to\script.m
-```
 
 ## What Validation Checks
 
@@ -104,6 +212,8 @@ evals/                  # Skill evaluation prompts
 ## Contributing
 
 Contributions are welcome when they make MATLAB agent workflows more executable, measurable, or reproducible. See [CONTRIBUTING.md](CONTRIBUTING.md) and [ROADMAP.md](ROADMAP.md).
+
+Security policy: [SECURITY.md](SECURITY.md)
 
 ## Paper Reproduction Mode
 
