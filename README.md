@@ -189,6 +189,7 @@ The smoke test currently verifies:
 - STM32 / Raspberry Pi hardware support can be probed from MATLAB and exported to JSON.
 - VS Code / STM32CubeMX / Keil can be discovered and checked as an embedded toolchain bundle.
 - Key embedded extensions such as `cortex-debug`, `cpptools`, `keil-assistant`, and STM32 VS Code integration can be audited.
+- STM32 code generation readiness checks MATLAB-registered CubeMX, target hardware names, GNU Tools for STM32, CMSIS, CMSIS-DSP, Cube firmware packages, and `.ioc` binding assumptions.
 
 Artifacts are written under:
 

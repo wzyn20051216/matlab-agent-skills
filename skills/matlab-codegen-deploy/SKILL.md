@@ -60,6 +60,35 @@ For models:
 - Run Model Advisor or relevant checks when available.
 - Compare simulation outputs before and after code generation.
 
+## STM32 Embedded Coder Readiness
+
+For STM32 targets, do not treat "an executable exists on disk" as enough. Verify the full MATLAB-to-ST chain before blaming the model:
+
+- MATLAB products: Simulink, Simulink Coder, Embedded Coder, STM32 support package.
+- MATLAB registration: `stm32cube.hwsetup.stm32Tools.getInstalledSTM32CubeMX()` returns the CubeMX directory MATLAB will use.
+- ST tools: GNU Tools for STM32, CMSIS, CMSIS-DSP, STM32CubeMX, and the matching STM32Cube firmware package such as `STM32Cube_FW_F1_*`.
+- Model binding: the model has a real `.ioc` path in `STM32CubeMX.ProjectFile`.
+- Target hardware: `codertarget.targethardware.getRegisteredTargetHardwareNames` includes the required STM32 family, for example `STM32F1xx Based`.
+
+Prefer target data APIs over editing opaque structures:
+
+```matlab
+tools = stm32cube.hwsetup.stm32Tools();
+tools.updateSTM32CubeMXPath("C:\Users\me\AppData\Local\Programs\STM32CubeMX");
+
+codertarget.data.setParameterValue(model, "STM32CubeMX.ProjectFile", iocPath);
+codertarget.data.setParameterValue(model, "STM32CubeMX.DeviceId", "STM32F103RBTx");
+codertarget.data.setParameterValue(model, "STM32CubeMX.Family", "STM32F1");
+```
+
+If `slbuild` hangs around "Generating code from STM32CubeMX project" or "Starting compilation process":
+
+- Check `STM32CubeMX.log`, generated `hardware` scripts, and background `java.exe` / `STM32CubeMX.exe` processes.
+- Compare direct `STM32CubeMX.exe -q script` with MATLAB's `java -jar STM32CubeMX.exe -q script`; some CubeMX versions can behave differently.
+- Prefer the MathWorks-recommended CubeMX version shown by `message("stm32:setup:CubeMXReqVersion").getString`.
+- If non-ASCII paths are involved, copy the model and `.ioc` to an ASCII scratch path and retry once to isolate path encoding from model errors.
+- Only use a local CubeMX wrapper as a documented workaround after recording the direct failure and the real CubeMX path.
+
 ## Output
 
 Report target, generated artifact path, report path, golden comparison result, and limitations.

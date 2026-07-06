@@ -25,6 +25,7 @@ New-Item -ItemType Directory -Force -Path $validationDir | Out-Null
 $matlabSkillTest = Join-Path $scriptDir "Test-MatlabSkills.ps1"
 $matlabRunner = Join-Path $scriptDir "Invoke-MatlabBatch.ps1"
 $hardwareProbeScript = Join-Path $Root "matlab\validation\matlab_hardware_support_probe.m"
+$stm32CodegenProbeScript = Join-Path $Root "matlab\validation\stm32_codegen_stack_probe.m"
 $externalProbeScript = Join-Path $scriptDir "Test-EmbeddedToolchains.ps1"
 
 & $matlabSkillTest -MatlabPath $MatlabPath -Root $Root
@@ -37,6 +38,11 @@ if ($LASTEXITCODE -ne 0) {
     exit $LASTEXITCODE
 }
 
+& $matlabRunner -MatlabPath $MatlabPath -Script $stm32CodegenProbeScript -WorkingDirectory $Root -Label "stm32_codegen_stack_probe"
+if ($LASTEXITCODE -ne 0) {
+    exit $LASTEXITCODE
+}
+
 & $externalProbeScript -MatlabPath $MatlabPath -Root $Root
 if ($LASTEXITCODE -ne 0) {
     exit $LASTEXITCODE
@@ -44,10 +50,12 @@ if ($LASTEXITCODE -ne 0) {
 
 $featureProbePath = Join-Path $validationDir "feature_probe.json"
 $hardwareProbePath = Join-Path $validationDir "hardware_support_probe.json"
+$stm32CodegenProbePath = Join-Path $validationDir "stm32_codegen_stack_probe.json"
 $toolchainProbePath = Join-Path $validationDir "embedded_toolchain_probe.json"
 
 $featureProbe = Get-Content -Raw -Path $featureProbePath | ConvertFrom-Json
 $hardwareProbe = Get-Content -Raw -Path $hardwareProbePath | ConvertFrom-Json
+$stm32CodegenProbe = Get-Content -Raw -Path $stm32CodegenProbePath | ConvertFrom-Json
 $toolchainProbe = Get-Content -Raw -Path $toolchainProbePath | ConvertFrom-Json
 
 $summary = [ordered]@{
@@ -62,6 +70,11 @@ $summary = [ordered]@{
         report = $hardwareProbePath
         status = $hardwareProbe.overall.status
     }
+    stm32CodegenStack = [ordered]@{
+        passed = [bool]$stm32CodegenProbe.overall.ready
+        report = $stm32CodegenProbePath
+        status = $stm32CodegenProbe.overall.status
+    }
     externalToolchains = [ordered]@{
         passed = [bool]$toolchainProbe.overall.ready
         report = $toolchainProbePath
@@ -73,6 +86,7 @@ $summary.overall = [ordered]@{
     passed = $summary.matlabValidation.passed -and
         ($summary.matlabValidation.blocksetsStatus -eq 'installed') -and
         $summary.hardwareSupport.passed -and
+        $summary.stm32CodegenStack.passed -and
         $summary.externalToolchains.passed
     status = 'incomplete'
 }

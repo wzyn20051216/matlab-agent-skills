@@ -12,7 +12,9 @@ param(
     [string]$MatlabPath = $env:MATLAB_EXE,
     [string]$VSCodePath,
     [string]$CubeMXPath,
-    [string]$KeilPath
+    [string]$KeilPath,
+    [string]$FirmwareFamily = "F1",
+    [string]$CubeRepository = (Join-Path $HOME "STM32Cube\Repository")
 )
 
 $ErrorActionPreference = "Stop"
@@ -99,6 +101,23 @@ function Get-ParentPathIfPresent {
     return (Split-Path -Parent $Path)
 }
 
+function Resolve-ShortcutTarget {
+    param([string]$Path)
+
+    if ([string]::IsNullOrWhiteSpace($Path) -or -not (Test-Path -LiteralPath $Path)) {
+        return $null
+    }
+
+    try {
+        $shell = New-Object -ComObject WScript.Shell
+        $shortcut = $shell.CreateShortcut($Path)
+        return $shortcut.TargetPath
+    }
+    catch {
+        return $null
+    }
+}
+
 function Get-FileVersionSummary {
     param(
         [string]$Path
@@ -160,6 +179,7 @@ $resolvedVSCodePath = Resolve-FirstExistingPath @(
 $resolvedCubeMXPath = Resolve-FirstExistingPath @(
     $CubeMXPath,
     $cubeMxRegistry.DisplayIcon,
+    (Resolve-ShortcutTarget (Join-Path ([Environment]::GetFolderPath('Desktop')) 'STM32CubeMX.lnk')),
     (Join-PathIfPresent $cubeMxRegistry.InstallLocation 'STM32CubeMX.exe'),
     (Join-Path $env:LOCALAPPDATA 'Programs\STM32CubeMX\STM32CubeMX.exe'),
     'C:\Program Files\STMicroelectronics\STM32Cube\STM32CubeMX\STM32CubeMX.exe',
@@ -179,6 +199,60 @@ $vsCodeCliPath = Resolve-FirstExistingPath @(
     (Join-PathIfPresent (Get-ParentPathIfPresent $resolvedVSCodePath) 'bin\code.cmd'),
     (Get-DrivePathCandidates @('Microsoft VS Code\bin\code.cmd'))
 )
+
+$gnuArmGccPath = Resolve-FirstExistingPath @(
+    $env:ARM_GCC_EXE,
+    (Get-Command arm-none-eabi-gcc.exe -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Source -ErrorAction SilentlyContinue),
+    'C:\ProgramData\MATLAB\R2026a\stm32b\3P.instrset\gnuarm-stm32.instrset\win\bin\arm-none-eabi-gcc.exe',
+    'C:\Program Files (x86)\GNU Arm Embedded Toolchain\bin\arm-none-eabi-gcc.exe',
+    'C:\Program Files\GNU Arm Embedded Toolchain\bin\arm-none-eabi-gcc.exe'
+)
+
+$cmsisCandidatePaths = @(
+    'C:\ProgramData\MATLAB\R2026a\stm32b\3P.instrset\CMSIS',
+    'C:\ProgramData\MATLAB\R2026a\stm32b\3P.instrset\cmsis',
+    (Join-Path $CubeRepository "STM32Cube_FW_$FirmwareFamily*\Drivers\CMSIS")
+)
+
+$cmsisPaths = @()
+foreach ($candidate in $cmsisCandidatePaths) {
+    if ([string]::IsNullOrWhiteSpace($candidate)) {
+        continue
+    }
+    $matches = Get-Item -LiteralPath $candidate -ErrorAction SilentlyContinue
+    if (-not $matches -and $candidate.Contains('*')) {
+        $matches = Get-Item -Path $candidate -ErrorAction SilentlyContinue
+    }
+    foreach ($match in $matches) {
+        $cmsisPaths += $match.FullName
+    }
+}
+
+$cmsisDspCandidatePaths = @(
+    'C:\ProgramData\MATLAB\R2026a\stm32b\3P.instrset\CMSIS-DSP',
+    'C:\ProgramData\MATLAB\R2026a\stm32b\3P.instrset\cmsis-dsp',
+    (Join-Path $CubeRepository "STM32Cube_FW_$FirmwareFamily*\Drivers\CMSIS\DSP")
+)
+
+$cmsisDspPaths = @()
+foreach ($candidate in $cmsisDspCandidatePaths) {
+    if ([string]::IsNullOrWhiteSpace($candidate)) {
+        continue
+    }
+    $matches = Get-Item -LiteralPath $candidate -ErrorAction SilentlyContinue
+    if (-not $matches -and $candidate.Contains('*')) {
+        $matches = Get-Item -Path $candidate -ErrorAction SilentlyContinue
+    }
+    foreach ($match in $matches) {
+        $cmsisDspPaths += $match.FullName
+    }
+}
+
+$firmwarePackages = @()
+if (Test-Path -LiteralPath $CubeRepository) {
+    $firmwarePackages = Get-ChildItem -LiteralPath $CubeRepository -Directory -Filter "STM32Cube_FW_$FirmwareFamily*" -ErrorAction SilentlyContinue |
+        Select-Object -ExpandProperty FullName
+}
 
 $requiredExtensions = @(
     'stmicroelectronics.stm32-vscode-extension',
@@ -257,6 +331,29 @@ $report.toolchains.stm32CubeMx = [ordered]@{
     pluginsFolderPresent = if ($cubeMxDir) { Test-Path -LiteralPath (Join-Path $cubeMxDir 'plugins') } else { $false }
 }
 
+$report.toolchains.gnuToolsForStm32 = [ordered]@{
+    status = if ($gnuArmGccPath) { 'installed' } else { 'missing' }
+    armNoneEabiGcc = $gnuArmGccPath
+    versionCheck = if ($gnuArmGccPath) { Invoke-ToolCommand -FilePath $gnuArmGccPath -Arguments @('--version') } else { $null }
+}
+
+$report.toolchains.cmsis = [ordered]@{
+    status = if ($cmsisPaths.Count -gt 0) { 'installed' } else { 'missing' }
+    paths = @($cmsisPaths)
+}
+
+$report.toolchains.cmsisDsp = [ordered]@{
+    status = if ($cmsisDspPaths.Count -gt 0) { 'installed' } else { 'missing' }
+    paths = @($cmsisDspPaths)
+}
+
+$report.toolchains.stm32CubeFirmware = [ordered]@{
+    status = if ($firmwarePackages.Count -gt 0) { 'installed' } else { 'missing' }
+    family = $FirmwareFamily
+    repository = $CubeRepository
+    packages = @($firmwarePackages)
+}
+
 $keilDir = if ($resolvedKeilPath) { Split-Path -Parent $resolvedKeilPath } else { $null }
 $report.toolchains.keil = [ordered]@{
     status = if ($resolvedKeilPath) { 'installed' } else { 'missing' }
@@ -270,6 +367,10 @@ $baseReady = ($report.toolchains.matlab.status -eq 'installed') -and
     ($report.toolchains.vscode.status -eq 'installed') -and
     [bool]$report.toolchains.vscode.cli.available -and
     ($report.toolchains.stm32CubeMx.status -eq 'installed') -and
+    ($report.toolchains.gnuToolsForStm32.status -eq 'installed') -and
+    ($report.toolchains.cmsis.status -eq 'installed') -and
+    ($report.toolchains.cmsisDsp.status -eq 'installed') -and
+    ($report.toolchains.stm32CubeFirmware.status -eq 'installed') -and
     ($report.toolchains.keil.status -eq 'installed')
 
 $extensionsReady = $true

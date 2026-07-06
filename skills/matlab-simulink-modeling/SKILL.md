@@ -76,6 +76,16 @@ After writing or modifying a Simulink model, run a self-check before reporting c
 6. If code generation is in scope, continue into Simulink Coder / Embedded Coder after simulation passes, then verify generated files exist and are nonempty.
 7. If any compile, simulation, or code generation step cannot pass because a toolbox, support package, compiler, or hardware target is missing, state the exact blocker and save the current runnable model/artifacts for the next attempt.
 
+## External Tool Hang Triage
+
+When a Simulink build waits on external tools, diagnose the boundary instead of repeatedly rerunning `slbuild`:
+
+- If the model simulates but build hangs, inspect generated build logs, `STM32CubeMX.log`, temporary script files, and active `java.exe`, compiler, or CubeMX processes.
+- For STM32 builds, verify the `.ioc` is bound through `STM32CubeMX.ProjectFile`; a CubeMX installation alone is not enough.
+- Check whether the project path contains non-ASCII characters, spaces, or very long segments. Copy to a short ASCII scratch path such as `C:\codex_build\project_name` for one isolation run.
+- Distinguish direct tool availability from MATLAB registration. MATLAB may fail even when a desktop shortcut launches the tool.
+- Record the exact phase that passed: diagram update, simulation, code generation, CubeMX generation, compiler build, or binary creation.
+
 ## Risk Checklist
 
 Watch for:
