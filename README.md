@@ -11,6 +11,8 @@
 
 This project is built for developers, researchers, and model-based engineering teams who want agents to do real MATLAB work, not just write plausible `.m` snippets.
 
+Full capability statement: this repository is open source, but its full workflow potential depends on a properly licensed MATLAB R2026a installation plus the required MathWorks toolboxes, support packages, and third-party embedded toolchains. Without a valid licensed environment, some MCP control, Simulink, code generation, and hardware-in-the-loop flows will only be partially available or unavailable.
+
 - Chinese project introduction: `docs/SKILLS_INTRO_ZH.md`
 - Short-video script (Chinese): `docs/SHORT_VIDEO_SCRIPT_ZH.md`
 - Official MATLAB MCP guide: `docs/MCP_EXISTING_SESSION_ZH.md`
@@ -27,6 +29,8 @@ This project is built for developers, researchers, and model-based engineering t
 ## Why This Exists
 
 Modern MATLAB ships with a deep engineering stack: Simulink, MATLAB Coder, Embedded Coder, ROS Toolbox, Control System Toolbox, Optimization Toolbox, Deep Learning Toolbox, Signal Processing Toolbox, Computer Vision Toolbox, and more. This repository is currently validated on MATLAB R2026a, while the core workflow is designed to stay compatible with recent MATLAB releases whenever APIs allow.
+
+The repository can still be inspected, extended, and partially validated in lighter environments, but the complete intended experience requires a genuine licensed MATLAB R2026a setup.
 
 This repository provides that workflow layer:
 
