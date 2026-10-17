@@ -167,6 +167,9 @@ try {
         $aclInfo = Set-DirectoryAclGrant -Path $McpDataDir -RestrictInheritance:$RestrictAclInheritance `
             -Session $session -DryRun:$DryRun
         if (-not $DryRun) {
+            # 把"有效权限"证据一起落盘：只记 SDDL 无法区分"授权成功"与"授予了但不够用"。
+            # verified = 写后校验结论（Allow/Deny、权限掩码、继承标志全部满足）。
+            $verification = $aclInfo.Verification
             $report.acl = [pscustomobject]@{
                 path                  = $aclInfo.Path
                 userSid               = $aclInfo.UserSid
@@ -174,6 +177,10 @@ try {
                 afterSddl             = $aclInfo.AfterSddl
                 restrictedInheritance = $aclInfo.RestrictedInheritance
                 commandLine           = $aclInfo.CommandLine
+                verified              = $aclInfo.Verified
+                folderRights          = $(if ($verification) { $verification.FolderRights } else { $null })
+                childRights           = $(if ($verification) { $verification.ChildRights } else { $null })
+                aceCount              = $(if ($verification) { $verification.RuleCount } else { $null })
             }
         }
         else {

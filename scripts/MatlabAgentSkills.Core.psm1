@@ -1346,12 +1346,305 @@ function Merge-StartupShareFile {
 
 #region Windows 目录 ACL（P0-6）
 
+# FileSystemRights.FullControl 的数值（含 Synchronize 0x100000）。
+# 用常量而不是 [enum]::Parse，是为了在 PS 5.1 与 7 上得到同一结果。
+$script:FileSystemFullControlMask = 2032127
+
+function Get-AclNormalizedRules {
+    <#
+    .SYNOPSIS
+    取目录 DACL 中属于指定 SID 的 ACE，并归一化成可直接比较的结构。
+
+    .DESCRIPTION
+    用 GetAccessRules(..., [SecurityIdentifier]) 拿 SID 对象，避免 SDDL 别名问题
+    （S-1-5-21-xxx-500 在 SDDL 里是 LA、S-1-5-18 是 SY、S-1-5-32-544 是 BA）。
+
+    每条规则输出：
+      AccessType    Allow / Deny
+      Rights        FileSystemRights 的整数掩码
+      Inheritance   ContainerInherit / ObjectInherit
+      Propagation   None / NoPropagateInherit / InheritOnly
+      AppliesToSelf 该 ACE 是否作用于目录本身（InheritOnly 的 ACE 不作用于自身）
+      AppliesToChild 该 ACE 是否会被子对象继承
+      IsInherited   是否来自父目录继承（用于诊断，不参与判定）
+
+    注意：这里只做"同一 SID 上的 ACE 集合"层面的计算，不做组展开。
+    也就是说它回答的是"这条授权是否真的把 FullControl 给了这个 SID"，
+    而不是"这个登录令牌的全部有效权限"。后者需要 AccessCheck，超出本仓库职责。
+    #>
+    param(
+        [Parameter(Mandatory)][string]$Path,
+        [Parameter(Mandatory)][string]$Sid
+    )
+
+    if (-not (Test-Path -LiteralPath $Path)) { return @() }
+
+    try {
+        $acl = Get-Acl -LiteralPath $Path
+        $rules = $acl.GetAccessRules($true, $true, [System.Security.Principal.SecurityIdentifier])
+    }
+    catch {
+        return @()
+    }
+
+    $normalized = New-Object System.Collections.ArrayList
+    foreach ($rule in $rules) {
+        if ($null -eq $rule) { continue }
+
+        $ruleSid = $null
+        try { $ruleSid = [string]$rule.IdentityReference.Value } catch { continue }
+        if ($ruleSid -ne $Sid) { continue }
+
+        $rights = 0
+        try { $rights = [int]$rule.FileSystemRights } catch { $rights = 0 }
+
+        $inheritance = [System.Security.AccessControl.InheritanceFlags]::None
+        try {
+            if ($null -ne $rule.InheritanceFlags) { $inheritance = $rule.InheritanceFlags }
+        }
+        catch { $inheritance = [System.Security.AccessControl.InheritanceFlags]::None }
+
+        $propagation = [System.Security.AccessControl.PropagationFlags]::None
+        try {
+            if ($null -ne $rule.PropagationFlags) { $propagation = $rule.PropagationFlags }
+        }
+        catch { $propagation = [System.Security.AccessControl.PropagationFlags]::None }
+
+        $isInherited = $false
+        try { $isInherited = [bool]$rule.IsInherited } catch { $isInherited = $false }
+
+        $inheritOnly = (($propagation -band [System.Security.AccessControl.PropagationFlags]::InheritOnly) -ne 0)
+        $hasContainer = (($inheritance -band [System.Security.AccessControl.InheritanceFlags]::ContainerInherit) -ne 0)
+        $hasObject = (($inheritance -band [System.Security.AccessControl.InheritanceFlags]::ObjectInherit) -ne 0)
+
+        [void]$normalized.Add([pscustomobject]@{
+                Sid            = $ruleSid
+                AccessType     = [string]$rule.AccessControlType
+                Rights         = $rights
+                Inheritance    = $inheritance
+                Propagation    = $propagation
+                HasContainer   = $hasContainer
+                HasObject      = $hasObject
+                InheritOnly    = $inheritOnly
+                AppliesToSelf  = (-not $inheritOnly)
+                AppliesToChild = ($hasContainer -or $hasObject)
+                IsInherited    = $isInherited
+            })
+    }
+
+    return $normalized.ToArray()
+}
+
+function Resolve-AclRuleSet {
+    <#
+    .SYNOPSIS
+    纯函数：由归一化后的 ACE 集合计算目录自身与子对象的有效权限。
+
+    .DESCRIPTION
+    抽成纯函数是为了让"多条 ACE / Deny 优先 / InheritOnly"这些语义能被单测覆盖，
+    而不必依赖 icacls 是否把同一 SID 的多条 ACE 合并（实测它会合并，
+    所以用真实 ACL 造不出所有组合）。
+
+    规则必须包含：AccessType(Allow|Deny)、Rights(int)、AppliesToSelf(bool)、
+    AppliesToChild(bool)、HasContainer(bool)、HasObject(bool)。
+
+    求值方式与 Windows DACL 一致的两条核心语义：
+    1. 同一 SID 的 Allow 取并集、Deny 取并集，最终 Allow & ~Deny —— Deny 优先；
+    2. 继承标志决定 ACE 是否作用于子对象；InheritOnly 的 ACE 不作用于目录自身。
+    #>
+    param([object[]]$Rules = @())
+
+    $selfAllow = 0; $selfDeny = 0
+    $childAllow = 0; $childDeny = 0
+    $hasInheritingFullControl = $false
+
+    foreach ($rule in @($Rules)) {
+        if ($null -eq $rule) { continue }
+
+        $type = [string]$rule.AccessType
+        if ($type -ne "Allow" -and $type -ne "Deny") { continue }
+
+        $rights = [int]$rule.Rights
+        $appliesToSelf = [bool]$rule.AppliesToSelf
+        $appliesToChild = [bool]$rule.AppliesToChild
+
+        if ($appliesToSelf) {
+            if ($type -eq "Deny") { $selfDeny = $selfDeny -bor $rights }
+            else { $selfAllow = $selfAllow -bor $rights }
+        }
+        if ($appliesToChild) {
+            if ($type -eq "Deny") { $childDeny = $childDeny -bor $rights }
+            else { $childAllow = $childAllow -bor $rights }
+        }
+
+        if ($type -eq "Allow" -and [bool]$rule.HasContainer -and [bool]$rule.HasObject) {
+            if (($rights -band $script:FileSystemFullControlMask) -eq $script:FileSystemFullControlMask) {
+                $hasInheritingFullControl = $true
+            }
+        }
+    }
+
+    return [pscustomobject]@{
+        FolderAllow              = $selfAllow
+        FolderDeny               = $selfDeny
+        ChildAllow               = $childAllow
+        ChildDeny                = $childDeny
+        FolderRights             = ($selfAllow -band (-bnot $selfDeny))
+        ChildRights              = ($childAllow -band (-bnot $childDeny))
+        HasInheritingFullControl = $hasInheritingFullControl
+    }
+}
+
+function Measure-AclEffectiveRights {
+    <#
+    .SYNOPSIS
+    按"同一 SID 的 ACE 集合"计算目录本身与子对象上的有效权限掩码。
+
+    .DESCRIPTION
+    采集真实 DACL 后交给 Resolve-AclRuleSet 求值。
+    FolderRights（目录自身）与 ChildRights（子对象继承后）必须分别检查：
+    目录可写但新文件不可继承，是真实存在的失败形态。
+    #>
+    param(
+        [Parameter(Mandatory)][string]$Path,
+        [Parameter(Mandatory)][string]$Sid
+    )
+
+    $rules = @(Get-AclNormalizedRules -Path $Path -Sid $Sid)
+    $resolved = Resolve-AclRuleSet -Rules $rules
+
+    return [pscustomobject]@{
+        Path                     = $Path
+        Sid                      = $Sid
+        PathExists               = (Test-Path -LiteralPath $Path)
+        RuleCount                = $rules.Count
+        Rules                    = $rules
+        FolderAllow              = $resolved.FolderAllow
+        FolderDeny               = $resolved.FolderDeny
+        ChildAllow               = $resolved.ChildAllow
+        ChildDeny                = $resolved.ChildDeny
+        FolderRights             = $resolved.FolderRights
+        ChildRights              = $resolved.ChildRights
+        HasInheritingFullControl = $resolved.HasInheritingFullControl
+    }
+}
+
+function Format-FileSystemRights {
+    <#
+    .SYNOPSIS
+    把权限掩码渲染成"已有 / 缺失"的关键位，用于失败原因。
+
+    只列会影响"目录能否正常读写与清理"的位；不是完整枚举，
+    但对"只读 ACE 被当成 FullControl"这类误判足够定位。
+    #>
+    param([int]$Mask)
+
+    $known = @(
+        @{ Name = "ReadData"; Bit = 0x1 }
+        @{ Name = "WriteData"; Bit = 0x2 }
+        @{ Name = "AppendData"; Bit = 0x4 }
+        @{ Name = "DeleteSubdirectoriesAndFiles"; Bit = 0x40 }
+        @{ Name = "Delete"; Bit = 0x10000 }
+        @{ Name = "ChangePermissions"; Bit = 0x40000 }
+        @{ Name = "TakeOwnership"; Bit = 0x80000 }
+    )
+
+    $have = New-Object System.Collections.ArrayList
+    $missing = New-Object System.Collections.ArrayList
+    foreach ($item in $known) {
+        if (($Mask -band $item.Bit) -eq $item.Bit) { [void]$have.Add($item.Name) }
+        else { [void]$missing.Add($item.Name) }
+    }
+
+    if ($missing.Count -eq 0) { return "FullControl" }
+    $haveText = if ($have.Count -gt 0) { $have -join "," } else { "无" }
+    return ("已有[$haveText] 缺失[$($missing -join ',')] 掩码=0x{0:X}" -f $Mask)
+}
+
+function Test-AclGrantsFullControl {
+    <#
+    .SYNOPSIS
+    判断某个 SID 在目录上是否**真的**拥有 FullControl（含子对象继承）。
+
+    .DESCRIPTION
+    "SID 出现在 ACL 里"和"这个 SID 有完整权限"是两件事：
+      - 只有 Deny ACE 时 SID 也在 ACL 里，但权限是零；
+      - 只有 (OI)(CI)R 时 SID 也在，但目录只读；
+      - 有 FullControl 但 InheritanceFlags=None 时，目录可写、新建子项却可能不可访问；
+      - 同一 SID 有多条 ACE 时，任取一条判断都不成立，必须做集合运算。
+
+    本函数返回 Granted + Reason + 两个掩码，拒绝时 Reason 可直接进错误信息。
+    #>
+    param(
+        [Parameter(Mandatory)][string]$Path,
+        [Parameter(Mandatory)][string]$Sid,
+        [switch]$RequireInheritance
+    )
+
+    $required = $script:FileSystemFullControlMask
+    $measurement = Measure-AclEffectiveRights -Path $Path -Sid $Sid
+    $issues = New-Object System.Collections.ArrayList
+
+    if (-not $measurement.PathExists) {
+        [void]$issues.Add("路径不存在：$Path")
+    }
+    elseif ($measurement.RuleCount -eq 0) {
+        [void]$issues.Add("该 SID 在目录 DACL 中没有任何 ACE（既无 Allow 也无 Deny）")
+    }
+    else {
+        $denyOnly = $true
+        foreach ($rule in $measurement.Rules) {
+            if ($rule.AccessType -eq "Allow") { $denyOnly = $false; break }
+        }
+        if ($denyOnly) {
+            [void]$issues.Add(("该 SID 只有 Deny ACE，有效权限为 0（掩码=0x{0:X}）" -f $measurement.FolderDeny))
+        }
+
+        if (($measurement.FolderRights -band $required) -ne $required) {
+            [void]$issues.Add("目录自身权限不足：" + (Format-FileSystemRights -Mask $measurement.FolderRights))
+        }
+
+        if ($measurement.FolderDeny -ne 0) {
+            [void]$issues.Add(("存在 Deny ACE（掩码=0x{0:X}），已从 Allow 中扣除" -f $measurement.FolderDeny))
+        }
+
+        if ($RequireInheritance) {
+            if (($measurement.ChildRights -band $required) -ne $required) {
+                [void]$issues.Add("子对象继承后权限不足：" + (Format-FileSystemRights -Mask $measurement.ChildRights))
+            }
+            if (-not $measurement.HasInheritingFullControl) {
+                [void]$issues.Add("没有同时带 (OI)(CI) 的 FullControl Allow ACE，新建文件/子目录无法继承完整权限")
+            }
+        }
+    }
+
+    return [pscustomobject]@{
+        Path          = $Path
+        Sid           = $Sid
+        Granted       = ($issues.Count -eq 0)
+        Reason        = $(if ($issues.Count -eq 0) { "" } else { ($issues -join "；") })
+        FolderRights  = $measurement.FolderRights
+        ChildRights   = $measurement.ChildRights
+        FolderDeny    = $measurement.FolderDeny
+        RuleCount     = $measurement.RuleCount
+        Rules         = $measurement.Rules
+        RequireInheritance = [bool]$RequireInheritance
+    }
+}
+
 function Test-AclContainsSid {
     <#
     .SYNOPSIS
     判断目录的访问规则里是否存在指定 SID（按 SID 语义比较，不比字符串）。
 
     .DESCRIPTION
+    这是**存在性**判断，不代表权限正确。要判断"是否真的可访问"请用
+    Test-AclGrantsFullControl —— 它同时看 AccessControlType、权限掩码与继承标志。
+
+    保留本函数的原因：
+    - 给"ACL 里是否出现过这个 SID"这一类审计与诊断用；
+    - 旧调用点与回归用例依赖它，语义不变。
+
     不能用 "SDDL 文本里是否包含 SID 字面量" 来判断：
     Get-Acl 生成的 SDDL 会把知名 SID 渲染成**别名**，例如
       S-1-5-21-xxx-500  ->  LA（Local Administrator）
@@ -1361,9 +1654,6 @@ function Test-AclContainsSid {
     用 SID 字面量去搜必然搜不到，会把一次成功的授权误判成失败并触发回滚。
     实测触发环境：GitHub Actions runner（runneradmin 的 RID 是 500）；
     普通用户（RID 非 500）不会有别名，所以本机一直是通过的。
-
-    这里改用 GetAccessRules(..., [SecurityIdentifier])，拿到的是 SID 对象，
-    再比较 .Value，与 SDDL 的呈现形式无关。
     #>
     param(
         [Parameter(Mandatory)][string]$Path,
@@ -1371,22 +1661,7 @@ function Test-AclContainsSid {
     )
 
     if (-not (Test-Path -LiteralPath $Path)) { return $false }
-
-    try {
-        $acl = Get-Acl -LiteralPath $Path
-        $rules = $acl.GetAccessRules($true, $true, [System.Security.Principal.SecurityIdentifier])
-    }
-    catch {
-        return $false
-    }
-
-    foreach ($rule in $rules) {
-        if ($null -eq $rule) { continue }
-        $ruleSid = $null
-        try { $ruleSid = [string]$rule.IdentityReference.Value } catch { continue }
-        if ($ruleSid -eq $Sid) { return $true }
-    }
-    return $false
+    return (@(Get-AclNormalizedRules -Path $Path -Sid $Sid).Count -gt 0)
 }
 
 function Get-DirectoryAclSnapshot {
@@ -1491,10 +1766,21 @@ function Set-DirectoryAclGrant {
     $result.AfterSddl = $after.Sddl
     $result.Applied = $true
 
-    # 按 SID 语义判断，而不是在 SDDL 文本里搜字面量：
-    # Get-Acl 会把 S-1-5-21-xxx-500 渲染成别名 LA，字面量搜索会误报失败。
-    if (-not (Test-AclContainsSid -Path $Path -Sid $userSid)) {
-        throw "ACL 写入后未找到当前用户 SID($userSid)，目录可能不可访问，已触发回滚。"
+    # 写后校验必须看"有效权限"，不能只看 SID 是否存在：
+    #   - SID 存在但只有 Deny ACE  -> 实际无权限
+    #   - SID 存在但只有 R（只读）  -> 目录不可写，安装会中途失败
+    #   - SID 存在且是 FullControl 但 InheritanceFlags=None -> 目录可写、新建子项不可继承
+    #   - 同一 SID 有多条 ACE（如 R + W 分开授权）-> 必须做集合运算
+    # 这里默认还要求带 (OI)(CI) 继承，因为授权目的就是让新文件/子目录可用。
+    # 授予语句固定是 "(OI)(CI)F"，所以这是一个不随 RestrictInheritance 变化的硬要求：
+    # /inheritance:r 只移除父目录继承来的 ACE，不会去掉我们刚加的 (OI)(CI)F。
+    $verification = Test-AclGrantsFullControl -Path $Path -Sid $userSid -RequireInheritance
+
+    $result | Add-Member -NotePropertyName Verified -NotePropertyValue $verification.Granted -Force
+    $result | Add-Member -NotePropertyName Verification -NotePropertyValue $verification -Force
+
+    if (-not $verification.Granted) {
+        throw ("ACL 写入后校验未通过（SID=$userSid）：" + $verification.Reason + " 已触发回滚。")
     }
 
     return $result
