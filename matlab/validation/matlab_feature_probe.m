@@ -1,72 +1,112 @@
 scriptPath = mfilename("fullpath");
 repoRoot = fileparts(fileparts(fileparts(scriptPath)));
+scriptDir = fileparts(scriptPath);
+addpath(scriptDir);
+
 outDir = fullfile(repoRoot, "artifacts", "validation");
+acceptanceDir = fullfile(outDir, "acceptance");
 if ~isfolder(outDir)
     mkdir(outDir);
 end
+if ~isfolder(acceptanceDir)
+    mkdir(acceptanceDir);
+end
 
-report = struct();
-report.generatedAt = string(datetime("now", "Format", "yyyy-MM-dd'T'HH:mm:ss"));
-report.matlabVersion = string(version);
-report.release = string(version("-release"));
+report = masacc.new("feature-probe", "matlab-batch");
+report.limitations = [
+    "本脚本只做能力探测（L1），不证明任何模型训练、代码生成或硬件部署可用。"
+    "外部技能目录通过环境变量 MATLAB_AGENT_SKILLS_EMBEDDED_ROOT 注入，未设置时该子项为 SKIP。"
+];
 
 v = ver;
 products = string({v.Name});
-report.installedProducts = products;
+report.toolboxInventory = masacc.inventory();
 
 hasProduct = @(name) any(strcmp(products, string(name)));
 hasFunction = @(name) exist(name, "file") > 0 || exist(name, "builtin") > 0;
 
-feature = struct();
-
-feature.directImport = struct();
-feature.directImport.claim = "Direct import of PyTorch/TensorFlow Lite style models and C/C++ generation";
-feature.directImport.hasMATLABCoder = hasProduct("MATLAB Coder");
-feature.directImport.hasEmbeddedCoder = hasProduct("Embedded Coder");
-feature.directImport.hasDLTbx = hasProduct("Deep Learning Toolbox");
-feature.directImport.hasGPUCoder = hasProduct("GPU Coder");
-feature.directImport.hasImporterFunction = hasFunction("loadPyTorchExportedProgram");
-feature.directImport.hasLiteRTFunction = hasFunction("loadLiteRTModel");
-feature.directImport.hasTorchSetup = hasFunction("coder.loadDeepLearningNetwork");
-feature.directImport.status = "unknown";
-if feature.directImport.hasMATLABCoder && feature.directImport.hasDLTbx
-    if feature.directImport.hasImporterFunction || feature.directImport.hasLiteRTFunction
-        feature.directImport.status = "present";
+% ---------------- 直接导入能力 ----------------
+directImport = struct();
+directImport.claim = "Direct import of PyTorch/TensorFlow Lite style models and C/C++ generation";
+directImport.hasMATLABCoder = hasProduct("MATLAB Coder");
+directImport.hasDLTbx = hasProduct("Deep Learning Toolbox");
+directImport.hasGPUCoder = hasProduct("GPU Coder");
+directImport.hasImporterFunction = hasFunction("loadPyTorchExportedProgram");
+directImport.hasLiteRTFunction = hasFunction("loadLiteRTModel");
+directImport.status = "missing_prerequisites";
+if directImport.hasMATLABCoder && directImport.hasDLTbx
+    if directImport.hasImporterFunction || directImport.hasLiteRTFunction
+        directImport.status = "present";
     else
-        feature.directImport.status = "not_detected";
+        directImport.status = "not_detected";
     end
+end
+
+switch directImport.status
+    case "present"
+        report = masacc.addCheck(report, "feature.direct-import", "PyTorch/TFLite 直接导入 API 可用", "L1", "PASS", ...
+            Metrics=directImport);
+    case "not_detected"
+        report = masacc.addCheck(report, "feature.direct-import", "PyTorch/TFLite 直接导入 API 可用", "L1", "SKIP", ...
+            Reason="已安装 MATLAB Coder 与 Deep Learning Toolbox，但未检测到 loadPyTorchExportedProgram / loadLiteRTModel", ...
+            Metrics=directImport);
+    otherwise
+        report = masacc.addCheck(report, "feature.direct-import", "PyTorch/TFLite 直接导入 API 可用", "L1", "SKIP", ...
+            Reason="缺少前置产品：MATLAB Coder 或 Deep Learning Toolbox", Metrics=directImport);
+end
+
+% ---------------- 硬件块集 ----------------
+blocksets = struct();
+blocksets.claim = "Official STM32 and Raspberry Pi Blockset availability";
+blocksets.hasSimulink = hasProduct("Simulink");
+blocksets.hasEmbeddedCoder = hasProduct("Embedded Coder");
+blocksets.hasC2000Blockset = hasProduct("C2000 Microcontroller Blockset");
+blocksets.hasSTM32Product = hasProduct("STM32 Blockset") || hasProduct("STM32 Microcontroller Blockset");
+blocksets.hasRaspiProduct = hasProduct("Raspberry Pi Blockset");
+blocksets.status = "not_installed";
+if blocksets.hasSTM32Product || blocksets.hasRaspiProduct
+    blocksets.status = "installed";
+end
+
+if blocksets.status == "installed"
+    report = masacc.addCheck(report, "feature.blocksets", "STM32 / Raspberry Pi 官方块集可用", "L1", "PASS", ...
+        Metrics=blocksets);
 else
-    feature.directImport.status = "missing_prerequisites";
+    report = masacc.addCheck(report, "feature.blocksets", "STM32 / Raspberry Pi 官方块集可用", "L1", "SKIP", ...
+        Reason="未检测到 STM32 或 Raspberry Pi 官方块集；硬件部署相关验收只能 SKIP", Metrics=blocksets);
 end
 
-feature.blocksets = struct();
-feature.blocksets.claim = "Official STM32 and Raspberry Pi Blockset availability";
-feature.blocksets.hasSimulink = hasProduct("Simulink");
-feature.blocksets.hasEmbeddedCoder = hasProduct("Embedded Coder");
-feature.blocksets.hasC2000Blockset = hasProduct("C2000 Microcontroller Blockset");
-feature.blocksets.hasSTM32Product = hasProduct("STM32 Blockset") || hasProduct("STM32 Microcontroller Blockset");
-feature.blocksets.hasRaspiProduct = hasProduct("Raspberry Pi Blockset");
-feature.blocksets.status = "not_installed";
-if feature.blocksets.hasSTM32Product || feature.blocksets.hasRaspiProduct
-    feature.blocksets.status = "installed";
-end
-
-feature.agentic = struct();
-feature.agentic.claim = "Agentic Toolkit / Embedded AI skill style workflow";
-feature.agentic.localSkillRepo = isfolder(fullfile(repoRoot, "skills", "matlab-orchestrator"));
-% 外部技能目录通过环境变量注入，不再硬编码任何机器专属路径。
+% ---------------- 本地技能目录 ----------------
+agentic = struct();
+agentic.claim = "Agentic Toolkit / Embedded AI skill style workflow";
+agentic.localSkillRepo = isfolder(fullfile(repoRoot, "skills", "matlab-orchestrator"));
 embeddedSkillRoot = string(getenv("MATLAB_AGENT_SKILLS_EMBEDDED_ROOT"));
-feature.agentic.embeddedSkillRoot = embeddedSkillRoot;
-feature.agentic.localEmbeddedSkill = false;
+agentic.embeddedSkillRoot = embeddedSkillRoot;
+agentic.localEmbeddedSkill = false;
 if strlength(embeddedSkillRoot) > 0
-    feature.agentic.localEmbeddedSkill = isfolder(fullfile(embeddedSkillRoot, "matlab-orchestrator"));
+    agentic.localEmbeddedSkill = isfolder(fullfile(embeddedSkillRoot, "matlab-orchestrator"));
 end
-feature.agentic.hasLocalAutomation = feature.agentic.localSkillRepo || feature.agentic.localEmbeddedSkill;
-feature.agentic.status = "local_skill_available";
+agentic.hasLocalAutomation = agentic.localSkillRepo || agentic.localEmbeddedSkill;
+if agentic.hasLocalAutomation
+    agentic.status = "local_skill_available";
+else
+    agentic.status = "not_available";
+end
 
+if agentic.localSkillRepo
+    report = masacc.addCheck(report, "feature.agentic", "本地技能目录可用", "L1", "PASS", Metrics=agentic);
+elseif agentic.localEmbeddedSkill
+    report = masacc.addCheck(report, "feature.agentic", "本地技能目录可用", "L1", "PASS", ...
+        Metrics=agentic);
+else
+    report = masacc.addCheck(report, "feature.agentic", "本地技能目录可用", "L1", "SKIP", ...
+        Reason="仓库内未找到 skills/matlab-orchestrator，且未设置 MATLAB_AGENT_SKILLS_EMBEDDED_ROOT", Metrics=agentic);
+end
+
+% ---------------- addons ----------------
 addonsInfo = struct();
 addonsInfo.success = false;
-addonsInfo.names = strings(0,1);
+addonsInfo.names = strings(0, 1);
 try
     T = matlab.addons.installedAddons;
     if any(strcmp("Name", T.Properties.VariableNames))
@@ -76,17 +116,28 @@ try
 catch ME
     addonsInfo.error = string(ME.message);
 end
-report.addons = addonsInfo;
 
-report.features = feature;
+% 兼容旧版明细文件（文档与 CI 仍在引用）。
+legacy = struct();
+legacy.schemaVersion = "1.0.0";
+legacy.generatedAt = masacc.timestamp();
+legacy.matlabVersion = string(version);
+legacy.release = string(version("-release"));
+legacy.installedProducts = products;
+legacy.addons = addonsInfo;
+legacy.features = struct("directImport", directImport, "blocksets", blocksets, "agentic", agentic);
 
-jsonPath = fullfile(outDir, "feature_probe.json");
-fid = fopen(jsonPath, "w");
-cleanup = onCleanup(@() fclose(fid));
-fprintf(fid, "%s", jsonencode(report, "PrettyPrint", true));
-clear cleanup
+legacyPath = fullfile(outDir, "feature_probe.json");
+fid = fopen(legacyPath, "w");
+cleanupLegacy = onCleanup(@() fclose(fid));
+fprintf(fid, "%s", jsonencode(legacy, "PrettyPrint", true));
+clear cleanupLegacy
 
-fprintf("FEATURE_PROBE=%s\n", jsonPath);
-fprintf("DIRECT_IMPORT_STATUS=%s\n", feature.directImport.status);
-fprintf("STM32_BLOCKSET_STATUS=%s\n", feature.blocksets.status);
-fprintf("AGENTIC_STATUS=%s\n", feature.agentic.status);
+acceptancePath = fullfile(acceptanceDir, "feature_probe.json");
+report = masacc.write(report, acceptancePath);
+
+fprintf("FEATURE_PROBE=%s\n", legacyPath);
+fprintf("FEATURE_PROBE_ACCEPTANCE=%s\n", acceptancePath);
+fprintf("DIRECT_IMPORT_STATUS=%s\n", directImport.status);
+fprintf("STM32_BLOCKSET_STATUS=%s\n", blocksets.status);
+fprintf("AGENTIC_STATUS=%s\n", agentic.status);

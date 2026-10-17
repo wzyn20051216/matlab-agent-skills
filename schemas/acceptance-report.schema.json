@@ -1,0 +1,361 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/wzyn20051216/matlab-agent-skills/schemas/acceptance-report.schema.json",
+  "title": "MATLAB Agent Skills Acceptance Report",
+  "description": "统一工程验收结构。PASS 只授予真实执行并通过的检查；SKIP 必须携带 reason，且永不计入 PASS。",
+  "type": "object",
+  "additionalProperties": true,
+  "required": [
+    "schemaVersion",
+    "taskId",
+    "backend",
+    "matlabVersion",
+    "toolboxInventory",
+    "startedAt",
+    "finishedAt",
+    "environment",
+    "checks",
+    "summary",
+    "overallStatus",
+    "achievedLevel"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$"
+    },
+    "taskId": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$"
+    },
+    "backend": {
+      "type": "string",
+      "enum": [
+        "static",
+        "matlab-batch",
+        "matlab-mcp-auto",
+        "matlab-mcp-existing",
+        "matlab-mcp-new"
+      ]
+    },
+    "matlabVersion": {
+      "type": "string"
+    },
+    "matlabRelease": {
+      "type": "string"
+    },
+    "startedAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "finishedAt": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "date-time"
+    },
+    "toolboxInventory": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "name",
+          "version"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "version": {
+            "type": "string"
+          },
+          "licensed": {
+            "type": [
+              "boolean",
+              "null"
+            ]
+          }
+        }
+      }
+    },
+    "environment": {
+      "type": "object",
+      "required": [
+        "os",
+        "hostName",
+        "matlabInstalled"
+      ],
+      "properties": {
+        "os": {
+          "type": "string"
+        },
+        "hostName": {
+          "type": "string"
+        },
+        "matlabInstalled": {
+          "type": "boolean"
+        },
+        "matlabExecutable": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "powerShellVersion": {
+          "type": "string"
+        },
+        "machineClass": {
+          "type": "string",
+          "enum": [
+            "free",
+            "licensed",
+            "licensed-with-hardware"
+          ]
+        }
+      }
+    },
+    "checks": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/definitions/check"
+      }
+    },
+    "summary": {
+      "type": "object",
+      "required": [
+        "total",
+        "pass",
+        "fail",
+        "skip"
+      ],
+      "properties": {
+        "total": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "pass": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "fail": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "skip": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "overallStatus": {
+      "type": "string",
+      "enum": [
+        "PASS",
+        "FAIL",
+        "SKIP"
+      ]
+    },
+    "achievedLevel": {
+      "type": "string",
+      "enum": [
+        "L0",
+        "L1",
+        "L2",
+        "L3",
+        "L4",
+        "L5"
+      ]
+    },
+    "limitations": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "unexecuted": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "capability",
+          "level",
+          "reason"
+        ],
+        "properties": {
+          "capability": {
+            "type": "string",
+            "minLength": 1
+          },
+          "level": {
+            "type": "string",
+            "enum": [
+              "L1",
+              "L2",
+              "L3",
+              "L4",
+              "L5"
+            ]
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "check": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": [
+        "id",
+        "title",
+        "level",
+        "status",
+        "command",
+        "exitCode",
+        "startedAt",
+        "finishedAt",
+        "durationSeconds",
+        "metrics",
+        "reason",
+        "errorClass",
+        "artifactPaths"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$",
+          "minLength": 1
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1
+        },
+        "level": {
+          "type": "string",
+          "enum": [
+            "L1",
+            "L2",
+            "L3",
+            "L4",
+            "L5"
+          ]
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "PASS",
+            "FAIL",
+            "SKIP"
+          ]
+        },
+        "command": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "exitCode": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "startedAt": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "date-time"
+        },
+        "finishedAt": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "date-time"
+        },
+        "durationSeconds": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "metrics": {
+          "type": "object"
+        },
+        "reason": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "errorClass": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "enum": [
+            null,
+            "ENVIRONMENT_ERROR",
+            "LICENSE_ERROR",
+            "MCP_CONNECTION_ERROR",
+            "MATLAB_RUNTIME_ERROR",
+            "SIMULATION_ERROR",
+            "CODEGEN_ERROR",
+            "VALIDATION_ERROR",
+            "TIMEOUT"
+          ]
+        },
+        "artifactPaths": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "sourceReport": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "retry": {
+          "type": [
+            "object",
+            "null"
+          ],
+          "required": [
+            "attempts",
+            "maxAttempts"
+          ],
+          "properties": {
+            "attempts": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "maxAttempts": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "approved": {
+              "type": "boolean"
+            },
+            "blockedReason": {
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          }
+        }
+      }
+    }
+  }
+}

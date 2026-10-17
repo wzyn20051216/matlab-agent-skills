@@ -45,6 +45,48 @@ When an official MATLAB MCP auto path is available:
 3. Do not silently switch to batch mode just because batch would be easier.
 4. In the final report, explicitly say that the task ran through MCP, and note any remaining blocker if a required MCP action could not be completed.
 
+## Readiness Gate Before Any MCP Run
+
+Never infer MCP readiness from a config file, a recorded `pid`, or a listening port. Run the staged probe first and read the per-stage verdict:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\Test-MatlabMcpExistingSession.ps1 -Json
+```
+
+The probe grades install, session config, client registration, protocol handshake, read-only execution, and file read-back as **separate checks**. Consequences you must respect when routing work:
+
+- If `mcp.protocol-handshake` is `FAIL`, do not attempt MCP edits; report the exact blocker (HTTP status plus JSON-RPC error) and ask before switching to batch.
+- If `mcp.readonly-exec` is `SKIP` because the server exposes no evaluation tool, say so — a successful handshake only proves the protocol layer, not that MATLAB can run anything.
+- If the session file is stale (missing certificate, dead pid), the honest report is "existing session is stale", not "MCP is configured".
+
+## Closed-loop Definition
+
+A MATLAB task is complete only when it has:
+
+- A runnable command or script.
+- Logs captured from MATLAB.
+- Artifacts saved in a predictable folder.
+- A numerical, visual, or structural acceptance check.
+- A short explanation of what was verified and what remains unverified.
+
+The acceptance verdict must come from the unified report, not from your impression:
+
+- Report file: `artifacts/validation/acceptance_report.json`, schema `schemas/acceptance-report.schema.json`.
+- `overallStatus` is `PASS` only when every check passed. Any `SKIP` makes it `SKIP` (exit code `3`), and `SKIP` is never converted into a pass.
+- `achievedLevel` is the highest **contiguous** level reached: if L2 was skipped, a passing L3 still only yields L1.
+- Route the work so that at least the level the user asked for is genuinely executed. If it cannot be executed here (no license, no toolbox, no board), say that explicitly instead of producing an L1 artifact and calling it done.
+
+Level routing hints:
+
+| If the user asks for | The minimum honest evidence is |
+| --- | --- |
+| "generate code" | L2: real compile artifact (library/executable), not just `.c` files |
+| "make the model work" | L3: simulation reaches stop time and key signals match expectations |
+| "make it robust" | L4: parameter sweep plus failure-mode checks (NaN, illegal inputs) |
+| "deploy to the board" | L5: download plus read-back — generic C codegen is not deployment |
+
+Failure classification and retry policy live in `matlab-runner`; classify before retrying, and never auto-retry destructive or non-idempotent operations.
+
 ## Routing
 
 Use these specialist skills:
@@ -109,10 +151,10 @@ Never cite a forum workaround as fact until a local MATLAB command confirms it.
 
 ## Reporting
 
-Keep the final answer concise and practical:
+Keep the final answer concise and practical, and keep the three categories separate:
 
-- Which specialist path was used.
-- Which command ran.
-- Where artifacts were saved.
-- What passed, failed, or was skipped.
-- Any license, toolbox, hardware, or dataset limitations.
+1. **Verified**: command, exit code, and the acceptance report path.
+2. **Executed but failed or skipped**: the `reason` field, verbatim.
+3. **Not executed**: state it plainly and name the missing prerequisite (license, toolbox, hardware, network).
+
+Never present a skipped check as a supported capability, and never present a generated artifact as a successful build.

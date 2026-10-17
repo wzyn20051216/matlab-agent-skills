@@ -1,12 +1,17 @@
 name: Repository Checks
 
+# 层 A：免费环境。不需要 MATLAB 许可证，不需要 MCP 服务端，不需要硬件。
+# 只验证"代码本身是否自洽"：语法、编码、路径卫生、验收协议、错误分类、MCP 探测逻辑。
+# 这一层通过 ≠ MATLAB 真的能跑；它只证明执行引擎的设计与模拟场景是正确的。
+
 on:
   push:
   pull_request:
   workflow_dispatch:
 
 jobs:
-  powershell-and-docs:
+  static-checks:
+    name: 层 A - 静态检查
     runs-on: windows-latest
     steps:
       - name: Check out repository
@@ -62,7 +67,20 @@ jobs:
             exit 1
           }
 
-  installer-tests:
+      - name: Validate acceptance JSON schema is well-formed
+        shell: pwsh
+        run: |
+          $schemaPath = Join-Path $PWD 'schemas/acceptance-report.schema.json'
+          if (-not (Test-Path -LiteralPath $schemaPath)) { throw "缺少 schemas/acceptance-report.schema.json" }
+          Import-Module ./scripts/MatlabAgentSkills.Acceptance.psm1 -Force -DisableNameChecking
+          # 必须按 UTF-8 读取：PowerShell 5.1 的 Get-Content 会把中文说明按 ANSI 解码成乱码。
+          $schema = Read-AcceptanceJsonFile -Path $schemaPath
+          "schema draft: $($schema.'$schema')"
+          "schema version field: $($schema.properties.schemaVersion.const)"
+          "required top-level fields: $($schema.required -join ', ')"
+
+  free-tests:
+    name: 层 A - 免费测试（无 MATLAB）
     runs-on: windows-latest
     steps:
       - name: Check out repository
@@ -76,6 +94,37 @@ jobs:
           }
           Get-Module -ListAvailable Pester | Select-Object Name, Version
 
-      - name: Run installer tests (sandboxed, no MATLAB required)
+      - name: Run free-layer tests
         shell: pwsh
-        run: ./tests/Invoke-Tests.ps1
+        run: ./tests/Invoke-Tests.ps1 -Layer free -CI
+
+      - name: Publish layer report to job summary
+        if: always()
+        shell: pwsh
+        run: |
+          $reportPath = 'artifacts/validation/tests/layer_report.json'
+          if (-not (Test-Path -LiteralPath $reportPath)) { throw "缺少层报告 $reportPath" }
+          $report = Get-Content -Raw -LiteralPath $reportPath | ConvertFrom-Json
+          $lines = @(
+            '### 测试层执行情况',
+            '',
+            '| 层 | 是否执行 | 用例 | 通过 | 失败 | 说明 |',
+            '| --- | --- | --- | --- | --- | --- |'
+          )
+          foreach ($layer in $report.layers) {
+            $executed = if ($layer.executed) { '已执行' } else { '**未执行**' }
+            $reason = if ($layer.reason) { $layer.reason } else { '' }
+            $lines += "| $($layer.layer) | $executed | $($layer.total) | $($layer.passed) | $($layer.failed) | $reason |"
+          }
+          $lines += ''
+          $lines += '> 本 job 不安装 MATLAB。`matlab` 层（真实 MATLAB 执行、Simulink 仿真、Coder 编译）'
+          $lines += '> 由 MATLAB Validation workflow 在带许可证的环境里执行；它没跑过就不代表已验证。'
+          $lines | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append -Encoding utf8
+
+      - name: Upload layer report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-layer-report
+          path: artifacts/validation/tests/layer_report.json
+          if-no-files-found: error
