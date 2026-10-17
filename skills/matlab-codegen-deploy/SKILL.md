@@ -74,7 +74,7 @@ Prefer target data APIs over editing opaque structures:
 
 ```matlab
 tools = stm32cube.hwsetup.stm32Tools();
-tools.updateSTM32CubeMXPath("C:\Users\me\AppData\Local\Programs\STM32CubeMX");
+tools.updateSTM32CubeMXPath("C:\Users\<user>\AppData\Local\Programs\STM32CubeMX");
 
 codertarget.data.setParameterValue(model, "STM32CubeMX.ProjectFile", iocPath);
 codertarget.data.setParameterValue(model, "STM32CubeMX.DeviceId", "STM32F103RBTx");

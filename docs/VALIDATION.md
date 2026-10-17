@@ -103,6 +103,8 @@
 
 一个真实观察到的例子（无超时保护时的后果）：`matlab.exe -batch` 在本机启动后长时间不返回、CPU 接近 0，进程一直存活。加超时后同一条命令在阈值内被终止，`error_class=TIMEOUT`，`stages.log` 里留有 `[timeout]` 记录，且没有残留 MATLAB 进程。
 
+不设超时到底要等多久？实测一次直连调用：`matlab.exe -batch "disp(version)" -logfile ...` 跑满 **68 分 57 秒**后以 `MATLAB error Exit Status: 0x00000001` 结束，退出码 `1`，而 `-logfile` 是 **0 字节**。也就是说没有超时保护时，一个启动阶段就卡死的环境会让人白等一小时以上，且拿不到任何可诊断的输出。这就是"可配置超时 + 阶段日志"必须存在的理由，而不是可选项。
+
 ## MCP 会话探测
 
 只检查配置文件或 `sessionDetails.json` 是否存在，无法证明 MCP 可用。`Test-MatlabMcpExistingSession.ps1` 把探测拆成 5 个独立判定的阶段：

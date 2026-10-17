@@ -44,6 +44,7 @@ All notable changes to this project will be documented here.
 - Changed: `Test-MatlabSkills.ps1` 改为 6 阶段编排，逐阶段产出并合并验收报告，退出码区分 PASS/FAIL/SKIP。
 - Changed: CI 分为层 A（免费环境，仅 free 层）与层 B（带许可证的 MATLAB 环境），层 C（Pro 许可证 / 硬件）明确标注为不在默认 workflow 执行。
 - Docs: 重写 `docs/VALIDATION.md`；新增 `docs/P1_ACCEPTANCE_ZH.md`（缺陷清单、设计、证据、未验证项）。
+- Tested: `-Layer free` 122 例全通过、退出码 `0`；`-Layer matlab` 3 通过 / **1 失败**（本机 `-batch` 在许可检查阶段卡死，受控超时终止），退出码 `1`，该 FAIL 保留不改 SKIP。
 
 - Added MCP-first MATLAB workflow documentation.
 - Added one-command MCP client installer for Codex, Claude Code, VS Code, and generic MCP clients.

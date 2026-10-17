@@ -216,11 +216,31 @@ powershell -NoProfile -ExecutionPolicy Bypass -File .\tests\Invoke-Tests.ps1 -La
 - 两次超时中 `stdout` 与 `stderr` 都是 **0 字节**，说明 MATLAB 卡在启动阶段，而不是被执行的内测脚本报错。
 - 这条 FAIL 保留在测试里，不改成 SKIP。它就是当前环境的真实结论：这台机器上不能跑 `-batch`。
 
+为了排除"只是 180 秒不够久"，随后在测试框架之外单独跑了一次不设超时的直连调用：
+
+```text
+E:/matlab/bin/matlab.exe -batch "fprintf('STARTUP_OK=%d\n',1); disp(version)" -logfile D:/Temp/ml-startup.log
+实际耗时 68 分 57 秒 → 输出 "MATLAB error Exit Status: 0x00000001" → 退出码 1
+```
+
+配套证据：
+
+| 观察项 | 结果 |
+| --- | --- |
+| `-logfile` 产物大小 | **0 字节**（MATLAB 内核未进入解释器阶段） |
+| `%TEMP%\.mathworks\` 会话临时文件 | 只有 0 字节的实例文件与 `.lock`，无许可日志内容 |
+| 崩溃转储 | 无 |
+| 运行后残留进程 | 无（`MATLAB.exe` 计数 0） |
+| MathWorks 许可服务器连通性 | `https://login.mathworks.com` 直连与经代理均返回 HTTP 302，约 1.0 s |
+| 许可模式 | `<matlabroot>` 下 `licenses\license_info.xml` 中 `licmode = onlinelicensing` |
+
+结论按证据收窄为：**本机 `-batch` 会在许可检查阶段长时间重试（70 分钟量级）后以 0x00000001 退出，期间零输出**。这既不是仓库脚本的错误，也不能归因为网络不通（许可服务器可达）。它是环境级阻塞，仓库存量无法绕过，只能如实记录并交给层 B CI。
+
 ## 四、未验证内容与已知风险
 
 必须在 PR 评审时如实告知：
 
-1. **MATLAB 侧 `.m` 改动未经成功执行验证。** 本机 MATLAB R2026a（`onlinelicensing`）执行 `matlab.exe -batch` 后 180 秒内零输出、进程存活，无法完成一次真实批处理（证据见 3.4）。因此 `matlab/validation/*.m` 与 `+masacc/` 的数值断言与容差设定尚未由执行确认，需要层 B CI 才能最终确认。
+1. **MATLAB 侧 `.m` 改动未经成功执行验证。** 本机 MATLAB R2026a（`onlinelicensing`）在 `matlab.exe -batch` 下不产出任何输出：受控超时在 180 s 终止（见 3.4），不设超时的直连调用跑满 68 分 57 秒后以 `0x00000001` 退出、`-logfile` 为 0 字节。因此 `matlab/validation/*.m` 与 `+masacc/` 的语法以外的行为、数值断言与容差设定尚未由执行确认，需要层 B CI 才能最终确认。
 2. **`matlab/validation/+masacc/jsonNulls.m` 的存在本身就说明两侧对齐是手工保证的。** MATLAB `jsonencode` 把空值写成 `[]` / `""`，而 schema 要求 `null`；如果不做这一步，`errorClass: ""` 会直接违反枚举、`exitCode: []` 会被判成类型错误。这段正则改写尚未在真实 MATLAB 上跑过。
 3. **MCP 探测未对真实 MATLAB MCP 服务端执行。** 除 3.3 的会话配置阶段外，握手与工具调用全部来自假服务端的故障注入。真实服务端的 `initialize` 参数、工具名、返回结构可能与假定不同。
 4. **层 C 全部未执行。** MATLAB Coder / Simulink Coder / Embedded Coder 的真实编译、STM32 目标板下载与回读、外部工具链集成，均未验证；报告中以 `SKIP` 出现。
