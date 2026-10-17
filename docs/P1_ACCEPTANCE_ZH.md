@@ -519,7 +519,7 @@ CI 只对 `core` 设门禁，`coder` 放到需要显式申请 Coder 产品的可
 | 第 1 轮 | free 层 0/124 全红 | Pester 版本选择（5.9.0 vs 3.4.0） | 显式锁定 3.4.0 + 纯函数单测 |
 | 第 2 轮 | free 层 146/161 | `Should Throw` 在 PowerShell 7 失效；`Get-JsonValueKind` 不认 `[datetime]` | `Test-Throws` 助手；日期按 string 处理 |
 | 第 3 轮 | free 层 160/161，双运行面一致 | ACL 授权校验用 SDDL 字面量搜 SID，命中别名（`LA`/`SY`）→ 误判失败并回滚 | 改用 `GetAccessRules(..., SecurityIdentifier)` 按 SID 语义比较 |
-| 第 4 轮 | **free 层 161/161（5.1 与 7 都通过），Repository Checks 绿** | — | — |
+| 第 4 轮 | **free 层 162/162（5.1 与 7 都通过），Repository Checks 绿** | — | — |
 
 第 3 轮那条是个**真实产品缺陷**，不是测试问题：`Get-Acl` 生成的 SDDL 会把知名 SID
 渲染成别名（`S-1-5-21-…-500` → `LA`，`S-1-5-18` → `SY`）。GitHub runner 的账户

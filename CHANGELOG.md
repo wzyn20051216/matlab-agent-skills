@@ -135,7 +135,7 @@ All notable changes to this project will be documented here.
   与 Secret `MLM_LICENSE_FILE` 才运行；未配置时显示 skipped 而不是 passed
   （公共 runner 没有许可证，`-batch` 1~2 秒即失败，跑出来的红灯与被测代码无关）。
 - Tested: `Repository Checks` 在 GitHub 上**真实通过**：`层 A - 免费测试（5.1 + 7 双运行面）`
-  两步各 161/161。此前三轮 CI 分别因 Pester 版本选择、PowerShell 7 语义差异、ACL SID 别名而红，
+  两步各 162/162。此前三轮 CI 分别因 Pester 版本选择、PowerShell 7 语义差异、ACL SID 别名而红，
   三个根因都已定位并修复，不是"重跑就好了"。
 - Added: `tests/Acceptance.Boundary.Matlab.Tests.ps1` + `matlab/validation/tests/masacc_boundary_probe.m` ——
   MATLAB 侧产出 9 类边界报告（单条/多条检查、全空字段、空清单、中文原因、许可证缺失、
@@ -155,9 +155,11 @@ All notable changes to this project will be documented here.
   这两个脚本此前从未真正跑到这一步，缺陷一直被许可证误判掩盖。
 - Docs: `skills/matlab-runner/SKILL.md`、`skills/matlab-simulink-modeling/SKILL.md` 更正
   `license('test', product)` 的错误示例，补充产品名 → feature 名对照表与 27 字符限制。
-- Tested: `-Layer free` **161 例全通过**、退出码 `0`，且在 **Windows PowerShell 5.1 与 PowerShell 7.6.7
-  两个运行面上各跑一遍都通过**；`-Layer matlab` **74 例全通过**、退出码 `0`，同样在两个运行面通过
-  （含 MATLAB 侧边界往返 69 个断言）。
+- Tested: `-Layer free` **162 例全通过**、退出码 `0`，且在 Windows PowerShell 5.1 与 PowerShell 7.6
+  两个运行面上各跑一遍都通过——这一条是 GitHub Actions 的真实结果，不是本地推测
+  （`Repository Checks` 运行 39028581728 成功，层报告 artifact 记录了两个运行面的版本号）。
+- Tested: `-Layer matlab` **74 例全通过**、退出码 `0`，在 PowerShell 5.1 与 7.6 两个运行面各跑一遍均通过
+  （含 MATLAB 侧边界往返 69 个断言）。这一层需要真实许可证，公共 runner 上无法执行，见下一条。
 - Tested: `Test-MatlabSkills.ps1 -Scope full` 在 R2026a 上真实跑完六个阶段：
   **20 项检查 19 PASS / 1 SKIP / 0 FAIL**；`core` / `simulink` / `coder` 三个范围均 PASS，
   `full` 因 `embedded.hardware-in-loop` 未执行而 SKIP（退出码 3）。唯一 SKIP 是
