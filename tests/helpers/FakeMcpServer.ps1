@@ -95,7 +95,18 @@ function Send-HttpResponse {
 $listener = New-Object System.Net.Sockets.TcpListener([System.Net.IPAddress]::Loopback, $Port)
 $listener.Start()
 $actualPort = $listener.LocalEndpoint.Port
-Set-Content -LiteralPath $PortFile -Value "port=$actualPort" -Encoding ascii
+
+# 端口文件必须允许并发读取。
+# 早期实现用 Set-Content，它内部以 FileShare.None 打开文件；父进程（Start-FakeMcpServer）
+# 轮询到这个文件时如果写句柄还没释放，Get-Content 会抛
+# "文件正由另一进程使用" —— 这是个纯竞态：空载单跑时窗口小到不触发，
+# 整套测试并发压力大时稳定复现（2026-10-17 实测 free 层 3 个失败全部来自这里）。
+# 显式用 FileShare.Read 打开，让读者永远不必等写者。
+$portStream = [System.IO.File]::Open($PortFile, [System.IO.FileMode]::Create, [System.IO.FileAccess]::Write, [System.IO.FileShare]::Read)
+$portWriter = New-Object System.IO.StreamWriter($portStream, [System.Text.Encoding]::ASCII)
+$portWriter.Write("port=$actualPort")
+$portWriter.Flush()
+$portWriter.Close()
 
 try {
     for ($requestIndex = 0; $requestIndex -lt $MaxRequests; $requestIndex++) {

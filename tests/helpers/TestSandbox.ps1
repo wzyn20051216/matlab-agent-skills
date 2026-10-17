@@ -69,10 +69,24 @@ function Start-FakeMcpServer {
     $port = $null
     while ((Get-Date) -lt $deadline) {
         if (Test-Path -LiteralPath $PortFile) {
-            $text = (Get-Content -LiteralPath $PortFile -Raw).Trim()
-            if ($text -match 'port=(\d+)') {
-                $port = [int]$Matches[1]
-                break
+            # 两个独立的竞态，都必须容错而不是让 Describe 变红：
+            # 1) 写者（FakeMcpServer.ps1 用 FileMode.Create）先把文件建成 0 字节再写内容，
+            #    此时 Get-Content -Raw 返回 $null，直接 .Trim() 会抛
+            #    "不能对 Null 值表达式调用方法"；
+            # 2) 写句柄尚未释放时读取会抛 IOException。
+            # 这两种都只是"还没写好"，重试即可，不是测试失败。
+            try {
+                $raw = Get-Content -LiteralPath $PortFile -Raw -ErrorAction Stop
+                if (-not [string]::IsNullOrWhiteSpace($raw)) {
+                    $text = $raw.Trim()
+                    if ($text -match 'port=(\d+)') {
+                        $port = [int]$Matches[1]
+                        break
+                    }
+                }
+            }
+            catch [System.IO.IOException] {
+                # 写者仍持有句柄，等下一个轮询周期
             }
         }
         Start-Sleep -Milliseconds 100
