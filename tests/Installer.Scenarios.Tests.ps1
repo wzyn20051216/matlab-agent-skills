@@ -418,7 +418,24 @@ Describe "Setup-MatlabMcpExistingSession：失败回滚（P0-6）" {
         try {
             $beforeSddl = (Get-Acl -LiteralPath $sandbox.DataDir).Sddl
             $session = New-BackupSession -Root $sandbox.Backup -Reason "acl-test"
-            $grant = Set-DirectoryAclGrant -Path $sandbox.DataDir -Session $session
+            try {
+                $grant = Set-DirectoryAclGrant -Path $sandbox.DataDir -Session $session
+            }
+            catch {
+                # 失败时把环境事实打全：这条用例在 GitHub runner 上曾经失败，
+                # 只有拿到 SID/路径/icacls 原始输出才能判断是代码问题还是运行面限制。
+                $identity = [System.Security.Principal.WindowsIdentity]::GetCurrent()
+                $probe = & icacls $sandbox.DataDir /grant:r ("*" + $identity.User.Value + ":(OI)(CI)F") 2>&1
+                Write-Host "ACL 诊断："
+                Write-Host "  路径        = $($sandbox.DataDir)"
+                Write-Host "  身份        = $($identity.Name)"
+                Write-Host "  用户 SID    = $($identity.User.Value)"
+                Write-Host "  icacls 退出 = $LASTEXITCODE"
+                Write-Host "  icacls 输出 = $($probe -join ' | ')"
+                Write-Host "  之前 SDDL   = $beforeSddl"
+                Write-Host "  之后 SDDL   = $((Get-Acl -LiteralPath $sandbox.DataDir).Sddl)"
+                throw
+            }
             $grant.Applied | Should Be $true
             $grant.RestrictedInheritance | Should Be $false
             (Get-Acl -LiteralPath $sandbox.DataDir).Sddl | Should Match ([regex]::Escape($grant.UserSid))

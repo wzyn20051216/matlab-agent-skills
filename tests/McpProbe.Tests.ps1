@@ -71,7 +71,18 @@ Describe "阶段 3~5 只有在真实可执行时才 PASS" {
             (Get-Check $report "mcp.readonly-exec").status | Should Be "PASS"
             (Get-Check $report "mcp.file-io").status | Should Be "PASS"
             (Get-Check $report "mcp.client-registration").status | Should Be "PASS"
-            $report.overallStatus | Should Be "PASS"
+
+            # mcp.matlab-install 依赖本机是否装了 MATLAB。GitHub runner 上没有 MATLAB，
+            # 该项必然 FAIL —— 这是正确行为（没装就不能声称环境就绪），不是本用例要验证的东西。
+            # 所以整体状态按 matlab-install 的真实结果推导，而不是硬写 PASS。
+            $installCheck = Get-Check $report "mcp.matlab-install"
+            $expectedOverall = if ("$($installCheck.status)" -eq "PASS") { "PASS" } else { "FAIL" }
+            $report.overallStatus | Should Be $expectedOverall
+            if ($expectedOverall -eq "FAIL") {
+                # 只允许因为"没有 MATLAB"而 FAIL，不能因为 MCP 相关阶段失败而 FAIL。
+                $failedIds = @($report.checks | Where-Object { $_.status -eq "FAIL" } | ForEach-Object { $_.id })
+                ($failedIds -join ",") | Should Be "mcp.matlab-install"
+            }
             (Test-AcceptanceReport -Report $report).Valid | Should Be $true
         }
         finally {
