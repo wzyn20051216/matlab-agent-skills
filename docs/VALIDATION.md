@@ -23,7 +23,7 @@
 | `taskId` | 本次任务标识，只含安全字符 |
 | `backend` | `static` / `matlab-batch` / `matlab-mcp-auto` / `matlab-mcp-existing` / `matlab-mcp-new` |
 | `matlabVersion` | MATLAB 版本串；未使用 MATLAB 时为 `null` |
-| `toolboxInventory` | 工具箱清单（含 `installed` / `licensed` / `available`） |
+| `toolboxInventory` | 工具箱清单（`name` / `version` / `licenseFeature` / `licensed` / `licenseSource`） |
 | `startedAt` / `finishedAt` | 带时区的时间戳 |
 | `environment` | 主机、OS、PowerShell 版本等 |
 | `checks[]` | 检查项数组，见下表 |
@@ -56,7 +56,58 @@
 
 - 文件存在 ≠ 编译成功。`codegen.generate`（L1）与 `codegen.compile`（L2）是两个独立检查项。
 - 通用 C 代码生成成功 ≠ STM32 硬件部署成功。Coder 产出的是与目标无关的 C；STM32 链路需要 CubeMX 注册、目标硬件可见、`.ioc` 绑定、Cube firmware package，这些单独检查。
-- 工具箱出现在 `ver` 输出里 ≠ 该产品可用。`licensed` 单独探测，`available = installed && licensed`。
+- 工具箱出现在 `ver` 输出里 ≠ 该产品可用。`installed` / `licenseExists` / `executionProven` 三个事实分开探测，`available = installed && licenseExists && executionProven !== false`。
+
+### 许可证检测：产品名 ≠ license feature 名
+
+`license('test', x)` 的第二个参数是 **license feature 名**。用产品显示名去测会得到 `0`，
+看起来像"没有许可证"，实际只是查错了键。实测（MATLAB R2026a）：
+
+| 调用 | 返回值 | 说明 |
+| --- | --- | --- |
+| `license('test','MATLAB Coder')` | `0` | 产品名，不是 feature 名 |
+| `license('test','MATLAB_Coder')` | `1` | 正确 |
+| `license('test','Simulink Coder')` | `0` | 产品名 |
+| `license('test','Real-Time_Workshop')` | `1` | 正确 |
+| `license('test','Embedded Coder')` | `0` | 产品名 |
+| `license('test','RTW_Embedded_Coder')` | `1` | 正确 |
+
+映射与判定逻辑集中在这三处，不要在各脚本里手写 `license('test', <产品名>)`：
+
+- [`matlab/validation/+masacc/featureName.m`](../matlab/validation/+masacc/featureName.m)：已实测的产品名 → feature 名映射表
+- [`matlab/validation/+masacc/licenseState.m`](../matlab/validation/+masacc/licenseState.m)：三态授权判定（`true` / `false` / `[]` 无法判定）
+- [`matlab/validation/+masacc/availability.m`](../matlab/validation/+masacc/availability.m)：叠加真实执行探针
+
+两个必须知道的限制：
+
+1. **`license('test')` 的 feature 字符串上限是 27 字符**，超长直接抛 `MATLAB:license:toomanychars`
+   （例如 `Satellite_Communications_Toolbox`、`Sensor_Fusion_and_Tracking_Toolbox`）。
+   这种情况记"无法判定"，不能记"未授权"。
+2. **归一化猜测只能用来确认，不能用来否定**。把产品名的空格换成下划线，命中时可信
+   （`AUTOSAR Blockset` → `AUTOSAR_Blockset` 为真）；返回 `0` 时不可信
+   （`Simulink Coder` → `Simulink_Coder` 为 `0`，而真实 feature 为 `1`）。
+   因此猜测返回 `0` 一律记 `[]`。
+
+## 验收范围（capability scope）
+
+整套验收横跨"基础数值"到"硬件在环"，不能用一个整体状态当 CI 门禁：
+可选能力（Coder 未授权、没有 STM32 板卡）产生的 SKIP 会让 CI 永远红；
+而为了让 CI 变绿去删掉那些 SKIP 又是在造假。
+
+因此引入范围。范围**只决定门禁**，不修改 `overallStatus`，也不删除任何检查项：
+
+| 范围 | 必选能力 |
+| --- | --- |
+| `core` | `matlab.executable`、`inventory.products`、`inventory.gated-license`、`skill.numeric-fit`、`skill.figure-export`、`skill.data-export` |
+| `simulink` | core + `skill.simulink-sim`、`simulink.model-artifact`、`simulink.model-update`、`simulink.simulation`、`simulink.parameter-sweep` |
+| `coder` | core + `codegen.generate`、`codegen.compile`、`compiler.mex-build`、`compiler.numeric`、`compiler.robustness` |
+| `full` | 以上全部 + `simulink.codegen-build`、`feature.*`、`embedded.hardware-in-loop` |
+
+判定规则（`Get-AcceptanceScopeStatus`）：必选 FAIL → `FAIL`；必选 SKIP 或未产出 → `SKIP`；
+全部必选 PASS → `PASS`。可选检查的 SKIP 只记录在 `optionalSkipped`，不影响门禁。
+
+`Test-MatlabSkills.ps1 -Scope <name>` 用它决定退出码（`0` / `1` / `3`），
+报告里同时写入所选 `scope` 与全部四个范围的求值结果 `scopes`。
 
 ## 状态语义
 
@@ -124,8 +175,11 @@
 ## 本机验收
 
 ```powershell
-# 完整验收（含 Coder / Simulink），单个阶段超时 1800 秒
-powershell -ExecutionPolicy Bypass -File .\scripts\Test-MatlabSkills.ps1 -TimeoutSeconds 1800
+# 完整验收（含 Coder / Simulink），单个阶段超时 1800 秒；full 范围要求全部必选能力
+powershell -ExecutionPolicy Bypass -File .\scripts\Test-MatlabSkills.ps1 -TimeoutSeconds 1800 -Scope full
+
+# 基础门禁：只要求 MATLAB 自身能力，可选能力的 SKIP 仍保留在报告里
+powershell -ExecutionPolicy Bypass -File .\scripts\Test-MatlabSkills.ps1 -Scope core
 
 # 只跑工具箱与功能探测，跳过耗时的代码生成
 powershell -ExecutionPolicy Bypass -File .\scripts\Test-MatlabSkills.ps1 -SkipCodegen -SkipSimulink
@@ -136,12 +190,9 @@ powershell -ExecutionPolicy Bypass -File .\scripts\Test-MatlabMcpExistingSession
 
 主报告输出到 `artifacts/validation/acceptance_report.json`；各阶段的子报告在 `artifacts/validation/acceptance/<stage>.json`；每个阶段的日志在 `artifacts/logs/`。
 
-一次真实运行的结论（MATLAB R2026a，本机）：19 项检查中 12 项 PASS、7 项 SKIP、0 项 FAIL，`overallStatus=SKIP`、退出码 `3`、`achievedLevel=L0`。
-SKIP 全部来自 `license('test')` 为 false（MATLAB Coder / Simulink Coder 未授权）或目标 API 未检测到；
-`toolboxInventory` 记录了 117 个产品的真实 `licensed` 状态。
-
-报告里的 `achievedLevel` 之所以是 L0：等级按层连续达成，L1 里只要有一条 SKIP 就不算"达成 L1"。
-这不是苛刻，而是避免"有 12 项 PASS 就宣称到达某一级"。
+真实运行记录见 [`docs/P1_ACCEPTANCE_ZH.md`](P1_ACCEPTANCE_ZH.md) 第 3.7 节（含命令、退出码与修复前后的对比）。
+那里也记录了修复 `license('test', 产品名)` 误判前后的差异：同一个环境、同一台机器，
+Coder 相关检查从全 SKIP 变成真实 PASS/L2/L4。
 
 ## 各阶段检查什么
 
@@ -162,10 +213,20 @@ SKIP 全部来自 `license('test')` 为 false（MATLAB Coder / Simulink Coder �
 
 | 层 | 触发 | 内容 | 缺少依赖时的行为 |
 | --- | --- | --- | --- |
-| free | `-Layer free`（默认） | 安装器安全、验收协议、错误分类、MCP 探测（假服务端） | 不适用 |
-| matlab | `-Layer matlab` | 真实解析 MATLAB、读 `VersionInfo.xml`、真实 `-batch` 执行、真实超时终止 | 输出"未执行"并返回退出码 `2`，不算通过 |
+| free | `-Layer free`（默认） | 安装器安全、验收协议、验收范围、依赖顺序、Pester 版本选择、错误分类、MCP 探测（假服务端） | 不适用 |
+| matlab | `-Layer matlab` | 真实解析 MATLAB、读 `VersionInfo.xml`、真实 `-batch` 执行、真实超时终止、MATLAB 侧 JSON 边界往返 | 输出"未执行"并返回退出码 `2`，不算通过 |
 
-层 A（GitHub Actions `Repository Checks`）只跑 free 层。层 B（`MATLAB Validation`）在带许可证的环境跑 matlab 层与完整验收。层 C 需要 Pro 许可证或硬件，不在默认 workflow 中执行，其检查项在报告里以 SKIP 出现。
+Pester 版本被**显式锁定**在 `3.4.0`（`-PesterVersion`，默认值在 `tests/Invoke-Tests.ps1`）。
+套件使用的是 Pester 3 的 `Should Be` 语法，Pester 5 会直接抛
+`Legacy Should syntax is not supported in Pester 5`。GitHub runner 上同时预装 3.4.0 与 5.9.0，
+旧实现"取最高版本"因此选到 5.9.0，124 个用例全红——那是本仓库真实发生过的 CI 失败，
+不是环境噪音。选择逻辑现在是可单测的纯函数（`tests/helpers/PesterSelection.ps1`）。
+
+层 A（GitHub Actions `Repository Checks`）只跑 free 层，是基础门禁。
+层 B（`MATLAB Validation`）在带许可证的环境跑 matlab 层与完整验收，门禁按 `core` 范围判定；
+`coder` 范围放在 `workflow_dispatch` 且显式申请 Coder 产品的可选 job 里，push / PR 上不参与。
+层 C 需要 Pro 许可证或硬件，不在任何默认 workflow 中执行，其检查项在报告里以 SKIP 出现，
+`full` 范围因此永远不是 PASS——这是刻意的。
 
 ## 论文复现验收
 

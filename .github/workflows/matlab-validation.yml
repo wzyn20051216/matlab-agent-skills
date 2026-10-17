@@ -3,8 +3,14 @@ name: MATLAB Validation
 # 层 B：官方 MATLAB 环境（有许可证）。这一层才会真的启动 MATLAB、真的跑 Simulink、真的调 Coder。
 #
 # 关于"哪些其实没验证"：
-#   - 本 workflow 只申请 MATLAB + Simulink 两个产品。MATLAB Coder / Simulink Coder 没被安装，
-#     对应的检查项会输出 SKIP 并写明原因，绝不冒充 PASS。
+#   - 本 workflow 默认只申请 MATLAB + Simulink 两个产品。MATLAB Coder / Simulink Coder 若没被
+#     安装或没被授权，对应检查项会输出 SKIP 并写明原因，绝不冒充 PASS。
+#   - 门禁按"能力范围"判定，而不是拿整体状态一刀切：
+#       core     必选：MATLAB 能启动、产品清点、数值与导出能力。这是基础 CI 的唯一门禁。
+#       simulink 必选：模型加载/更新/仿真数值/多工况。
+#       coder    必选：C 代码生成、真实编译、MEX 数值一致性。
+#       full     必选：以上全部 + 硬件在环（只能由层 C 的受控 runner 满足）。
+#     范围之外的 SKIP 原样保留在完整报告与 artifact 里，不删不改。
 #   - 需要 Pro 许可证、硬件板卡、外部工具链（Keil / STM32CubeMX / IAR）的检查属于层 C，
 #     不在本 workflow 执行，见文件末尾 layer-c 的说明。
 
@@ -18,7 +24,7 @@ on:
         required: false
         default: '1800'
       include_coder_products:
-        description: '尝试安装 MATLAB Coder / Simulink Coder（需要许可证覆盖这两个产品）'
+        description: '额外申请 MATLAB Coder / Simulink Coder，并执行 coder 范围门禁（需要许可证覆盖）'
         type: choice
         options:
           - 'false'
@@ -26,10 +32,9 @@ on:
         default: 'false'
 
 jobs:
-  matlab-tests:
-    name: 层 B - 真实 MATLAB 执行
+  matlab-core:
+    name: 层 B - Core MATLAB（门禁）
     runs-on: windows-latest
-    # 真跑 MATLAB 必须有许可证；没有就明确失败/跳过，不允许静默通过。
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
@@ -42,6 +47,20 @@ jobs:
             MATLAB
             Simulink
             ${{ github.event.inputs.include_coder_products == 'true' && 'MATLAB Coder Simulink Coder' || '' }}
+
+      - name: Ensure Pester 3.4.0 is available
+        shell: pwsh
+        run: |
+          # 测试套件使用 Pester 3 的 Should 语法；runner 上还有 Pester 5.9.0，
+          # 选中 5.x 会让整套用例以 "Legacy Should syntax is not supported" 失败。
+          $required = '3.4.0'
+          $found = Get-Module -ListAvailable Pester | Where-Object { "$($_.Version)" -eq $required }
+          if (-not $found) {
+            Install-Module Pester -RequiredVersion $required -Scope CurrentUser -Force -SkipPublisherCheck
+            $found = Get-Module -ListAvailable Pester | Where-Object { "$($_.Version)" -eq $required }
+          }
+          if (-not $found) { throw "无法准备 Pester $required" }
+          "Pester $required ready: $($found[0].Path)"
 
       - name: Confirm MATLAB is visible to PowerShell
         shell: pwsh
@@ -56,42 +75,62 @@ jobs:
 
       - name: Run real-execution tests (matlab layer)
         shell: pwsh
-        run: ./tests/Invoke-Tests.ps1 -Layer matlab -CI
+        run: ./tests/Invoke-Tests.ps1 -Layer matlab -CI -PesterVersion 3.4.0
         env:
           TIMEOUT_SECONDS: ${{ github.event.inputs.timeout_seconds || '1800' }}
 
-      - name: Run MATLAB skill acceptance suite
+      # 六阶段全部执行，报告保持完整；只有所声明的 core 范围决定本 job 成败。
+      - name: Run MATLAB skill acceptance suite (scope=core)
         shell: pwsh
         run: |
           $timeout = [int]$env:TIMEOUT_SECONDS
-          ./scripts/Test-MatlabSkills.ps1 -TimeoutSeconds $timeout -OutputPath 'artifacts/validation/acceptance_report.json'
+          ./scripts/Test-MatlabSkills.ps1 -TimeoutSeconds $timeout -Scope core `
+            -OutputPath 'artifacts/validation/acceptance_report.json'
         env:
           TIMEOUT_SECONDS: ${{ github.event.inputs.timeout_seconds || '1800' }}
 
-      - name: Verify acceptance report is schema-valid and truthful
+      - name: Report every scope and keep all SKIPs visible
         if: always()
         shell: pwsh
         run: |
-          Import-Module ./scripts/MatlabAgentSkills.Acceptance.psm1 -Force -DisableNameChecking
           $path = 'artifacts/validation/acceptance_report.json'
           if (-not (Test-Path -LiteralPath $path)) {
             throw "没有产出验收报告 $path：本层实际未完成，不能视为通过"
           }
+          Import-Module ./scripts/MatlabAgentSkills.Acceptance.psm1 -Force -DisableNameChecking
           $report = Import-AcceptanceReport -Path $path
           $result = Test-AcceptanceReport -Report $report
           if (-not $result.Valid) {
             $result.Errors | ForEach-Object { Write-Error $_ }
             exit 1
           }
+
           $report.checks | ForEach-Object {
-            "{0,-34} {1,-5} L{2} {3}" -f $_.id, $_.status, $_.level, $_.reason
+            "{0,-34} {1,-5} {2}  {3}" -f $_.id, $_.status, $_.level, $_.reason
           }
-          "overallStatus = $($report.overallStatus)"
+          ""
+          "overallStatus = $($report.overallStatus)（存在 SKIP 就会是 SKIP，这是真实状态）"
           "achievedLevel = $($report.achievedLevel)"
-          if ($report.overallStatus -eq 'FAIL' -or $report.overallStatus -eq 'SKIP') {
-            Write-Error "验收未通过（$($report.overallStatus)）：见上方各检查项的 reason"
+          ""
+          "scope        status  optional-skip"
+          "--------------------------------------"
+          foreach ($scopeName in @('core', 'simulink', 'coder', 'full')) {
+            $status = Get-AcceptanceScopeStatus -Report $report -Scope $scopeName
+            "{0,-12} {1,-7} {2}" -f $status.name, $status.status, $status.optionalSkippedCount
+            if ($status.optionalSkippedCount -gt 0) {
+              "              可选能力未验证：" + ($status.optionalSkipped -join ', ')
+            }
+            if ($status.missingRequired.Count -gt 0) {
+              "              必选检查未产出：" + ($status.missingRequired -join ', ')
+            }
+          }
+
+          $core = Get-AcceptanceScopeStatus -Report $report -Scope 'core'
+          if ($core.status -ne 'PASS') {
+            Write-Error "core 范围未通过（$($core.status)）：$($core.reason)"
             exit 1
           }
+          "core 范围通过；其余范围的未验证项已保留在报告中，不计入本 job 成败。"
 
       - name: Upload MATLAB artifacts
         uses: actions/upload-artifact@v4
@@ -102,16 +141,52 @@ jobs:
             artifacts
           if-no-files-found: warn
 
+  matlab-coder:
+    name: 层 B - Coder 范围（需 Coder 许可证，非必选）
+    runs-on: windows-latest
+    # 只有在显式要求并申请了 Coder 产品时才执行；push / PR 上不存在这个 job，
+    # 因此它不会影响基础 CI 的成败。
+    if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.include_coder_products == 'true' }}
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up MATLAB with Coder products
+        uses: matlab-actions/setup-matlab@v3
+        with:
+          release: latest
+          products: >
+            MATLAB
+            Simulink
+            MATLAB Coder
+            Simulink Coder
+            Embedded Coder
+
+      - name: Run MATLAB skill acceptance suite (scope=coder)
+        shell: pwsh
+        run: |
+          ./scripts/Test-MatlabSkills.ps1 -TimeoutSeconds 2400 -Scope coder `
+            -OutputPath 'artifacts/validation/acceptance_report_coder.json'
+
+      - name: Upload coder artifacts
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: matlab-coder-artifacts
+          path: |
+            artifacts
+          if-no-files-found: warn
+
 # 层 C 说明（有意不在本文件里实现成默认 job）：
 #
 #   需要以下条件的检查无法在公共 runner 上完成，属于层 C：
-#     1. MATLAB Coder / Simulink Coder / Embedded Coder 的编译产物验证（需要覆盖这些产品的许可证）
-#     2. STM32 目标硬件的下载与回读（需要板卡、调试器、串口回读通道）
-#     3. 外部工具链（Keil MDK / IAR / STM32CubeMX）的集成验证
+#     1. STM32 目标硬件的下载与回读（需要板卡、调试器、串口回读通道）
+#     2. 外部工具链（Keil MDK / IAR / STM32CubeMX）的集成验证
+#     3. 硬件在环（HIL）闭环测试
 #
-#   这些检查在层 B 的验收报告里以 SKIP 出现，并带有明确的 skip 原因。
-#   报告不会因为"检查项被跳过"而把 overallStatus 判成 PASS —— 只要存在 SKIP，
-#   整体状态就是 SKIP（退出码 3），achievedLevel 也停在第一个不连续的等级之前。
+#   这些检查在验收报告里以 SKIP 出现（`embedded.hardware-in-loop`），并带明确原因。
+#   full 范围把它们列为必选，因此公开 CI 上 full 永远不是 PASS ——这是刻意的，
+#   而不是"CI 配错了"。
 #
 #   如需执行层 C，请在受控 runner 上手动运行：
 #     ./scripts/Test-MatlabEmbeddedStack.ps1 -TimeoutSeconds 3600

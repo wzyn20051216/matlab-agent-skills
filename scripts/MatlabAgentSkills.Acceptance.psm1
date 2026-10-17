@@ -295,8 +295,24 @@ function Write-AcceptanceReport {
     $json = $Report | ConvertTo-Json -Depth 16
     $tempPath = "$Path.tmp-$([guid]::NewGuid().ToString('N'))"
     [System.IO.File]::WriteAllText($tempPath, $json, (New-Object System.Text.UTF8Encoding($false)))
-    if (Test-Path -LiteralPath $Path) { Remove-Item -LiteralPath $Path -Force }
-    Move-Item -LiteralPath $tempPath -Destination $Path -Force
+
+    # 原子替换：不要用 Remove-Item + Move-Item。
+    # "先删再移"在两者之间有一段真空期，删除失败（被安全删除钩子拦截、文件被占用）时
+    # 会留下"目标已消失、临时文件还在"的状态。File.Replace 是单步操作，
+    # 目标存在时直接换名，失败则原文件保持不动。
+    if (Test-Path -LiteralPath $Path) {
+        try {
+            [System.IO.File]::Replace($tempPath, $Path, $null)
+        }
+        catch {
+            # 跨卷或文件系统不支持 Replace 时退化为覆盖写，仍然不经过删除步骤。
+            [System.IO.File]::Copy($tempPath, $Path, $true)
+            [System.IO.File]::Delete($tempPath)
+        }
+    }
+    else {
+        [System.IO.File]::Move($tempPath, $Path)
+    }
 
     return $Report
 }
@@ -361,6 +377,227 @@ function Merge-AcceptanceReport {
     }
 
     return Update-AcceptanceSummary -Report $Report
+}
+
+function Get-AcceptanceScopeDefinition {
+    <#
+    .SYNOPSIS
+    返回验收范围（capability scope）的定义：哪些检查是必选，哪些是可选。
+    .DESCRIPTION
+    为什么需要范围：
+        整套六阶段验收包含"基础 MATLAB 数值"到"硬件在环"的能力，跨度很大。
+        如果拿"整体状态"当 CI 门禁，只要有一条可选能力（例如 Coder 未授权、
+        没有 STM32 板卡）是 SKIP，CI 就永远红；反过来，为了让 CI 变绿去删掉
+        那些 SKIP 又是在造假。
+
+        正确的做法是：范围声明"这一次要验证哪些能力"，门禁只看这些必选检查；
+        可选能力的 SKIP 全部保留在完整报告里，谁都能看到"没验证什么"。
+
+    未被任何范围收录的检查仍然会进入完整报告，不影响任何范围判定。
+    #>
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory)]
+        [ValidateSet("core", "simulink", "coder", "full")]
+        [string]$Scope
+    )
+
+    # core：MATLAB 能启动、能枚举产品、能算出正确数值、能导出产物。
+    $coreRequired = @(
+        "matlab.executable"
+        "inventory.products"
+        "inventory.gated-license"
+        "skill.numeric-fit"
+        "skill.figure-export"
+        "skill.data-export"
+    )
+
+    switch ($Scope) {
+        "core" {
+            return [pscustomobject]@{
+                name        = "core"
+                title       = "Core MATLAB：运行时、产品清点与数值/导出能力"
+                required    = $coreRequired
+                optional    = @("*")
+                description = "只要求 MATLAB 自身可用；Simulink / Coder / 硬件相关检查允许 SKIP 并保留在报告中。"
+            }
+        }
+        "simulink" {
+            return [pscustomobject]@{
+                name        = "simulink"
+                title       = "Simulink：模型加载、更新、仿真数值与多工况"
+                required    = $coreRequired + @(
+                    "skill.simulink-sim"
+                    "simulink.model-artifact"
+                    "simulink.model-update"
+                    "simulink.simulation"
+                    "simulink.parameter-sweep"
+                )
+                optional    = @("simulink.codegen-build", "codegen.*", "compiler.*", "feature.*")
+                description = "要求 Simulink 建模与仿真确实跑通；Simulink Coder 构建、MATLAB Coder、硬件不在必选范围内。"
+            }
+        }
+        "coder" {
+            return [pscustomobject]@{
+                name        = "coder"
+                title       = "Coder：C 代码生成、真实编译与数值一致性"
+                required    = $coreRequired + @(
+                    "codegen.generate"
+                    "codegen.compile"
+                    "compiler.mex-build"
+                    "compiler.numeric"
+                    "compiler.robustness"
+                )
+                optional    = @("simulink.codegen-build", "simulink.*", "feature.*")
+                description = "要求 MATLAB Coder 与 C 编译器真实可用；Simulink 与硬件相关检查允许 SKIP。"
+            }
+        }
+        "full" {
+            return [pscustomobject]@{
+                name        = "full"
+                title       = "Full Stack：全部工程能力，含 Simulink Coder 与硬件在环"
+                required    = $coreRequired + @(
+                    "skill.simulink-sim"
+                    "simulink.model-artifact"
+                    "simulink.model-update"
+                    "simulink.simulation"
+                    "simulink.parameter-sweep"
+                    "simulink.codegen-build"
+                    "codegen.generate"
+                    "codegen.compile"
+                    "compiler.mex-build"
+                    "compiler.numeric"
+                    "compiler.robustness"
+                    "feature.direct-import"
+                    "feature.blocksets"
+                    "feature.agentic"
+                    "embedded.hardware-in-loop"
+                )
+                optional    = @()
+                description = "全部必选。硬件在环与 STM32 下载回读只能由层 C 的受控 runner 满足，因此公开 CI 上本范围必然不是 PASS。"
+            }
+        }
+    }
+}
+
+function Test-AcceptanceCheckIdMatch {
+    <# .SYNOPSIS 检查 id 是否命中给定模式（支持 * 通配）。 #>
+    param(
+        [Parameter(Mandatory)][string]$Id,
+        [Parameter(Mandatory)][AllowEmptyCollection()][string[]]$Pattern
+    )
+    foreach ($item in $Pattern) {
+        if ($Id -like $item) { return $true }
+    }
+    return $false
+}
+
+function Get-AcceptanceScopeStatus {
+    <#
+    .SYNOPSIS
+    按范围计算门禁状态：PASS / FAIL / SKIP，以及为什么。
+    .DESCRIPTION
+    规则（刻意保守）：
+      - 任一必选检查 FAIL            -> FAIL
+      - 任一必选检查 SKIP            -> SKIP
+      - 任一必选检查在报告里不存在    -> SKIP（"未产出"不等于"通过"）
+      - 全部必选检查 PASS            -> PASS
+    可选检查的 SKIP 只记录、不影响门禁状态。
+    #>
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory)]$Report,
+        [Parameter(Mandatory)]
+        [ValidateSet("core", "simulink", "coder", "full")]
+        [string]$Scope
+    )
+
+    $definition = Get-AcceptanceScopeDefinition -Scope $Scope
+    $checks = @($Report.checks)
+
+    $requiredResults = @()
+    $missing = @()
+    $failed = @()
+    $skipped = @()
+
+    foreach ($requiredId in $definition.required) {
+        $matched = @($checks | Where-Object { $_.id -eq $requiredId })
+        if ($matched.Count -eq 0) {
+            $missing += $requiredId
+            $requiredResults += [pscustomobject][ordered]@{
+                id = $requiredId; status = "MISSING"; reason = "报告中没有该检查项"
+            }
+            continue
+        }
+        $check = $matched[0]
+        $requiredResults += [pscustomobject][ordered]@{
+            id = $requiredId
+            status = "$($check.status)"
+            reason = $(if ($check.reason) { "$($check.reason)" } else { $null })
+        }
+        switch ("$($check.status)") {
+            "FAIL" { $failed += $requiredId }
+            "SKIP" { $skipped += $requiredId }
+        }
+    }
+
+    $optionalSkipped = @(
+        $checks |
+            Where-Object { -not (Test-AcceptanceCheckIdMatch -Id "$($_.id)" -Pattern $definition.required) } |
+            Where-Object { $_.status -eq "SKIP" } |
+            ForEach-Object { "$($_.id)" }
+    )
+
+    $status = "PASS"
+    $reason = "所有必选检查均已 PASS"
+    if ($failed.Count -gt 0) {
+        $status = "FAIL"
+        $reason = "必选检查失败：" + ($failed -join ", ")
+    }
+    elseif ($missing.Count -gt 0) {
+        $status = "SKIP"
+        $reason = "必选检查未产出（未执行）：" + ($missing -join ", ")
+    }
+    elseif ($skipped.Count -gt 0) {
+        $status = "SKIP"
+        $reason = "必选检查被跳过（未验证）：" + ($skipped -join ", ")
+    }
+
+    return [pscustomobject][ordered]@{
+        name            = $definition.name
+        title           = $definition.title
+        description     = $definition.description
+        status          = $status
+        reason          = $reason
+        requiredIds     = $definition.required
+        optionalIds     = $definition.optional
+        requiredResults = $requiredResults
+        failedRequired  = $failed
+        skippedRequired = $skipped
+        missingRequired = $missing
+        optionalSkipped = $optionalSkipped
+        optionalSkippedCount = $optionalSkipped.Count
+    }
+}
+
+function Get-AcceptanceScopeEvaluations {
+    <# .SYNOPSIS 对四个范围全部求值，便于在报告里一次性展示"哪些范围能过"。 #>
+    param([Parameter(Mandatory)]$Report)
+    return @(
+        foreach ($scopeName in @("core", "simulink", "coder", "full")) {
+            Get-AcceptanceScopeStatus -Report $Report -Scope $scopeName
+        }
+    )
+}
+
+function Get-AcceptanceScopeExitCode {
+    <# .SYNOPSIS 范围门禁退出码：0=PASS，1=FAIL，3=SKIP（未验证）。 #>
+    param([Parameter(Mandatory)]$ScopeStatus)
+    switch ("$($ScopeStatus.status)") {
+        "PASS" { return 0 }
+        "FAIL" { return 1 }
+        default { return 3 }
+    }
 }
 
 function Get-AcceptanceExitCode {

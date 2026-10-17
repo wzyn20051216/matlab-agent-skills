@@ -29,7 +29,11 @@ param(
     [string]$Filter = "",
     [switch]$CI,
     [string]$MatlabPath = "",
-    [string]$OutputPath = ""
+    [string]$OutputPath = "",
+    # 本套件使用 Pester 3 语法（Should Be / Should Throw，不带中划线）。
+    # Pester 5 会直接抛 "Legacy Should syntax is not supported in Pester 5"，
+    # 因此必须锁定具体版本，不能"取已安装的最高版本"——那是 CI 全红的直接原因。
+    [string]$PesterVersion = "3.4.0"
 )
 
 $ErrorActionPreference = "Stop"
@@ -37,19 +41,17 @@ $ErrorActionPreference = "Stop"
 $repoRoot = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path
 $matlabLayerSuffix = ".Matlab.Tests.ps1"
 
+# 版本选择逻辑放在 helpers 里，便于脱离 Pester 单独做回归测试。
+. (Join-Path $PSScriptRoot "helpers\PesterSelection.ps1")
+
 function Get-TestFileLayer {
     param([Parameter(Mandatory)][string]$Name)
     if ($Name.EndsWith($matlabLayerSuffix, [System.StringComparison]::OrdinalIgnoreCase)) { return "matlab" }
     return "free"
 }
 
-$available = Get-Module -ListAvailable Pester | Sort-Object Version -Descending
-if (-not $available) {
-    throw "未找到 Pester。请先安装（Install-Module Pester -Scope CurrentUser），或在 CI 中预装 Pester。"
-}
-
-$pester = $available | Select-Object -First 1
-Write-Host "==> 使用 Pester $($pester.Version) ($($pester.Path))" -ForegroundColor Cyan
+$pester = Resolve-TestPesterModule -RequiredVersion $PesterVersion -RepositoryRoot $repoRoot
+Write-Host "==> 使用 Pester $($pester.Version) ($($pester.Path)) [$($pester.Source)]" -ForegroundColor Cyan
 
 Import-Module -Name $pester.Path -Force
 
@@ -185,7 +187,10 @@ $layerReport = [pscustomobject][ordered]@{
     generatedAt     = (Get-Date).ToString("yyyy-MM-ddTHH:mm:sszzz")
     requestedLayer  = $Layer
     filter          = $(if ($Filter) { $Filter } else { $null })
+    pesterVersionRequired = $PesterVersion
     pesterVersion   = "$($pester.Version)"
+    pesterSource    = "$($pester.Source)"
+    pesterPath      = "$($pester.Path)"
     matlabAvailable = $matlabAvailable
     matlabPath      = $(if ($matlabAvailable) { $matlabExe } else { $null })
     matlabRelease   = $(if ($matlabInfo) { $matlabInfo.Release } else { $null })

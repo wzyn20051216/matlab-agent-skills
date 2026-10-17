@@ -77,6 +77,20 @@
               "boolean",
               "null"
             ]
+          },
+          "licenseFeature": {
+            "description": "实际用于 license('test') 的 feature 名；与产品显示名不同。",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "licenseSource": {
+            "description": "feature 名的来源：table（已实测映射）/ normalized-guess（猜测）/ unknown。",
+            "type": [
+              "string",
+              "null"
+            ]
           }
         }
       }
@@ -159,6 +173,17 @@
         "SKIP"
       ]
     },
+    "scope": {
+      "description": "本次声明的验收范围及其门禁结论。门禁只看该范围的必选检查；overallStatus 仍保持真实。",
+      "$ref": "#/definitions/scope"
+    },
+    "scopes": {
+      "description": "全部四个范围的求值结果，便于一次看清哪些范围能过、哪些因为未验证而不过。",
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/scope"
+      }
+    },
     "achievedLevel": {
       "type": "string",
       "enum": [
@@ -209,6 +234,82 @@
     }
   },
   "definitions": {
+    "scope": {
+      "type": "object",
+      "required": [
+        "name",
+        "status",
+        "requiredIds"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "enum": [
+            "core",
+            "simulink",
+            "coder",
+            "full"
+          ]
+        },
+        "title": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "PASS",
+            "FAIL",
+            "SKIP"
+          ]
+        },
+        "reason": {
+          "type": "string"
+        },
+        "requiredIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "optionalIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "failedRequired": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "skippedRequired": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "missingRequired": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "optionalSkipped": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "optionalSkippedCount": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
     "check": {
       "type": "object",
       "additionalProperties": true,

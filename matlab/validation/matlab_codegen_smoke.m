@@ -31,7 +31,10 @@ report.limitations = [
 ];
 
 state = struct("integrator", 0.2, "Ts", 1e-3, "Kp", 0.8, "Ki", 10.0);
-args = {0.0, 0.0, coder.typeof(state)};
+
+% 注意顺序：coder.typeof 本身就是 MATLAB Coder 的 API。
+% 旧版在依赖检测之前就构造参数，缺少授权时会直接抛未捕获异常，
+% 根本走不到下面的 SKIP 分支。参数必须在确认可用之后再构造（见各分支的 try 块）。
 coderInfo = masacc.availability("MATLAB Coder");
 
 % ---------------- L1：代码生成 ----------------
@@ -46,13 +49,25 @@ if ~coderInfo.available
 else
     started = masacc.timestamp();
     elapsed = tic;
+    if ~isfolder(genDir)
+        mkdir(genDir);
+    end
+    currentFolder = pwd;
+    restoreFolder = onCleanup(@() cd(currentFolder));
     try
         cfg = coder.config("lib");
         cfg.GenerateReport = false;
         cfg.GenCodeOnly = true;
         cfg.TargetLang = "C";
-        codegen -config cfg pi_control_step -args args -d genDir
+        args = {0.0, 0.0, coder.typeof(state)};
+        % 不用 `-d <变量名>`：codegen 的命令行解析器会把变量名当字面量，
+        % 实测会在当前目录建一个名为 genDir 的文件夹，产物落在那里，
+        % 而校验去绝对路径找，结果是"codegen 成功但找不到文件"的假 FAIL。
+        % 改为切到目标目录再执行，产物位置没有歧义。
+        cd(genDir);
+        codegen -config cfg pi_control_step -args args
 
+        % 产物目录是 genDir/codegen/lib/<fcn>/，必须递归查找。
         sourceHits = dir(fullfile(genDir, "**", "pi_control_step.c"));
         headerHits = dir(fullfile(genDir, "**", "pi_control_step.h"));
         if ~isempty(sourceHits)
@@ -94,6 +109,8 @@ else
             Command="codegen -config lib (GenCodeOnly) pi_control_step", ...
             StartedAt=started, FinishedAt=masacc.timestamp(), DurationSeconds=toc(elapsed));
     end
+    % 在脚本里必须显式 clear 才会触发 onCleanup；否则当前目录一直停在 genDir。
+    clear restoreFolder
 end
 
 % ---------------- L2：真实编译（静态库） ----------------
@@ -111,12 +128,20 @@ else
     started = masacc.timestamp();
     elapsed = tic;
     buildDir = fullfile(artifactDir, "compiled_lib");
+    if ~isfolder(buildDir)
+        mkdir(buildDir);
+    end
+    currentFolder = pwd;
+    restoreFolder = onCleanup(@() cd(currentFolder));
     try
         cfgBuild = coder.config("lib");
         cfgBuild.GenerateReport = false;
         cfgBuild.GenCodeOnly = false;
         cfgBuild.TargetLang = "C";
-        codegen -config cfgBuild pi_control_step -args args -d buildDir
+        args = {0.0, 0.0, coder.typeof(state)};
+        % 同 L1：不用 `-d <变量名>`，改切目录执行。
+        cd(buildDir);
+        codegen -config cfgBuild pi_control_step -args args
 
         libHits = [dir(fullfile(buildDir, "**", "*.lib")); dir(fullfile(buildDir, "**", "*.a"))];
         buildOk = ~isempty(libHits);
@@ -145,6 +170,7 @@ else
             Command="codegen -config lib (GenCodeOnly=false) pi_control_step", ...
             StartedAt=started, FinishedAt=masacc.timestamp(), DurationSeconds=toc(elapsed));
     end
+    clear restoreFolder
 end
 
 acceptancePath = fullfile(acceptanceDir, "codegen_smoke.json");

@@ -103,7 +103,23 @@ v = ver;
 When MATLAB fails:
 
 - Read the first error and the deepest stack frame.
-- Check missing toolbox with `license('test', product)` and `ver`.
+- Check missing toolbox with `ver` (installed) and `license('test', feature)` (licensed).
+  The second argument is a **license feature name**, not the product display name; they often differ
+  and passing the product name returns `0` even when the product is licensed:
+
+  | Product | Feature |
+  | --- | --- |
+  | MATLAB Coder | `MATLAB_Coder` |
+  | Simulink Coder | `Real-Time_Workshop` |
+  | Embedded Coder | `RTW_Embedded_Coder` |
+  | Fixed-Point Designer | `Fixed_Point_Toolbox` |
+  | Deep Learning Toolbox | `Neural_Network_Toolbox` |
+  | Signal Processing Toolbox | `Signal_Toolbox` |
+
+  In this repository use `masacc.availability("MATLAB Coder")` / `masacc.licenseState(...)`
+  instead of calling `license` directly: they carry the verified mapping, handle the
+  27-character limit of `license('test')` (longer names throw `MATLAB:license:toomanychars`),
+  and return `[]` for "cannot determine" instead of a misleading `false`.
 - Check path ambiguity with `which functionName -all`.
 - Re-run a minimal reproduction before editing large code.
 - Save the failing command and log path.

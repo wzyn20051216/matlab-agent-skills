@@ -53,11 +53,20 @@ elseif ~hasCompiler
 else
     started = masacc.timestamp();
     elapsed = tic;
+    if ~isfolder(mexDir)
+        mkdir(mexDir);
+    end
+    currentFolder = pwd;
+    restoreFolder = onCleanup(@() cd(currentFolder));
     try
         cfg = coder.config("mex");
         cfg.GenerateReport = false;
-        codegen -config cfg pi_control_step -args {1.0, 0.6, coder.typeof(state)} -d mexDir
+        % 不用 `-d <变量名>`：codegen 的命令行解析器把变量名当字面量，
+        % 实测会在当前目录建一个名为 mexDir 的文件夹，导致"生成了却找不到"的假 FAIL。
+        cd(mexDir);
+        codegen -config cfg pi_control_step -args {1.0, 0.6, coder.typeof(state)}
 
+        % 产物嵌套在 mexDir/codegen/... 下，必须递归查找。
         hits = dir(fullfile(mexDir, "**", "pi_control_step_mex.*"));
         hits = hits(~[hits.isdir]);
         if ~isempty(hits)
@@ -87,6 +96,7 @@ else
             Command="codegen -config:mex pi_control_step", ...
             StartedAt=started, FinishedAt=masacc.timestamp(), DurationSeconds=toc(elapsed));
     end
+    clear restoreFolder
 end
 
 % ---------------- L3：数值一致性 ----------------

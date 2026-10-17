@@ -175,6 +175,28 @@ Describe "报告落盘与合并" {
         finally { Remove-TestSandbox $sandbox }
     }
 
+    It "覆盖写同一路径是原子替换：不残留临时文件，旧内容被替换" {
+        # 旧实现是 Remove-Item + Move-Item。两者之间有一段时间目标文件不存在；
+        # 若删除被安全钩子拦截或文件被占用，就会留下"目标消失、临时文件还在"的状态。
+        $sandbox = New-TestSandbox -Prefix "acceptance-atomic"
+        try {
+            $path = Join-Path $sandbox.Validation "atomic.json"
+            $first = New-ValidReport -TaskId "atomic-first"
+            Write-AcceptanceReport -Report $first -Path $path | Out-Null
+            (Test-Path -LiteralPath $path) | Should Be $true
+
+            $second = New-ValidReport -TaskId "atomic-second"
+            Write-AcceptanceReport -Report $second -Path $path | Out-Null
+
+            $reloaded = Import-AcceptanceReport -Path $path
+            "$($reloaded.taskId)" | Should Be "atomic-second"
+            @(Get-ChildItem -LiteralPath $sandbox.Validation -Filter "*.tmp-*" -File).Count | Should Be 0
+        }
+        finally {
+            Remove-TestSandbox -Sandbox $sandbox
+        }
+    }
+
     It "合并子报告时保留全部检查并处理 id 冲突" {
         $parent = New-ValidReport -TaskId "parent"
         $child = New-AcceptanceReport -TaskId "child" -Backend "matlab-batch"
@@ -240,5 +262,220 @@ Describe "等级名称与元数据" {
 
     It "taskId 只含安全字符" {
         (New-AcceptanceTaskId -Prefix "my task/id") | Should Match '^[A-Za-z0-9._-]+$'
+    }
+}
+
+Describe "验收范围（capability scope）" {
+    function New-ScopedReport {
+        param(
+            [string]$NumericStatus = "PASS",
+            [string]$InventoryStatus = "PASS",
+            [string]$CoderStatus = "SKIP",
+            [switch]$OmitCoder
+        )
+        $report = New-AcceptanceReport -TaskId "scope-unit" -Backend "matlab-batch"
+        $report = Add-AcceptanceCheck -Report $report -Id "matlab.executable" -Title "解析 MATLAB" -Level "L1" -Status "PASS"
+        $report = Add-AcceptanceCheck -Report $report -Id "inventory.products" -Title "产品清单" -Level "L1" -Status $InventoryStatus `
+            -Reason $(if ($InventoryStatus -ne "PASS") { "清单为空" } else { "" })
+        $report = Add-AcceptanceCheck -Report $report -Id "inventory.gated-license" -Title "核心授权" -Level "L1" -Status "PASS"
+        foreach ($id in @("skill.numeric-fit", "skill.figure-export", "skill.data-export")) {
+            $report = Add-AcceptanceCheck -Report $report -Id $id -Title $id -Level "L1" -Status $NumericStatus `
+                -Reason $(if ($NumericStatus -ne "PASS") { "数值不符" } else { "" })
+        }
+        if (-not $OmitCoder) {
+            $report = Add-AcceptanceCheck -Report $report -Id "codegen.generate" -Title "生成 C 源码" -Level "L1" -Status $CoderStatus `
+                -Reason $(if ($CoderStatus -ne "PASS") { "缺少 MATLAB Coder 授权" } else { "" })
+        }
+        return (Update-AcceptanceSummary -Report $report)
+    }
+
+    It "四个范围都有定义，且 full 的必选集最大" {
+        $core = Get-AcceptanceScopeDefinition -Scope "core"
+        $simulink = Get-AcceptanceScopeDefinition -Scope "simulink"
+        $coder = Get-AcceptanceScopeDefinition -Scope "coder"
+        $full = Get-AcceptanceScopeDefinition -Scope "full"
+        ($core.required.Count -gt 0) | Should Be $true
+        ($simulink.required.Count -gt $core.required.Count) | Should Be $true
+        ($coder.required.Count -gt $core.required.Count) | Should Be $true
+        ($full.required.Count -gt $coder.required.Count) | Should Be $true
+        ($full.required -contains "embedded.hardware-in-loop") | Should Be $true
+    }
+
+    It "core 范围不因 Coder 检查 SKIP 而失败" {
+        $report = New-ScopedReport -CoderStatus "SKIP"
+        $status = Get-AcceptanceScopeStatus -Report $report -Scope "core"
+        $status.status | Should Be "PASS"
+        ($status.optionalSkipped -contains "codegen.generate") | Should Be $true
+        $status.optionalSkippedCount | Should Be 1
+    }
+
+    It "可选 SKIP 不影响 core，但整体状态仍然是 SKIP（不被改写）" {
+        $report = New-ScopedReport -CoderStatus "SKIP"
+        (Get-AcceptanceOverallStatus -Report $report) | Should Be "SKIP"
+        (Get-AcceptanceScopeStatus -Report $report -Scope "core").status | Should Be "PASS"
+    }
+
+    It "coder 范围内必选检查 SKIP 时判为 SKIP，而不是 PASS" {
+        $report = New-ScopedReport -CoderStatus "SKIP"
+        $status = Get-AcceptanceScopeStatus -Report $report -Scope "coder"
+        $status.status | Should Be "SKIP"
+        ($status.skippedRequired -contains "codegen.generate") | Should Be $true
+    }
+
+    It "必选检查 FAIL 时范围判为 FAIL" {
+        $report = New-ScopedReport -NumericStatus "FAIL"
+        (Get-AcceptanceScopeStatus -Report $report -Scope "core").status | Should Be "FAIL"
+    }
+
+    It "必选检查在报告里缺失时判为 SKIP（未产出不等于通过）" {
+        $report = New-ScopedReport -OmitCoder
+        $status = Get-AcceptanceScopeStatus -Report $report -Scope "coder"
+        $status.status | Should Be "SKIP"
+        ($status.missingRequired -contains "codegen.generate") | Should Be $true
+    }
+
+    It "范围退出码与状态一致：PASS=0 / FAIL=1 / SKIP=3" {
+        (Get-AcceptanceScopeExitCode -ScopeStatus ([pscustomobject]@{ status = "PASS" })) | Should Be 0
+        (Get-AcceptanceScopeExitCode -ScopeStatus ([pscustomobject]@{ status = "FAIL" })) | Should Be 1
+        (Get-AcceptanceScopeExitCode -ScopeStatus ([pscustomobject]@{ status = "SKIP" })) | Should Be 3
+    }
+
+    It "四个范围可以一次性求值，顺序固定" {
+        $report = New-ScopedReport
+        $evaluations = Get-AcceptanceScopeEvaluations -Report $report
+        @($evaluations).Count | Should Be 4
+        (@($evaluations | ForEach-Object { $_.name }) -join ",") | Should Be "core,simulink,coder,full"
+    }
+
+    It "范围求值结果能写进报告并通过 schema 校验" {
+        $report = New-ScopedReport
+        $evaluations = Get-AcceptanceScopeEvaluations -Report $report
+        $selected = $evaluations | Where-Object { $_.name -eq "core" } | Select-Object -First 1
+        $report | Add-Member -NotePropertyName scopes -NotePropertyValue $evaluations -Force
+        $report | Add-Member -NotePropertyName scope -NotePropertyValue $selected -Force
+        $validation = Test-AcceptanceReport -Report $report
+        ($validation.Errors -join " | ") | Should Be ""
+        $validation.Valid | Should Be $true
+    }
+}
+
+Describe "报告边界值编码" {
+    # 语义校验要求 summary 与 checks 一致，所以每次改完检查项都要收尾一次。
+    function Complete-Report {
+        param($Report)
+        return (Update-AcceptanceSummary -Report $Report)
+    }
+
+    It "单条检查的 checks 仍然是数组（不能退化成对象）" {
+        $report = New-AcceptanceReport -TaskId "boundary-single" -Backend "static"
+        $report = Add-AcceptanceCheck -Report $report -Id "only.check" -Title "唯一检查" -Level "L1" -Status "PASS"
+        $report = Complete-Report $report
+        $validation = Test-AcceptanceReport -Report $report
+        ($validation.Errors -join " | ") | Should Be ""
+        $validation.Valid | Should Be $true
+    }
+
+    It "exitCode 允许整数与 null，拒绝字符串" {
+        $report = New-AcceptanceReport -TaskId "boundary-exit" -Backend "static"
+        $report = Add-AcceptanceCheck -Report $report -Id "exit.ok" -Title "整数退出码" -Level "L1" -Status "PASS" -ExitCode 0
+        ($report = Complete-Report $report) | Out-Null
+        (Test-AcceptanceReport -Report $report).Valid | Should Be $true
+
+        $report2 = New-AcceptanceReport -TaskId "boundary-exit2" -Backend "static"
+        $report2 = Add-AcceptanceCheck -Report $report2 -Id "exit.null" -Title "空退出码" -Level "L1" -Status "PASS"
+        ($report2 = Complete-Report $report2) | Out-Null
+        (Test-AcceptanceReport -Report $report2).Valid | Should Be $true
+
+        # 公开 API 的参数是强类型的，传字符串会被转成 int。
+        # 这里直接改对象字段，模拟"外部生产者写坏了 JSON"的情形，验证校验器能拦住。
+        $bad = New-AcceptanceReport -TaskId "boundary-exit3" -Backend "static"
+        $bad = Add-AcceptanceCheck -Report $bad -Id "exit.bad" -Title "字符串退出码" -Level "L1" -Status "PASS" -ExitCode 0
+        ($bad = Complete-Report $bad) | Out-Null
+        $bad.checks[0].exitCode = "0"
+        (Test-AcceptanceReport -Report $bad).Valid | Should Be $false
+    }
+
+    It "durationSeconds 允许数字与 null，拒绝负数" {
+        $report = New-AcceptanceReport -TaskId "boundary-duration" -Backend "static"
+        $report = Add-AcceptanceCheck -Report $report -Id "dur.ok" -Title "时长" -Level "L1" -Status "PASS" -DurationSeconds 1.25
+        ($report = Complete-Report $report) | Out-Null
+        (Test-AcceptanceReport -Report $report).Valid | Should Be $true
+
+        $bad = New-AcceptanceReport -TaskId "boundary-duration2" -Backend "static"
+        $bad = Add-AcceptanceCheck -Report $bad -Id "dur.bad" -Title "负时长" -Level "L1" -Status "PASS" -DurationSeconds 1
+        ($bad = Complete-Report $bad) | Out-Null
+        $bad.checks[0].durationSeconds = -1
+        (Test-AcceptanceReport -Report $bad).Valid | Should Be $false
+    }
+
+    It "errorClass 只接受约定的 8 个类别（另加 null）" {
+        $allowed = @("ENVIRONMENT_ERROR", "LICENSE_ERROR", "MCP_CONNECTION_ERROR", "MATLAB_RUNTIME_ERROR",
+            "SIMULATION_ERROR", "CODEGEN_ERROR", "VALIDATION_ERROR", "TIMEOUT")
+        foreach ($class in $allowed) {
+            $report = New-AcceptanceReport -TaskId "boundary-class" -Backend "static"
+            $report = Add-AcceptanceCheck -Report $report -Id "cls.check" -Title "错误类别" -Level "L1" -Status "FAIL" `
+                -Reason "示例" -ErrorClass $class
+            ($report = Complete-Report $report) | Out-Null
+            (Test-AcceptanceReport -Report $report).Valid | Should Be $true
+        }
+
+        # 非法 errorClass 在构造期就抛错，比"先写出去再被校验器拒绝"更早挡住问题。
+        $threw = $false
+        try {
+            Add-AcceptanceCheck -Report (New-AcceptanceReport -TaskId "boundary-class2" -Backend "static") `
+                -Id "cls.bad" -Title "非法类别" -Level "L1" -Status "FAIL" -Reason "示例" -ErrorClass "SOMETHING_ELSE" | Out-Null
+        }
+        catch { $threw = $true }
+        $threw | Should Be $true
+
+        # 同时确认校验器也能拦住被外部改坏的报告。
+        $tampered = New-AcceptanceReport -TaskId "boundary-class3" -Backend "static"
+        $tampered = Add-AcceptanceCheck -Report $tampered -Id "cls.ok" -Title "合法类别" -Level "L1" -Status "FAIL" `
+            -Reason "示例" -ErrorClass "VALIDATION_ERROR"
+        ($tampered = Complete-Report $tampered) | Out-Null
+        $tampered.checks[0].errorClass = "SOMETHING_ELSE"
+        (Test-AcceptanceReport -Report $tampered).Valid | Should Be $false
+    }
+
+    It "空字符串 reason 不能冒充有效原因（SKIP 必须可审计）" {
+        $report = New-AcceptanceReport -TaskId "boundary-reason" -Backend "static"
+        $threw = $false
+        try {
+            Add-AcceptanceCheck -Report $report -Id "skip.no-reason" -Title "无原因跳过" -Level "L1" -Status "SKIP" | Out-Null
+        }
+        catch { $threw = $true }
+        $threw | Should Be $true
+    }
+
+    It "artifactPaths 为空数组时仍然合法" {
+        $report = New-AcceptanceReport -TaskId "boundary-artifacts" -Backend "static"
+        $report = Add-AcceptanceCheck -Report $report -Id "art.none" -Title "无产物" -Level "L1" -Status "PASS"
+        ($report = Complete-Report $report) | Out-Null
+        (Test-AcceptanceReport -Report $report).Valid | Should Be $true
+        @($report.checks[0].artifactPaths).Count | Should Be 0
+    }
+
+    It "空工具箱清单是合法数组，但缺少 name/version 的条目非法" {
+        $report = New-AcceptanceReport -TaskId "boundary-inventory" -Backend "static"
+        $report = Add-AcceptanceCheck -Report $report -Id "inv.check" -Title "清单" -Level "L1" -Status "PASS"
+        ($report = Complete-Report $report) | Out-Null
+        (Test-AcceptanceReport -Report $report).Valid | Should Be $true
+
+        $report.toolboxInventory = @([pscustomobject][ordered]@{ name = "MATLAB" })
+        (Test-AcceptanceReport -Report $report).Valid | Should Be $false
+    }
+
+    It "licensed 允许 null（无法判定授权），但不允许字符串" {
+        $report = New-AcceptanceReport -TaskId "boundary-licensed" -Backend "static"
+        $report = Add-AcceptanceCheck -Report $report -Id "lic.check" -Title "授权三态" -Level "L1" -Status "PASS"
+        ($report = Complete-Report $report) | Out-Null
+        $report.toolboxInventory = @(
+            [pscustomobject][ordered]@{ name = "A"; version = "1"; licensed = $true }
+            [pscustomobject][ordered]@{ name = "B"; version = "1"; licensed = $null }
+        )
+        (Test-AcceptanceReport -Report $report).Valid | Should Be $true
+
+        $report.toolboxInventory = @([pscustomobject][ordered]@{ name = "C"; version = "1"; licensed = "unknown" })
+        (Test-AcceptanceReport -Report $report).Valid | Should Be $false
     }
 }

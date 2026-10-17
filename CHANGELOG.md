@@ -55,6 +55,87 @@ All notable changes to this project will be documented here.
 - Tested: `Test-MatlabSkills.ps1` 在本机 MATLAB R2026a 上真实跑完六个阶段：19 项检查中 12 项 PASS、7 项 SKIP（均为 MATLAB Coder / Simulink Coder 未授权，或目标 API 未检测到）、0 项 FAIL；整体按"存在 SKIP 即 SKIP"判为 `SKIP`（退出码 3），因 L1 存在 SKIP，按连续达成规则 `achievedLevel=L0`。
 - Note: 排查中发现 Windows PowerShell 5.1 下读取 `ProcessStartInfo.EnvironmentVariables` 会得到空集合，子进程因此拿不到 `SystemRoot`/`TEMP`/`PATH`，MATLAB 直接 abort（0x00000003）。执行模块已加注释禁止该用法；据此否决了曾考虑过的 `-ClearProxyEnvironment` 方案（代理不是根因，带代理同样 16 秒启动成功）。
 
+### 最终验收修复（第二阶段 2.2）
+
+#### 许可证检测纠正（上一轮 7 个 SKIP 的根因）
+
+- Fixed: `license('test', <产品名>)` 是错误用法 —— 第二个参数要的是 **license feature 名**。
+  实测 R2026a：`MATLAB Coder` → `0`，而 `MATLAB_Coder` → `1`；`Simulink Coder` → `0`，而 `Real-Time_Workshop` → `1`；
+  `Embedded Coder` → `0`，而 `RTW_Embedded_Coder` → `1`。此前据此判定"Coder 未授权"，导致整条 Coder 验收 SKIP。
+- Added: `+masacc/featureName.m` —— 产品名 → feature 名映射表（101 条，逐条在本机实测确认）。
+- Added: `+masacc/licenseState.m` —— 三态授权判定（`true` / `false` / `[]` 无法判定），记录 `featureSource`
+  与 `note`，不再把"测不了"写成"没授权"。
+- Added: `+masacc/executionProbe.m` —— 真实执行探针（`coder.typeof` + `coder.config`、`new_system`），
+  区分"有许可证"与"能执行"。
+- Fixed: `license('test')` 的 feature 字符串 **上限 27 字符**，超长抛 `MATLAB:license:toomanychars`。
+  旧代码用 `catch` 吞成 `[]` 且不留原因；现在明确记为"无法判定"并说明是该 API 限制。
+- Fixed: 归一化猜测（空格→下划线）只用于**确认**授权，返回 `0` 时记"未知"。
+  实测反例：`Simulink_Coder` 为 `0`，而真实 feature `Real-Time_Workshop` 为 `1`。
+- Fixed: `+masacc/availability.m` 重写为 `installed` / `licenseFeature` / `licenseExists` /
+  `executionProven` / `available` / `provenBy` / `reason`；`available` 不再等同于"已安装"。
+- Fixed: `+masacc/inventory.m` 与 `matlab_toolbox_inventory.m` 去掉重复的 `license('test', 产品名)`，
+  改为三态并附 `licenseFeature` / `licenseSource`。
+- Added: `inventory.gated-license` 检查 —— 核心产品（MATLAB / Simulink / 三个 Coder）的授权结论必须是
+  确定的布尔值，不允许停留在"无法判定"。
+- Fixed: `matlab_feature_probe.m` 此前用"已安装"给 Coder / 块集放行，改为按 `available` 判定，
+  并把"未安装"与"已安装但不可用"区分成两种 SKIP 原因。
+- Tested: 117 个产品清点结果 **95 授权 / 5 未授权 / 17 无法判定**（修复前是 4 / 113，其中 17 个无原因）。
+
+#### 依赖检查顺序
+
+- Fixed: `matlab_codegen_smoke.m` 在依赖检测**之前**就调用 `coder.typeof` 构造参数，
+  缺少 MATLAB Coder 时会抛出未捕获异常，根本走不到 SKIP 分支。参数构造已移入受保护的 try 块。
+- Added: `tests/DependencyOrder.Tests.ps1` —— 静态扫描全部验证脚本，断言首次 `coder.typeof` /
+  `coder.config` / `codegen` / `slbuild` 调用必须晚于首次 `masacc.availability`，且 `coder.typeof`
+  必须位于 try 块内（8 个用例）。
+
+#### CI 门禁按能力范围判定
+
+- Added: `Test-MatlabSkills.ps1 -Scope core|simulink|coder|full`，范围只决定门禁与退出码，
+  **不修改** `overallStatus`，也不删除任何检查项；范围外的 SKIP 原样保留在报告里。
+- Added: `Get-AcceptanceScopeDefinition` / `Get-AcceptanceScopeStatus` / `Get-AcceptanceScopeEvaluations` /
+  `Get-AcceptanceScopeExitCode`。必选 FAIL → `FAIL`；必选 SKIP 或未产出 → `SKIP`；全部必选 PASS → `PASS`。
+- Added: 报告新增 `scope`（所选范围）与 `scopes`（四个范围全量求值），schema 同步增补定义。
+- Changed: `matlab-validation.yml` 重写为 `core` 门禁 job + `coder` 可选 job（仅 `workflow_dispatch`
+  且显式申请 Coder 产品时创建，push / PR 上不存在）。CI 只依据声明的必选能力判定成败，
+  可选能力的 SKIP 全部保留在报告与 artifact 中。
+
+#### 测试与 CI 的真实性
+
+- Fixed: **CI 三轮全红的根因是 Pester 版本选择。** runner 上同时预装 Pester 3.4.0 与 5.9.0，
+  旧实现 `Sort-Object Version -Descending | Select -First 1` 选中 5.9.0，而套件使用 Pester 3 的
+  `Should Be` 语法，直接抛 `Legacy Should syntax is not supported in Pester 5`，124 个用例全失败。
+  本机只有 3.4.0，所以本地一直全绿——这个 bug 只在 CI 暴露。
+- Fixed: `tests/Invoke-Tests.ps1` 改为按 `主.次.构建` 精确匹配 `-PesterVersion`（默认 `3.4.0`），
+  绝不降级/升级到别的的主版本；本地缺失时下载到 `artifacts/.pester`，仍缺失则抛错说明原因。
+  选择逻辑抽为纯函数 `tests/helpers/PesterSelection.ps1`。
+- Added: `tests/PesterSelection.Tests.ps1`（11 例）锁死"必须选 3.4.0、只有 5.x 时必须返回 null"。
+- Added: `tests/Acceptance.Boundary.Matlab.Tests.ps1` + `matlab/validation/tests/masacc_boundary_probe.m` ——
+  MATLAB 侧产出 9 类边界报告（单条/多条检查、全空字段、空清单、中文原因、许可证缺失、
+  授权无法判定、运行异常、空报告拒绝），PowerShell 侧用同一份 schema 逐项校验（69 个断言）。
+- Added: `Acceptance.Protocol.Tests.ps1` 增补 20 个用例：验收范围语义、`exitCode` / `durationSeconds` /
+  `errorClass` / `licensed` 的取值域、单条检查数组编码、原子覆盖写。
+- Fixed: 覆盖写报告不是原子操作。旧实现 `Remove-Item` + `Move-Item` 之间存在真空期，
+  删除失败（被安全删除钩子拦截、文件被占用）会留下"目标消失、临时文件还在"的破损状态。
+  改为 `File.Replace` / `File.Move` 单步替换，并新增回归用例。
+
+#### 真机执行抓到的两个被掩盖的缺陷
+
+- Fixed: `codegen -d <变量名>` 的命令行解析器把变量名当**字面量**，实测在当前目录建出名为 `genDir`
+  的文件夹，产物落在那里，而断言去绝对路径找，表现为"codegen 成功但找不到产物"。
+  `matlab_codegen_smoke.m` 与 `matlab_compiler_chain_smoke.m` 均改为切到目标目录执行，
+  产物查找改回递归（真实产物在 `<dir>/codegen/lib/<fcn>/` 下）。
+  这两个脚本此前从未真正跑到这一步，缺陷一直被许可证误判掩盖。
+- Docs: `skills/matlab-runner/SKILL.md`、`skills/matlab-simulink-modeling/SKILL.md` 更正
+  `license('test', product)` 的错误示例，补充产品名 → feature 名对照表与 27 字符限制。
+- Tested: `-Layer free` **161 例全通过**、退出码 `0`；`-Layer matlab` **74 例全通过**、退出码 `0`
+  （含 MATLAB 侧边界往返 69 个断言）。
+- Tested: `Test-MatlabSkills.ps1 -Scope full` 在 R2026a 上真实跑完六个阶段：
+  **20 项检查 19 PASS / 1 SKIP / 0 FAIL**；`core` / `simulink` / `coder` 三个范围均 PASS，
+  `full` 因 `embedded.hardware-in-loop` 未执行而 SKIP（退出码 3）。唯一 SKIP 是
+  `feature.direct-import`（目标 API 未检测到），不是许可证问题。
+  与修复前对比：同机同环境从 12 PASS / 7 SKIP 变为 19 PASS / 1 SKIP。
+
 - Added MCP-first MATLAB workflow documentation.
 - Added one-command MCP client installer for Codex, Claude Code, VS Code, and generic MCP clients.
 - Added bootstrap installer for downloading skills, syncing local skills, and configuring MATLAB MCP.

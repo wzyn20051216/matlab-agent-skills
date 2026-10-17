@@ -282,22 +282,28 @@ MATLAB 可用之后，`Test-MatlabSkills.ps1` 的六个阶段全部真实执行�
 | `skill.figure-export` | L1 | PASS | 图窗真实导出非空文件 |
 | `skill.data-export` | L1 | PASS | 数据文件真实落盘并可回读 |
 | `skill.simulink-sim` | L3 | PASS | 501 采样点，peak 1.99999936 / trough −1.99999429（期望 ±2，容差 0.01） |
-| `compiler.mex-build` / `compiler.numeric` / `compiler.robustness` | L2 / L3 / L4 | SKIP | MATLAB Coder 已安装但 `license('test')` 为 false |
-| `codegen.generate` / `codegen.compile` | L1 / L2 | SKIP | 同上，代码生成未授权 |
+| `compiler.mex-build` / `compiler.numeric` / `compiler.robustness` | L2 / L3 / L4 | SKIP（当时） | 当时判为"MATLAB Coder 未授权" —— 该结论在 3.5 节被证伪，现已 PASS |
+| `codegen.generate` / `codegen.compile` | L1 / L2 | SKIP（当时） | 同上，代码生成未授权 —— 已在 3.5 节纠正，现已 PASS |
 | `simulink.model-artifact` | L1 | PASS | 建模型 → 保存 → 卸载 → 重载 |
 | `simulink.model-update` | L2 | PASS | `SimulationCommand=update` 成功 |
 | `simulink.simulation` | L3 | PASS | Step×3 → 稳态 3.0（容差 1e-9） |
 | `simulink.parameter-sweep` | L4 | PASS | 增益 2 / 3 / 5 三工况均符合解析预期 |
-| `simulink.codegen-build` | L4 | SKIP | Simulink Coder 未授权 |
+| `simulink.codegen-build` | L4 | SKIP（当时） | 当时判为"Simulink Coder 未授权" —— 已在 3.5 节纠正，现已 PASS |
 
-整体判定必须遵守"SKIP 不得折算为 PASS"：本机因为 Coder 未授权、且 L1 的
-`feature.direct-import` 未能检测到目标 API，存在多条 SKIP，所以
-`overallStatus=SKIP`（退出码 3）、`achievedLevel=L0` —— **不是 PASS**。
+当时整体判定遵守"SKIP 不得折算为 PASS"：因为存在多条 SKIP，`overallStatus=SKIP`（退出码 3）、`achievedLevel=L0`。
+
+> **后续更正（第二阶段 2.2）**：上面 4 条 SKIP 全部是**误判**。`license('test')` 第二个参数要的是
+> license feature 名（`MATLAB_Coder` / `Real-Time_Workshop` / `RTW_Embedded_Coder`），
+> 而不是产品显示名。用产品名去测必然返回 0。纠正后同机同环境实测为
+> **19 PASS / 1 SKIP / 0 FAIL**，Coder 相关的 MEX 构建、真实编译、数值一致性、`slbuild`
+> 全部真实通过。详见 3.5 节；最新数据见 3.6 节。
 
 `achievedLevel` 之所以是 L0 而不是 L3：等级是按层**连续**达成的，L1 里只要有一条没通过
 就没有"达成 L1"，后面更高的层再通过也只能记在报告里而不能抬高等级。
-这不是苛刻，而是避免"有 12 项 PASS 就宣称到达某一级"这种自我安慰。
+这不是苛刻，而是避免"有一堆 PASS 就宣称到达某一级"这种自我安慰。
 真要抬高它，唯一的办法是把那条 SKIP 变成有证据的 PASS 或解释清楚为什么它不该在这一层。
+（纠正许可证误判后，19 PASS / 1 SKIP 的 `achievedLevel` 仍然是 L0 —— 因为剩下的
+`feature.direct-import` 也是 L1。等级规则没有被"改绿"的动机动摇过。）
 
 #### 3.4.5 真实执行抓到了 4 个脚本自身的缺陷
 
@@ -332,25 +338,215 @@ Sine 那一条尤其说明问题：**是验收断言抓出了验收脚本自己�
 为一个未被证实的猜测去改子进程环境，只会换来一个更难查的启动失败。
 代码里保留这条警告注释，防止后来者重复踩坑。
 
+## 三·续、第二阶段 2.2 的修复
+
+### 3.5 许可证检测纠正：产品名 ≠ license feature 名
+
+**这是上一轮 7 个 SKIP 的根因，也是本轮最重要的修复。**
+
+`license('test', x)` 的第二个参数是 **license feature 名**，不是产品显示名。两者经常不同，
+用产品名去测会返回 0，看起来像"没有许可证"，实际只是查错了键。同一台机器、同一个
+MATLAB R2026a 实测：
+
+| 产品 | `license('test', 产品名)` | 真实 feature | `license('test', feature)` |
+| --- | --- | --- | --- |
+| MATLAB Coder | `0` | `MATLAB_Coder` | **`1`** |
+| Simulink Coder | `0` | `Real-Time_Workshop` | **`1`** |
+| Embedded Coder | `0` | `RTW_Embedded_Coder` | **`1`** |
+| Simulink | `1` | `Simulink` | `1` |
+| Stateflow | `1` | `Stateflow` | `1` |
+| Fixed-Point Designer | `0` | `Fixed_Point_Toolbox` | **`1`** |
+| Deep Learning Toolbox | `0` | `Neural_Network_Toolbox` | **`1`** |
+| Signal Processing Toolbox | `0` | `Signal_Toolbox` | **`1`** |
+| DSP System Toolbox | `0` | `Signal_Blocks` | **`1`** |
+| Statistics and Machine Learning Toolbox | **抛错** | `Statistics_Toolbox` | `1` |
+| HDL Coder | `0` | `HDL_Coder` | `0`（确实未授权） |
+
+顺带发现两个此前完全没被注意到的坑：
+
+1. **`license('test')` 的 feature 字符串上限是 27 字符。** 长度 ≥ 28 时直接抛
+   `MATLAB:license:toomanychars`，例如 `C2000_Microcontroller_Blockset`（30）、
+   `Satellite_Communications_Toolbox`（32）、`Sensor_Fusion_and_Tracking_Toolbox`（36）。
+   旧代码用 `catch` 把异常吞成 `[]`，于是这些产品在清单里既不是 `true` 也不是 `false`，
+   而报告里根本看不到原因。现在明确记为"无法判定"并写明是 27 字符上限。
+2. **归一化猜测只能确认、不能否定。** 把产品名的空格换成下划线，命中时可信
+   （`AUTOSAR Blockset` → `AUTOSAR_Blockset` 为 `1`）；返回 `0` 时不可信
+   （`Simulink Coder` → `Simulink_Coder` 为 `0`，真实 feature 却是 `Real-Time_Workshop` = `1`）。
+   所以猜测值为 `0` 一律记"未知"，绝不记"未授权"。
+
+修复后新增三个模块，任何脚本都不应再手写 `license('test', <产品名>)`：
+
+| 文件 | 职责 |
+| --- | --- |
+| `+masacc/featureName.m` | 产品名 → feature 名映射表（101 条，逐条在本机实测） |
+| `+masacc/licenseState.m` | 三态授权判定：`true` / `false` / `[]`（无法判定），并记录 `featureSource`（`table` / `normalized-guess` / `override`） |
+| `+masacc/executionProbe.m` | 真实执行探针（`coder.typeof` + `coder.config`、`new_system`），用于区分"有许可证"与"能执行" |
+
+`+masacc/availability.m` 现在返回互不覆盖的几个事实：`installed`、`licenseFeature`、
+`licenseExists`、`executionProven`、`available`、`provenBy`、`reason`。
+`inventory.m` / `matlab_toolbox_inventory.m` 同步改为三态，并在主报告里新增一条检查
+`inventory.gated-license`：**核心产品（MATLAB / Simulink / 三个 Coder）的授权结论必须是确定的布尔值，
+不允许停留在"无法判定"。**
+
+本机 117 个产品的清点结果：**95 已授权 / 5 未授权 / 17 无法判定**。修复前这个数字是
+4 已授权 / 113 未授权（且其中 17 个连原因都没有）——错的不是环境，是检测方式。
+
+### 3.6 六阶段复跑（本轮主证据）
+
+```powershell
+./scripts/Test-MatlabSkills.ps1 -TimeoutSeconds 1800 -Scope full
+# 退出码 3（full 范围要求硬件在环，本机没有）
+```
+
+MATLAB R2026a，20 项检查：**19 PASS / 1 SKIP / 0 FAIL**。
+
+| 检查项 | 等级 | 结果 | 耗时 |
+| --- | --- | --- | --- |
+| `matlab.executable` | L1 | PASS | 0s |
+| `inventory.products` | L1 | PASS | 0.4s |
+| `inventory.gated-license` | L1 | PASS | 0s |
+| `feature.direct-import` | L1 | **SKIP** | 0s |
+| `feature.blocksets` | L1 | PASS | 0s |
+| `feature.agentic` | L1 | PASS | 0s |
+| `skill.numeric-fit` | L3 | PASS | 0s |
+| `skill.figure-export` | L1 | PASS | 0s |
+| `skill.data-export` | L1 | PASS | 0s |
+| `skill.simulink-sim` | L3 | PASS | 6.4s |
+| `compiler.mex-build` | L2 | PASS | 13.2s |
+| `compiler.numeric` | L3 | PASS | 0.1s |
+| `compiler.robustness` | L4 | PASS | 0.2s |
+| `codegen.generate` | L1 | PASS | 16.3s |
+| `codegen.compile` | L2 | PASS | 7.0s |
+| `simulink.model-artifact` | L1 | PASS | 5.5s |
+| `simulink.model-update` | L2 | PASS | 2.5s |
+| `simulink.simulation` | L3 | PASS | 0.4s |
+| `simulink.parameter-sweep` | L4 | PASS | 0.4s |
+| `simulink.codegen-build` | L4 | PASS | 11.6s |
+
+唯一剩下的 SKIP 是 `feature.direct-import`：产品已安装且可用，但没检测到
+`loadPyTorchExportedProgram` / `loadLiteRTModel` 这两个 API。这是"目标 API 不存在"，
+不是"缺许可证"，`reason` 里写清楚了。
+
+**四类失败路径在这一轮都被真实触发过**，不是纸上推演：
+
+| 触发方式 | 观察到的结果 |
+| --- | --- |
+| `masacc.availability("MATLAB Coder", LicenseFeature="__no_such_feature__")` | `licenseExists=false` → SKIP，reason 说明未授权 |
+| `LicenseFeature` 传 40 字符 | `licenseExists=[]` → SKIP，reason 说明超 27 字符上限无法判定 |
+| 主动 `error("masacc:testFault", ...)` | FAIL，`errorClass=MATLAB_RUNTIME_ERROR`，保留原始 message |
+| 空报告直接 `masacc.write` | 抛 `masacc:emptyReport`，拒绝写出零检查项报告 |
+
+### 3.7 一个被许可证误判掩盖的真 bug：`codegen -d <变量名>`
+
+许可证误判不只是"少跑了几条检查"，它把后面的脚本缺陷全遮住了。修好授权后，
+`codegen_smoke` 第一次真正执行就 FAIL，原因不是编译失败，而是**产物找不到**：
+
+```matlab
+codegen -config cfg pi_control_step -args args -d genDir   % 错
+```
+
+`codegen` 的命令行解析器把 `-d` 后面的**变量名当成字面量**，于是在当前目录
+（`matlab/validation/`）建了一个名为 `genDir` 的文件夹，产物全落在那里；
+而校验去 `artifacts/validation/codegen_smoke/codegen_only` 找，自然找不到。
+表现为"codegen 报告成功，但断言说没有产物"。
+
+修复方式：切到目标目录再执行，产物位置没有歧义；并且把查找改回递归
+（真实产物在 `genDir/codegen/lib/pi_control_step/` 下）。
+
+```matlab
+cd(genDir);
+codegen -config cfg pi_control_step -args args
+```
+
+`matlab_compiler_chain_smoke.m` 的 `-d mexDir` 有同样问题，一并修复。
+这两个脚本此前从未真正跑到这一步，所以缺陷一直存在却不可见。
+
+### 3.8 写报告不是原子操作
+
+跑六阶段时最后一步失败，报 `safe-delete ... trash-failed`。追下去发现
+`Write-AcceptanceReport` 用的是 `Remove-Item` + `Move-Item`：
+
+- 两步之间存在真空期，目标文件一度不存在；
+- 删除这一步一旦失败（被安全删除钩子拦截、文件被占用），就留下
+  "目标已消失、临时文件还在"的破损状态。
+
+改为 `[System.IO.File]::Replace`（目标存在时）/ `File.Move`（目标不存在时），
+单步完成替换，失败则原文件不动；文件系统不支持 `Replace` 时退化为覆盖写，
+仍然不经过删除步骤。新增回归用例：连续写两次同一路径，读回的是新内容且不残留 `*.tmp-*`。
+
+### 3.9 CI 三轮全红：根因是"取最高版本"的 Pester
+
+这一点必须单独写，因为它最容易被误读成"代码坏了"。
+
+| 事实 | 证据 |
+| --- | --- |
+| 3 次 push / PR 触发的 6 个 CI run **全部 failure** | `gh run list`：39022905018 / 39022905014 / 39022900598 / 39022900576 / 39016668585 / 39016668448 … |
+| 失败信息是 `Legacy Should syntax (without dashes) is not supported in Pester 5` | 层 A 日志 |
+| runner 上同时有 Pester **3.4.0** 与 **5.9.0**，旧实现 `Sort-Object Version -Descending \| Select -First 1` 选中 5.9.0 | `Ensure Pester is available` 步骤输出 |
+| 本机只有 3.4.0，所以本地一直 124/124 通过 | `Get-Module -ListAvailable Pester` |
+
+也就是说：**"本地全绿、CI 全红"不是环境噪音，是版本选择逻辑本身有 bug。**
+"取最高版本"看似稳妥，实则把不兼容的主版本当成升级。
+
+修复：显式锁定 `-PesterVersion 3.4.0`，按 `主.次.构建` 精确匹配，绝不降级/升级到别的
+主版本；本地没有就下载到 `artifacts/.pester`（不写用户模块目录），仍没有则抛错并说明原因。
+选择逻辑抽成可单测的纯函数 `tests/helpers/PesterSelection.ps1`，
+新增 11 个用例锁死"必须选 3.4.0、只有 5.x 时必须返回 null"。
+
+### 3.10 验收范围：让 CI 门禁只依赖声明的必选能力
+
+整体状态必须保持真实（有 SKIP 就是 SKIP），但**门禁不能等于整体状态**，
+否则可选能力的 SKIP 会让 CI 永远红，而删掉这些 SKIP 又是造假。
+
+于是把范围与状态分开：
+
+| 范围 | 必选 | 本机结果 |
+| --- | --- | --- |
+| `core` | MATLAB 可启动、产品清点、核心授权结论、数值与导出 | **PASS**（可选 SKIP 1 项） |
+| `simulink` | core + 模型加载/更新/仿真/多工况 | **PASS**（可选 SKIP 1 项） |
+| `coder` | core + 代码生成、真实编译、MEX 数值一致性 | **PASS**（可选 SKIP 1 项） |
+| `full` | 以上全部 + `simulink.codegen-build`、`feature.*`、`embedded.hardware-in-loop` | **SKIP**（缺硬件在环） |
+
+`overallStatus` 仍是 `SKIP`，`achievedLevel` 仍是 `L0`（L1 有一条 SKIP）——
+**范围没有把任何 SKIP 变成 PASS**，只是把"哪一档能力可以交付"说清楚。
+报告里同时写入所选 `scope` 和四个范围的求值结果 `scopes`，
+CI 只对 `core` 设门禁，`coder` 放到需要显式申请 Coder 产品的可选 job。
+
 ## 四、未验证内容与已知风险
 
 必须在 PR 评审时如实告知：
 
-1. **MATLAB 侧 `.m` 改动已在真机执行验证，但仍然只覆盖已授权的能力。** `matlab_toolbox_inventory` / `matlab_feature_probe` / `matlab_skill_smoke` / `simulink_coder_smoke` 四个脚本的改动已在 R2026a 上真实跑通（见 3.4.4）；`matlab_compiler_chain_smoke` 与 `matlab_codegen_smoke` 的核心分支（MEX 构建、`codegen -config lib` 真实编译、golden 数值对照、NaN/非法尺寸鲁棒性）因为本机 **MATLAB Coder 未授权** 全部输出 SKIP，这四类断言仍未经真机确认 —— 需要一台有 Coder 许可证的机器或层 B CI。
-2. **`+masacc/jsonNulls.m` 已随真机写报告跑过，但没有专门针对 `errorClass` / `exitCode` 的边界用例。** 本次真实报告能通过 PowerShell 侧 schema 校验，说明 `""` → `null` 这条路径是通的（PASS 项的 `errorClass` 就是空串）；不过"所有空值形态都覆盖到"仍属推断，不是穷举验证。
-3. **MCP 探测未对真实 MATLAB MCP 服务端执行。** 除 3.3 的会话配置阶段外，握手与工具调用全部来自假服务端的故障注入。真实服务端的 `initialize` 参数、工具名、返回结构可能与假定不同。
-4. **层 C 全部未执行。** MATLAB Coder / Simulink Coder / Embedded Coder 的真实编译、STM32 目标板下载与回读、外部工具链集成，均未验证；报告中以 `SKIP` 出现，原因是 `license('test')` 返回 false。
-5. **CI workflow 未在 GitHub 上实际跑过。** 层 A / 层 B 的 workflow 改动只做了本地等价命令验证，未触发真实 GitHub Actions 运行。
+1. **MATLAB 侧 `.m` 改动已在真机执行验证，覆盖到本轮已修正的授权范围。** 六个脚本在 R2026a 上真实跑通，
+   包括此前被误判为"无授权"的 MEX 构建、`codegen -config lib` 真实编译、golden 数值对照、
+   NaN/非法尺寸鲁棒性、`slbuild` + GRT 可执行文件产出（见 3.6）。**但"通用 C 代码生成 + 本机编译成功"
+   仍然不等于 STM32 目标部署**。这一点没有变。
+2. **`jsonNulls.m` 的边界覆盖已补齐，但仍不是穷举。** `matlab/validation/tests/masacc_boundary_probe.m`
+   在真机上产出 9 类报告（单条/多条检查、全空字段、空清单、中文原因、许可证缺失、授权无法判定、
+   运行异常、空报告拒绝），由 `tests/Acceptance.Boundary.Matlab.Tests.ps1` 用同一份 schema 逐项校验
+   （69 个断言全通过）。`null` / `""` / `[]` 三种形态都已覆盖；未覆盖的是嵌套 metrics 内部的自定义结构。
+3. **MCP 探测未对真实 MATLAB MCP 服务端执行。** 握手与工具调用全部来自假服务端的故障注入。
+   真实服务端的 `initialize` 参数、工具名、返回结构可能与假定不同。本轮未新增真实 MCP 验证。
+4. **层 C 全部未执行（只到了 Coder 编译层）。** MATLAB Coder / Simulink Coder / Embedded Coder 的
+   **PC 端**代码生成与编译已真实通过，但 STM32 目标板下载与回读、外部工具链（Keil / IAR / CubeMX）
+   集成、硬件在环闭环仍无证据。报告里 `embedded.hardware-in-loop` 是 L5 的 SKIP，
+   `full` 范围因此必然不是 PASS。
+5. **CI 已真实运行过，但那三轮全红是 Pester 版本选择 bug，不是被测代码的问题。** 根因与证据见 3.9。
+   本轮修复后需要在 GitHub 上重新触发一次，才算"CI 通过"有证据；在此之前只能说
+   "已定位并修复了一个会导致 CI 必然失败的缺陷"，不能说"CI 已经绿了"。
+6. **`license('test')` 的 27 字符上限是不可绕过的 API 限制。** 长 feature 名的产品（如
+   `Sensor_Fusion_and_Tracking_Toolbox`）永远无法用该 API 判定授权，只能记"无法判定"，
+   或改用真实执行探针（目前只为 MATLAB Coder / Embedded Coder / Simulink 实现了探针）。
 
 ## 五、复现方式
 
 ```powershell
-# 层 A：免费环境
-powershell -ExecutionPolicy Bypass -File .\tests\Invoke-Tests.ps1 -Layer free
+# 层 A：免费环境（锁定 Pester 3.4.0）
+powershell -ExecutionPolicy Bypass -File .\tests\Invoke-Tests.ps1 -Layer free -PesterVersion 3.4.0
 
 # 层 B：需要已安装 MATLAB
 powershell -ExecutionPolicy Bypass -File .\tests\Invoke-Tests.ps1 -Layer matlab
-powershell -ExecutionPolicy Bypass -File .\scripts\Test-MatlabSkills.ps1 -TimeoutSeconds 1800
+powershell -ExecutionPolicy Bypass -File .\scripts\Test-MatlabSkills.ps1 -TimeoutSeconds 1800 -Scope core
+powershell -ExecutionPolicy Bypass -File .\scripts\Test-MatlabSkills.ps1 -TimeoutSeconds 1800 -Scope full
 
 # MCP 五阶段探测
 powershell -ExecutionPolicy Bypass -File .\scripts\Test-MatlabMcpExistingSession.ps1 -Json

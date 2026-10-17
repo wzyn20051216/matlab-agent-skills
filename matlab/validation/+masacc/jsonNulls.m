@@ -11,12 +11,16 @@ function text = jsonNulls(text)
 % 报告在同一个 schema 下都能通过校验。
 
 pairs = {
-    '"command"',      '""'
-    '"reason"',       '""'
-    '"errorClass"',   '""'
-    '"sourceReport"', '""'
-    '"startedAt"',    '""'
-    '"finishedAt"',   '""'
+    '"command"',          '""'
+    '"reason"',           '""'
+    '"errorClass"',       '""'
+    '"sourceReport"',     '""'
+    '"startedAt"',        '""'
+    '"finishedAt"',       '""'
+    '"licenseFeature"',   '""'
+    '"licenseSource"',    '""'
+    '"licenseNote"',      '""'
+    '"provenBy"',         '""'
     };
 for idx = 1:size(pairs, 1)
     key = pairs{idx, 1};
@@ -24,7 +28,7 @@ for idx = 1:size(pairs, 1)
     text = regexprep(text, [regexptranslate('escape', key) '\s*:\s*' regexptranslate('escape', empty)], [key ': null']);
 end
 
-empties = {'"exitCode"', '"durationSeconds"', '"retry"', '"licensed"'};
+empties = {'"exitCode"', '"durationSeconds"', '"retry"', '"licensed"', '"licenseExists"', '"executionProven"'};
 for idx = 1:numel(empties)
     key = empties{idx};
     text = regexprep(text, [regexptranslate('escape', key) '\s*:\s*\[\s*\]'], [key ': null']);

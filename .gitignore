@@ -12,6 +12,12 @@ bin/
 slprj/
 *_grt_rtw/
 *_ert_rtw/
+# codegen 曾把 `-d <变量名>` 当字面量，在脚本目录下建出这几个文件夹；现已修复，
+# 这里保留忽略以免历史产物被误提交。
+matlab/validation/genDir/
+matlab/validation/buildDir/
+matlab/validation/mexDir/
+codegen/
 .DS_Store
 Thumbs.db
 .workbuddy/

@@ -8,10 +8,13 @@ MATLAB 能力验收总控：执行全部验证脚本并产出统一验收 JSON�
 - 每个脚本都有超时（默认 900s），MATLAB 启动挂起会被终止并归类为 TIMEOUT；
 - 子脚本各自产出符合 schemas/acceptance-report.schema.json 的报告，本脚本负责合并；
 - 缺少 MATLAB / 工具箱 / 许可证时输出 SKIP 并写明原因，不把“没跑”当成“通过”；
-- 退出码：0=全部通过，1=有 FAIL，3=全部 SKIP。
+- -Scope 声明本次要验证的能力范围（core / simulink / coder / full），
+  门禁只看该范围内的必选检查；范围外的 SKIP 原样保留在完整报告里，不做删改；
+- 退出码以所选范围为准：0=范围内必选全部通过，1=有必选失败，3=必选未验证（SKIP）。
 
 .EXAMPLE
 powershell -ExecutionPolicy Bypass -File .\scripts\Test-MatlabSkills.ps1
+powershell -ExecutionPolicy Bypass -File .\scripts\Test-MatlabSkills.ps1 -Scope core
 powershell -ExecutionPolicy Bypass -File .\scripts\Test-MatlabSkills.ps1 -TimeoutSeconds 300 -SkipSimulink
 #>
 [CmdletBinding()]
@@ -24,6 +27,9 @@ param(
     [switch]$StopOnFirstFailure,
     [string]$OutputPath,
     [string]$TaskId,
+    # 本次验收声明的能力范围。默认 full：全部必选，未验证就如实 SKIP。
+    [ValidateSet("core", "simulink", "coder", "full")]
+    [string]$Scope = "full",
     [switch]$Quiet
 )
 
@@ -211,6 +217,13 @@ foreach ($stage in $stages) {
     if ($StopOnFirstFailure -and $report.checks[-1].status -eq "FAIL") { break }
 }
 
+# 范围求值只读 checks，不改变 overallStatus：
+# 整体状态保持真实（有 SKIP 就是 SKIP），范围只决定门禁与退出码。
+$scopeEvaluations = Get-AcceptanceScopeEvaluations -Report $report
+$selectedScope = $scopeEvaluations | Where-Object { $_.name -eq $Scope } | Select-Object -First 1
+$report | Add-Member -NotePropertyName scopes -NotePropertyValue $scopeEvaluations -Force
+$report | Add-Member -NotePropertyName scope -NotePropertyValue $selectedScope -Force
+
 $report = Write-AcceptanceReport -Report $report -Path $OutputPath
 
 if (-not $Quiet) {
@@ -222,9 +235,19 @@ if (-not $Quiet) {
                 $check.id, $check.level, $check.status, ([math]::Round([double]$check.durationSeconds, 1)), $reasonText)
     }
 
+    Write-Host ""
+    Write-Host "==> 能力范围（门禁只看所选范围的必选检查）" -ForegroundColor Cyan
+    foreach ($evaluation in $scopeEvaluations) {
+        $marker = if ($evaluation.name -eq $Scope) { "*" } else { " " }
+        Write-Host ("  {0} {1,-9} {2,-5} {3}" -f $marker, $evaluation.name, $evaluation.status, `
+                ("可选 SKIP {0} 项" -f $evaluation.optionalSkippedCount))
+    }
+
     Write-Host ("==> overall={0} achievedLevel={1} pass={2} fail={3} skip={4}" -f `
         $report.overallStatus, $report.achievedLevel, `
         $report.summary.pass, $report.summary.fail, $report.summary.skip) -ForegroundColor Cyan
+    Write-Host ("==> scope={0} status={1}（{2}）" -f $selectedScope.name, $selectedScope.status, $selectedScope.reason) `
+        -ForegroundColor $(if ($selectedScope.status -eq "PASS") { "Green" } elseif ($selectedScope.status -eq "FAIL") { "Red" } else { "Yellow" })
     Write-Host "ACCEPTANCE_REPORT=$OutputPath"
 }
 
@@ -235,4 +258,4 @@ if (-not $validation.Valid) {
     exit 1
 }
 
-exit (Get-AcceptanceExitCode -Report $report)
+exit (Get-AcceptanceScopeExitCode -ScopeStatus $selectedScope)

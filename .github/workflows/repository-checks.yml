@@ -86,17 +86,24 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v4
 
-      - name: Ensure Pester is available
+      - name: Ensure Pester 3.4.0 is available
         shell: pwsh
         run: |
-          if (-not (Get-Module -ListAvailable Pester)) {
-            Install-Module Pester -Force -SkipPublisherCheck -Scope CurrentUser
+          # 测试套件使用 Pester 3 的 Should 语法。runner 上同时存在 3.4.0 与 5.9.0，
+          # 曾经因为"取最高版本"选中 5.9.0，导致 124 个用例全部以语法不支持失败。
+          $required = '3.4.0'
+          $found = Get-Module -ListAvailable Pester | Where-Object { "$($_.Version)" -eq $required }
+          if (-not $found) {
+            Install-Module Pester -RequiredVersion $required -Scope CurrentUser -Force -SkipPublisherCheck
+            $found = Get-Module -ListAvailable Pester | Where-Object { "$($_.Version)" -eq $required }
           }
-          Get-Module -ListAvailable Pester | Select-Object Name, Version
+          if (-not $found) { throw "无法准备 Pester $required" }
+          "Pester $required ready: $($found[0].Path)"
+          Get-Module -ListAvailable Pester | Select-Object Name, Version | Format-Table | Out-String
 
       - name: Run free-layer tests
         shell: pwsh
-        run: ./tests/Invoke-Tests.ps1 -Layer free -CI
+        run: ./tests/Invoke-Tests.ps1 -Layer free -CI -PesterVersion 3.4.0
 
       - name: Publish layer report to job summary
         if: always()
