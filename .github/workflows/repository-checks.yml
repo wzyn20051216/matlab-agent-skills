@@ -16,7 +16,7 @@ jobs:
         shell: pwsh
         run: |
           $failed = $false
-          Get-ChildItem -Recurse -Filter *.ps1 | ForEach-Object {
+          Get-ChildItem -Recurse -Include *.ps1, *.psm1 -File | ForEach-Object {
             $tokens = $null
             $errors = $null
             [System.Management.Automation.Language.Parser]::ParseFile($_.FullName, [ref]$tokens, [ref]$errors) | Out-Null
@@ -27,12 +27,31 @@ jobs:
           }
           if ($failed) { exit 1 }
 
-      - name: Check for machine-specific paths in public docs
+      - name: Check UTF-8 BOM on PowerShell scripts with non-ASCII content
         shell: pwsh
         run: |
-          $files = @("README.md")
-          $files += Get-ChildItem docs, scripts, .github -Recurse -File |
+          # Windows PowerShell 5.1 decodes BOM-less files as ANSI, which breaks Chinese text.
+          $bad = @()
+          Get-ChildItem -Recurse -Include *.ps1, *.psm1 -File | ForEach-Object {
+            $bytes = [System.IO.File]::ReadAllBytes($_.FullName)
+            $text = [System.IO.File]::ReadAllText($_.FullName)
+            if ($text -match '[^\x00-\x7F]') {
+              $hasBom = ($bytes.Length -ge 3 -and $bytes[0] -eq 0xEF -and $bytes[1] -eq 0xBB -and $bytes[2] -eq 0xBF)
+              if (-not $hasBom) { $bad += $_.FullName }
+            }
+          }
+          if ($bad) {
+            $bad | ForEach-Object { "Missing UTF-8 BOM (Windows PowerShell 5.1 cannot parse): $_" }
+            exit 1
+          }
+
+      - name: Check for machine-specific paths in tracked text files
+        shell: pwsh
+        run: |
+          $files = Get-ChildItem -Recurse -File |
             Where-Object { $_.Name -ne "repository-checks.yml" } |
+            Where-Object { $_.FullName -notmatch '[\\/](\.git|artifacts|bin)[\\/]' } |
+            Where-Object { $_.Extension -in '.md', '.ps1', '.psm1', '.m', '.json', '.yml', '.yaml', '.txt' } |
             Select-Object -ExpandProperty FullName
 
           $matches = Select-String -Path $files -Pattern 'C:\\Users\\[^<]|[ED]:\\' -AllMatches
@@ -42,3 +61,21 @@ jobs:
             }
             exit 1
           }
+
+  installer-tests:
+    runs-on: windows-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Ensure Pester is available
+        shell: pwsh
+        run: |
+          if (-not (Get-Module -ListAvailable Pester)) {
+            Install-Module Pester -Force -SkipPublisherCheck -Scope CurrentUser
+          }
+          Get-Module -ListAvailable Pester | Select-Object Name, Version
+
+      - name: Run installer tests (sandboxed, no MATLAB required)
+        shell: pwsh
+        run: ./tests/Invoke-Tests.ps1
