@@ -222,6 +222,19 @@ Pester 版本被**显式锁定**在 `3.4.0`（`-PesterVersion`，默认值在 `t
 旧实现"取最高版本"因此选到 5.9.0，124 个用例全红——那是本仓库真实发生过的 CI 失败，
 不是环境噪音。选择逻辑现在是可单测的纯函数（`tests/helpers/PesterSelection.ps1`）。
 
+另外两个跨版本陷阱，都已在代码里绕开：
+
+- **Pester 3.4 的 `Should Throw` 在 PowerShell 7 上失效**（用例报
+  "Expected: the expression to throw an exception"）。需要断言抛错时用
+  `tests/helpers/Assertions.ps1` 的 `Test-Throws`。
+- **PowerShell 7 的 `ConvertFrom-Json` 会把 ISO 8601 字符串自动转成 `[datetime]`**，
+  导致合法的 `startedAt` 被 schema 判成"类型应为 string，实际为 unknown"。
+  `Get-JsonValueKind` 已把 `[datetime]` / `[datetimeoffset]` 归为 string。
+
+层 A 的 `free-tests` 用矩阵在 **Windows PowerShell 5.1 与 PowerShell 7** 上各跑一次同一套用例，
+`layer_report.json` 里的 `powerShellVersion` / `powerShellEdition` 记录实际运行面。
+（这两个陷阱正是"只在一个运行面上测"造成的：本机 5.1 全绿、CI 的 pwsh 7 全红。）
+
 层 A（GitHub Actions `Repository Checks`）只跑 free 层，是基础门禁。
 层 B（`MATLAB Validation`）在带许可证的环境跑 matlab 层与完整验收，门禁按 `core` 范围判定；
 `coder` 范围放在 `workflow_dispatch` 且显式申请 Coder 产品的可选 job 里，push / PR 上不参与。

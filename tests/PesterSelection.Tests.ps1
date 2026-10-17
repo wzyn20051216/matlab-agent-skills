@@ -8,6 +8,7 @@ Pester 版本选择回归测试（免费层，无需 MATLAB）。
 这里把选择逻辑当纯函数测，保证它永远不会"自作聪明"降级或升级到别的版本。
 #>
 
+. (Join-Path $PSScriptRoot "helpers\Assertions.ps1")
 $helpers = Join-Path $PSScriptRoot "helpers\PesterSelection.ps1"
 . $helpers
 
@@ -60,7 +61,7 @@ Describe "Pester 版本选择" {
     }
 
     It "要求版本本身非法时给出可读错误" {
-        { Select-PesterCandidate -Candidates @() -RequiredVersion "abc" } | Should Throw
+        (Test-Throws { Select-PesterCandidate -Candidates @() -RequiredVersion "abc" }) | Should Be $true
     }
 
     It "版本摘要列出全部候选，便于排障" {

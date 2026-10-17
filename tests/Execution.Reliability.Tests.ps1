@@ -6,6 +6,7 @@
 不依赖 MATLAB：用一个会长时间休眠的 PowerShell 进程模拟挂起的 MATLAB。
 #>
 
+. (Join-Path $PSScriptRoot "helpers\Assertions.ps1")
 $helpers = Join-Path $PSScriptRoot "helpers\TestSandbox.ps1"
 . $helpers
 
@@ -196,10 +197,10 @@ Describe "进程超时与清理" {
     It "可执行文件不存在时抛错而不是静默通过" {
         $sandbox = New-TestSandbox
         try {
-            {
+            (Test-Throws {
                 Invoke-MatlabBatchProcess -MatlabPath (Join-Path $sandbox.Root "no-such-matlab.exe") `
                     -ArgumentList @("-batch", "disp(1)") -WorkingDirectory $sandbox.Root -TimeoutSeconds 5
-            } | Should Throw
+            }) | Should Be $true
         }
         finally { Remove-TestSandbox $sandbox }
     }
@@ -207,10 +208,10 @@ Describe "进程超时与清理" {
     It "超时阈值小于 1 秒会被拒绝（避免无法区分挂起与正常结束）" {
         $sandbox = New-TestSandbox
         try {
-            {
+            (Test-Throws {
                 Invoke-MatlabBatchProcess -MatlabPath $shellPath -ArgumentList @("-NoProfile", "-Command", "exit 0") `
                     -WorkingDirectory $sandbox.Root -TimeoutSeconds 0
-            } | Should Throw
+            }) | Should Be $true
         }
         finally { Remove-TestSandbox $sandbox }
     }

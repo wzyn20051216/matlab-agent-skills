@@ -17,6 +17,7 @@
 所有路径都在临时目录，脚本以 -SkipBaseSetup / -McpDataDir / -StartupDirectory 隔离。
 #>
 
+. (Join-Path $PSScriptRoot "helpers\Assertions.ps1")
 $script:RepoRoot = Split-Path -Parent $PSScriptRoot
 $script:InstallScript = Join-Path $script:RepoRoot "scripts\Install-MatlabMcpClients.ps1"
 $script:SetupScript = Join-Path $script:RepoRoot "scripts\Setup-MatlabMcpExistingSession.ps1"
@@ -247,8 +248,8 @@ Describe "Install-MatlabMcpClients：首次安装与安全合并" {
             Write-Utf8NoBom -Path $configPath -Text $broken
             $before = [System.IO.File]::ReadAllBytes($configPath)
 
-            { & $script:InstallScript -ServerExePath $sandbox.FakeServer -MatlabRoot $sandbox.MatlabRoot `
-                    -Clients generic -ProjectPath $sandbox.Work -SkipBaseSetup -BackupRoot $sandbox.Backup } | Should Throw
+            (Test-Throws { & $script:InstallScript -ServerExePath $sandbox.FakeServer -MatlabRoot $sandbox.MatlabRoot `
+                    -Clients generic -ProjectPath $sandbox.Work -SkipBaseSetup -BackupRoot $sandbox.Backup }) | Should Be $true
 
             ([System.IO.File]::ReadAllBytes($configPath) -join ",") | Should Be ($before -join ",")
         }
@@ -295,8 +296,8 @@ Describe "Install-MatlabMcpClients：客户端解耦（P0-2）" {
             New-ClientStub -StubDir $sandbox.StubDir -Name "claude" | Out-Null
             Use-StubsOnly $sandbox
 
-            { & $script:InstallScript -ServerExePath $sandbox.FakeServer -MatlabRoot $sandbox.MatlabRoot `
-                    -Clients codex -SkipBaseSetup -BackupRoot $sandbox.Backup } | Should Throw
+            (Test-Throws { & $script:InstallScript -ServerExePath $sandbox.FakeServer -MatlabRoot $sandbox.MatlabRoot `
+                    -Clients codex -SkipBaseSetup -BackupRoot $sandbox.Backup }) | Should Be $true
         }
         finally { Remove-Sandbox $sandbox }
     }
@@ -363,8 +364,8 @@ Describe "Install-MatlabMcpClients：客户端解耦（P0-2）" {
             Write-Utf8NoBom -Path $stub.StateFile -Text $previous
             Write-Utf8NoBom -Path $stub.FailFlag -Text "fail once"
 
-            { & $script:InstallScript -ServerExePath $sandbox.FakeServer -MatlabRoot $sandbox.MatlabRoot `
-                    -Clients codex -SkipBaseSetup -BackupRoot $sandbox.Backup } | Should Throw
+            (Test-Throws { & $script:InstallScript -ServerExePath $sandbox.FakeServer -MatlabRoot $sandbox.MatlabRoot `
+                    -Clients codex -SkipBaseSetup -BackupRoot $sandbox.Backup }) | Should Be $true
 
             $restored = Get-Content -Raw -LiteralPath $stub.StateFile
             $restored | Should Match "C:\\old\\srv.exe"
@@ -383,10 +384,10 @@ Describe "Setup-MatlabMcpExistingSession：失败回滚（P0-6）" {
             $original = "disp('original user startup');"
             Write-Utf8NoBom -Path $startupPath -Text $original
 
-            { & $script:SetupScript -ServerExePath $sandbox.FakeServer -MatlabRoot $sandbox.MatlabRoot `
+            (Test-Throws { & $script:SetupScript -ServerExePath $sandbox.FakeServer -MatlabRoot $sandbox.MatlabRoot `
                     -McpDataDir $sandbox.DataDir -StartupDirectory $sandbox.StartupDir `
                     -SessionMode auto -SkipClientRegistration -SkipAclFix `
-                    -FailAfterStep startup -BackupRoot $sandbox.Backup } | Should Throw
+                    -FailAfterStep startup -BackupRoot $sandbox.Backup }) | Should Be $true
 
             $after = [System.IO.File]::ReadAllText($startupPath)
             $after | Should Match "original user startup"

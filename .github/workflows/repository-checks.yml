@@ -80,8 +80,16 @@ jobs:
           "required top-level fields: $($schema.required -join ', ')"
 
   free-tests:
-    name: 层 A - 免费测试（无 MATLAB）
+    name: 层 A - 免费测试（${{ matrix.shell }}）
     runs-on: windows-latest
+    # 同一套用例在两个 PowerShell 运行面上各跑一次：
+    # 5.1 与 7 的 JSON 日期解析、异常语义、字符串比较都不同，只测一个版本
+    # 会出现"本机全绿、CI 全红"（本仓库真实踩过）。fail-fast 关掉，
+    # 这样一次就能看到两个版本各自的结果。
+    strategy:
+      fail-fast: false
+      matrix:
+        shell: [powershell, pwsh]
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
@@ -102,7 +110,7 @@ jobs:
           Get-Module -ListAvailable Pester | Select-Object Name, Version | Format-Table | Out-String
 
       - name: Run free-layer tests
-        shell: pwsh
+        shell: ${{ matrix.shell }}
         run: ./tests/Invoke-Tests.ps1 -Layer free -CI -PesterVersion 3.4.0
 
       - name: Publish layer report to job summary
@@ -114,6 +122,8 @@ jobs:
           $report = Get-Content -Raw -LiteralPath $reportPath | ConvertFrom-Json
           $lines = @(
             '### 测试层执行情况',
+            '',
+            "运行面：PowerShell $($report.powerShellVersion) ($($report.powerShellEdition))，Pester $($report.pesterVersion)",
             '',
             '| 层 | 是否执行 | 用例 | 通过 | 失败 | 说明 |',
             '| --- | --- | --- | --- | --- | --- |'
@@ -132,6 +142,6 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: test-layer-report
+          name: test-layer-report-${{ matrix.shell }}
           path: artifacts/validation/tests/layer_report.json
           if-no-files-found: error

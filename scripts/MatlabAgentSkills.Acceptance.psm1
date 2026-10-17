@@ -617,6 +617,10 @@ function Get-JsonValueKind {
 
     if ($null -eq $Value) { return "null" }
     if ($Value -is [bool]) { return "boolean" }
+    # PowerShell 7 的 ConvertFrom-Json 会把 ISO 8601 字符串自动解析成 [datetime]。
+    # 在 JSON 里它本来就是 string，所以这里必须按 string 处理，
+    # 否则一份完全合法的报告会被判成"startedAt 类型应为 string，实际为 unknown"。
+    if ($Value -is [datetime] -or $Value -is [datetimeoffset]) { return "string" }
     if ($Value -is [string]) { return "string" }
     if ($Value -is [System.Collections.IDictionary]) { return "object" }
     if ($Value -is [System.Management.Automation.PSCustomObject]) { return "object" }
@@ -804,8 +808,13 @@ function Invoke-JsonSchemaNode {
         }
         if (Test-JsonObjectHasProperty -Object $Schema -Name 'format') {
             $format = [string](Get-JsonObjectProperty -Object $Schema -Name 'format')
-            if ($format -eq "date-time" -and -not [regex]::IsMatch($Instance, '^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?(Z|[+-]\d{2}:\d{2})$')) {
-                $script:SchemaErrors.Add("$Path : '$Instance' 不是合法的 date-time")
+            # 上面已把 [datetime] 归为 string；校验格式时也要用 ISO 文本，
+            # 否则 DateTime.ToString() 会输出本地化格式，正则必然不匹配。
+            $instanceText = $Instance
+            if ($Instance -is [datetime]) { $instanceText = $Instance.ToString("yyyy-MM-ddTHH:mm:sszzz") }
+            elseif ($Instance -is [datetimeoffset]) { $instanceText = $Instance.ToString("yyyy-MM-ddTHH:mm:sszzz") }
+            if ($format -eq "date-time" -and -not [regex]::IsMatch([string]$instanceText, '^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?(Z|[+-]\d{2}:\d{2})$')) {
+                $script:SchemaErrors.Add("$Path : '$instanceText' 不是合法的 date-time")
             }
         }
     }

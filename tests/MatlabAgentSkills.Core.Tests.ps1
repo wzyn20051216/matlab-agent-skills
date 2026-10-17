@@ -16,6 +16,7 @@
 语法兼容 Pester 3.4（本机可用版本）与 Pester 5.x 的 legacy Should 形式。
 #>
 
+. (Join-Path $PSScriptRoot "helpers\Assertions.ps1")
 $script:RepoRoot = Split-Path -Parent $PSScriptRoot
 $script:CoreModulePath = Join-Path $script:RepoRoot "scripts\MatlabAgentSkills.Core.psm1"
 Import-Module -Name $script:CoreModulePath -Force -DisableNameChecking
@@ -154,7 +155,7 @@ Describe "MCP 配置安全合并（P0-3：破坏性覆盖）" {
             $before = [System.IO.File]::ReadAllBytes($cfg)
 
             $entry = [ordered]@{ command = "C:\bin\srv.exe"; args = @() }
-            { Merge-McpServerConfig -Path $cfg -RootProperty "mcpServers" -ServerName "matlab-official" -Entry $entry } | Should Throw
+            (Test-Throws { Merge-McpServerConfig -Path $cfg -RootProperty "mcpServers" -ServerName "matlab-official" -Entry $entry }) | Should Be $true
 
             $after = [System.IO.File]::ReadAllBytes($cfg)
             ($after -join ",") | Should Be ($before -join ",")
@@ -399,7 +400,7 @@ Describe "下载安全（P0-6：无校验远程下载）" {
     It "拒绝非 HTTPS 下载地址" {
         $dir = New-TestDirectory
         try {
-            { Save-VerifiedDownload -Uri "http://example.com/a.exe" -Destination (Join-Path $dir "a.exe") } | Should Throw
+            (Test-Throws { Save-VerifiedDownload -Uri "http://example.com/a.exe" -Destination (Join-Path $dir "a.exe") }) | Should Be $true
             (Test-Path -LiteralPath (Join-Path $dir "a.exe")) | Should Be $false
         }
         finally { Remove-TestDirectory $dir }

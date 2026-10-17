@@ -110,6 +110,15 @@ All notable changes to this project will be documented here.
   绝不降级/升级到别的的主版本；本地缺失时下载到 `artifacts/.pester`，仍缺失则抛错说明原因。
   选择逻辑抽为纯函数 `tests/helpers/PesterSelection.ps1`。
 - Added: `tests/PesterSelection.Tests.ps1`（11 例）锁死"必须选 3.4.0、只有 5.x 时必须返回 null"。
+- Fixed: **Pester 3.4 的 `Should Throw` 在 PowerShell 7 上不生效**，全部"应当抛错"的用例会失败，
+  报 `Expected: the expression to throw an exception`。新增 `tests/helpers/Assertions.ps1` 的
+  `Test-Throws`（try/catch 实现），把 11 处断言改为版本无关写法。
+- Fixed: **`Get-JsonValueKind` 不认 `[datetime]`**。PowerShell 7 的 `ConvertFrom-Json` 会把 ISO 8601
+  字符串自动解析成 `[datetime]`，于是一份完全合法的报告被判成
+  `$.startedAt 类型应为 string，实际为 unknown`。现在把 `[datetime]` / `[datetimeoffset]` 按 string 处理，
+  `date-time` 格式校验也改用 ISO 文本比对。
+- Changed: 层 A 的 `free-tests` 改为 `matrix: [powershell, pwsh]`，同一套用例在 5.1 与 7 上各跑一次；
+  `layer_report.json` 新增 `powerShellVersion` / `powerShellEdition`，让"用哪个运行面跑的"可审计。
 - Added: `tests/Acceptance.Boundary.Matlab.Tests.ps1` + `matlab/validation/tests/masacc_boundary_probe.m` ——
   MATLAB 侧产出 9 类边界报告（单条/多条检查、全空字段、空清单、中文原因、许可证缺失、
   授权无法判定、运行异常、空报告拒绝），PowerShell 侧用同一份 schema 逐项校验（69 个断言）。
@@ -128,7 +137,8 @@ All notable changes to this project will be documented here.
   这两个脚本此前从未真正跑到这一步，缺陷一直被许可证误判掩盖。
 - Docs: `skills/matlab-runner/SKILL.md`、`skills/matlab-simulink-modeling/SKILL.md` 更正
   `license('test', product)` 的错误示例，补充产品名 → feature 名对照表与 27 字符限制。
-- Tested: `-Layer free` **161 例全通过**、退出码 `0`；`-Layer matlab` **74 例全通过**、退出码 `0`
+- Tested: `-Layer free` **161 例全通过**、退出码 `0`，且在 **Windows PowerShell 5.1 与 PowerShell 7.6.7
+  两个运行面上各跑一遍都通过**；`-Layer matlab` **74 例全通过**、退出码 `0`，同样在两个运行面通过
   （含 MATLAB 侧边界往返 69 个断言）。
 - Tested: `Test-MatlabSkills.ps1 -Scope full` 在 R2026a 上真实跑完六个阶段：
   **20 项检查 19 PASS / 1 SKIP / 0 FAIL**；`core` / `simulink` / `coder` 三个范围均 PASS，

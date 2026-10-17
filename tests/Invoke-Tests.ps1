@@ -30,7 +30,9 @@ param(
     [switch]$CI,
     [string]$MatlabPath = "",
     [string]$OutputPath = "",
-    # 本套件使用 Pester 3 语法（Should Be / Should Throw，不带中划线）。
+    # 本套件使用 Pester 3 语法（Should Be，不带中划线）。
+    # 需要断言“抛异常”时用 helpers/Assertions.ps1 的 Test-Throws：
+    # Pester 3.4 的 Should Throw 在 PowerShell 7 上失效，会造成 CI 全红而本机全绿。
     # Pester 5 会直接抛 "Legacy Should syntax is not supported in Pester 5"，
     # 因此必须锁定具体版本，不能"取已安装的最高版本"——那是 CI 全红的直接原因。
     [string]$PesterVersion = "3.4.0"
@@ -191,6 +193,10 @@ $layerReport = [pscustomobject][ordered]@{
     pesterVersion   = "$($pester.Version)"
     pesterSource    = "$($pester.Source)"
     pesterPath      = "$($pester.Path)"
+    # 记录"到底用哪个 PowerShell 跑的"。5.1 与 7 的 JSON/日期/异常语义不同，
+    # 不写清楚运行面，跨版本失败就无从复现。
+    powerShellVersion = $PSVersionTable.PSVersion.ToString()
+    powerShellEdition = "$($PSVersionTable.PSEdition)"
     matlabAvailable = $matlabAvailable
     matlabPath      = $(if ($matlabAvailable) { $matlabExe } else { $null })
     matlabRelease   = $(if ($matlabInfo) { $matlabInfo.Release } else { $null })

@@ -6,6 +6,7 @@
 不依赖 MATLAB / MCP / 网络，可在免费 CI 上完整运行。
 #>
 
+. (Join-Path $PSScriptRoot "helpers\Assertions.ps1")
 $helpers = Join-Path $PSScriptRoot "helpers\TestSandbox.ps1"
 . $helpers
 
@@ -85,12 +86,12 @@ Describe "验收 JSON Schema" {
 Describe "SKIP 语义" {
     It "SKIP 缺少 reason 时构造检查项直接报错" {
         $report = New-AcceptanceReport -TaskId "skip-guard" -Backend "static"
-        { Add-AcceptanceCheck -Report $report -Id "a.skip" -Title "t" -Level "L1" -Status "SKIP" } | Should Throw
+        (Test-Throws { Add-AcceptanceCheck -Report $report -Id "a.skip" -Title "t" -Level "L1" -Status "SKIP" }) | Should Be $true
     }
 
     It "FAIL 缺少 reason 时构造检查项直接报错" {
         $report = New-AcceptanceReport -TaskId "fail-guard" -Backend "static"
-        { Add-AcceptanceCheck -Report $report -Id "a.fail" -Title "t" -Level "L1" -Status "FAIL" } | Should Throw
+        (Test-Throws { Add-AcceptanceCheck -Report $report -Id "a.fail" -Title "t" -Level "L1" -Status "FAIL" }) | Should Be $true
     }
 
     It "校验器会拦截被外部改坏的 SKIP（reason 为空）" {
