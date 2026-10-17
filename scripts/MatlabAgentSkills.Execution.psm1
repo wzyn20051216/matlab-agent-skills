@@ -29,6 +29,7 @@ $script:ErrorClassTable = @(
             'LICMGR',
             'MATLAB:license',
             'License server',
+            'MATLAB error Exit Status',
             '\bError -(4|15|18|95|96)\b'
         )
     },
@@ -322,6 +323,14 @@ function Invoke-MatlabBatchProcess {
     $psi.RedirectStandardOutput = $true
     $psi.RedirectStandardError = $true
     $psi.RedirectStandardInput = $true
+
+    # 注意：不要为了"清掉代理变量"去读写 $psi.EnvironmentVariables。
+    # 实测（Windows PowerShell 5.1 / .NET Framework 4.x）：该属性 getter 返回的是空集合，
+    # 一旦读它，Start() 交给子进程的就是一个空环境，MATLAB 会因缺少 SystemRoot/TEMP/PATH
+    # 直接 abort（Exit Status: 0x00000003，1.6 s 内退出）；同样参数不碰该属性则正常返回
+    # 版本号（16 s，exit 0）。另外 NODE_OPTIONS 这类变量在本机环境下连赋值都会抛
+    # “无法对 Null 数组进行索引”。总之：**保持继承父进程环境，不要显式构造**。
+    # 若确实需要改变子进程环境，请在调用方自己调整后再调用本函数。
 
     $process = New-Object System.Diagnostics.Process
     $process.StartInfo = $psi

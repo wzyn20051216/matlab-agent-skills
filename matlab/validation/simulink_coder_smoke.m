@@ -61,8 +61,12 @@ else
             close_system(modelName, 0);
         end
         new_system(modelName);
+        % Step 块设置阶跃时刻的参数名是 Time，不是 StepTime。
+        % 实测 R2026a：get_param(blk,"DialogParameters") 返回
+        % Time, InitialValue, FinalValue, OutDataTypeStr, SampleTime, VectorParams1D, ZeroCross；
+        % 写 StepTime 会直接报 "Step block 没有名为 'StepTime' 的参数"。
         add_block("simulink/Sources/Step", modelName + "/Step", ...
-            "Position", [80 80 120 120], "SampleTime", "0.01", "StepTime", "1");
+            "Position", [80 80 120 120], "SampleTime", "0.01", "Time", "1");
         add_block("simulink/Math Operations/Gain", modelName + "/Gain", ...
             "Gain", "3", "Position", [170 80 230 120]);
         add_block("simulink/Sinks/Out1", modelName + "/Out1", "Position", [290 80 330 120]);

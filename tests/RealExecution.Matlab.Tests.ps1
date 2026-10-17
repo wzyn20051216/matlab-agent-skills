@@ -79,7 +79,8 @@ Describe "真实 MATLAB 执行" {
     It "超时保护会在阈值内终止真实 MATLAB 进程" {
         $stopwatch = [System.Diagnostics.Stopwatch]::StartNew()
         $run = Invoke-MatlabBatchProcess -MatlabPath $matlabExe -ArgumentList @("-batch", "pause(600)") `
-            -Label "real-timeout" -TimeoutSeconds $overrunTimeoutSeconds -WorkingDirectory $repoRoot
+            -Label "real-timeout" -TimeoutSeconds $overrunTimeoutSeconds -WorkingDirectory $repoRoot `
+
         $stopwatch.Stop()
 
         $run.TimedOut | Should Be $true
@@ -87,5 +88,45 @@ Describe "真实 MATLAB 执行" {
         # 允许启动开销，但必须明显小于 pause 的时长，证明确实被强杀而不是等它自己结束。
         ($stopwatch.Elapsed.TotalSeconds -lt ($overrunTimeoutSeconds + 60)) | Should Be $true
         Write-Host "  证据: 实测 $([math]::Round($stopwatch.Elapsed.TotalSeconds, 1))s 后终止"
+    }
+
+    It "脚本名不是合法 MATLAB 标识符时，批处理封装会用同目录别名跑通它" {
+        # MATLAB 的 run() 只接受合法标识符：run('my-check.m') 会抛 MATLAB:m_illegal_character。
+        # 旧封装直接把脚本路径塞进 run()，所以任何带连字符的脚本名都会失败。
+        $sandbox = New-TestSandbox
+        try {
+            $scriptPath = Join-Path $sandbox.Root "my-check-script.m"
+            Set-Content -LiteralPath $scriptPath -Value "fprintf('ALIAS_OK\n');" -Encoding ASCII
+
+            $wrapper = Join-Path $repoRoot "scripts\Invoke-MatlabBatch.ps1"
+            $arguments = @(
+                "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", $wrapper,
+                "-Script", $scriptPath,
+                "-MatlabPath", $matlabExe,
+                "-WorkingDirectory", $sandbox.Root,
+                "-TimeoutSeconds", "$batchTimeoutSeconds",
+                "-Label", "real-alias",
+                "-NoRetry"
+            )
+            $output = & powershell @arguments 2>&1 | Out-String
+            $exitCode = $LASTEXITCODE
+
+            # 封装脚本自己只打印 summary，MATLAB 的真实输出在 summary 里给出的 stdout 日志中。
+            $stdoutLogPath = $null
+            if ($output -match "stdout=(.+)") {
+                $stdoutLogPath = $Matches[1].Trim()
+            }
+
+            Write-Host "  证据: exitCode=$exitCode stdoutLog=$stdoutLogPath"
+            $exitCode | Should Be 0
+            ($null -eq $stdoutLogPath) | Should Be $false
+            (Test-Path -LiteralPath $stdoutLogPath) | Should Be $true
+            $matlabOutput = [System.IO.File]::ReadAllText($stdoutLogPath)
+            ($matlabOutput -match "ALIAS_OK") | Should Be $true
+
+            # 别名副本是临时文件，跑完必须清理干净，不能污染用户目录。
+            @(Get-ChildItem -LiteralPath $sandbox.Root -Filter "mw_runalias_*.m").Count | Should Be 0
+        }
+        finally { Remove-TestSandbox $sandbox }
     }
 }

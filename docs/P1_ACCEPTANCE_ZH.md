@@ -72,6 +72,10 @@
 3. 存在任一 `SKIP` → `overallStatus = SKIP`，退出码 `3`。`SKIP` 不折算为通过。
 
 `achievedLevel` 取连续达到的最高等级：L2 跳过时，L3 通过也只能记 L1。
+同理，L1 里只要有一条 SKIP，等级就停在 L0 —— 本机真实报告就是这个结果（见 3.4.4）。
+
+`toolboxInventory` 只有真正跑过 MATLAB 的那一层才拿得到，所以合并时如果父报告是空数组，
+会继承子报告的清单；否则"报告里有这个字段"只是一句空话（空数组同样满足 schema）。
 
 ### 2.2 五级验收
 
@@ -176,7 +180,9 @@ mcp.file-io              L4 SKIP  上游阶段未通过（handshake=SKIP, readon
 
 这份真实报告同时通过了 schema 与语义校验（`Valid=True`），说明协议在真实数据上成立，而不只是在单元测试的构造对象上成立。
 
-### 3.4 真实 MATLAB 层（本机实测，结果为失败）
+### 3.4 真实 MATLAB 层（本机实测）
+
+#### 3.4.1 第一次尝试：受控超时下的失败
 
 命令与结果：
 
@@ -213,8 +219,9 @@ powershell -NoProfile -ExecutionPolicy Bypass -File .\tests\Invoke-Tests.ps1 -La
 要点：
 
 - 超时后进程树被完整终止，运行前后对比无新增残留 `matlab.exe` / `MATLAB.exe`。
-- 两次超时中 `stdout` 与 `stderr` 都是 **0 字节**，说明 MATLAB 卡在启动阶段，而不是被执行的内测脚本报错。
-- 这条 FAIL 保留在测试里，不改成 SKIP。它就是当前环境的真实结论：这台机器上不能跑 `-batch`。
+- 两次超时中 `stdout` 与 `stderr` 都是 **0 字节**，说明卡在启动阶段，而不是被测脚本报错。
+
+#### 3.4.2 追查：不设超时到底要等多久
 
 为了排除"只是 180 秒不够久"，随后在测试框架之外单独跑了一次不设超时的直连调用：
 
@@ -234,16 +241,105 @@ E:/matlab/bin/matlab.exe -batch "fprintf('STARTUP_OK=%d\n',1); disp(version)" -l
 | MathWorks 许可服务器连通性 | `https://login.mathworks.com` 直连与经代理均返回 HTTP 302，约 1.0 s |
 | 许可模式 | `<matlabroot>` 下 `licenses\license_info.xml` 中 `licmode = onlinelicensing` |
 
-结论按证据收窄为：**本机 `-batch` 会在许可检查阶段长时间重试（70 分钟量级）后以 0x00000001 退出，期间零输出**。这既不是仓库脚本的错误，也不能归因为网络不通（许可服务器可达）。它是环境级阻塞，仓库存量无法绕过，只能如实记录并交给层 B CI。
+#### 3.4.3 结论修正：机器是可用的，前面那次是瞬时故障
+
+继续排查时，同样的调用在同一个 shell（代理变量仍在）下 16 秒正常返回：
+
+```text
+matlab.exe -batch "disp(version)"  →  26.1.0.3276743 (R2026a) Update 3，exit 0，16 s
+```
+
+因此先前"这台机器不能跑 `-batch`"的判断是错的，必须撤回。准确的说法是：
+**本机 `-batch` 启动曾在许可检查阶段长时间重试后以 `0x00000001` 退出（一次性、随后自愈），
+之后再未复现；代理变量不是根因（带代理同样 16 秒成功）。**
+
+这正是本阶段要建立的纪律：一次失败只能证明"这一次失败"，不能直接上升为"能力不可用"；
+反过来，一次成功也不能用来覆盖先前 FAIL 的证据，两者都要留在报告里。
+
+同一层测试在恢复后重跑，5 个用例全部通过、退出码 0：
+
+| 用例 | 结果 |
+| --- | --- |
+| 能解析出真实 MATLAB 可执行文件路径 | PASS |
+| 能从真实安装目录读出 Release 与完整版本号 | PASS（R2026a） |
+| 真实 `-batch` 执行 `disp(version)` | PASS（18.8 s，exit 0） |
+| 超时保护会在阈值内终止真实 MATLAB 进程 | PASS（45.7 s 后终止） |
+| 脚本名不是合法标识符时用同目录别名跑通 | PASS（19.7 s，别名文件已清理） |
+
+#### 3.4.4 真实跑通六个验收脚本（本阶段的主证据）
+
+MATLAB 可用之后，`Test-MatlabSkills.ps1` 的六个阶段全部真实执行，结果如下
+（`artifacts/validation/acceptance_report.json`）：
+
+| 检查项 | 等级 | 结果 | 说明 |
+| --- | --- | --- | --- |
+| `matlab.executable` | L1 | PASS | 解析到 `matlab.exe` 并读到 R2026a |
+| `inventory.products` | L1 | PASS | `ver` + `license('test')` 真实枚举 117 个产品，并继承进主报告的 `toolboxInventory` |
+| `feature.direct-import` | L1 | SKIP | 已装 Coder 与深度学习工具箱，但未检测到 `loadPyTorchExportedProgram` |
+| `feature.blocksets` | L1 | PASS | 相关块集可用 |
+| `feature.agentic` | L1 | PASS | 智能体调用面可用 |
+| `skill.numeric-fit` | L3 | PASS | RMSE 0.0345 < 0.08，且首点解析误差 ≤ 1e-12 |
+| `skill.figure-export` | L1 | PASS | 图窗真实导出非空文件 |
+| `skill.data-export` | L1 | PASS | 数据文件真实落盘并可回读 |
+| `skill.simulink-sim` | L3 | PASS | 501 采样点，peak 1.99999936 / trough −1.99999429（期望 ±2，容差 0.01） |
+| `compiler.mex-build` / `compiler.numeric` / `compiler.robustness` | L2 / L3 / L4 | SKIP | MATLAB Coder 已安装但 `license('test')` 为 false |
+| `codegen.generate` / `codegen.compile` | L1 / L2 | SKIP | 同上，代码生成未授权 |
+| `simulink.model-artifact` | L1 | PASS | 建模型 → 保存 → 卸载 → 重载 |
+| `simulink.model-update` | L2 | PASS | `SimulationCommand=update` 成功 |
+| `simulink.simulation` | L3 | PASS | Step×3 → 稳态 3.0（容差 1e-9） |
+| `simulink.parameter-sweep` | L4 | PASS | 增益 2 / 3 / 5 三工况均符合解析预期 |
+| `simulink.codegen-build` | L4 | SKIP | Simulink Coder 未授权 |
+
+整体判定必须遵守"SKIP 不得折算为 PASS"：本机因为 Coder 未授权、且 L1 的
+`feature.direct-import` 未能检测到目标 API，存在多条 SKIP，所以
+`overallStatus=SKIP`（退出码 3）、`achievedLevel=L0` —— **不是 PASS**。
+
+`achievedLevel` 之所以是 L0 而不是 L3：等级是按层**连续**达成的，L1 里只要有一条没通过
+就没有"达成 L1"，后面更高的层再通过也只能记在报告里而不能抬高等级。
+这不是苛刻，而是避免"有 12 项 PASS 就宣称到达某一级"这种自我安慰。
+真要抬高它，唯一的办法是把那条 SKIP 变成有证据的 PASS 或解释清楚为什么它不该在这一层。
+
+#### 3.4.5 真实执行抓到了 4 个脚本自身的缺陷
+
+这是"必须真的跑"最直接的收益。这些缺陷只有真机执行才会暴露：
+
+| 缺陷 | 现象 | 修复 |
+| --- | --- | --- |
+| `+masacc/new.m` 用 `computer("os")` 取 OS | `MATLAB:badopt 未知的命令选项`，六个脚本全部在各自第 26 行挂掉 | 改为 `string(computer)`（实测返回 `PCWIN64`）；另实测确认 `version("-release")` 合法 |
+| `+masacc/write.m` 直接用 `jsonencode(report)` | 单条检查时 `checks` 被编码成**对象**，PowerShell 侧 schema 校验报 `$.checks 类型应为 array，实际为 object` | 转 `num2cell` 强制数组（实测：`jsonencode(结构体)`→对象，`jsonencode(num2cell(...))`→数组） |
+| `simulink_coder_smoke.m` 用 `"StepTime"` 设置阶跃时刻 | `Step block 没有名为 'StepTime' 的参数` | 实测 `DialogParameters` 为 `Time, InitialValue, FinalValue, ...`，改用 `"Time"` |
+| `matlab_skill_smoke.m` 的 Sine 仿真只跑到 1 秒、2 秒 | 峰值 1.6829 = 2·sin(1)；改到 2 秒后谷值仍是 0.0000。两次都判 FAIL | 仿真时长改为 5 秒（覆盖 3π/2 谷值）并设 `MaxStep=0.01`，采样点 51 → 501 |
+
+Sine 那一条尤其说明问题：**是验收断言抓出了验收脚本自己的错**，而不是脚本"写错了却照样 PASS"。
+
+#### 3.4.6 一个被否掉的"修复"（顺手记下 .NET 陷阱）
+
+排查中曾怀疑是代理变量导致许可检出失败，于是给执行模块加了 `-ClearProxyEnvironment`。
+用变体实验（同一台机器、同样参数、只改一个条件）测出：
+
+| 变体 | 结果 |
+| --- | --- |
+| 不碰 `ProcessStartInfo.EnvironmentVariables` | exit 0，16 s，拿到版本号 |
+| 只读取 `$psi.EnvironmentVariables`（`Count` = 0） | exit 3，1.6 s，MATLAB abort（0x00000003），MWSH 崩溃转储 |
+| 再回到不碰该属性 | exit 0，15.9 s |
+
+即：在 Windows PowerShell 5.1 / .NET Framework 下读取该属性得到的是**空集合**；一旦读取，
+`Start()` 交给子进程的就是一个空环境，MATLAB 因缺少 `SystemRoot` / `TEMP` / `PATH` 直接 abort。
+另外 `[Environment]::SetEnvironmentVariable(name, "")` 在该实现下等价于删除，会回落到用户级变量，
+因此"清空父进程变量"也达不到屏蔽效果；`NODE_OPTIONS` 这类变量连赋值都会抛"无法对 Null 数组进行索引"。
+
+结论：**不引入这个开关**。既然证据表明代理不是根因（带代理同样 16 秒成功），
+为一个未被证实的猜测去改子进程环境，只会换来一个更难查的启动失败。
+代码里保留这条警告注释，防止后来者重复踩坑。
 
 ## 四、未验证内容与已知风险
 
 必须在 PR 评审时如实告知：
 
-1. **MATLAB 侧 `.m` 改动未经成功执行验证。** 本机 MATLAB R2026a（`onlinelicensing`）在 `matlab.exe -batch` 下不产出任何输出：受控超时在 180 s 终止（见 3.4），不设超时的直连调用跑满 68 分 57 秒后以 `0x00000001` 退出、`-logfile` 为 0 字节。因此 `matlab/validation/*.m` 与 `+masacc/` 的语法以外的行为、数值断言与容差设定尚未由执行确认，需要层 B CI 才能最终确认。
-2. **`matlab/validation/+masacc/jsonNulls.m` 的存在本身就说明两侧对齐是手工保证的。** MATLAB `jsonencode` 把空值写成 `[]` / `""`，而 schema 要求 `null`；如果不做这一步，`errorClass: ""` 会直接违反枚举、`exitCode: []` 会被判成类型错误。这段正则改写尚未在真实 MATLAB 上跑过。
+1. **MATLAB 侧 `.m` 改动已在真机执行验证，但仍然只覆盖已授权的能力。** `matlab_toolbox_inventory` / `matlab_feature_probe` / `matlab_skill_smoke` / `simulink_coder_smoke` 四个脚本的改动已在 R2026a 上真实跑通（见 3.4.4）；`matlab_compiler_chain_smoke` 与 `matlab_codegen_smoke` 的核心分支（MEX 构建、`codegen -config lib` 真实编译、golden 数值对照、NaN/非法尺寸鲁棒性）因为本机 **MATLAB Coder 未授权** 全部输出 SKIP，这四类断言仍未经真机确认 —— 需要一台有 Coder 许可证的机器或层 B CI。
+2. **`+masacc/jsonNulls.m` 已随真机写报告跑过，但没有专门针对 `errorClass` / `exitCode` 的边界用例。** 本次真实报告能通过 PowerShell 侧 schema 校验，说明 `""` → `null` 这条路径是通的（PASS 项的 `errorClass` 就是空串）；不过"所有空值形态都覆盖到"仍属推断，不是穷举验证。
 3. **MCP 探测未对真实 MATLAB MCP 服务端执行。** 除 3.3 的会话配置阶段外，握手与工具调用全部来自假服务端的故障注入。真实服务端的 `initialize` 参数、工具名、返回结构可能与假定不同。
-4. **层 C 全部未执行。** MATLAB Coder / Simulink Coder / Embedded Coder 的真实编译、STM32 目标板下载与回读、外部工具链集成，均未验证；报告中以 `SKIP` 出现。
+4. **层 C 全部未执行。** MATLAB Coder / Simulink Coder / Embedded Coder 的真实编译、STM32 目标板下载与回读、外部工具链集成，均未验证；报告中以 `SKIP` 出现，原因是 `license('test')` 返回 false。
 5. **CI workflow 未在 GitHub 上实际跑过。** 层 A / 层 B 的 workflow 改动只做了本地等价命令验证，未触发真实 GitHub Actions 运行。
 
 ## 五、复现方式

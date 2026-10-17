@@ -352,6 +352,14 @@ function Merge-AcceptanceReport {
         $Report.unexecuted = @($Report.unexecuted) + @($Child.unexecuted)
     }
 
+    # 工具箱清单只有真正跑过 MATLAB 的那一层才拿得到。父报告是空的就继承子报告，
+    # 否则"报告里有 toolboxInventory 字段"就只是一句空话（空数组也满足 schema）。
+    $parentInventory = @($Report.toolboxInventory | Where-Object { $_ })
+    $childInventory = @($Child.toolboxInventory | Where-Object { $_ })
+    if ($parentInventory.Count -eq 0 -and $childInventory.Count -gt 0) {
+        $Report.toolboxInventory = $childInventory
+    }
+
     return Update-AcceptanceSummary -Report $Report
 }
 

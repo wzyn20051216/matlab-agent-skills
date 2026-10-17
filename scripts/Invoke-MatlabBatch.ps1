@@ -63,13 +63,31 @@ $stderrPath = Join-Path $LogDirectory "$safeLabel`_$timestamp.stderr.log"
 $stageLogPath = Join-Path $LogDirectory "$safeLabel`_$timestamp.stages.log"
 $summaryPath = Join-Path $LogDirectory "$safeLabel`_$timestamp.summary.txt"
 
+$runAliasPath = $null
 if ($Script) {
     $resolvedScript = (Resolve-Path -LiteralPath $Script).Path
-    $escapedScript = $resolvedScript.Replace("'", "''")
+    $scriptLeaf = [System.IO.Path]::GetFileNameWithoutExtension($resolvedScript)
+    if ($scriptLeaf -match '^[A-Za-z][A-Za-z0-9_]*$') {
+        $escapedScript = $resolvedScript.Replace("'", "''")
+    }
+    else {
+        # MATLAB 的 run() 只接受合法标识符作为脚本名：带连字符、空格或以数字/下划线开头
+        # 的脚本名会直接抛 MATLAB:m_illegal_character（已在本机实测）。
+        # 处理方式：在同一目录建一个合法标识符的别名副本，跑完即删。
+        # 必须同目录，否则脚本里的 mfilename('fullpath') 会解析到错误的仓库根。
+        $aliasDir = Split-Path -Parent $resolvedScript
+        $aliasName = "mw_runalias_" + [guid]::NewGuid().ToString("N").Substring(0, 8)
+        $runAliasPath = Join-Path $aliasDir "$aliasName.m"
+        Copy-Item -LiteralPath $resolvedScript -Destination $runAliasPath -Force
+        Write-Host "脚本名 '$scriptLeaf' 不是合法 MATLAB 标识符，已改用同目录别名: $runAliasPath"
+        $escapedScript = $runAliasPath.Replace("'", "''")
+    }
     $batchCommand = "run('$escapedScript')"
 }
 else {
-    $tempScript = Join-Path $LogDirectory "$safeLabel`_$timestamp`_batch.m"
+    # 临时脚本名也必须是合法标识符：直接用 Label 拼接可能产生 '-' 等非法字符。
+    $tempName = "mw_batch_{0}_{1}" -f $timestamp, [guid]::NewGuid().ToString("N").Substring(0, 8)
+    $tempScript = Join-Path $LogDirectory "$tempName.m"
     Set-Content -Path $tempScript -Value $Code -Encoding UTF8
     $escapedScript = $tempScript.Replace("'", "''")
     $batchCommand = "run('$escapedScript')"
@@ -94,8 +112,16 @@ if (-not $NoRetry) {
     $maxAttempts = 2
 }
 
-$result = Invoke-WithRetry -Operation "matlab-batch:$safeLabel" -Action $action `
-    -MaxAttempts $maxAttempts -DelaySeconds 2 -Idempotent $true
+try {
+    $result = Invoke-WithRetry -Operation "matlab-batch:$safeLabel" -Action $action `
+        -MaxAttempts $maxAttempts -DelaySeconds 2 -Idempotent $true
+}
+finally {
+    # 别名副本是临时文件：无论成功、失败还是超时都要删掉，不能污染用户目录。
+    if ($runAliasPath -and (Test-Path -LiteralPath $runAliasPath)) {
+        Remove-Item -LiteralPath $runAliasPath -Force -ErrorAction SilentlyContinue
+    }
+}
 $run = $result.Value
 if ($null -eq $run) {
     throw "MATLAB 进程未返回结果：$($result.Reason)"

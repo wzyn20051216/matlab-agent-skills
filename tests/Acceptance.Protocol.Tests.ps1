@@ -190,6 +190,41 @@ Describe "报告落盘与合并" {
         @($merged.limitations).Count | Should Be 1
         (Test-AcceptanceReport -Report $merged).Valid | Should Be $true
     }
+
+    It "父报告没有工具箱清单时从子报告继承，而不是留一个空数组" {
+        # 真实场景：只有真正跑过 MATLAB 的那一层才能拿到 ver/license 结果。
+        # 空数组也算合法 schema，所以"有字段"并不等于"有内容"，这里专门守住这一点。
+        $parent = New-AcceptanceReport -TaskId "merge-inventory" -Backend "matlab-batch"
+        @($parent.toolboxInventory).Count | Should Be 0
+
+        $child = New-AcceptanceReport -TaskId "merge-inventory" -Backend "matlab-batch"
+        $child.toolboxInventory = @(
+            [pscustomobject][ordered]@{ name = "MATLAB"; version = "26.1"; licensed = $true }
+            [pscustomobject][ordered]@{ name = "Simulink"; version = "26.1"; licensed = $true }
+        )
+        $child = Add-AcceptanceCheck -Report $child -Id "inventory.products" -Title "枚举产品" -Level "L1" -Status "PASS"
+
+        $merged = Merge-AcceptanceReport -Report $parent -Child $child -SourceName "toolbox_inventory"
+        @($merged.toolboxInventory).Count | Should Be 2
+        (@($merged.toolboxInventory | ForEach-Object { $_.name }) -contains "Simulink") | Should Be $true
+        (Test-AcceptanceReport -Report $merged).Valid | Should Be $true
+    }
+
+    It "父报告已有工具箱清单时不被子报告覆盖" {
+        $parent = New-AcceptanceReport -TaskId "merge-inventory2" -Backend "matlab-batch"
+        $parent.toolboxInventory = @([pscustomobject][ordered]@{ name = "MATLAB"; version = "26.1"; licensed = $true })
+        $parent = Add-AcceptanceCheck -Report $parent -Id "parent.check" -Title "父检查" -Level "L1" -Status "PASS"
+
+        $child = New-AcceptanceReport -TaskId "merge-inventory2" -Backend "matlab-batch"
+        $child.toolboxInventory = @(
+            [pscustomobject][ordered]@{ name = "Other"; version = "1.0"; licensed = $false }
+        )
+        $child = Add-AcceptanceCheck -Report $child -Id "child.check" -Title "子检查" -Level "L1" -Status "PASS"
+
+        $merged = Merge-AcceptanceReport -Report $parent -Child $child -SourceName "child"
+        @($merged.toolboxInventory).Count | Should Be 1
+        $merged.toolboxInventory[0].name | Should Be "MATLAB"
+    }
 }
 
 Describe "等级名称与元数据" {

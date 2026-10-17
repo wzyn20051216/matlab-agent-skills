@@ -38,13 +38,22 @@ All notable changes to this project will be documented here.
 - Fixed: 编译链路增加 5 组 golden 数值比对与 NaN / 非法尺寸 / 大数鲁棒性检查，此前 golden 结果未被使用。
 - Fixed: 缺少许可证或工具箱时输出带原因的 SKIP，不再伪造成功状态；`Test-MatlabEmbeddedStack.ps1` 移除硬编码 `matlabValidation.passed = $true`。
 - Fixed: 所有长任务增加可配置超时（`-TimeoutSeconds`）、阶段日志与超时进程树终止，超时返回 `124`。
+- Fixed: `Invoke-MatlabBatch.ps1` 用 `run()` 执行脚本，但 MATLAB 的 `run` 只接受合法标识符：脚本名含连字符、以数字或下划线开头时直接抛 `MATLAB:m_illegal_character`。现在遇到非法标识符会在同目录建一个合法标识符的别名副本，跑完即删（必须同目录，否则 `mfilename('fullpath')` 解析出的仓库根会错）；`-Code` 生成的临时脚本名也改成合法标识符。
+- Fixed: `Merge-AcceptanceReport` 在父报告 `toolboxInventory` 为空时继承子报告清单，否则主报告里这个字段只是空数组（空数组同样满足 schema，等于"有字段没内容"）。
+- Fixed: `RealExecution.Matlab.Tests.ps1` 的别名用例改为从 summary 的 `stdout=` 读 MATLAB 真实输出日志，而不是匹配封装脚本的控制台输出。
+- Fixed: `+masacc/new.m` 用 `computer("os")` 取 OS 触发 `MATLAB:badopt`，六个验收脚本在真机上全部在第 26 行挂掉；改为 `string(computer)`。
+- Fixed: `+masacc/write.m` 直接 `jsonencode(report)` 时，只有一条检查项的结构体数组会被编码成 JSON 对象，导致 PowerShell 侧 schema 校验报 `$.checks 类型应为 array，实际为 object`；改为 `num2cell` 强制数组。
+- Fixed: `simulink_coder_smoke.m` 用 `"StepTime"` 设置阶跃时刻，真机报 `Step block 没有名为 'StepTime' 的参数`；按实测 `DialogParameters` 改为 `"Time"`。
+- Fixed: `matlab_skill_smoke.m` 的 Sine 仿真只跑到 1 秒、2 秒，峰值/谷值永远到不了 ±2（实测 1.6829 = 2·sin(1)、谷值 0.0000）；改为 5 秒覆盖 3π/2 并设 `MaxStep=0.01`，采样点 51 → 501。
 - Fixed: PowerShell 5.1 下 `ConvertFrom-Json` 对 UTF-8 BOM-less 文件按 ANSI 解码导致 schema 解析失败；新增 `Read-AcceptanceJsonFile` 显式 UTF-8 读取。
 - Fixed: PowerShell 5.1 下 `Start-Process` 在环境变量存在大小写重复键（`HTTPS_PROXY` / `https_proxy`）时抛"字典中的关键字重复"；改用 `ProcessStartInfo`。
 - Fixed: PowerShell 5.1 下 `@($list)` 对 `List[object]` 抛"参数类型不匹配"；统一改用 `$list.ToArray()`。
 - Changed: `Test-MatlabSkills.ps1` 改为 6 阶段编排，逐阶段产出并合并验收报告，退出码区分 PASS/FAIL/SKIP。
 - Changed: CI 分为层 A（免费环境，仅 free 层）与层 B（带许可证的 MATLAB 环境），层 C（Pro 许可证 / 硬件）明确标注为不在默认 workflow 执行。
 - Docs: 重写 `docs/VALIDATION.md`；新增 `docs/P1_ACCEPTANCE_ZH.md`（缺陷清单、设计、证据、未验证项）。
-- Tested: `-Layer free` 122 例全通过、退出码 `0`；`-Layer matlab` 3 通过 / **1 失败**（本机 `-batch` 在许可检查阶段卡死，受控超时终止），退出码 `1`，该 FAIL 保留不改 SKIP。
+- Tested: `-Layer free` 122 例全通过、退出码 `0`；`-Layer matlab` 5 例全通过、退出码 `0`（含真实 `-batch` 执行 18.8 s、真实超时终止 45.7 s、非法脚本名别名 19.7 s）。
+- Tested: `Test-MatlabSkills.ps1` 在本机 MATLAB R2026a 上真实跑完六个阶段：19 项检查中 12 项 PASS、7 项 SKIP（均为 MATLAB Coder / Simulink Coder 未授权，或目标 API 未检测到）、0 项 FAIL；整体按"存在 SKIP 即 SKIP"判为 `SKIP`（退出码 3），因 L1 存在 SKIP，按连续达成规则 `achievedLevel=L0`。
+- Note: 排查中发现 Windows PowerShell 5.1 下读取 `ProcessStartInfo.EnvironmentVariables` 会得到空集合，子进程因此拿不到 `SystemRoot`/`TEMP`/`PATH`，MATLAB 直接 abort（0x00000003）。执行模块已加注释禁止该用法；据此否决了曾考虑过的 `-ClearProxyEnvironment` 方案（代理不是根因，带代理同样 16 秒启动成功）。
 
 - Added MCP-first MATLAB workflow documentation.
 - Added one-command MCP client installer for Codex, Claude Code, VS Code, and generic MCP clients.

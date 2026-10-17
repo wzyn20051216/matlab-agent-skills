@@ -81,6 +81,14 @@ if strlength(directory) > 0 && ~isfolder(directory)
     mkdir(directory);
 end
 
+% jsonencode 会把「只有 1 个元素的结构体数组」编码成 JSON 对象而不是数组，
+% 导致 PowerShell 侧的 schema 校验直接报 "checks 类型应为 array，实际为 object"（实测）。
+% 转成 cell 才能强制输出数组；空数组时 num2cell 给出 []，仍是合法数组。
+report.checks = num2cell(checks);
+if isfield(report, "unexecuted") && ~isempty(report.unexecuted)
+    report.unexecuted = num2cell(report.unexecuted);
+end
+
 json = jsonencode(report, "PrettyPrint", true);
 % 空值统一翻译成 null，保证与 PowerShell 侧的报告落在同一个 schema 下。
 json = masacc.jsonNulls(json);

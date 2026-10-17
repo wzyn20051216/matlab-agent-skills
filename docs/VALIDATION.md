@@ -136,6 +136,13 @@ powershell -ExecutionPolicy Bypass -File .\scripts\Test-MatlabMcpExistingSession
 
 主报告输出到 `artifacts/validation/acceptance_report.json`；各阶段的子报告在 `artifacts/validation/acceptance/<stage>.json`；每个阶段的日志在 `artifacts/logs/`。
 
+一次真实运行的结论（MATLAB R2026a，本机）：19 项检查中 12 项 PASS、7 项 SKIP、0 项 FAIL，`overallStatus=SKIP`、退出码 `3`、`achievedLevel=L0`。
+SKIP 全部来自 `license('test')` 为 false（MATLAB Coder / Simulink Coder 未授权）或目标 API 未检测到；
+`toolboxInventory` 记录了 117 个产品的真实 `licensed` 状态。
+
+报告里的 `achievedLevel` 之所以是 L0：等级按层连续达成，L1 里只要有一条 SKIP 就不算"达成 L1"。
+这不是苛刻，而是避免"有 12 项 PASS 就宣称到达某一级"。
+
 ## 各阶段检查什么
 
 `Test-MatlabSkills.ps1` 依次执行 6 个阶段，每个阶段产出一份独立验收报告，再合并进主报告：
