@@ -80,16 +80,13 @@ jobs:
           "required top-level fields: $($schema.required -join ', ')"
 
   free-tests:
-    name: 层 A - 免费测试（${{ matrix.shell }}）
+    name: 层 A - 免费测试（5.1 + 7 双运行面）
     runs-on: windows-latest
     # 同一套用例在两个 PowerShell 运行面上各跑一次：
     # 5.1 与 7 的 JSON 日期解析、异常语义、字符串比较都不同，只测一个版本
-    # 会出现"本机全绿、CI 全红"（本仓库真实踩过）。fail-fast 关掉，
-    # 这样一次就能看到两个版本各自的结果。
-    strategy:
-      fail-fast: false
-      matrix:
-        shell: [powershell, pwsh]
+    # 会出现"本机全绿、CI 全红"（本仓库真实踩过两次）。
+    # 刻意不用 matrix + shell 表达式：那种写法会让本 workflow 被判为非法文件，
+    # 两个显式步骤更直白，也能各自产出独立的层报告。
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
@@ -109,31 +106,41 @@ jobs:
           "Pester $required ready: $($found[0].Path)"
           Get-Module -ListAvailable Pester | Select-Object Name, Version | Format-Table | Out-String
 
-      - name: Run free-layer tests
-        shell: ${{ matrix.shell }}
-        run: ./tests/Invoke-Tests.ps1 -Layer free -CI -PesterVersion 3.4.0
+      # Windows PowerShell 5.1：仓库脚本的基线运行面。
+      - name: Run free-layer tests on Windows PowerShell 5.1
+        shell: powershell
+        run: ./tests/Invoke-Tests.ps1 -Layer free -CI -PesterVersion 3.4.0 -OutputPath artifacts/validation/tests/layer_report_winps51.json
+
+      # PowerShell 7：现代运行面。两个都失败/一个失败都要看得到，所以用 always()。
+      - name: Run free-layer tests on PowerShell 7
+        if: always()
+        shell: pwsh
+        run: ./tests/Invoke-Tests.ps1 -Layer free -CI -PesterVersion 3.4.0 -OutputPath artifacts/validation/tests/layer_report_pwsh7.json
 
       - name: Publish layer report to job summary
         if: always()
         shell: pwsh
         run: |
-          $reportPath = 'artifacts/validation/tests/layer_report.json'
-          if (-not (Test-Path -LiteralPath $reportPath)) { throw "缺少层报告 $reportPath" }
-          $report = Get-Content -Raw -LiteralPath $reportPath | ConvertFrom-Json
-          $lines = @(
-            '### 测试层执行情况',
-            '',
-            "运行面：PowerShell $($report.powerShellVersion) ($($report.powerShellEdition))，Pester $($report.pesterVersion)",
-            '',
-            '| 层 | 是否执行 | 用例 | 通过 | 失败 | 说明 |',
-            '| --- | --- | --- | --- | --- | --- |'
-          )
-          foreach ($layer in $report.layers) {
-            $executed = if ($layer.executed) { '已执行' } else { '**未执行**' }
-            $reason = if ($layer.reason) { $layer.reason } else { '' }
-            $lines += "| $($layer.layer) | $executed | $($layer.total) | $($layer.passed) | $($layer.failed) | $reason |"
+          $lines = @('### 测试层执行情况', '')
+          $any = $false
+          foreach ($reportPath in @(
+              'artifacts/validation/tests/layer_report_winps51.json',
+              'artifacts/validation/tests/layer_report_pwsh7.json')) {
+            if (-not (Test-Path -LiteralPath $reportPath)) { continue }
+            $any = $true
+            $report = Get-Content -Raw -LiteralPath $reportPath | ConvertFrom-Json
+            $lines += "#### PowerShell $($report.powerShellVersion) ($($report.powerShellEdition))，Pester $($report.pesterVersion)"
+            $lines += ''
+            $lines += '| 层 | 是否执行 | 用例 | 通过 | 失败 | 说明 |'
+            $lines += '| --- | --- | --- | --- | --- | --- |'
+            foreach ($layer in $report.layers) {
+              $executed = if ($layer.executed) { '已执行' } else { '**未执行**' }
+              $reason = if ($layer.reason) { $layer.reason } else { '' }
+              $lines += "| $($layer.layer) | $executed | $($layer.total) | $($layer.passed) | $($layer.failed) | $reason |"
+            }
+            $lines += ''
           }
-          $lines += ''
+          if (-not $any) { throw "两份层报告都不存在，本 job 实际未完成" }
           $lines += '> 本 job 不安装 MATLAB。`matlab` 层（真实 MATLAB 执行、Simulink 仿真、Coder 编译）'
           $lines += '> 由 MATLAB Validation workflow 在带许可证的环境里执行；它没跑过就不代表已验证。'
           $lines | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append -Encoding utf8
@@ -142,6 +149,6 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: test-layer-report-${{ matrix.shell }}
-          path: artifacts/validation/tests/layer_report.json
+          name: test-layer-report
+          path: artifacts/validation/tests/layer_report_*.json
           if-no-files-found: error
