@@ -1346,6 +1346,49 @@ function Merge-StartupShareFile {
 
 #region Windows 目录 ACL（P0-6）
 
+function Test-AclContainsSid {
+    <#
+    .SYNOPSIS
+    判断目录的访问规则里是否存在指定 SID（按 SID 语义比较，不比字符串）。
+
+    .DESCRIPTION
+    不能用 "SDDL 文本里是否包含 SID 字面量" 来判断：
+    Get-Acl 生成的 SDDL 会把知名 SID 渲染成**别名**，例如
+      S-1-5-21-xxx-500  ->  LA（Local Administrator）
+      S-1-5-18          ->  SY
+      S-1-5-32-544      ->  BA
+    于是"给内置管理员账户授权"在 SDDL 里表现为 `(A;OICI;FA;;;LA)`，
+    用 SID 字面量去搜必然搜不到，会把一次成功的授权误判成失败并触发回滚。
+    实测触发环境：GitHub Actions runner（runneradmin 的 RID 是 500）；
+    普通用户（RID 非 500）不会有别名，所以本机一直是通过的。
+
+    这里改用 GetAccessRules(..., [SecurityIdentifier])，拿到的是 SID 对象，
+    再比较 .Value，与 SDDL 的呈现形式无关。
+    #>
+    param(
+        [Parameter(Mandatory)][string]$Path,
+        [Parameter(Mandatory)][string]$Sid
+    )
+
+    if (-not (Test-Path -LiteralPath $Path)) { return $false }
+
+    try {
+        $acl = Get-Acl -LiteralPath $Path
+        $rules = $acl.GetAccessRules($true, $true, [System.Security.Principal.SecurityIdentifier])
+    }
+    catch {
+        return $false
+    }
+
+    foreach ($rule in $rules) {
+        if ($null -eq $rule) { continue }
+        $ruleSid = $null
+        try { $ruleSid = [string]$rule.IdentityReference.Value } catch { continue }
+        if ($ruleSid -eq $Sid) { return $true }
+    }
+    return $false
+}
+
 function Get-DirectoryAclSnapshot {
     param([Parameter(Mandatory)][string]$Path)
 
@@ -1448,7 +1491,9 @@ function Set-DirectoryAclGrant {
     $result.AfterSddl = $after.Sddl
     $result.Applied = $true
 
-    if ($after.Sddl -notmatch [regex]::Escape($userSid)) {
+    # 按 SID 语义判断，而不是在 SDDL 文本里搜字面量：
+    # Get-Acl 会把 S-1-5-21-xxx-500 渲染成别名 LA，字面量搜索会误报失败。
+    if (-not (Test-AclContainsSid -Path $Path -Sid $userSid)) {
         throw "ACL 写入后未找到当前用户 SID($userSid)，目录可能不可访问，已触发回滚。"
     }
 

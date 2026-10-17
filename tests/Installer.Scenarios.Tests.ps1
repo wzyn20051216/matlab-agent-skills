@@ -412,6 +412,32 @@ Describe "Setup-MatlabMcpExistingSession：失败回滚（P0-6）" {
         finally { Remove-Sandbox $sandbox }
     }
 
+    It "知名 SID 在 SDDL 里显示为别名时不会被误判为授权失败" {
+        # 真实缺陷（只在 GitHub runner 上暴露）：
+        # Get-Acl 生成的 SDDL 会把 S-1-5-21-xxx-500 渲染成别名 LA、S-1-5-18 渲染成 SY。
+        # 旧实现用 "SDDL 里是否包含 SID 字面量" 判断授权是否生效，于是给内置管理员
+        # （RID 500）授权时必然误判失败并回滚；普通用户 RID 不是 500，本机不会暴露。
+        if (-not (Get-Command icacls -ErrorAction SilentlyContinue)) { return }
+
+        $sandbox = New-Sandbox
+        try {
+            # 用 LocalSystem（S-1-5-18，SDDL 别名 SY）做一次真实授权。
+            $sid = "S-1-5-18"
+            & icacls $sandbox.DataDir /grant:r ("*" + $sid + ":(OI)(CI)R") | Out-Null
+            if ($LASTEXITCODE -ne 0) { return }
+
+            $sddl = (Get-Acl -LiteralPath $sandbox.DataDir).Sddl
+            # 前提成立：SDDL 用的是别名，字面量搜索必然落空。
+            ($sddl -match [regex]::Escape($sid)) | Should Be $false
+            # 语义比较必须能正确识别。
+            (Test-AclContainsSid -Path $sandbox.DataDir -Sid $sid) | Should Be $true
+
+            # 不存在的 SID 不能误报为存在。
+            (Test-AclContainsSid -Path $sandbox.DataDir -Sid "S-1-5-21-9999999999-9999999999-9999999999-9999") | Should Be $false
+        }
+        finally { Remove-Sandbox $sandbox }
+    }
+
     It "ACL 授权是追加式且可还原（P0-6）" {
         if (-not (Get-Command icacls -ErrorAction SilentlyContinue)) { return }
         $sandbox = New-Sandbox
@@ -422,23 +448,22 @@ Describe "Setup-MatlabMcpExistingSession：失败回滚（P0-6）" {
                 $grant = Set-DirectoryAclGrant -Path $sandbox.DataDir -Session $session
             }
             catch {
-                # 失败时把环境事实打全：这条用例在 GitHub runner 上曾经失败，
-                # 只有拿到 SID/路径/icacls 原始输出才能判断是代码问题还是运行面限制。
+                # 失败时把环境事实打全：这条用例在 GitHub runner 上曾经失败过，
+                # 只有拿到 SID / SDDL 才能判断是代码问题还是运行面限制。
                 $identity = [System.Security.Principal.WindowsIdentity]::GetCurrent()
-                $probe = & icacls $sandbox.DataDir /grant:r ("*" + $identity.User.Value + ":(OI)(CI)F") 2>&1
                 Write-Host "ACL 诊断："
-                Write-Host "  路径        = $($sandbox.DataDir)"
-                Write-Host "  身份        = $($identity.Name)"
-                Write-Host "  用户 SID    = $($identity.User.Value)"
-                Write-Host "  icacls 退出 = $LASTEXITCODE"
-                Write-Host "  icacls 输出 = $($probe -join ' | ')"
-                Write-Host "  之前 SDDL   = $beforeSddl"
-                Write-Host "  之后 SDDL   = $((Get-Acl -LiteralPath $sandbox.DataDir).Sddl)"
+                Write-Host "  路径      = $($sandbox.DataDir)"
+                Write-Host "  身份      = $($identity.Name)"
+                Write-Host "  用户 SID  = $($identity.User.Value)"
+                Write-Host "  之前 SDDL = $beforeSddl"
+                Write-Host "  之后 SDDL = $((Get-Acl -LiteralPath $sandbox.DataDir).Sddl)"
                 throw
             }
             $grant.Applied | Should Be $true
             $grant.RestrictedInheritance | Should Be $false
-            (Get-Acl -LiteralPath $sandbox.DataDir).Sddl | Should Match ([regex]::Escape($grant.UserSid))
+            # 用 SID 语义比较，不在 SDDL 文本里搜字面量：
+            # RID 500 这类知名 SID 在 SDDL 里会显示成别名 LA，字面量搜索会误判失败。
+            (Test-AclContainsSid -Path $sandbox.DataDir -Sid $grant.UserSid) | Should Be $true
 
             Invoke-BackupRollback -Session $session | Out-Null
             $afterSddl = (Get-Acl -LiteralPath $sandbox.DataDir).Sddl
