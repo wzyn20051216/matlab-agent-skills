@@ -512,6 +512,31 @@ codegen -config cfg pi_control_step -args args
 报告里同时写入所选 `scope` 和四个范围的求值结果 `scopes`，
 CI 只对 `core` 设门禁，`coder` 放到需要显式申请 Coder 产品的可选 job。
 
+### 3.11 CI 真实运行的三轮：修了什么，还剩什么
+
+| 轮次 | 结果 | 原因 | 处理 |
+| --- | --- | --- | --- |
+| 第 1 轮 | free 层 0/124 全红 | Pester 版本选择（5.9.0 vs 3.4.0） | 显式锁定 3.4.0 + 纯函数单测 |
+| 第 2 轮 | free 层 146/161 | `Should Throw` 在 PowerShell 7 失效；`Get-JsonValueKind` 不认 `[datetime]` | `Test-Throws` 助手；日期按 string 处理 |
+| 第 3 轮 | free 层 160/161，双运行面一致 | ACL 授权校验用 SDDL 字面量搜 SID，命中别名（`LA`/`SY`）→ 误判失败并回滚 | 改用 `GetAccessRules(..., SecurityIdentifier)` 按 SID 语义比较 |
+| 第 4 轮 | **free 层 161/161（5.1 与 7 都通过），Repository Checks 绿** | — | — |
+
+第 3 轮那条是个**真实产品缺陷**，不是测试问题：`Get-Acl` 生成的 SDDL 会把知名 SID
+渲染成别名（`S-1-5-21-…-500` → `LA`，`S-1-5-18` → `SY`）。GitHub runner 的账户
+`runneradmin` 恰好是 RID 500，于是"给当前用户授权"这一步明明成功
+（SDDL 里出现 `(A;OICI;FA;;;LA)`），校验却搜不到 SID 字面量，判定失败并触发回滚。
+本机账户 RID 不是 500，所以本地一直通过——CI 是唯一能暴露它的地方。
+
+同一个缺陷对真实用户也成立：任何以本地内置管理员（RID 500）身份运行安装器的人都会踩到。
+修复后新增回归用例：给 `LocalSystem`（`S-1-5-18`）授权，断言 SDDL 里出现的是别名 `SY`
+（证明字面量搜索必然落空），同时 `Test-AclContainsSid` 必须返回 `true`。
+
+第 4 轮之后 `MATLAB Validation` 仍未在公共 runner 上执行：`matlab-actions/setup-matlab`
+能装好 MATLAB，但没有许可证时 `-batch` 在 1~2 秒内以退出码 1 结束。
+`-Layer matlab` 现在会把这种情形如实记为"本层未执行（已安装 ≠ 可执行）"，
+workflow 也改为需要 `MATLAB_VALIDATION_ENABLED=true` 才运行，未启用时显示 **skipped**，
+不会伪装成 passed。MATLAB 侧的真实验收证据来自本机 R2026a 运行（3.6 节）。
+
 ## 四、未验证内容与已知风险
 
 必须在 PR 评审时如实告知：
@@ -530,9 +555,12 @@ CI 只对 `core` 设门禁，`coder` 放到需要显式申请 Coder 产品的可
    **PC 端**代码生成与编译已真实通过，但 STM32 目标板下载与回读、外部工具链（Keil / IAR / CubeMX）
    集成、硬件在环闭环仍无证据。报告里 `embedded.hardware-in-loop` 是 L5 的 SKIP，
    `full` 范围因此必然不是 PASS。
-5. **CI 已真实运行过，但那三轮全红是 Pester 版本选择 bug，不是被测代码的问题。** 根因与证据见 3.9。
-   本轮修复后需要在 GitHub 上重新触发一次，才算"CI 通过"有证据；在此之前只能说
-   "已定位并修复了一个会导致 CI 必然失败的缺陷"，不能说"CI 已经绿了"。
+5. **层 B（带许可证的 MATLAB CI）在公共 runner 上仍未执行。** 三轮 CI 失败的真实原因已全部定位并修复
+   （见 3.11），`Repository Checks` 现已在 PowerShell 5.1 与 7 两个运行面上通过。
+   但 `MATLAB Validation` 需要真实许可证：公共 runner 上没有，`matlab -batch` 会在 1~2 秒内退出码 1。
+   现在 `-Layer matlab` 把这种情形记为"未执行"而不是"失败"，workflow 需要
+   `MATLAB_VALIDATION_ENABLED=true` 才启用，未启用时显示 skipped。
+   因此"MATLAB 能力已由 CI 验证"这句话仍然不成立——证据只有本机 R2026a 的运行记录。
 6. **`license('test')` 的 27 字符上限是不可绕过的 API 限制。** 长 feature 名的产品（如
    `Sensor_Fusion_and_Tracking_Toolbox`）永远无法用该 API 判定授权，只能记"无法判定"，
    或改用真实执行探针（目前只为 MATLAB Coder / Embedded Coder / Simulink 实现了探针）。

@@ -80,6 +80,12 @@ if ($selectedFiles.Count -eq 0) {
 $matlabExe = $null
 $matlabInfo = $null
 $matlabAvailable = $false
+# "装了 MATLAB" 与 "MATLAB 真的能跑" 是两件事。
+# GitHub 的 windows runner 上 matlab-actions/setup-matlab 能装好 MATLAB，
+# 但没有许可证时 -batch 会在 1~2 秒内以退出码 1 结束。这种情况不能当成"测试失败"，
+# 因为它证明的是"本运行面无法执行 MATLAB"，而不是"能力坏了"。
+$matlabRunnable = $false
+$matlabRunFailure = ""
 if ($requestedLayers -contains "matlab") {
     Import-Module (Join-Path $repoRoot "scripts\MatlabAgentSkills.Execution.psm1") -Force -DisableNameChecking
     # -MatlabPath 是显式覆盖：传空串表示自动探测（PATH / MATLAB_EXE / 常见安装位置）。
@@ -88,6 +94,23 @@ if ($requestedLayers -contains "matlab") {
     if (-not [string]::IsNullOrWhiteSpace($matlabExe)) {
         $matlabAvailable = $true
         $matlabInfo = Get-MatlabInstallInfo -ExecutablePath $matlabExe
+
+        $preflight = Invoke-MatlabBatchProcess -MatlabPath $matlabExe `
+            -ArgumentList @("-batch", "disp(version)") -WorkingDirectory $repoRoot `
+            -TimeoutSeconds 180 -Label "matlab-preflight"
+        if (-not $preflight.TimedOut -and $preflight.ExitCode -eq 0) {
+            $matlabRunnable = $true
+        }
+        else {
+            $tail = @($preflight.LogTail -split "`n" | Where-Object { $_.Trim() } | Select-Object -Last 2) -join " / "
+            $matlabRunFailure = if ($preflight.TimedOut) {
+                "matlab -batch 预检超时（180s 未返回）"
+            }
+            else {
+                "matlab -batch 预检失败（exit=$($preflight.ExitCode)，耗时 $([math]::Round($preflight.DurationSeconds, 1))s）：$tail"
+            }
+            Write-Host "==> matlab 层前置探测：$matlabRunFailure" -ForegroundColor Yellow
+        }
     }
 }
 
@@ -111,6 +134,24 @@ foreach ($name in $requestedLayers) {
         else {
             "未发现已安装的 MATLAB（PATH / MATLAB_EXE / 常见安装位置均未命中），本层未执行"
         }
+        Write-Host "==> 跳过层 matlab：$reason" -ForegroundColor Yellow
+        $notExecutedLayers.Add("matlab")
+        $layerRecords.Add([pscustomobject][ordered]@{
+                layer       = "matlab"
+                executed    = $false
+                reason      = $reason
+                total       = 0
+                passed      = 0
+                failed      = 0
+                durationSec = 0
+            })
+        continue
+    }
+
+    if ($name -eq "matlab" -and -not $matlabRunnable) {
+        # MATLAB 装了但跑不起来：本层"未执行"，而不是"失败"。
+        # 典型场景是 CI runner 没有许可证；把它记成失败会掩盖真正的问题。
+        $reason = "$matlabRunFailure；本层未执行（已安装 ≠ 可执行，未验证不等于通过）"
         Write-Host "==> 跳过层 matlab：$reason" -ForegroundColor Yellow
         $notExecutedLayers.Add("matlab")
         $layerRecords.Add([pscustomobject][ordered]@{
@@ -198,8 +239,10 @@ $layerReport = [pscustomobject][ordered]@{
     powerShellVersion = $PSVersionTable.PSVersion.ToString()
     powerShellEdition = "$($PSVersionTable.PSEdition)"
     matlabAvailable = $matlabAvailable
+    matlabRunnable  = $matlabRunnable
     matlabPath      = $(if ($matlabAvailable) { $matlabExe } else { $null })
     matlabRelease   = $(if ($matlabInfo) { $matlabInfo.Release } else { $null })
+    matlabRunFailure = $(if ($matlabRunFailure) { $matlabRunFailure } else { $null })
     layers          = $layerRecords.ToArray()
     executedLayers  = $executedLayers.ToArray()
     notExecuted     = $notExecutedLayers.ToArray()

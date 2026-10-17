@@ -35,6 +35,17 @@ jobs:
   matlab-core:
     name: 层 B - Core MATLAB（门禁）
     runs-on: windows-latest
+    # 这一层需要真实可用的 MATLAB 许可证。
+    # 本仓库没有配置许可证，公共 runner 上 matlab-actions/setup-matlab 能装好 MATLAB，
+    # 但 `-batch` 会在 1~2 秒内以退出码 1 结束（许可证检出失败）。
+    # 那种情况下"跑一遍"只会得到一堆与被测代码无关的红灯，所以默认不启用：
+    # 未启用时本 job 显示为 skipped（未执行），而不是 passed（通过）。
+    #
+    # 启用方式：在仓库 Settings → Secrets and variables → Actions 里
+    #   1) 配置 Variables：MATLAB_VALIDATION_ENABLED = true
+    #   2) 配置 Secret：MLM_LICENSE_FILE（指向许可证服务器或许可证文件）
+    # 启用后本 job 才会真的执行；它没跑过就不代表 MATLAB 能力已验证。
+    if: ${{ vars.MATLAB_VALIDATION_ENABLED == 'true' }}
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
@@ -146,7 +157,7 @@ jobs:
     runs-on: windows-latest
     # 只有在显式要求并申请了 Coder 产品时才执行；push / PR 上不存在这个 job，
     # 因此它不会影响基础 CI 的成败。
-    if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.include_coder_products == 'true' }}
+    if: ${{ vars.MATLAB_VALIDATION_ENABLED == 'true' && github.event_name == 'workflow_dispatch' && github.event.inputs.include_coder_products == 'true' }}
     steps:
       - name: Check out repository
         uses: actions/checkout@v4

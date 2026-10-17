@@ -117,8 +117,26 @@ All notable changes to this project will be documented here.
   字符串自动解析成 `[datetime]`，于是一份完全合法的报告被判成
   `$.startedAt 类型应为 string，实际为 unknown`。现在把 `[datetime]` / `[datetimeoffset]` 按 string 处理，
   `date-time` 格式校验也改用 ISO 文本比对。
-- Changed: 层 A 的 `free-tests` 改为 `matrix: [powershell, pwsh]`，同一套用例在 5.1 与 7 上各跑一次；
+- Changed: 层 A 的 `free-tests` 用两个显式 shell 步骤（`powershell` 与 `pwsh`）跑同一套用例；
   `layer_report.json` 新增 `powerShellVersion` / `powerShellEdition`，让"用哪个运行面跑的"可审计。
+- Fixed: **ACL 授权校验把成功的授权误判成失败并回滚。** `Get-Acl` 生成的 SDDL 会把知名 SID
+  渲染成别名（`S-1-5-21-…-500` → `LA`，`S-1-5-18` → `SY`），旧实现用"SDDL 里搜 SID 字面量"判断，
+  于是任何以本地内置管理员（RID 500）身份运行安装器的场景都会失败。新增
+  `Test-AclContainsSid`（`GetAccessRules(..., SecurityIdentifier)` 按 SID 语义比较）并替换校验；
+  回归用例用 `LocalSystem` 授权，先证明字面量搜索必然落空，再断言语义比较为真。
+- Fixed: `-Layer matlab` 增加可执行性预检（`matlab -batch "disp(version)"`）。
+  "装了 MATLAB" 与 "MATLAB 能跑" 分开判定：预检失败时本层记为**未执行**（退出码 2，reason 含退出码与
+  stderr 尾部），而不是让 5 个与被测代码无关的用例全红。`layer_report.json` 新增
+  `matlabAvailable` / `matlabRunnable` / `matlabRunFailure`。
+- Fixed: `McpProbe.Tests.ps1` 的"全套正常"用例不再硬断言整体 `PASS`。没有 MATLAB 的运行面上
+  `mcp.matlab-install` 必然 FAIL（这是正确行为），用例改为按该项真实结果推导整体状态，
+  并要求 FAIL 只能由该项引起。
+- Changed: `matlab-validation.yml` 的层 B job 需要仓库变量 `MATLAB_VALIDATION_ENABLED=true`
+  与 Secret `MLM_LICENSE_FILE` 才运行；未配置时显示 skipped 而不是 passed
+  （公共 runner 没有许可证，`-batch` 1~2 秒即失败，跑出来的红灯与被测代码无关）。
+- Tested: `Repository Checks` 在 GitHub 上**真实通过**：`层 A - 免费测试（5.1 + 7 双运行面）`
+  两步各 161/161。此前三轮 CI 分别因 Pester 版本选择、PowerShell 7 语义差异、ACL SID 别名而红，
+  三个根因都已定位并修复，不是"重跑就好了"。
 - Added: `tests/Acceptance.Boundary.Matlab.Tests.ps1` + `matlab/validation/tests/masacc_boundary_probe.m` ——
   MATLAB 侧产出 9 类边界报告（单条/多条检查、全空字段、空清单、中文原因、许可证缺失、
   授权无法判定、运行异常、空报告拒绝），PowerShell 侧用同一份 schema 逐项校验（69 个断言）。

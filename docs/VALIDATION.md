@@ -216,6 +216,16 @@ Coder 相关检查从全 SKIP 变成真实 PASS/L2/L4。
 | free | `-Layer free`（默认） | 安装器安全、验收协议、验收范围、依赖顺序、Pester 版本选择、错误分类、MCP 探测（假服务端） | 不适用 |
 | matlab | `-Layer matlab` | 真实解析 MATLAB、读 `VersionInfo.xml`、真实 `-batch` 执行、真实超时终止、MATLAB 侧 JSON 边界往返 | 输出"未执行"并返回退出码 `2`，不算通过 |
 
+`matlab` 层有两级前置探测，区分"装了"和"能跑"：
+
+1. 解析不到可执行文件 → 本层未执行（`未发现已安装的 MATLAB`）；
+2. 可执行文件存在，但 `matlab -batch "disp(version)"` 预检失败（典型是没有许可证）
+   → 本层未执行，`reason` 里带退出码、耗时与 stderr 尾部。
+
+两种情况都不记为失败：它们证明的是"这个运行面无法执行 MATLAB"，
+而不是"被测能力坏了"。`layer_report.json` 里的 `matlabAvailable` / `matlabRunnable` /
+`matlabRunFailure` 记录真实探测结果。
+
 Pester 版本被**显式锁定**在 `3.4.0`（`-PesterVersion`，默认值在 `tests/Invoke-Tests.ps1`）。
 套件使用的是 Pester 3 的 `Should Be` 语法，Pester 5 会直接抛
 `Legacy Should syntax is not supported in Pester 5`。GitHub runner 上同时预装 3.4.0 与 5.9.0，
@@ -235,8 +245,13 @@ Pester 版本被**显式锁定**在 `3.4.0`（`-PesterVersion`，默认值在 `t
 `layer_report.json` 里的 `powerShellVersion` / `powerShellEdition` 记录实际运行面。
 （这两个陷阱正是"只在一个运行面上测"造成的：本机 5.1 全绿、CI 的 pwsh 7 全红。）
 
-层 A（GitHub Actions `Repository Checks`）只跑 free 层，是基础门禁。
+层 A（GitHub Actions `Repository Checks`）只跑 free 层，是基础门禁，
+且在 **Windows PowerShell 5.1 与 PowerShell 7** 两个运行面上各跑一次。
 层 B（`MATLAB Validation`）在带许可证的环境跑 matlab 层与完整验收，门禁按 `core` 范围判定；
+它需要仓库里配置 `MATLAB_VALIDATION_ENABLED=true`（Variables）与 `MLM_LICENSE_FILE`（Secret），
+**未配置时该 job 显示为 skipped（未执行），不是 passed**：
+公共 runner 上 `matlab-actions/setup-matlab` 能装好 MATLAB，但没有许可证时 `-batch`
+会在 1~2 秒内退出码 1，跑出来的红灯与被测代码无关。
 `coder` 范围放在 `workflow_dispatch` 且显式申请 Coder 产品的可选 job 里，push / PR 上不参与。
 层 C 需要 Pro 许可证或硬件，不在任何默认 workflow 中执行，其检查项在报告里以 SKIP 出现，
 `full` 范围因此永远不是 PASS——这是刻意的。
