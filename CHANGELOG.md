@@ -4,6 +4,20 @@ All notable changes to this project will be documented here.
 
 ## Unreleased
 
+### 电力电子领域示例：Buck 稳定性与优化专项（第三阶段 3A.1）
+
+- Added: `matlab/buck/` Buck 电压环完整实现（48V→12V/50kHz）：符号+数值模型推导、平均/开关双模型、参数化闭环构建函数（PI + 抗饱和 back-calculation + 占空比限幅 + 可选陷波器 + 负载阶跃）。
+- Added: `matlab/buck/local_margins.m` —— 自实现裕度计算（稠密网格 + 对数二分 + 全交越最坏值口径），避开 `margin()` 只返回单个交越点的行为；与 `margin()` 在单交越系统上验证一致（GM/PM/交越频率吻合到 0.001%）。
+- Fixed（本轮自查发现，均重跑验证）：`margin()` 返回顺序 `[Gm,Pm,Wcg,Wcp]` 曾被读反（误报"PM=1.997°"，真实 89.45°）；`Wcg`（相位穿越频率）曾被误当幅值计算 GM（GM 列出现 -70dB 量级垃圾值，且污染了任务三的搜索过滤器）；临界 Ki 从错误的 114.7 纠正为闭式值 **1/(R·Vin·C)=15.78**（闭式与数值二分误差 2.5e-5）。
+- Fixed（收尾复查发现，影响全部时域数据）：负载阶跃方向写反 —— 构建函数 `After=1/(R·ratio)` 实际是 6Ω→18Ω **减载**，把纯积分回路推过轻载失稳边界 R_crit=11.98Ω，阶跃后振荡逐段翻倍，一度被误读为"恢复慢 29.64ms"。已改为 `After=ratio/R`（6Ω→3Ω 重载）并重跑全部时域脚本；旧稿时域数字（-58.2% 跌落 / 29.64ms 恢复 / 1.005ms）全部作废。
+- Added: 负相位裕度区间完整刻画（`verify/buck_task2c_negative_pm_regime.m`）：纯积分回路 PM=0 的闭式条件 `Ki=1/(R·Vin·C)`；Ki 越界后 GM<0 且闭环出现 RHP 极点；Kp 单独加大只使 PM→0⁺（最低 2.55°）而 GM 保持 Inf。
+- Added: 轻载失稳边界（`verify/buck_task2d_load_stability_boundary.m`）：纯积分回路 **R_crit=1/(Ki·Vin·C)=11.98Ω（额定半载即失稳）**，闭式与数值二分误差 3e-5，任务五 C4 失败由此精确解释；陷波器回路**无有限 R_crit**（R 扫到 10MΩ 仍稳定，R→∞ 极限特征多项式与 R 无关且极点全 LHP）。同时记录一个指标失效区：R≥3×10⁵Ω 时 GM 报 -57dB 但闭环稳定——总相位在 ωn 上方**成对穿越** -180°（陷波器相位超前托回），临界点 -1 不在 Nyquist sliver 内，此时判定必须以 maxRe/环绕数为准。
+- Added: 陷波器 + PI 结构化设计（`verify/buck_task3_controller_design.m`）：324 组合搜索、标准先声明（PM≥50°/GM≥6dB/闭环稳定），选定 zn=0.02/zd=0.5/Kp=0.04/Ki=5 —— f_c 提升 21.4 倍（60.7→1295.2Hz）、最坏 PM=57.28°、GM=Inf。
+- Fixed: tunings 扫描三缺陷（`numel(cell)` 得 12 而非 4、序号命名丢失 label 关联、失败无隔离）—— 移入 `buck_pi_tuning_sweep.m`，遍历数=配置数、id 唯一（同名去重）、失败条目指标全 NaN 不沿用，三条不变量由回归测试逐条断言。
+- Added: 防回归护栏 `verify/selfcheck_notch_equivalence.m`（Simulink 时域 vs tf 线性预测差 5.6e-9V）—— 陷波器同阶分子拆并联会丢 s² 项导致时域发散（曾发散到 472V），必须完整二阶实现。
+- Added: 工程验收 `verify/buck_task5_acceptance.m`：7 工况（输入电压 ±12.5%、负载 3~12Ω、电感 +30% 容差）× 2 控制器 × 3 次重复，标准 S1-S9 先声明。**实测 BASE 2/7 PASS、OPT 4/7 PASS，每个失败都有公式级解释**：C4×BASE 是 R>R_crit 的真不稳（慢渐近，必须靠频域判据识别）；C5/C6 的跌落超限是物理下限（4A 电流阶跃的 dip_floor=-18.3%，任何线性电压环+此 L/C 都无法达到 12% 标准，如实记录而未放宽）；C7×OPT 失稳确认了窄陷波器对 f_n 漂移（-12%）敏感的鲁棒性边界。可复现性：3 次重复偏差精确为 0。
+- Docs: 新增 `docs/PHASE3A_BUCK_STABILITY_ZH.md`（问题 A/B/C 的公式+仿真双重证据、错误读数纠正记录、能力边界、验收全表）。
+
 ### 安装器安全重构（第一阶段 P0）
 
 - Fixed: `existing` 会话模式不再输出 `--matlab-display-mode` / `--matlab-root` / `--initialize-matlab-on-startup`，此前会被官方 MCP server 直接拒绝。
