@@ -6,6 +6,9 @@
 %   S3 增益裕度          : GM >= 6 dB
 %   S4 稳态误差          : 负载阶跃后 |ssErr| <= 0.1 %
 %   S5 恢复时间          : 阶跃后进入 ±1% 频带 <= 1.0 ms
+%       【3A.2 口径修正（F-16）】"进入频带"按**持续保持在频带内**判定：
+%       首次进入时间同时记录（firstEntryMs，与 3A.1 口径一致）但仅作对照，
+%       门禁用 settleMs（此后不再越界）。标准文本未动，修正的是测量口径。
 %   S6 启动超调          : <= 5 %
 %   S7 阶跃跌落          : |dip| <= 12 %
 %   S8 占空比余量        : 阶跃后 duty ∈ [0.05, 0.85]（不贴限幅）
@@ -34,12 +37,14 @@ outDir = strrep(outDir, '/', filesep);
 if ~exist(outDir, 'dir'); mkdir(outDir); end
 
 t0 = clock;
-fprintf('================ 任务五：工程验收（7 工况 x 2 控制器 x 3 次）================\n');
+fprintf('================ 任务五：工程验收（7 工况 x 3 控制器 x 3 次）================\n');
 
 %% ---------- 标准 ----------
+% 3A.2 明确：**S1~S9 标准文本一字不改**。本轮只修正"测量口径"（S5 由首次
+% 进入改为持续稳定，F-16），不因结果不理想而放宽任何阈值。
 STD.PM_min = 50;  STD.GM_min = 6;  STD.sserr_max = 0.1;  STD.recover_max = 1.0;
 STD.startup_os_max = 5;  STD.dip_max = 12;  STD.duty_lo = 0.05;  STD.duty_hi = 0.85;
-fprintf('标准: PM>=%g°, GM>=%gdB, |ssErr|<=%g%%, 恢复<=%gms, 超调<=%g%%, |跌落|<=%g%%, duty∈[%g,%g]\n', ...
+fprintf('标准(未改动): PM>=%g°, GM>=%gdB, |ssErr|<=%g%%, 持续稳定<=%gms, 超调<=%g%%, |跌落|<=%g%%, duty∈[%g,%g]\n', ...
     STD.PM_min, STD.GM_min, STD.sserr_max, STD.recover_max, ...
     STD.startup_os_max, STD.dip_max, STD.duty_lo, STD.duty_hi);
 
@@ -63,9 +68,17 @@ ctrls = [
     struct('id','OPT','desc','陷波器+PI(任务三)', ...
         'cfg', struct('Kp',b.Kp,'Ki',b.Ki,'notchEnable',true, ...
                       'notchWn',fnNom,'notchZn',b.zn,'notchZd',b.zd))
+    % 3A.2 新候选（任务四筛选）：同为陷波器+PI，但 Ki 由 5 提到 30。
+    % 频域：PM=52.60deg（>=S2 的 50），fc=848Hz；Ki 再大（60）PM 掉到 44.94 不达标。
+    % 时域：dip 仅从 -20.44% 改善到 -20.10%（0.34pp），远达不到 S7 的 12%。
+    % 保留在矩阵中是为了如实记录"提高增益不是解法"这一负面结论。
+    struct('id','OPT30','desc','陷波器+PI Ki=30(任务四新候选)', ...
+        'cfg', struct('Kp',b.Kp,'Ki',30,'notchEnable',true, ...
+                      'notchWn',fnNom,'notchZn',b.zn,'notchZd',b.zd))
 ];
 fprintf('OPT 参数（读自 task3_best_controller.mat）: Kp=%.4f Ki=%.4f zn=%.3f zd=%.2f f_n=%.1f rad/s\n', ...
     b.Kp, b.Ki, b.zn, b.zd, fnNom);
+fprintf('新候选 OPT30: Ki=30（PM=52.60deg 达标；Ki=60 时 PM=44.94 不达标）\n');
 
 %% ---------- 主循环 ----------
 tStep = 0.06; ratio = 2; tStop = 0.12; nRep = 3;   % 6Ω->3Ω（电导 x2，重载阶跃）
@@ -73,11 +86,16 @@ tStep = 0.06; ratio = 2; tStop = 0.12; nRep = 3;   % 6Ω->3Ω（电导 x2，重�
 % recs(end+1)=struct(...) 会触发"无法从 struct 转换为 double"（历史崩溃点）。
 recs = struct('cond',{}, 'condDesc',{}, 'Vin',{}, 'R',{}, 'L',{}, ...
     'ctrl',{}, 'ctrlDesc',{}, 'Pm',{}, 'Gm',{}, 'fc',{}, 'maxRe',{}, ...
-    'dipPct',{}, 'recoverMs',{}, 'startupOs',{}, 'postStepOs',{}, ...
+    'dipPct',{}, 'recoverMs',{}, 'settleMs',{}, 'nExits',{}, 'converged',{}, ...
+    'tailInBandMs',{}, 'startupOs',{}, 'postStepOs',{}, ...
     'ssErrPct',{}, 'dutyMin',{}, 'dutyMax',{}, ...
-    'devRecMs',{}, 'devVc',{}, 'pass',{}, 't',{}, 'vC',{});
+    'devRecMs',{}, 'devSetMs',{}, 'devVc',{}, 'pass',{}, 't',{}, 'vC',{});
 verdicts = struct('S1',{}, 'S2',{}, 'S3',{}, 'S4',{}, 'S5',{}, ...
     'S6',{}, 'S7',{}, 'S8',{}, 'S9',{}, 'all',{});
+nCtrls = numel(ctrls); nConds = numel(conds);
+M_Pm = zeros(nConds,nCtrls); M_Gm = zeros(nConds,nCtrls);
+M_dip = zeros(nConds,nCtrls); M_set = NaN(nConds,nCtrls);
+M_ss = zeros(nConds,nCtrls); M_os = zeros(nConds,nCtrls);
 for ic = 1:numel(conds)
     c = conds(ic);
     for it = 1:numel(ctrls)
@@ -103,7 +121,7 @@ for ic = 1:numel(conds)
         maxRe = max(real(clp));
 
         % ---- 时域：3 次重复 ----
-        dipA = []; recA = []; osA = []; psoA = []; ssA = []; dminA = []; dmaxA = [];
+        dipA = []; recA = []; setA = []; exA = []; osA = []; psoA = []; ssA = []; dminA = []; dmaxA = [];
         vCs = {}; vC1 = []; t1 = [];
         for ir = 1:nRep
             bcfg = struct('Kp',Cc.Kp,'Ki',Cc.Ki,'R',c.R,'Vin',c.Vin, ...
@@ -119,47 +137,51 @@ for ic = 1:numel(conds)
             r = build_buck_closed_loop_generic(outDir, bcfg);
             t = r.t; vC = r.vC; duty = r.duty;
             post = t >= tStep;
-            [dip, di] = min(vC(post));
-            post_v = vC(post); post_t = t(post);
-            band = 0.01*12;
-            bi = find(abs(post_v(di:end)-12) <= band, 1, 'first');
-            if isempty(bi), rec = NaN; else, rec = (post_t(di+bi-1)-tStep)*1e3; end
-            dipA(ir)  = (dip-12)/12*100;
-            recA(ir)  = rec;
-            osA(ir)   = (max(vC(~post))-12)/12*100;
-            psoA(ir)  = (max(vC(post))-12)/12*100;     % 信息性：阶跃后超调（不门禁）
+            % F-16 修复：双口径时域指标。firstEntryMs=3A.1 旧口径（仅对照）；
+            % settleMs=持续稳定口径（S5 门禁）；nExits=首次进入后的越界次数。
+            sm = step_metrics(t, vC, 12, tStep, 1);
+            dipA(ir)  = sm.dipPct;
+            recA(ir)  = sm.firstEntryMs;
+            setA(ir)  = sm.settleMs;
+            exA(ir)   = sm.nExits;
+            osA(ir)   = (max(vC(~post))-12)/12*100;      % 启动超调
+            psoA(ir)  = sm.osPct;                        % 阶跃后超调（信息性，不门禁）
             ssA(ir)   = (mean(vC(t > tStop-0.01))-12)/12*100;
             dminA(ir) = min(duty(post));
             dmaxA(ir) = max(duty(post));
             vCs{ir} = vC; %#ok<SAGROW>
-            if ir == 1, vC1 = vC; t1 = t; end
+            if ir == 1, vC1 = vC; t1 = t; sm1 = sm; end
         end
 
         % ---- S9 可复现性 ----
         devRec = max(abs(recA - recA(1)));
+        devSet = max(abs(setA - setA(1)));
         devVc = Inf;
         if numel(vCs{1}) == numel(vCs{2}) && numel(vCs{2}) == numel(vCs{3})
             devVc = max(max(abs(vCs{1} - vCs{2})), max(abs(vCs{2} - vCs{3})));
         end
 
         % ---- 判定（用第 1 次的指标；S9 已证 3 次一致）----
-        m1 = struct('dipPct',dipA(1),'recoverMs',recA(1),'startupOs',osA(1), ...
-            'postStepOs',psoA(1),'ssErrPct',ssA(1),'dutyMin',dminA(1),'dutyMax',dmaxA(1));
+        m1 = struct('dipPct',dipA(1),'recoverMs',recA(1),'settleMs',setA(1), ...
+            'nExits',exA(1),'startupOs',osA(1), ...
+            'postStepOs',psoA(1),'ssErrPct',ssA(1),'dutyMin',dminA(1),'dutyMax',dmaxA(1), ...
+            'converged',sm1.converged,'tailInBandMs',sm1.tailInBandMs);
         v.S1 = maxRe < 0;
         v.S2 = Pm_worst >= STD.PM_min;
         v.S3 = Gm_dB >= STD.GM_min;
         v.S4 = abs(m1.ssErrPct) <= STD.sserr_max;
-        v.S5 = m1.recoverMs <= STD.recover_max;
+        v.S5 = m1.settleMs <= STD.recover_max;       % F-16：持续稳定口径
         v.S6 = m1.startupOs <= STD.startup_os_max;
         v.S7 = abs(m1.dipPct) <= STD.dip_max;
         v.S8 = m1.dutyMin >= STD.duty_lo && m1.dutyMax <= STD.duty_hi;
-        v.S9 = (devRec < 1e-9) && (devVc < 1e-9);
+        v.S9 = (devRec < 1e-9) && (devSet < 1e-9) && (devVc < 1e-9);
         v.all = v.S1 && v.S2 && v.S3 && v.S4 && v.S5 && v.S6 && v.S7 && v.S8 && v.S9;
 
         fprintf('线性: PM_worst=%7.2f°  GM=%7s dB  fc=%8.1f Hz  maxRe=%+9.2f\n', ...
             Pm_worst, merge3(isinf(Gm_dB),'Inf',sprintf('%.2f',Gm_dB)), fc, maxRe);
-        fprintf('时域: 跌落=%+7.3f%%  恢复=%7.3f ms  阶跃后超调=%+7.3f%%  启动超调=%+6.3f%%  稳态误差=%+7.4f%%  duty∈[%.3f,%.3f]\n', ...
-            m1.dipPct, m1.recoverMs, m1.postStepOs, m1.startupOs, m1.ssErrPct, m1.dutyMin, m1.dutyMax);
+        fprintf('时域: 跌落=%+7.3f%%  首次进入=%7.3f ms  持续稳定=%7s ms  越界次数=%d  启动超调=%+6.3f%%  稳态误差=%+7.4f%%  duty∈[%.3f,%.3f]\n', ...
+            m1.dipPct, m1.recoverMs, merge3(isnan(m1.settleMs),'NaN(未收敛)',sprintf('%.3f',m1.settleMs)), ...
+            m1.nExits, m1.startupOs, m1.ssErrPct, m1.dutyMin, m1.dutyMax);
         if v.all
             fprintf('判定: PASS（S1-S9 全过）\n');
         else
@@ -171,78 +193,86 @@ for ic = 1:numel(conds)
         recs(end+1) = struct('cond',c.id,'condDesc',c.desc,'Vin',c.Vin,'R',c.R,'L',c.L, ...
             'ctrl',k.id,'ctrlDesc',k.desc, ...
             'Pm',Pm_worst,'Gm',Gm_dB,'fc',fc,'maxRe',maxRe, ...
-            'dipPct',m1.dipPct,'recoverMs',m1.recoverMs,'startupOs',m1.startupOs, ...
+            'dipPct',m1.dipPct,'recoverMs',m1.recoverMs,'settleMs',m1.settleMs, ...
+            'nExits',m1.nExits,'converged',m1.converged,'tailInBandMs',m1.tailInBandMs, ...
+            'startupOs',m1.startupOs, ...
             'postStepOs',m1.postStepOs, ...
             'ssErrPct',m1.ssErrPct,'dutyMin',m1.dutyMin,'dutyMax',m1.dutyMax, ...
-            'devRecMs',devRec,'devVc',devVc, ...
+            'devRecMs',devRec,'devSetMs',devSet,'devVc',devVc, ...
             'pass',v.all, ...
             't',t1,'vC',vC1); %#ok<SAGROW>
         verdicts(end+1) = v; %#ok<SAGROW>
+        % 同步填入普通矩阵供绘图用（不从结构体数组再提取字段：
+        % recs(ix).fld 在本上下文返回空/全量，3A.2 实测）
+        M_Pm(ic,it) = Pm_worst; M_Gm(ic,it) = Gm_dB;
+        M_dip(ic,it) = m1.dipPct; M_set(ic,it) = m1.settleMs;
+        M_ss(ic,it) = m1.ssErrPct; M_os(ic,it) = m1.startupOs;
     end
 end
 
 %% ---------- 汇总 ----------
 fprintf('\n================ 验收汇总 ================\n');
-fprintf('%-4s %-12s %-6s %8s %8s %9s %9s %8s %8s %6s\n', ...
-    '工况','说明','控制器','PM(°)','GM(dB)','跌落%','恢复ms','超调%','ssErr%','判定');
+fprintf('%-4s %-12s %-6s %8s %8s %9s %10s %10s %8s %8s %6s\n', ...
+    '工况','说明','控制器','PM(°)','GM(dB)','跌落%','进入ms','稳定ms','超调%','ssErr%','判定');
 for k = 1:numel(recs)
     r = recs(k);
-    fprintf('%-4s %-12s %-6s %8.2f %8s %9.3f %9.3f %8.3f %8.4f %6s\n', ...
+    fprintf('%-4s %-12s %-6s %8.2f %8s %9.3f %10.3f %10s %8.3f %8.4f %6s\n', ...
         r.cond, r.condDesc, r.ctrl, r.Pm, ...
         merge3(isinf(r.Gm),'Inf',sprintf('%.2f',r.Gm)), ...
-        r.dipPct, r.recoverMs, r.startupOs, r.ssErrPct, ...
+        r.dipPct, r.recoverMs, ...
+        merge3(isnan(r.settleMs),'NaN',sprintf('%.3f',r.settleMs)), ...
+        r.startupOs, r.ssErrPct, ...
         merge3(r.pass,'PASS','FAIL'));
 end
-nOpt = sum(strcmp({recs.ctrl},'OPT') & [recs.pass]);
-nBase = sum(strcmp({recs.ctrl},'BASE') & [recs.pass]);
-fprintf('\nBASE: %d/7 PASS   OPT: %d/7 PASS\n', nBase, nOpt);
-maxDev = max(max([recs.devRecMs]), max([recs.devVc]));
-fprintf('可复现性: 3 次重复最大偏差 = %.3e（恢复时间 ms / 波形 V，阈值 1e-9）\n', maxDev);
+ctrlIdsAll = {recs.ctrl};
+nBase = sum(strcmp(ctrlIdsAll,'BASE')  & [recs.pass]);
+nOpt  = sum(strcmp(ctrlIdsAll,'OPT')   & [recs.pass]);
+nOpt30= sum(strcmp(ctrlIdsAll,'OPT30') & [recs.pass]);
+fprintf('\nBASE: %d/7 PASS   OPT: %d/7 PASS   OPT30: %d/7 PASS\n', nBase, nOpt, nOpt30);
+devAll = [[recs.devRecMs], [recs.devSetMs], [recs.devVc]];
+devAll = devAll(isfinite(devAll));
+maxDev = max(devAll, [], 'all');
+fprintf('可复现性: 3 次重复最大偏差 = %.3e（首次进入/持续稳定 ms / 波形 V，阈值 1e-9）\n', maxDev);
 
-%% ---------- 图 ----------
-fig = figure('Visible','off','Position',[100 100 1400 900]);
-cids = {conds.id}; xv = 1:numel(conds);
-idxB = strcmp({recs.ctrl},'BASE'); idxO = strcmp({recs.ctrl},'OPT');
-barpair(1, [recs(idxB).Pm],        [recs(idxO).Pm],        STD.PM_min,        '最坏相位裕度（全部 0dB 交越）', 'PM (deg)', false, xv, cids);
-barpair(2, [recs(idxB).Gm],        [recs(idxO).Gm],        STD.GM_min,        '增益裕度',                       'GM (dB)',  false, xv, cids);
-barpair(3, [recs(idxB).dipPct],    [recs(idxO).dipPct],    -STD.dip_max,      '负载阶跃跌落',                   'dip (%)',  false, xv, cids);
-barpair(4, [recs(idxB).recoverMs], [recs(idxO).recoverMs], STD.recover_max,   '恢复时间（±1% 频带）',           'recover (ms)', true, xv, cids);
-barpair(5, [recs(idxB).ssErrPct],  [recs(idxO).ssErrPct],  0,                 '阶跃后稳态误差',                 'ssErr (%)', false, xv, cids);
-barpair(6, [recs(idxB).startupOs], [recs(idxO).startupOs], STD.startup_os_max,'启动超调',                       'overshoot (%)', false, xv, cids);
-sgtitle(sprintf('任务五验收：7 工况 x 2 控制器（BASE %d/7, OPT %d/7）', nBase, nOpt));
-saveas(fig, fullfile(outDir,'task5_acceptance_overview.png')); close(fig);
-
-%% ---------- 保存 ----------
+%% ---------- 图（绘图失败不影响数据：数据已先落盘）----------
+% 3A.2 实测：MATLAB/Simulink 在长时间批量运行后可能出现 access violation，
+% 且绘图 API 在多控制器场景下曾多次崩溃。**数据优先**：先把 .mat/.json 落盘，
+% 再画图；绘图整体包 try/catch，失败只告警不丢结果。
+save(fullfile(outDir,'task5_acceptance.mat'), 'recs','verdicts','STD','conds','ctrls','b','fnNom');
 recSave = recs;
 for k = 1:numel(recSave)
     recSave(k).t = []; recSave(k).vC = [];
 end
-save(fullfile(outDir,'task5_acceptance.mat'), 'recs','verdicts','STD','conds','ctrls','b','fnNom');
 jsonTxt = jsonencode(struct('standard',STD,'conds',conds,'controllers',ctrls, ...
-    'results',recSave,'summary',struct('basePass',nBase,'optPass',nOpt, ...
+    'results',recSave,'summary',struct('basePass',nBase,'optPass',nOpt,'opt30Pass',nOpt30, ...
     'maxReproDev',maxDev,'matlabVersion',version,'generatedAt',datestr(now,31))));
 fid = fopen(fullfile(outDir,'task5_acceptance.json'),'w');
 fwrite(fid, jsonTxt, 'char'); fclose(fid);
-fprintf('\n图与数据已保存: task5_acceptance_overview.png / task5_acceptance.mat / task5_acceptance.json\n');
-fprintf('总耗时 %.1f 分钟\n', etime(clock,t0)/60);
+fprintf('\n数据已保存: task5_acceptance.mat / task5_acceptance.json\n');
 
-function barpair(ax, valsB, valsO, thr, ttl, ylab, logy, xv, cids)
-subplot(2,3,ax); hold on; grid on;
-hB = bar(xv-0.2, valsB, 0.38, 'FaceColor', [0.55 0.55 0.55], 'EdgeColor', 'k');
-hO = bar(xv+0.2, valsO, 0.38, 'FaceColor', [0.16 0.42 0.72], 'EdgeColor', 'k');
-hT = [];
-if thr ~= 0
-    hT = yline(thr, 'r--', 'LineWidth', 1.5);
+try
+    fig = figure('Visible','off','Position',[100 100 1400 900]);
+    cids = {conds.id}; xv = 1:nConds;
+    ctrlIds = {ctrls.id};
+    cmap = [0.55 0.55 0.55; 0.16 0.42 0.72; 0.85 0.40 0.15];
+    M = {M_Pm, M_Gm, M_dip, M_set, M_ss, M_os};
+    thrs = [STD.PM_min, STD.GM_min, -STD.dip_max, STD.recover_max, 0, STD.startup_os_max];
+    ttls = {'PM (all 0dB crossings)','Gain margin','Load-step dip', ...
+            'Settling time (+-1 pct band, F-16)','Steady-state error','Startup overshoot'};
+    ylbs = {'PM (deg)','GM (dB)','dip (%)','settle (ms)','ssErr (%)','overshoot (%)'};
+    logys = [false false false true false false];
+    for a = 1:6
+        vs = cell(1,nCtrls);
+        for q = 1:nCtrls, vs{q} = M{a}(:,q).'; end
+        bar_grouped(a, vs, thrs(a), ttls{a}, ylbs{a}, logys(a), xv, cids, ctrlIds, cmap);
+    end
+    saveas(fig, fullfile(outDir,'task5_acceptance_overview.png'));
+    close(fig);
+    fprintf('图已保存: task5_acceptance_overview.png\n');
+catch ME
+    fprintf(2, '绘图失败（不影响已保存的数据）: %s\n', ME.message);
 end
-if logy, set(gca, 'YScale', 'log'); end
-set(gca, 'XTick', xv, 'XTickLabel', cids);
-xlabel('工况'); ylabel(ylab); title(ttl);
-if thr ~= 0
-    legend([hB, hO, hT], {'BASE 纯积分', 'OPT 陷波器+PI', '标准线'}, 'Location', 'best');
-else
-    legend([hB, hO], {'BASE 纯积分', 'OPT 陷波器+PI'}, 'Location', 'best');
-end
-end
+fprintf('总耗时 %.1f 分钟\n', etime(clock,t0)/60);
 
 function t = merge3(c, a, b)
 if c, t = a; else, t = b; end
