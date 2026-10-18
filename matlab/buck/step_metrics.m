@@ -72,7 +72,13 @@ else
     if lastOut == numel(inB)
         m.settleMs = NaN;                 % 末点仍越界：未收敛
     else
-        m.settleMs = (tv(lastOut) - tv(1))*1e3;
+        % 3A.4 修正（缺陷 D-A4）：持续稳定的时刻是**最后一个越界样本之后的
+        % 第一个在带内样本**，即 tv(lastOut+1)。旧实现取 tv(lastOut)，把
+        % "仍在越界的时刻"当成"已稳定的时刻"，系统性低估恰好一个采样间隔
+        % （本工程 1 µs，19 个案例偏差恒为 +0.0010 ms）。
+        % 定义依据：S5 = 输出进入 ±1% 带并**从此持续保持**在带内的时间，
+        % 进入发生在最后一个越界样本之后，不在该样本本身。
+        m.settleMs = (tv(lastOut+1) - tv(1))*1e3;
     end
     m.lastExitMs = (tv(lastOut) - tv(1))*1e3;
     if ~isempty(bi)
