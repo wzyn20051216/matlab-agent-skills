@@ -27,6 +27,15 @@ T(end+1) = tc('exec probe ok',            @() mas_dep_probe('exec', 'x = 1;'),  
 T(end+1) = tc('exec probe fails',         @() mas_dep_probe('exec', 'error(''boom'')'),                'EXEC_FAILED', false, '');
 T(end+1) = tc('deep function probe',      @() mas_dep_probe('function', 'tf', struct('deep', true)),  'OK', true, '');
 
+% ---- core built-ins must NOT be reported missing ----------------------------
+% exist(name,'file') excludes built-ins by design, so chol/eig/inv came back
+% FN_NOT_FOUND and svd came back IS_A_DIRECTORY. These pins hold the fix.
+core = {'chol', 'svd', 'eig', 'inv', 'fft', 'sprintf'};
+for k = 1:numel(core)
+    nm = core{k};
+    T(end+1) = tc(['builtin ' nm], @() mas_dep_probe('function', nm), 'OK', true, '');
+end
+
 % the legacy entry point must still answer, and must agree with the new one
 tb = mas_precheck('toolbox', 'Signal Processing Toolbox');
 

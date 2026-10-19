@@ -57,32 +57,42 @@ end
 % ---------------------------------------------------------------------------
 function r = probe_function(r, name, opts)
 % Level 1: does the name resolve to something callable?
-e = exist(name, 'file');
-if e == 7
-    r.state = 'IS_A_DIRECTORY'; r.level = 0;
-    r.detail = sprintf('"%s" is a FOLDER (exist=7), not a function; it cannot be called', name);
-    return;
-elseif e == 0
-    r.state = 'FN_NOT_FOUND'; r.level = 0;
-    r.detail = sprintf('"%s" not found: not a file, not a builtin, not a folder', name);
-    return;
-elseif e == 5 || e == 2 || e == 3 || e == 6
+%
+% Resolution is done with `which`, NOT with `exist(name,'file')`. The first version
+% used the latter and reported core MATLAB built-ins as missing:
+%
+%     exist('chol','file') -> 0      exist('chol','builtin') -> 5
+%     exist('svd','file')  -> 7      which('svd') -> built-in (@double/svd)
+%
+% The 'file' option searches for files and folders only and explicitly excludes
+% built-ins, so `chol`, `eig`, `inv` were classified FN_NOT_FOUND and `svd`
+% (which dispatches through @double/@single/@gpuArray folders) was classified
+% IS_A_DIRECTORY -- both false, and both pointing the caller at a fix (rename,
+% addpath, install) for a problem that did not exist. `which` resolves every one
+% of them correctly, so it is the primary test and `exist` is only used
+% afterwards to say WHY a name that `which` cannot resolve is unavailable.
+w = which(name);
+if ~isempty(w)
     r.level = 1;
-    w = which(name);
-    if isempty(w) && e == 2
+    e = exist(name);                       % plain: 5 builtin, 2 .m, 3 mex, 6 p
+    r.state = 'OK';
+    r.detail = sprintf('%s resolves to %s', name, w);
+    r.evidence{end+1} = sprintf('which=%s', w);
+    r.evidence{end+1} = sprintf('exist=%d', e);
+else
+    e = exist(name);                       % 0 nowhere, 7 folder/package
+    if e == 7
+        r.state = 'IS_A_DIRECTORY'; r.level = 0;
+        r.detail = sprintf('"%s" is a FOLDER (exist=7) with no callable of that name: it cannot be called', name);
+    elseif ismember(e, [2 3 6])
         % A file that exists but is not visible to the path resolver. This happens
         % after `cd` into a folder whose parent was removed from the path.
         r.state = 'NOT_ON_PATH'; r.level = 0;
-        r.detail = sprintf('"%s" is a file but `which` cannot resolve it: add its folder to the path', name);
-        return;
+        r.detail = sprintf('"%s" is a file (exist=%d) but `which` cannot resolve it: add its folder to the path', name, e);
+    else
+        r.state = 'FN_NOT_FOUND'; r.level = 0;
+        r.detail = sprintf('"%s" not found: not a file, not a builtin, not a folder', name);
     end
-    r.state = 'OK';
-    r.detail = sprintf('%s resolves to %s', name, tern(isempty(w), '<builtin>', w));
-    r.evidence{end+1} = sprintf('exist=%d', e);
-    r.evidence{end+1} = sprintf('which=%s', w);
-else
-    r.state = 'FN_NOT_FOUND'; r.level = 0;
-    r.detail = sprintf('"%s" returned exist=%d, which is not callable', name, e);
     return;
 end
 
