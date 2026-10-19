@@ -44,6 +44,7 @@ suites = { ...
   'depProbe',     @() test_dep_probe(false); ...
   'grading',      @() test_grade(false); ...
   'refcheck',     @() test_refcheck(false); ...
+  'bench',        @() test_bench(false); ...
   'modelCheck',   @() test_model_check(false); ...
   'ctrlAnalyze',  @() test_ctrl_analyze(false); ...
   'tableAudit',   @() test_table_audit(false); ...
@@ -52,7 +53,7 @@ suites = { ...
   'codegen',      @() test_codegen(false) };
 
 S = struct('name', {}, 'pass', {}, 'total', {}, 'ok', {});
-nP = 0; nT = 0;
+nP = 0; nT = 0; nErrored = 0;
 for k = 1:size(suites, 1)
     try
         r = suites{k, 2}();
@@ -62,7 +63,21 @@ for k = 1:size(suites, 1)
         fprintf('%-14s %3d / %3d\n', suites{k,1}, r.nPass, r.nTotal);
     catch ME
         S(end+1) = struct('name', suites{k,1}, 'pass', 0, 'total', NaN, 'ok', false); %#ok<AGROW>
+        % An ERROR line must be impossible to miss. The suite is NOT counted in
+        % the denominator, so a suite that dies still leaves the headline total
+        % looking complete -- a green number over a suite that never ran.
         fprintf('%-14s ERROR: %s\n', suites{k,1}, ME.message);
+        % Note: no helper function here on purpose. An earlier version of these
+        % two lines called a local `tern` that did not exist, so the error
+        % reporter itself threw and replaced the real message with
+        % "unrecognised function 'tern'" -- hiding the failure it was meant to
+        % report. Inline the conditional rather than risk a second dependency.
+        if isempty(ME.stack)
+            fprintf('%-14s ERROR at <no stack>\n', '');
+        else
+            fprintf('%-14s ERROR at %s line %d\n', '', ME.stack(1).name, ME.stack(1).line);
+        end
+        nErrored = nErrored + 1;
     end
 end
 
@@ -80,6 +95,12 @@ res.level = 'Phase4.2';
 res.suites = S;
 res.skillPass = nP;
 res.skillTotal = nT;
+% A suite that threw contributes 0 to the numerator and NaN to the denominator,
+% so it silently disappears from "N/N". Recording it separately is the only way
+% the headline number can be trusted.
+res.suitesErrored = nErrored;
+res.suitesRun = sum(isfinite([S.total]));
+res.allSuitesOk = (nErrored == 0) && all([S.ok]);
 res.references = struct('pass', ref.nPass, 'total', ref.nTotal, 'ok', ref.pass);
 res.crossdomain = struct('pass', cd_.nPass, 'fail', cd_.nFail, ...
     'undetermined', cd_.nUndetermined, 'skip', cd_.nSkip, 'total', numel(cd_.tasks));
@@ -95,4 +116,8 @@ if fid >= 0, fwrite(fid, jsonencode(res), 'char'); fclose(fid); end
 
 fprintf('\n==== %d/%d skill tests | %d/%d references | %d/%d cross-domain | %d/%d pipeline | %.1f s ====\n', ...
     nP, nT, ref.nPass, ref.nTotal, cd_.nPass, numel(cd_.tasks), pl.nPass, pl.nTasks, res.elapsedS);
+if nErrored > 0
+    % Never let a crashed suite hide inside a green total.
+    fprintf('!!!! %d SUITE(S) ERRORED AND WERE NOT COUNTED -- see ERROR lines above\n', nErrored);
+end
 end

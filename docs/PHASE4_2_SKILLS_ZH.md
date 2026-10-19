@@ -16,12 +16,15 @@ routing           9 /   9      signal / vision / AI  34 /  34
 precheck         16 /  16      robotics              31 /  31
 depProbe         17 /  17      codegen               11 /  11
 grading           6 /   6      ------------------------------------------
-refcheck         11 /  11      skill tests          168 / 168
-modelCheck        2 /   2      references            15 /  15
-ctrlAnalyze      14 /  14      cross-domain          15 /  15
-tableAudit       11 /  11        dev 12/12  held-out 3/3
-                 166 → 168      pipeline              15 /  15  (skillMatch 15/15)
+refcheck         11 /  11      skill tests          177 / 177
+bench              9 /   9      references            15 /  15
+modelCheck        2 /   2      cross-domain          15 /  15
+ctrlAnalyze      14 /  14        dev 12/12  held-out 3/3
+tableAudit       11 /  11      pipeline              15 /  15  (skillMatch 15/15)
+                 166 → 177
 ```
+
+Benchmark 台账：**R1 DONE / R2 SKIP / R3 SKIP → overall PARTIAL**（见 §9）。
 
 ---
 
@@ -266,6 +269,9 @@ pipeline        12 /  12   (skillMatch 12/12, self-disagreement 0)
 | B16 | `codegen -d` 遗留 MEX 二进制在 cwd | 跑完看目录 | stale 二进制会掩盖之后的失败重建 |
 | B17 | 产品映射表缺 6 个真实产品 | 保留集 S1 被 SKIP | `Communications Toolbox` → UNKNOWN_PRODUCT **假阴性** |
 | B18 | OFDM BER 用固定 15% 容差 | 保留集自评 vs 验证器分歧 | 8 dB 只 58 个错误比特、噪声 13%，容差低于噪声地板 |
+| B19 | `run_all` 崩溃的套件不进分母 | 总分 168/168 但 bench 是 0/NaN | **整个验证体系的结论失效，且失效方式让人放心** |
+| B20 | 错误处理代码调用不存在的 `tern` | 修 B19 后仍失败 | 它想报告的错误被它自己的错误替换 |
+| B21 | `struct(...,'cases',{T.name})` 嵌套 cell | bench 在 run_all 里失败 | `struct` 构造 1×9 结构体数组，**表现像 flaky** |
 
 其中 B1/B3/B8/B10/B12/B14 都是"看起来对、结果自洽"的类型，只有靠**第二条独立方法**或
 **边界输入**才会露出来。这正是本轮把参考值剥离出去的理由。
@@ -416,12 +422,124 @@ spec 的 8 dB 容差同步改为 45%（约 3σ）并写明理由。
 
 ---
 
-## 9. 尚未完成（不计入本报告成绩）
+## 9. Task 7：Benchmark 台账（R1 DONE / R2·R3 SKIP）
 
-| Task | 状态 | 说明 |
+新增 `mas_bench_record`——一个**机器可读的 benchmark 台账**，替代散落在报告里的
+"跑过了"三个字。
+
+### 9.1 为什么是台账而不是一句话
+
+散文声明有三种失效模式，台账逐一封堵：
+
+| 失效模式 | 台账的对策 |
+|---|---|
+| SKIP 悄悄变成 PASS —— "R2/R3: N/A" 旁边一个绿色总分，读起来就是"全跑了" | `overall` 在任何一项 SKIP 时**只能是 PARTIAL**，代码层面强制 |
+| SKIP 的**理由**含糊 —— "no MCP" 分不清是机器上没装还是本会话没绑，两者修法不同（装 vs 绑） | `reason` 取自固定集合，`evidence` 明说 server 二进制是否在盘上 |
+| 成绩**不可复现** —— 报告里的数字无法追溯 | 每条 R1 记录带来源文件相对路径 + **SHA-256** |
+
+### 9.2 实测结果（2026-10-19）
+
+```
+R1 DONE | R2 SKIP | R3 SKIP -> PARTIAL
+R1  3/3 任务, 20/20 checks, 5 次真实工具调用, handshake=1
+R2/R3  NO_MATLAB_MCP_TOOL_IN_SESSION
+```
+
+**R2/R3 的 SKIP 是绑定缺口，不是缺安装**，这个区分是本轮特意查清的：
+
+- `bin/matlab-mcp-server-windows-x64.exe` **存在**（19.9 MB，2026-10-17 落地）
+- R1 在 10-17 **真实跑通过**：`serverStartOk=true`、`handshakeOk=true`、
+  发现 5 个真实工具（`evaluate_matlab_code` / `run_matlab_file` /
+  `check_matlab_code` / `run_matlab_test_file` / `detect_matlab_toolboxes`）
+- 本会话工具列表中**没有** `mcp__matlab*`
+
+所以修法是**绑定 MCP 服务器到会话**，不是重装。台账的 `evidence` 字段直接写明这一点，
+避免下一个人去重装一遍。
+
+### 9.3 一处刻意的设计：UNKNOWN 不是 SKIP
+
+第一版 `mas_bench_record` 有一个永远返回 0 的 `count_session_tools()` 桩函数——
+它实际上是在**没看的情况下报告"没有工具"**。这正是本项目一直在批的假阴性
+（和 `mas_dep_probe` 把 `chol` 报成缺失同一类）。
+
+问题在于：**MATLAB 进程无法枚举宿主 Agent 的工具绑定**。它根本看不到。所以诚实的答案是
+`UNKNOWN`，不是猜一个 0。
+
+```matlab
+mas_bench_record('report')      % R2/R3 = UNKNOWN（不猜）
+mas_bench_record('report', 0)   % R2/R3 = SKIP（调用方声明确实 0 个）
+mas_bench_record('report', 3)   % R2/R3 = NOT_RUN（有工具但本版本不驱动）
+```
+
+测试 9/9 钉住这个三态，并断言 `overall` 在所有非全 DONE 情况下都是 PARTIAL。
+
+### 9.4 开发过程中自己犯的四次同类错误
+
+写这个工具时我反复踩同一个坑，值得单独记下来：
+
+| # | 错误 | 怎么暴露的 |
 |---|---|---|
-| Task 7 Benchmark | PARTIAL | R1 有机器可读 trace；R2/R3 仍 SKIP（本会话无 `mcp__matlab*`） |
-| Task 8 架构 | PARTIAL | 七个技能已按 SKILL.md + scripts + tests 组织；其余两个未动 |
+| 1 | `isfield(d,'discoveredTools') && iscell(d.tools)` —— 幻影字段 | 首次运行 `无法识别字段名 "tools"` |
+| 2 | `cellfun` 用在 struct 数组上（`runs` 不是 cell） | 首次运行类型错误 |
+| 3 | `max(cellstr)` —— `max` 对 cell 无效 | 改为 `sort` 取末位 |
+| 4 | 测试里局部函数引用父函数变量（MATLAB 需 `nested`） | 9/9 全挂，报"输入参数过多" |
+
+第 1 条与 Task 0 批评的 `masacc.availability` 完全同类：**文档/注释里承诺了一个
+不存在的字段**。四次里有三次是"引用了不存在的东西"，说明这不是偶发，
+而是写这类"跨模块契约"代码时的稳定失效模式——**引用前先确认字段真的存在**。
+
+### 9.5 接入一键验证时又抓到一个更严重的问题
+
+把 `test_bench` 挂进 `run_all` 后，总分显示 **168/168 全绿**，但逐套件检查发现
+`bench` 那一行是 `0 / NaN` —— **它根本没跑，而总分看不出来**。
+
+根因在 `run_all` 的错误处理：
+
+```matlab
+catch ME
+    S(end+1) = struct('name', ..., 'pass', 0, 'total', NaN, 'ok', false);
+    nP 不加, nT 不加          % 崩溃的套件不进分母
+end
+```
+
+一个崩溃的套件贡献 0/NaN，**从分母里消失**，于是 `168/168` 看起来是"全部通过"。
+这比任何单个工具的 bug 都危险：它让整个验证体系的结论失效，而且失效方式恰好是
+让人放心的那一种。
+
+修法是让崩溃**无法被忽略**：
+
+- `res.suitesErrored` / `res.suitesRun` / `res.allSuitesOk` 三个字段进入结果文件
+- 汇总行在有套件崩溃时额外打印 `!!!! N SUITE(S) ERRORED AND WERE NOT COUNTED`
+
+### 9.6 错误处理代码自己崩溃，掩盖了真正的错误
+
+修好上面这条之后，第一次运行仍然失败——但报的是
+
+```
+bench  ERROR at run_all line 71
+无法识别函数名 'tern'
+```
+
+我加的那两行错误报告调用了 `run_all.m` 里**不存在的局部函数 `tern`**。
+错误处理代码自己抛异常，于是它想报告的那个错误被替换成了它自己的错误。
+
+这是本轮最值得记的一条：**诊断代码的失败比被诊断的失败更隐蔽**。
+现在改成内联条件判断，不引入任何新依赖，并在注释里写明原因。
+
+### 9.7 bench 真正的失败原因：`{T.name}` 的嵌套 cell
+
+拿到真实栈之后才看清：`test_bench` 的返回结构用了
+
+```matlab
+res = struct('nPass', ..., 'cases', {T.name});   % 花括号多包了一层
+```
+
+`struct()` 遇到 `{T.name}`（1×9 cell 再套一层）会试图构造 **1×9 结构体数组**，
+与其它标量字段冲突。麻烦之处在于它**不是稳定报错**——单独调用能过、在
+`run_all` 里失败，读起来像"偶发/ flaky"。改为逐字段赋值后彻底稳定。
+
+三条连起来是一个完整的失效链：**崩溃被吞 → 报错误的代码也崩 → 真正的错误是
+一个只在特定上下文出现的构造问题**。如果第二步没修，永远看不到第三条。
 
 ---
 
