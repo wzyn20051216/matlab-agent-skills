@@ -40,6 +40,11 @@ T(end+1) = tc('different seed differs',        @() of_diffSeed(),        true);
 % Reproduces the receiver-side CP penalty bug (sigma2 inflated 1.25x) inline
 % and checks the tool's own tolerance would reject that BER.
 T(end+1) = tc('neg: wrong noise scaling fails', @() of_negScaling(),      true);
+% The 8 dB point counts only ~50 errors, so its pass mark must widen; these two
+% hold that widening honest in BOTH directions -- it tracks counting noise, and
+% it still rejects the same defect at the point where it was widened.
+T(end+1) = tc('tolerance tracks counting noise', @() of_tolFollowsCountingNoise(), true);
+T(end+1) = tc('neg: widened tol still fails',    @() of_negScalingHighSnr(),    true);
 
 % ---------------- mas_image_metrics --------------------------------------
 T(end+1) = tc('perfect overlap: IoU 1',        @() im_perfect(),         true);
@@ -208,6 +213,52 @@ relBuggy = (berBuggy - berTh)/berTh;
 o = mas_ofdm_ber([0 2 4 6]);
 % the tool's own tolerance must accept its result and reject the defect
 v = o.ok && (abs(relBuggy) > o.tol);
+end
+
+function v = of_tolFollowsCountingNoise()
+% The per-point pass mark must widen where the counted errors are few. At 8 dB a
+% 2^18-bit run counts ~50 errors, so the Poisson relative spread is ~14 %; a flat
+% 15 % there would sit below the noise floor and reject correct code half the time.
+% The widening is compared against the noise ratio it is supposed to track, and it
+% must stay inside the bracket rather than growing without bound.
+r = mas_ofdm_ber([0 4 8]);
+sigmaRatio = r.sigmaRel(3) / r.sigmaRel(1);        % ~19x fewer errors at 8 dB
+tolRatio   = r.tolPerPoint(3) / r.tolPerPoint(1);  % clipped by tolMax, so smaller
+v = (sigmaRatio > 5) && ...                          % the noise really is higher
+    (tolRatio > 1.5) && ...                          % and the pass mark did widen
+    (tolRatio <= sigmaRatio) && ...                  % but never beyond the noise
+    (r.tolPerPoint(3) <= r.tolMax + eps) && ...
+    all(abs(r.relErr) <= r.tolPerPoint);              % and the run still passes
+end
+
+function v = of_negScalingHighSnr()
+% The widened 8 dB tolerance must STILL reject the defect it exists to catch.
+% A receiver that applies the cyclic-prefix penalty inflates variance by
+% (N+cp)/N = 1.25, i.e. sigma^2 up 25 % and sigma up ~12 %. That shifts the BER by
+% far more than 45 % at 8 dB, so a correct-but-wide tolerance is still a real gate.
+fs = 1; nSym = 2000; nSub = 64; cpLen = 16; ebn0dB = 8;
+rng(101);
+nBit = nSym*nSub*2;
+bits = randi([0 1], nBit, 1);
+b = reshape(bits, 2, []).';
+sym = ((1 - 2*b(:,1)) + 1j*(1 - 2*b(:,2)))/sqrt(2);
+S = reshape(sym, nSub, nSym);
+s = ifft(S, nSub, 1)*sqrt(nSub);
+sCp = [s(end-cpLen+1:end, :); s];
+ebn0lin = 10^(ebn0dB/10);
+sigma2 = 1/(2*ebn0lin) * (nSub + cpLen)/nSub;      % the defect
+rx = sCp + sqrt(sigma2/2)*(randn(size(sCp)) + 1j*randn(size(sCp)));
+rx = rx(cpLen+1:end, :);
+Y = fft(rx, nSub, 1)/sqrt(nSub);
+y = Y(:);
+bHat = reshape([real(y) < 0, imag(y) < 0].', [], 1);
+berBuggy = mean(bHat ~= bits);
+berTh = 0.5*erfc(sqrt(ebn0lin));
+relBuggy = (berBuggy - berTh)/berTh;
+
+r = mas_ofdm_ber(ebn0dB);
+% the defect must land outside the SAME tolerance the correct run is graded by
+v = (abs(relBuggy) > r.tolPerPoint(1)) && r.ok;
 end
 
 % ===========================================================================

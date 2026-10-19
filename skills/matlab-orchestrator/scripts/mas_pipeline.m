@@ -55,6 +55,11 @@ addpath(fullfile(repo, 'skills', 'matlab-runner', 'scripts'));
 addpath(fullfile(repo, 'skills', 'matlab-testing-ci', 'scripts'));
 addpath(fullfile(repo, 'matlab', 'validation', 'crossdomain'));
 addpath(fullfile(repo, 'matlab', 'validation', 'crossdomain', 'tasks'));
+% Held-out tasks (S1/R1/G1) call the Task 3/4/5 tools; without these the entry
+% point dies with MISSING_FUNCTION, which looks like a broken task, not a path.
+addpath(fullfile(repo, 'skills', 'matlab-signal-vision-ai', 'scripts'));
+addpath(fullfile(repo, 'skills', 'matlab-robotics-autonomy', 'scripts'));
+addpath(fullfile(repo, 'skills', 'matlab-codegen-deploy', 'scripts'));
 
 out = struct('id', {}, 'prompt', {}, 'skill', {}, 'expectedSkill', {}, 'skillMatch', {}, ...
     'products', {}, 'executed', {}, 'verdict', {}, 'selfVerdict', {}, ...

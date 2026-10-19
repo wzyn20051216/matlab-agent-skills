@@ -18,8 +18,10 @@ function r = mas_ofdm_ber(ebn0dB, opts)
 % success, it means the noise scaling is too small.
 
 if nargin < 2, opts = struct(); end
+% tolMin/tolMax BRACKET the per-point counting-noise pass mark; `tol` is kept as
+% the reported headline number and as the floor for well-populated points.
 opts = dflt(opts, struct('nSym', 2000, 'nSub', 64, 'cpLen', 16, 'seed', 101, ...
-    'tol', 0.15, 'verbose', false));
+    'tol', 0.15, 'tolMin', 0.15, 'tolMax', 0.45, 'verbose', false));
 
 nBit = opts.nSym * opts.nSub * 2;      % QPSK: 2 bits per subcarrier per symbol
 ebn0 = ebn0dB(:).';
@@ -67,22 +69,42 @@ for q = 1:numel(ebn0)
 end
 
 relErr = (berSim - berTh) ./ max(berTh, eps);
+
+% TOLERANCE FROM COUNTING NOISE, NOT FROM A ROUNDED CONSTANT
+% Under Gaussian noise the bit errors are (very nearly) a Poisson count, so the
+% relative standard error of the measured BER is ~1/sqrt(nErr). A single flat
+% tolerance cannot be right for every point: at 0 dB a 2^18-bit run counts
+% ~20000 errors (0.7 % noise) while at 8 dB it counts ~49 (14 % noise). A flat
+% 15 % therefore sits BELOW the noise floor at 8 dB and rejects correct code
+% about half the time -- a flaky test is worse than no test, because the first
+% response to a flaky test is to stop reading it.
+% So the per-point pass mark is 3 sigma of that point's own counting noise,
+% never below opts.tolMin and never above opts.tolMax.
+nErr = berSim * nBit;
+sigmaRel = 1 ./ sqrt(max(nErr, 1));
+tolPt = max(opts.tolMin, min(opts.tolMax, 3 * sigmaRel));
+
 r = struct();
 r.ebn0dB = ebn0; r.berSim = berSim; r.berTheory = berTh;
 r.relErr = relErr; r.nBits = nBit; r.nSym = opts.nSym; r.nSub = opts.nSub;
 r.cpLen = opts.cpLen; r.seed = opts.seed;
 r.tol = opts.tol;
+r.tolMin = opts.tolMin;
+r.tolMax = opts.tolMax;
+r.nErrors = nErr;
+r.sigmaRel = sigmaRel;
+r.tolPerPoint = tolPt;
 
 % One-sided would be wrong here, so it is not one-sided: a BER well BELOW theory
 % means the noise variance is too small, which is the same defect as too much noise
-% and just as fatal. The tolerance is wide (15 %) because at 6 dB with 2^18 bits
-% the counted errors carry ~4 % relative sampling noise, and the defect this check
-% exists to catch -- applying the CP penalty at the receiver -- shifts BER by ~30 %.
-r.ok = all(isfinite(relErr)) && all(abs(relErr) <= opts.tol);
+% and just as fatal. The pass mark is wide enough to absorb counting noise but far
+% narrower than the defect this check exists to catch -- applying the CP penalty at
+% the receiver shifts BER by ~30 %.
+r.ok = all(isfinite(relErr)) && all(abs(relErr) <= tolPt);
 r.verdict = tern(r.ok, 'PASS', 'FAIL');
-r.detail = sprintf('%d carriers, CP %d, %d bits: BER %s vs theory %s (rel %s, %s)', ...
+r.detail = sprintf('%d carriers, CP %d, %d bits: BER %s vs theory %s (rel %s, tol %s, %s)', ...
     opts.nSub, opts.cpLen, nBit, mat2str(berSim, 3), mat2str(berTh, 3), ...
-    mat2str(relErr, 2), r.verdict);
+    mat2str(relErr, 2), mat2str(tolPt, 2), r.verdict);
 end
 
 % ---------------------------------------------------------------------------

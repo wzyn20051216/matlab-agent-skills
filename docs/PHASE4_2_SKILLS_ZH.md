@@ -1,9 +1,27 @@
-# Phase 4.2 —— Skills 专业能力强化（第一批：Task 0 / 1 / 2）
+# Phase 4.2 —— Skills 专业能力强化（Task 0–6）
 
 分支 `feat/phase3b1-boost`，基线 `2871544`。main 未动（`f76681d`），PR #1/#2 仍 OPEN，
 Buck 冻结标签 `buck-v1-sim-baseline` 未触碰。
 
-本文件记录**已完成并实际跑过**的部分。未完成的 Task 3–8 见 §7，不在此报告里计入成绩。
+本文件记录**已完成并实际跑过**的部分。Task 7–8 见 §9。
+
+---
+
+## 0. 一次运行的完整结果（最新）
+
+`matlab -batch "addpath('matlab/validation/phase4'); run_all(...)"`
+
+```
+routing           9 /   9      signal / vision / AI  34 /  34
+precheck         16 /  16      robotics              31 /  31
+depProbe         17 /  17      codegen               11 /  11
+grading           6 /   6      ------------------------------------------
+refcheck         11 /  11      skill tests          168 / 168
+modelCheck        2 /   2      references            15 /  15
+ctrlAnalyze      14 /  14      cross-domain          15 /  15
+tableAudit       11 /  11        dev 12/12  held-out 3/3
+                 166 → 168      pipeline              15 /  15  (skillMatch 15/15)
+```
 
 ---
 
@@ -240,22 +258,170 @@ pipeline        12 /  12   (skillMatch 12/12, self-disagreement 0)
 | B8 | `mas_ref_derive` 的 D5 RK4 漏了输入项 | 双方法不一致 | 超调 −71%（应为 +16.3%） |
 | B9 | 手写差分递推未保护历史索引 | D3 首跑 | `y(0)` 索引越界 |
 | B10 | C3 相位未 `unwrap` | 双方法不一致 | 最差 PM −95° 被报成 +83° |
+| B11 | `mas_dep_probe` 用 `exist(...,'file')` 判可调用性 | Task 4 探测机器人工具箱 | `chol`/`eig`/`inv` 误报 FN_NOT_FOUND、`svd` 误报 IS_A_DIRECTORY |
+| B12 | `mas_spectrum_check` 的 Parseval 比 `mean(x²)` | 探针：普通多频+噪声信号 | **任何含随机分量的信号都误报失败**（Hann 实测 7.3e−3） |
+| B13 | `mas_image_metrics` 文档承诺 `r.perObject` 但代码没有 | 读文档核对字段 | 目标级指标全错，正是文档强调的风险场景 |
+| B14 | `mas_codegen_verify` 的 relative-error 用矩阵右除 `d / den` | 首次真实 codegen | 外积矩阵 → `max()` 返回行向量 → compare 阶段必崩 |
+| B15 | `exist('codegen','file')==2` 判 Coder 可用性 | 首次运行 | `codegen` 是 P 文件（exist=6）→ **完好的机器被判不可用** |
+| B16 | `codegen -d` 遗留 MEX 二进制在 cwd | 跑完看目录 | stale 二进制会掩盖之后的失败重建 |
+| B17 | 产品映射表缺 6 个真实产品 | 保留集 S1 被 SKIP | `Communications Toolbox` → UNKNOWN_PRODUCT **假阴性** |
+| B18 | OFDM BER 用固定 15% 容差 | 保留集自评 vs 验证器分歧 | 8 dB 只 58 个错误比特、噪声 13%，容差低于噪声地板 |
 
-其中 B1/B3/B8/B10 都是"看起来对、结果自洽"的类型，只有靠**第二条独立方法**或
+其中 B1/B3/B8/B10/B12/B14 都是"看起来对、结果自洽"的类型，只有靠**第二条独立方法**或
 **边界输入**才会露出来。这正是本轮把参考值剥离出去的理由。
+
+B18 有个特别之处：它不是"实现错了"，而是**判据本身没有依据**——一个固定百分比不可能
+同时适配噪声差 19 倍的两个工作点。发现它的不是测试失败，而是**任务自评与独立验证器的
+分歧**：两套判据用不同的固定值，恰好都"自洽"。
 
 ---
 
-## 7. 尚未完成（不计入本报告成绩）
+## 7. Task 3–5：三个新 Skill 的工具与测试
+
+### 7.1 Task 3 `matlab-signal-vision-ai`（32 → 34 例）
+
+四个工具，每个都配独立方法交叉验证 + 负对照。
+
+| 工具 | 做什么 | 关键验证 |
+|---|---|---|
+| `mas_spectrum_check` | 频谱泄漏 / 集中度 / Parseval | 抛物线插值测半 bin 偏移 |
+| `mas_ofdm_ber` | OFDM+QPSK 全链 BER vs 闭式理论 | 教科书 BER、计数噪声自适应容差 |
+| `mas_image_metrics` | IoU / Dice / P / R / F1 / **逐目标** | 手数混淆矩阵、组合恒等式 |
+| `mas_split_seed` | 可复现分层切分 + 泄漏检查 | 分层在不平衡数据上必须真的有效 |
+
+**修掉三个真缺陷：**
+
+1. `mas_spectrum_check` 的 Parseval 检查**拿错了比对对象**。加窗周期图的单边 PSD
+   积分恒等于**窗加权功率** `sum(x²w²)/sum(w²)`，不是 `mean(x²)`；两者只在矩形窗下重合。
+   原实现比 `mean(x²)`、阈值 1e−6，结果任何含随机分量的信号都判失败：实测 Hann 7.3e−3、
+   Hamming 6.7e−3、Blackman 9.0e−3，而同一信号换矩形窗一致到 5.3e−16。
+   **一个总在响的警告等于没人看的警告。** 改为对恒等式取 1e−8 容差，窗自身影响另立
+   `taperBias` 字段——它是关于窗的信息，不是错误。
+
+2. `mas_image_metrics` 文档承诺 `r.perObject` 但代码没有（**幻影引用**）。补齐按目标
+   匹配的实现：匹配用 `argmax` 遍历全部 truth 标签而非按索引——`bwlabel` 按列序光栅
+   扫描编号，掩膜一旦不一致 `Lp==k` 与 `Lt==k` 就无对应关系，而这正是需要它的场合。
+
+3. `mas_ofdm_ber` 只报数字不自判定，与其他工具不一致。补 `ok/verdict/tol`，且判定是
+   **双侧的**：BER 显著低于理论值同样是噪声方差算小的缺陷，不是成功。
+
+### 7.2 Task 4 `matlab-robotics-autonomy`（31 例）
+
+先探测真实可用性：Robotics / Navigation / ROS / Sensor Fusion 均可用，**UAV 未安装**。
+
+| 工具 | 做什么 | 实测要点 |
+|---|---|---|
+| `mas_kin_check` | 平面 n-R 正运动学 + 解析/差分 Jacobian 逐元素比对 | Jacobian 错了不会抛错、画出来也看不出来，只会让控制器往反方向走 |
+| `mas_kin_ik` | DLS + 步长限幅 + 关节限位 | 近奇异（q₂=1e−4）下 DLS 原始步长 **0.12 rad 有界**，正规方程 **6.4e3 rad 发散** |
+| `mas_ekf_check` | NEES/NIS 一致性，双侧判定带 `N·ANEES ~ χ²(N·n)` | 一致 1.92 PASS；R 缩 100× → 107 FAIL；R 放大 100× → 0.81 FAIL |
+| `mas_frame_check` | SE(3)/SO(3) 卫生检查 | 与 MathWorks `eul2rotm`/`quat2rotm` 交叉核对，偏差 0 与 1.1e−16 |
+
+**同时修掉 `mas_dep_probe` 的一处真缺陷（上一轮我自己引入）：**
+`exist(name,'file')` 按文档**只搜索文件与文件夹、明确排除 built-in**。于是把核心内置
+函数误报成缺失：`exist('chol','file') → 0`、`exist('svd','file') → 7`（被判成"是目录"）。
+后果是探测结果把调用者指向根本不存在的修复动作（改名 / addpath / 安装）。
+改为以 `which()` 判定"可调用"，`exist` 只用于说明"为什么不可调用"。
+
+`mas_ekf_check` 的真值用 `Qtrue/Rtrue`、滤波器用 `Q/R`——否则改 `R` 会同时改掉滤波器
+与真值，对照实验本身失效。双侧判定是有意的：**把 R 调大只是变保守，不是变正确。**
+
+### 7.3 Task 5 `matlab-codegen-deploy`（11 例）
+
+环境探测：MATLAB/Simulink/Embedded/GPU Coder 全部可用，MSVC 2022 在位，
+**仅 HDL Coder 未授权**。因此可以构建**真实编译**的代码生成工具。
+
+| 工具 | 做什么 | 关键设计 |
+|---|---|---|
+| `mas_codegen_ready` | 静态就绪审计 | blocker（eval/input/clear/load/containers、**循环内**数组增长）vs warning（table/datetime/graphics/异构 cell） |
+| `mas_codegen_verify` | **真实** codegen → 编译 → 双跑 → 比较 | 五阶段 probe/codegen/build/run/compare 逐阶段报告；无编译器返回 **SKIP 不是 PASS** |
+| `mas_fixpt_range` | 观测输出范围 + 量化代价 | 范围是**观测不是证明**，stimuli 属于结果的一部分；无 Fixed-Point Designer 返回 SKIP 而不用 double 拙劣模拟 |
+
+**修掉三个真缺陷：**
+
+1. `mas_codegen_verify` 的 relative-error 用了**矩阵右除**：`d ./ den` 才是逐元素相对
+   误差；写成 `d / den` 对两个列向量得到完整**外积矩阵**，再 `max()` 按列返回行向量，
+   下游 `sprintf('%.3e', 向量)` 直接崩。后果是"比较"这一步对任何非标量输出都崩溃，
+   **工具从未真正完成过一次 compare**。
+
+2. `exist('codegen','file')==2` 是**假阴性**：`codegen` 是 P 编码文件，`exist` 返回 **6**
+   而非 2，于是"没装 Coder"的 SKIP 分支把一台完好、装了 MSVC 的机器判成不可用。
+   改为接受任意非零 file/builtin/pcode。`mas_fixpt_range` 的 `fi` 判据同样加固。
+
+3. `codegen -d buildDir` **仍把 MEX 二进制丢进当前目录**。遗留的 stale 二进制会掩盖之后
+   的失败重建。cleanup 显式删除 cwd 下的 `fcn_mex.mexw64`。
+
+`mas_codegen_verify` 的 `goldenFcn` 选项存在的意义是：**只能和自己一致的 harness 等于
+没测**。默认路径（函数 vs 它自己的 MEX）永远一致，所以必须能构造"真的不一致"的负对照。
+
+---
+
+## 8. Task 6：开发集 / 保留集切分
+
+评测集从 12 条扩到 **15 条**，显式切分：
+
+```
+dev       12 条  D1–D8, C1–C3, T1
+held-out   3 条  S1, R1, G1   ← 正是 Task 3/4/5 建的工具
+```
+
+S1/R1/G1 的**参考推导、grading spec、SHA-256 冻结参考在 Phase 4.2 Task 0 就已就位**
+（`mas_ref_derive` / `mas_ref_spec` / manifest 都有这三项），本任务补的是**任务入口
+函数**与**注册**，让它们真正跑起来。保留集单独统计，不并入总分——否则一个强开发集
+成绩可以掩盖保留集失败，而那正是保留集存在的意义。
+
+### 8.1 保留集暴露的两个真问题
+
+**问题一：`Communications Toolbox` 不在产品映射表里 → `UNKNOWN_PRODUCT` 假阴性。**
+S1 被无理由 SKIP。这正是 Task 0 要消除的那类错（环境有能力却被判成没有），
+只不过这次发生在**映射表缺条目**而不是 feature 名写错。补入 6 个真实存在的 MathWorks
+产品（Communications / RF / Audio / Curve Fitting / Fuzzy Logic / Data Acquisition /
+Instrument Control / Econometrics / Symbolic Math），表从 30 行增至 **36 行**，无重复。
+实测 Communications Toolbox 现在正确返回 `NOT_LICENSED`（**真实状态**）而非
+`UNKNOWN_PRODUCT`（**假阴性**）。
+
+顺带查清：`mas_ofdm_ber` 只用基础 MATLAB 函数（ifft/fft/randn），**根本不需要**
+Communications Toolbox——原先的依赖声明本身也是错的，已改为 `[]`。
+
+**问题二：S1 出现"自评 FAIL vs 验证器 PASS"的分歧。**
+这是保留集最有价值的产出。查清根因：
+
+```
+8 dB 实测 BER 0.000227，理论 0.000191 → 相对偏差 +19%
+```
+
+看起来像 bug，其实是**统计现象**：8 dB 处 2.56 万比特只产生 **58 个错误比特**，
+泊松相对标准差 ≈ 1/√58 ≈ **13%**。工具内部用固定 15% 容差 → 判 FAIL；
+spec 用 20% → 判 PASS。**两边都不是"错"，但两边都不对**：一个固定的百分比容差
+不可能同时适配 0 dB（2 万错误、噪声 0.7%）和 8 dB（58 错误、噪声 13%）。
+
+修法不是随手放宽，而是**让容差跟随计数噪声**：
+
+```
+tolPt = clamp(3 × 1/√nErr, tolMin=0.15, tolMax=0.45)
+```
+
+实测：0 dB → 15%（噪声 0.7%）、4 dB → 15%（噪声 1.8%）、8 dB → **39%**（噪声 13%）。
+spec 的 8 dB 容差同步改为 45%（约 3σ）并写明理由。
+
+**放宽之后必须证明它仍然是真闸门**，否则"放宽容差"就变成"不再检查"。新增负对照
+`of_negScalingHighSnr`：在 8 dB 处注入接收端 CP 惩罚缺陷（σ² 虚高 25%），
+断言缺陷必须落在**同一个容差之外**。实测缺陷偏移远超 39%，正确运行 PASS、缺陷 FAIL。
+
+测试从 32 → **34/34**。其中 `of_tolFollowsCountingNoise` 断言的是**关系**而非硬编码值：
+容差比必须显著 > 1（确实放宽了）、但不超过噪声比（没有过度放宽）、且不超 `tolMax` 上限。
+
+> 这里我自己犯了一次刚在 Task 0 批评过的错：新测试断言 `r.tolMax`，而
+> `mas_ofdm_ber` 的返回结构里**没有这个字段**——幻影引用。补上后才通过。
+> **写断言时要先确认被测对象真的暴露了该字段。**
+
+---
+
+## 9. 尚未完成（不计入本报告成绩）
 
 | Task | 状态 | 说明 |
 |---|---|---|
-| Task 3 signal-vision-ai | NOT STARTED | 需要频谱泄漏/OFDM BER/图像指标三个工具组 |
-| Task 4 robotics | NOT STARTED | `mas_kinematics_check` 等 |
-| Task 5 codegen | NOT STARTED | L1–L5 分级探测，无 Coder 许可时 SKIP |
-| Task 6 12+ 评测集 | PARTIAL | 12 条任务**已存在并全部通过**，但开发集/保留集**尚未切分** |
 | Task 7 Benchmark | PARTIAL | R1 有机器可读 trace；R2/R3 仍 SKIP（本会话无 `mcp__matlab*`） |
-| Task 8 架构 | PARTIAL | 四个技能已按 SKILL.md + scripts + tests 组织；其余五个未动 |
+| Task 8 架构 | PARTIAL | 七个技能已按 SKILL.md + scripts + tests 组织；其余两个未动 |
 
 ---
 

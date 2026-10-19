@@ -85,9 +85,17 @@ switch upper(id)
               ck('nOutlier',   2,  'absdiff', 0, 'outliers counted') ];
 
     case 'S1'
-        C = [ ck('ber0', 0.0786496, 'reldiff', 0.20, 'QPSK at 0 dB: 0.5*erfc(1)'); ...
-              ck('ber4', 0.0125008, 'reldiff', 0.20, 'QPSK at 4 dB'); ...
-              ck('ber8', 0.0001909, 'reldiff', 0.20, 'QPSK at 8 dB (Monte-Carlo limited)') ];
+        % Tolerances are set by COUNTING NOISE, not by taste. At 0 dB the BER is
+        % ~0.079, so 256000 bits give ~20000 errors and the Poisson relative spread
+        % is ~0.7 %; at 8 dB the BER is ~1.9e-4, which is only ~49 errors over the
+        % same run, so the spread is ~1/sqrt(49) ~ 14 %. A 15 % pass mark at 8 dB is
+        % therefore below the measurement noise floor: it rejects correct code
+        % roughly half the time. The 8 dB tolerance is widened to 45 % (about 3
+        % sigma) and this is stated rather than silently loosened -- mas_refcheck
+        % marks S1 with spreadFactor 0.5 for the same reason.
+        C = [ ck('ber0', 0.0786496, 'reldiff', 0.20, 'QPSK at 0 dB: 0.5*erfc(1), ~20k errors so noise is 0.7 %'); ...
+              ck('ber4', 0.0125008, 'reldiff', 0.20, 'QPSK at 4 dB, ~3200 errors so noise is 1.8 %'); ...
+              ck('ber8', 0.0001909, 'reldiff', 0.45, 'QPSK at 8 dB: only ~49 errors, noise is 14 % -- 45 % is ~3 sigma') ];
 
     case 'R1'
         C = [ ck('q1deg', 35, 'absdiff', 1e-6, 'IK must return the joint angles that generated the pose'); ...

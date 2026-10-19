@@ -1,6 +1,6 @@
 {
   "schema": "mas-task-registry/1",
-  "description": "Evaluation tasks: natural-language prompt, the skill the task is meant to exercise, the entry point, and the products it needs. The prompt is what goes through mas_route, so skillMatch measures the ROUTER on a realistic sentence rather than on a label.",
+  "description": "Evaluation tasks: natural-language prompt, the skill the task is meant to exercise, the entry point, and the products it needs. The prompt is what goes through mas_route, so skillMatch measures the ROUTER on a realistic sentence rather than on a label. The `split` field separates the DEVELOPMENT set (D1-D8, C1-C3, T1) from the HELD-OUT set (S1, R1, G1): held-out tasks exercise the Phase 4.2 Task 3/4/5 tools and are graded only by the frozen reference, never by their own verdict.",
   "tasks": [
     {
       "id": "D1",
@@ -8,7 +8,8 @@
       "prompt": "求解线性方程组并对 4/(1+x^2) 做数值积分",
       "expectedSkill": "matlab-data-analysis",
       "entry": "cd_d1_linalg",
-      "products": []
+      "products": [],
+      "split": "dev"
     },
     {
       "id": "D2",
@@ -16,7 +17,8 @@
       "prompt": "读取实验数据表，处理缺失值并做指数回归拟合",
       "expectedSkill": "matlab-data-analysis",
       "entry": "cd_d2_regression",
-      "products": []
+      "products": [],
+      "split": "dev"
     },
     {
       "id": "D3",
@@ -24,7 +26,10 @@
       "prompt": "设计 4 阶 Butterworth 低通滤波器并检查幅频响应",
       "expectedSkill": "matlab-signal-vision-ai",
       "entry": "cd_d3_filter",
-      "products": ["Signal Processing Toolbox"]
+      "products": [
+        "Signal Processing Toolbox"
+      ],
+      "split": "dev"
     },
     {
       "id": "D4",
@@ -32,7 +37,10 @@
       "prompt": "对图像做阈值分割并统计每个目标的面积和质心",
       "expectedSkill": "matlab-signal-vision-ai",
       "entry": "cd_d4_segment",
-      "products": ["Image Processing Toolbox"]
+      "products": [
+        "Image Processing Toolbox"
+      ],
+      "split": "dev"
     },
     {
       "id": "D5",
@@ -40,7 +48,10 @@
       "prompt": "建立二阶系统的状态空间模型并分析阶跃响应指标",
       "expectedSkill": "matlab-control-optimization",
       "entry": "cd_d5_statespace",
-      "products": ["Control System Toolbox"]
+      "products": [
+        "Control System Toolbox"
+      ],
+      "split": "dev"
     },
     {
       "id": "D6",
@@ -48,7 +59,10 @@
       "prompt": "用 Simulink 搭建一阶系统并仿真验证输出轨迹",
       "expectedSkill": "matlab-simulink-modeling",
       "entry": "cd_d6_simulink",
-      "products": ["Simulink"]
+      "products": [
+        "Simulink"
+      ],
+      "split": "dev"
     },
     {
       "id": "D7",
@@ -56,7 +70,8 @@
       "prompt": "分析 Boost 变换器的稳态占空比和电感电流纹波",
       "expectedSkill": "matlab-control-optimization",
       "entry": "cd_d7_boost",
-      "products": []
+      "products": [],
+      "split": "dev"
     },
     {
       "id": "D8",
@@ -64,7 +79,8 @@
       "prompt": "计算机器人二连杆的正运动学末端位置",
       "expectedSkill": "matlab-robotics-autonomy",
       "entry": "cd_d8_kinematics",
-      "products": []
+      "products": [],
+      "split": "dev"
     },
     {
       "id": "C1",
@@ -72,7 +88,10 @@
       "prompt": "分析一个已知一阶回路的相位裕度和增益裕度",
       "expectedSkill": "matlab-control-optimization",
       "entry": "cd_c1_stable",
-      "products": ["Control System Toolbox"]
+      "products": [
+        "Control System Toolbox"
+      ],
+      "split": "dev"
     },
     {
       "id": "C2",
@@ -80,7 +99,10 @@
       "prompt": "判断一个含右半平面极点的系统是否稳定",
       "expectedSkill": "matlab-control-optimization",
       "entry": "cd_c2_unstable",
-      "products": ["Control System Toolbox"]
+      "products": [
+        "Control System Toolbox"
+      ],
+      "split": "dev"
     },
     {
       "id": "C3",
@@ -88,7 +110,10 @@
       "prompt": "检查一个存在多次 0dB 交越的回路的最坏相位裕度",
       "expectedSkill": "matlab-control-optimization",
       "entry": "cd_c3_multicross",
-      "products": ["Control System Toolbox"]
+      "products": [
+        "Control System Toolbox"
+      ],
+      "split": "dev"
     },
     {
       "id": "T1",
@@ -96,7 +121,39 @@
       "prompt": "清洗一份含缺失值、重复值和异常值的实验数据表",
       "expectedSkill": "matlab-data-analysis",
       "entry": "cd_t1_clean",
-      "products": ["Statistics and Machine Learning Toolbox"]
+      "products": [
+        "Statistics and Machine Learning Toolbox"
+      ],
+      "split": "dev"
+    },
+    {
+      "id": "S1",
+      "domain": "signal (held-out)",
+      "split": "heldout",
+      "prompt": "仿真 OFDM/QPSK 在 0/4/8 dB 下的误码率并与理论值比较",
+      "expectedSkill": "matlab-signal-vision-ai",
+      "entry": "cd_s1_ofdm",
+      "products": []
+    },
+    {
+      "id": "R1",
+      "domain": "robotics (held-out)",
+      "split": "heldout",
+      "prompt": "对二连杆机械臂做逆运动学，验证 FK(IK(pose)) 能还原位姿",
+      "expectedSkill": "matlab-robotics-autonomy",
+      "entry": "cd_r1_ik",
+      "products": []
+    },
+    {
+      "id": "G1",
+      "domain": "codegen (held-out)",
+      "split": "heldout",
+      "prompt": "把一段求和的 MATLAB 函数生成 C 代码并验证数值与 MATLAB 一致",
+      "expectedSkill": "matlab-codegen-deploy",
+      "entry": "cd_g1_codegen",
+      "products": [
+        "MATLAB Coder"
+      ]
     }
   ]
 }
