@@ -9,9 +9,9 @@
 
 1. **审计前，9 个 Skill 一共 788 行文档，0 个可运行脚本、0 个测试、0 个 references。**
    所有"能力"都只是文字，没有任何一条被测试固定住。
-2. **发现一个幻影工具**：`matlab-runner` 明确要求 Agent 用 `masacc.availability(...)`
-   代替 `license`，而仓库里、MATLAB 路径上都不存在 `masacc`（`exist` 返回 0）。
-   照文档执行必然第一步就失败。
+2. **发现一个幻影工具**：`matlab-runner` 与 `matlab-simulink-modeling` **两个**技能都
+   要求 Agent 用 `masacc.availability(...)` 代替 `license`，而仓库里、MATLAB 路径上都
+   不存在 `masacc`（`exist` 返回 0）。照文档执行必然第一步就失败。
 3. **第一批四个 Skill 已升级为"可运行 + 可测试"**：
    - orchestrator：加权路由表 + 匹配器，**9/9** 用例（含任务书里的三个例子与两个"不许猜"用例）；
    - runner：通用预检查，**16/16** 用例（一半是必须失败的）；
@@ -51,7 +51,7 @@
 | 2 | 缺失的核心能力 | 全部缺：没有路由实现、没有预检查、没有验收判定、没有领域测试 |
 | 3 | 自动触发条件是否准确 | 只有 `description` 一句话。orchestrator 的触发词覆盖过宽（"MATLAB" 即触发），无权重、无冲突处理 |
 | 4 | 与其他 Skill 的职责重叠 | orchestrator 与 runner 都写了"执行优先级"（MCP > batch），两处规则不一致时无仲裁 |
-| 5 | 可调用工具与依赖 | runner 指向 `.\scripts\*.ps1`（存在）与 `masacc.*`（**不存在**）；其余 Skill 只列 API 名 |
+| 5 | 可调用工具与依赖 | runner 与 simulink-modeling 指向 `masacc.*`（**不存在**）；runner 另指 `scripts/*.ps1`（存在）；其余 Skill 只列 API 名 |
 | 6 | 执行流程是否完整 | 从"选技能"到"验收"之间缺三段：环境预检、失败分类的自动执行、结果三级判定 |
 | 7 | 错误恢复策略 | runner 有分类表与重试上限，但没有实现；其余 Skill 无 |
 | 8 | 结果验收能力 | orchestrator 指向 `schemas/acceptance-report.schema.json`（存在），但没有任何 Skill 会去写/校验它 |
@@ -62,7 +62,7 @@
 
 | 缺陷 | 证据 | 修法 |
 |---|---|---|
-| `masacc.availability` 不存在 | `exist('masacc','file')+exist('masacc','dir') = 0`；调用报 "无法解析名称" | 改为 `mas_precheck('toolbox', ...)` + 自动生成的 feature 映射表 |
+| `masacc.availability` 不存在 | `exist('masacc','file')+exist('masacc','dir') = 0`；调用报 "无法解析名称"。出现在 **runner 与 simulink-modeling 两个文件**里 | 两处都改为 `mas_precheck('toolbox', ...)` + 自动生成的 feature 映射表 |
 | orchestrator 有**重复章节** | "Closed-loop Definition" 出现两次（第 62 与 105 行），内容一字不差 | 删除后者 |
 | 产品名当 license feature | `license('test','Deep_Learning_Toolbox') = 0`，而同一产品的 `Neural_Network_Toolbox` = 1 | 映射表由 `mas_toolbox_map.m` 现场生成，15 个产品逐条实测 |
 

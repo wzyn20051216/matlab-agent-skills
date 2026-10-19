@@ -9,11 +9,17 @@ Use this skill for model-based design and simulation workflows.
 
 ## First Checks
 
-1. Confirm `Simulink` is installed with `ver` and licensed with `license('test','Simulink')`.
-   For any product whose feature name differs from its display name, do not guess — use
-   `masacc.availability(product)` (e.g. `Simulink Coder` → feature `Real-Time_Workshop`,
-   `Embedded Coder` → `RTW_Embedded_Coder`). Passing the display name returns `0` and looks
-   like "not licensed" even when the license exists.
+1. Confirm the product with the precheck, not by guessing a license string:
+
+   ```matlab
+   r = mas_precheck('toolbox', 'Simulink Coder');   % installed + licensed, with reason
+   ```
+
+   `license('test', X)` takes a FEATURE name, and passing the display name returns `0`
+   even when the product is licensed (`Deep_Learning_Toolbox` → 0 while
+   `Neural_Network_Toolbox` → 1 on R2026a). The verified map lives in
+   `../matlab-runner/references/toolbox-feature-map.md`. An earlier revision of this
+   file pointed at `masacc.availability`, which does not exist anywhere — removed.
 2. Prefer an official MATLAB MCP auto session tied to a visible MATLAB/Simulink desktop before substantial edits. Use `load_system`, `open_system`, and `set_param(modelName,"ZoomFactor","FitSystem")` so the user can see the model.
 3. Audit topology before editing: blocks, lines, solver config, sample times, logged signals.
 4. Prefer existing model architecture and naming.
