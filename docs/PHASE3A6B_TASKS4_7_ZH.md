@@ -601,16 +601,21 @@ Simulink 只用于那个"参考用的开关模型"。缺工具箱时的行为：
 - **但两者都不是"友好诊断"**：报错是 MATLAB 原生信息，不是"你需要安装 X"。
   这是整改项 R6（见 5.5）。
 
-### 5.3 干净 checkout 复现
+### 5.3 干净 checkout 复现（已执行）
 
 ```
-git clone -b feat/phase3a-power-electronics <repo> /tmp/buck_clean_<ts>
-cd /tmp/buck_clean_<ts>
+git clone -q -b feat/phase3a-power-electronics <repo> /e/desktop/_buck_clean
+cd /e/desktop/_buck_clean && git log --oneline -1
+    41b428d feat(buck): 采样相位/延迟鲁棒性 + 工程裕度 + 七工况验收 + 发布审查
 matlab -batch "run('matlab/buck/verify/buck_smoke.m')"
+    ---- 9 / 9 checks passed ----
+    The demo reproduces its published numbers on this machine.
+    退出码 0
 ```
 
-结果见 §5.6（在提交后执行，日志与退出码一并记录）。这一步验证的是
-"不需要本机的任何 artifact、缓存、`.slx`、`matlab/buck/results` 才能跑起来"。
+克隆体积 4.8 MB、**不含 `artifacts/`**（该目录被 `.gitignore` 排除），
+因此这一次运行证明：冒烟自检不依赖任何本机产物、缓存、`.slx` 或 `results/` 目录。
+`buck_smoke` 复现的数值与在开发机上完全一致（max|λ|=0.965301、dip=−2.18051%、S5=0.1831 ms）。
 
 ### 5.4 不能通过纯软件仿真解决的缺口
 
