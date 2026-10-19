@@ -63,14 +63,33 @@ r2 = sw_floquet(p2, struct('verbose', false, 'maxIter', 1500));
 fprintf('  nDly=2 : converged=%d max|lam|=%.5f -> %s\n', r2.converged, r2.maxAbs, v6);
 [nPass,nFail] = rep('R6 two periods of delay does not pass S1', ~pass6, nPass, nFail);
 
-%% R7 the map refuses a phase it does not model
+%% R7 the map refuses a configuration it does not model
+% Task 4 extended the map to sampPhase > 0, so the old assertion ("refuse 0.125")
+% is obsolete. What must still be refused is a sample inside the period with NO
+% duty pipeline: the PWM register cannot be updated before the next boundary, so
+% nDly = 0 plus phi > 0 would silently mislabel a (1-phi)*Ts delay as zero.
 threw = false;
 try
-    sw_period_map(zeros(5,1), dual_params(48,6,150e-6,'sampPhase',0.125));
+    sw_period_map(zeros(5,1), dual_params(48,6,150e-6,'nDly',0,'sampPhase',0.125));
 catch
     threw = true;
 end
-[nPass,nFail] = rep('R7 map refuses an unsupported sampling phase', threw, nPass, nFail);
+[nPass,nFail] = rep('R7 map refuses in-period sampling without a duty register', threw, nPass, nFail);
+
+%% R8 the extended map is verified against the independent RK4 reference
+% Same state, one period, two different numerical methods. This is the guard that
+% the Task 4 extension did not change the physics while adding a state.
+p8 = dual_params(48,6,150e-6,'nDly',1,'sampPhase',0.25);
+L8 = sw_state_layout(p8);
+x8 = zeros(L8.n,1); x8(L8.iIL)=p8.Vref/p.R; x8(L8.iVC)=p8.Vref;
+x8(L8.idx)=p8.Vref/p.Vin; x8(L8.iYS)=p8.Vref/p.R; x8(L8.iDxI)=0;
+for k=1:400, x8 = sw_period_map(x8,p8); end
+x8n = sw_period_map(x8,p8);
+q8 = sw_ref_sim(p8, struct('nSub',4000,'nPer',1,'Tss',1e-9,'Vref0',p8.Vref, ...
+    'x0',[x8(L8.iIL);x8(L8.iVC);x8(L8.iXI)],'d0',x8(L8.idx),'dxI',x8(L8.iDxI)));
+dev8 = abs(x8n(L8.iIL) - q8.iLb(end));
+fprintf('  phi=0.25 one period: map vs independent RK4 = %.2e A\n', dev8);
+[nPass,nFail] = rep('R8 map and independent RK4 agree at phi>0', dev8 < 1e-9, nPass, nFail);
 
 fprintf('\n通过 %d / 失败 %d（共 %d 项）\n', nPass, nFail, nPass+nFail);
 res = struct('nPass',nPass,'nFail',nFail,'total',nPass+nFail, ...

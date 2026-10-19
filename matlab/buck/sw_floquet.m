@@ -37,15 +37,24 @@ if ~isfield(opts,'maxIter'), opts.maxIter = 4000; end
 if ~isfield(opts,'tol'),     opts.tol     = 1e-12; end
 if ~isfield(opts,'verbose'), opts.verbose = true; end
 
-nDly = p.nDly; nd = p.sens.nd;
-n = 4 + nDly + nd;                     % 3 plant + nDly duty + yS + nd measurements
+% State size and offsets come from the ONE shared layout, never recomputed here:
+% a mismatch would produce a correctly-sized but WRONG Jacobian instead of an error.
+L = sw_state_layout(p);
+nDly = L.np; nd = L.nd;
+n = L.n;
 
 if isfield(opts,'x0') && ~isempty(opts.x0)
     x = opts.x0(:);
 else
     % sensible cold start: iL at the load current, vC at the reference,
-    % integrator at zero (correct for ff=1: iLref = xI + iLoad), duty at D0
-    x = [p.Vref/p.R; p.Vref; 0; repmat(p.Vref/p.Vin, nDly, 1); 0; zeros(nd,1)];
+    % integrator at zero (correct for ff=1: iLref = xI + iLoad), duty at D0,
+    % held integrator slope at zero
+    x = zeros(n,1);
+    x(L.iIL) = p.Vref/p.R; x(L.iVC) = p.Vref; x(L.iXI) = 0;
+    if nDly >= 1, x(L.idx) = p.Vref/p.Vin; end
+    x(L.iYS) = p.Vref/p.R;
+    if nd > 0, x(L.iM) = p.Vref/p.R; end
+    if L.hasDxI, x(L.iDxI) = 0; end
 end
 if numel(x) ~= n
     error('sw_floquet:badX0','x0 has %d entries, expected %d', numel(x), n);
@@ -110,7 +119,7 @@ end
 res = struct('xstar', x, 'lambda', lam, 'maxAbs', max(abs(lam)), ...
     'margin', 1 - max(abs(lam)), 'iter', it, 'converged', converged, ...
     'J', J, 'lamEmp', lamEmp, 'env', env, 'nStates', n, ...
-    'nDly', nDly, 'nd', nd);
+    'nDly', nDly, 'nd', nd, 'phi', L.phi, 'effDelayPeriods', L.effDelayPeriods);
 
 if opts.verbose
     fprintf('  fixed point after %d periods (d=%.2e), states=%d\n', it, hist(it), n);

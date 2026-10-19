@@ -24,12 +24,23 @@ function r = sw_dual_sim(p, o)
 %     noise with a seed, ADC quantization, and a physical-range clamp
 %   - recording of instantaneous peak / cycle-average current, which is needed to
 %     separate "sampled value" from "average" from "peak" (Task 2 requirement)
-% It is NOT autonomous, so it cannot be used for the Floquet analysis; that is
+%   - sampling phase (sampPhase) and ADC phase JITTER (o.phaseJitter). Jitter is
+%     deliberately here and not in the map: a jittered sample makes the system
+%     non-periodic, so Floquet multipliers are NOT defined for it and the map
+%     must not be used to produce a number that looks like one.
+%   It is NOT autonomous, so it cannot be used for the Floquet analysis; that is
 % what sw_period_map.m is for. The two share the same parameter struct (dual_params).
+%
+% SAMPLING (Phase 3A.6 Task 4)
+%   phi = 0     control evaluated at the period boundary (baseline)
+%   phi > 0     control evaluated at phi*Ts inside the period; the computed duty
+%               is latched at the period end and applied at the next boundary,
+%               i.e. the effective delay is (1-phi)*Ts. Same convention as
+%               sw_period_map.m, verified cell by cell in buck_a6_task4_phase.m.
 %
 % o (options): ratio [1], tStep [0.06], tEnd [0.08], Tss [5e-3], nSub [p.Nsub],
 %              Vref0 [0] (initial reference, 0 for soft start), recDecim [5],
-%              seed [], noise [false]
+%              seed [], noise [false], phaseJitter [0] (fraction of Ts, uniform)
 
 if nargin < 2, o = struct(); end
 if ~isfield(o,'ratio'),    o.ratio = 1; end
@@ -41,10 +52,20 @@ if ~isfield(o,'Vref0'),    o.Vref0 = 0; end
 if ~isfield(o,'recDecim'), o.recDecim = 5; end
 if ~isfield(o,'noise'),    o.noise = false; end
 if ~isfield(o,'seed'),     o.seed = 0; end
+if ~isfield(o,'phaseJitter'), o.phaseJitter = 0; end
 
 Ts = 1/p.fs;
+phi = 0; if isfield(p,'sampPhase'), phi = p.sampPhase; end
+if phi < 0 || phi >= 1
+    error('sw_dual_sim:phase','sampPhase must be in [0,1); got %g', phi);
+end
 R = p.R; Vref = p.Vref; L = p.L; C = p.C; ESR = p.ESR;
 nDly = p.nDly; nd = p.sens.nd;
+if phi > 0 && nDly < 1
+    error('sw_dual_sim:delay', ...
+        ['sampPhase=%g with nDly=0 is not realisable: a sample inside the ' ...
+         'period can only change the duty at the next period boundary'], phi);
+end
 h = Ts/o.nSub;
 
 % ---- propagation caches (rebuilt once at the load step) ----
@@ -63,8 +84,8 @@ cOff = make_cache(p, R, false);
 iL = Vref/R; vC = Vref; xI = 0; dHist = repmat(Vref/p.Vin, nDly, 1);
 yS = Vref/R; mbuf = repmat(Vref/R, nd, 1);
 
-if o.noise
-    rng(o.seed);                        % reproducible noise
+if o.noise || o.phaseJitter > 0
+    rng(o.seed);                        % reproducible noise / jitter
 else
     rng(0);
 end
@@ -80,6 +101,14 @@ n = 0;
 
 Rcur = R;
 stepDone = false;
+ctlState = struct('yS',yS,'mbuf',mbuf);
+dxI = 0;
+% Logged controller signals. They are initialised so that the substeps BEFORE the
+% sampling instant can be logged even when sampPhase > 0 (with boundary sampling
+% the sample happens first and this is overwritten immediately). Leaving them
+% undefined is not a cosmetic issue: the log line runs on the first substep of
+% every period and crashed for every phi > 0.
+iLsmp = iL; iMeasNow = Vref/R; iLrefNow = Vref/R;
 
 for k = 1:nPer
     t = (k-1)*Ts;
@@ -97,62 +126,56 @@ for k = 1:nPer
     else
         vref = Vref;
     end
-    % ---- measurement at the period boundary ----
-    [vOut, iLoad] = po(iL, vC, Rcur, ESR);
-    if p.sens.enable && isfinite(p.sens.fBW) && p.sens.fBW > 0
-        aF = exp(-2*pi*p.sens.fBW*Ts);
-        yS = aF*yS + (1-aF)*iLoad;
-    else
-        yS = iLoad;
-    end
-    if nd > 0
-        mbuf = [yS; mbuf(1:end-1)];
-        raw = mbuf(end);
-    else
-        raw = yS;
-    end
-    if p.sens.enable
-        iMeas = p.sens.gain*raw + p.sens.offset;
-        if o.noise && p.sens.sigma > 0, iMeas = iMeas + p.sens.sigma*randn; end
-        if p.sens.lsb > 0, iMeas = p.sens.lsb*round(iMeas/p.sens.lsb); end
-        iMeas = min(max(iMeas, 0), p.sens.iMaxPhys);
-    else
-        iMeas = iLoad;
-    end
-    % ---- control ----
-    if p.rippleComp
-        comp = (p.Vin - Vref)*(Vref/p.Vin)*Ts/(2*L);
-    else
-        comp = 0;
-    end
-    iSig = iL + comp;
-    e = min(max(vref - vOut, -p.Eclamp), p.Eclamp);
-    iLrefRaw = p.Kpe*e + xI;
-    if p.ff, iLrefRaw = iLrefRaw + iMeas; end
-    iLrefLim = min(max(iLrefRaw, p.Imin), p.Imax);
-    dRaw = Vref/p.Vin + p.Kci*(iLrefLim - iSig)/p.Vin;
-    dSat = min(max(dRaw, p.Dmin), p.Dmax);
-    aw = (1/p.Tt)*( (p.Vin/p.Kci)*(dSat - dRaw) + (iLrefLim - iLrefRaw) );
-    dxI = p.Kie*e + aw;
 
-    % ---- applied duty (delayed) ----
-    if nDly >= 1, dApply = dHist(1); else, dApply = dSat; end
+    % ---- sampling instant for this period ----
+    if o.phaseJitter > 0
+        phiK = phi + o.phaseJitter*(2*rand-1);
+        phiK = min(max(phiK, 0), 0.98);
+    else
+        phiK = phi;
+    end
+    tS = phiK*Ts;
 
-    % ---- propagate the period EXACTLY at the switch instant ----
-    % Step plan: full substeps (cached matrices) plus one partial step at the end
-    % of each switch state (exact, via the eigendecomposition). The partial step is
-    % what removes the 1/nSub duty quantisation and its dithering artefact.
-    z = [iL; vC];
+    % ---- applied duty (latched at the previous boundary) ----
+    if nDly >= 1, dApply = dHist(1); else, dApply = NaN; end
+
+    sampled = false;
+    if tS <= 1e-15
+        [dSat, dxI, w] = ctl(iL, vC, xI, vref, Rcur, p, phiK, ctlState, o.noise);
+        ctlState = w;
+        iLsmp = iL; iMeasNow = w.iMeas; iLrefNow = w.iLrefLim;
+        sampled = true;
+        if nDly == 0, dApply = dSat; end
+    end
+
+    % ---- step plan: honour the switch instant AND the sample instant ----
+    % Baseline (phi = 0): identical plan to the pre-Task-4 code (full substeps
+    % plus one partial step at the end of each switch state), so the frozen
+    % results are reproduced bit for bit. For phi > 0 the substep containing the
+    % sample is split in two, because the controller must see the state at
+    % exactly tS and the integrator slope changes there.
     ton = dApply*Ts;  toff = Ts - ton;
     nFullOn  = floor(ton/h + 1e-12);   remOn  = ton  - nFullOn*h;
     nFullOff = floor(toff/h + 1e-12);  remOff = toff - nFullOff*h;
     durs  = [repmat(h,1,nFullOn),  remOn,  repmat(h,1,nFullOff), remOff];
     kinds = [ones(1,nFullOn),      1,      zeros(1,nFullOff),    0];
+    if ~sampled && tS < Ts - 1e-15
+        cum = [0, cumsum(durs)];
+        qs = find(cum < tS - 1e-18, 1, 'last');
+        if isempty(qs), qs = 1; end
+        if qs <= numel(durs)
+            a1 = tS - cum(qs);
+            if a1 > 1e-15 && a1 < durs(qs) - 1e-15
+                durs  = [durs(1:qs-1), a1, durs(qs)-a1, durs(qs+1:end)];
+                kinds = [kinds(1:qs-1), kinds(qs), kinds(qs), kinds(qs+1:end)];
+            end
+        end
+    end
 
-    % z(1) at the period boundary is what the ADC sees; the cycle average and the
-    % instantaneous peak are different quantities at 62 % ripple and are recorded
-    % separately so they can never be confused downstream.
-    iLsmp = z(1);
+    % z(1) at the period boundary is what the ADC sees at phi = 0; the cycle
+    % average and the instantaneous peak are different quantities at 62 % ripple
+    % and are recorded separately so they can never be confused downstream.
+    z = [iL; vC];
     ipk = z(1); ivl = z(1); iavg = 0; nsub = 0; tcur = 0;
     for q = 1:numel(durs)
         dtq = durs(q);
@@ -175,11 +198,18 @@ for k = 1:nPer
         % right-endpoint sum over a sawtooth is biased because the switch instant
         % adds a partial step every period (measured bias 0.37 % on iL).
         iavg = iavg + 0.5*(iLprev + z(1))*dtq;
+        % ---- sample instant reached: run the controller HERE, on the state at tS
+        if ~sampled && tcur >= tS - 1e-15
+            [dSat, dxI, w] = ctl(z(1), z(2), xI, vref, Rcur, p, phiK, ctlState, o.noise);
+            ctlState = w;
+            iLsmp = z(1); iMeasNow = w.iMeas; iLrefNow = w.iLrefLim;
+            sampled = true;
+        end
         if mod(nsub-1, dec) == 0
             [vo, ~] = po(z(1), z(2), Rcur, ESR);
             n = n + 1;
             rt(n) = t + tcur; rvO(n) = vo; riL(n) = z(1);
-            rd(n) = dApply; rIr(n) = iLrefLim; rIm(n) = iMeas;
+            rd(n) = dApply; rIr(n) = iLrefNow; rIm(n) = iMeasNow;
         end
     end
     iL = z(1); vC = z(2);
@@ -196,6 +226,57 @@ r.duty = rd(1:n); r.iLref = rIr(1:n); r.iMeas = rIm(1:n);
 r.tPer = (0:nPer-1).'*Ts;
 r.iLpeak = rILpk; r.iLavg = rILav; r.iLvalley = rILvl; r.iLsampled = rILsmp;
 r.cfg = p; r.opt = o; r.Rpost = R/1; if o.ratio ~= 1, r.Rpost = R/o.ratio; end
+end
+
+% ---------------------------------------------------------------------------
+function [dSat, dxI, w] = ctl(iL, vC, xI, vref, Rcur, p, phi, st, noiseOn)
+%CTL  One control update at the sampling instant (identical law to the map).
+% Rcur, not p.R: after the load step the measured load current must come from the
+% NEW resistance. Using p.R here halves the feedforward after the step and the
+% symptom is a dip of -6.7 % instead of -2.2 % and S5 of 1.12 ms instead of
+% 0.18 ms -- i.e. the baseline silently fails S5. (Found exactly that way.)
+% noiseOn: the sensor noise term lives here, so it MUST be passed in. When this
+% function was first factored out of the loop the flag was not, the noise
+% silently disappeared, and five different seeds produced bit-identical results.
+% The seed sweep is what made that visible; a single run would have looked fine.
+[vOut, iLoad] = po(iL, vC, Rcur, p.ESR);
+
+if p.sens.enable && isfinite(p.sens.fBW) && p.sens.fBW > 0
+    aF = exp(-2*pi*p.sens.fBW*(1/p.fs));
+    yS = aF*st.yS + (1-aF)*iLoad;
+else
+    yS = iLoad;
+end
+nd = p.sens.nd;
+if nd > 0
+    mbuf = [yS; st.mbuf(1:end-1)];
+    raw = mbuf(end);
+else
+    mbuf = st.mbuf;
+    raw = yS;
+end
+if p.sens.enable
+    iMeas = p.sens.gain*raw + p.sens.offset;
+    if noiseOn && p.sens.sigma > 0, iMeas = iMeas + p.sens.sigma*randn; end
+    if p.sens.lsb > 0, iMeas = p.sens.lsb*round(iMeas/p.sens.lsb); end
+    iMeas = min(max(iMeas, 0), p.sens.iMaxPhys);
+else
+    iMeas = iLoad;
+end
+
+comp = ripple_comp(p, phi);
+iSig = iL + comp;
+e = min(max(vref - vOut, -p.Eclamp), p.Eclamp);
+iLrefRaw = p.Kpe*e + xI;
+if p.ff, iLrefRaw = iLrefRaw + iMeas; end
+iLrefLim = min(max(iLrefRaw, p.Imin), p.Imax);
+dRaw = p.Vref/p.Vin + p.Kci*(iLrefLim - iSig)/p.Vin;
+dSat = min(max(dRaw, p.Dmin), p.Dmax);
+aw = (1/p.Tt)*( (p.Vin/p.Kci)*(dSat - dRaw) + (iLrefLim - iLrefRaw) );
+dxI = p.Kie*e + aw;
+
+w = struct('yS',yS,'mbuf',mbuf,'iMeas',iMeas,'iLrefLim',iLrefLim, ...
+    'iSig',iSig,'e',e,'comp',comp,'dRaw',dRaw,'dSat',dSat,'vOut',vOut);
 end
 
 % ---------------------------------------------------------------------------
