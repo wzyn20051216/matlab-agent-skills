@@ -59,12 +59,25 @@ if ~isfield(cfg,'delaySamples'), cfg.delaySamples = 1; end
 if ~isfield(cfg,'nSub'),  cfg.nSub = 8; end
 if ~isfield(cfg,'Tt'),    cfg.Tt = 1e-3; end
 if ~isfield(cfg,'ff'),    cfg.ff = 0; end
+if ~isfield(cfg,'supEnable'), cfg.supEnable = true; end
+if ~isfield(cfg,'tFFoff'), cfg.tFFoff = []; end
+if ~isfield(cfg,'tFFon'),  cfg.tFFon  = []; end
 
 Ts = 1/cfg.fs;
 R1 = cfg.R/cfg.ratio;
 dSS = cfg.Vref/cfg.Vin;                       % steady-state duty (pre-step)
 iL0 = cfg.Vref/cfg.R;
-xe0 = iL0/cfg.Kie;                            % from iLref = Kie*xe at e=0
+% Pre-step integrator state.
+%   ff=0 : iLref_ss = Kie*xe = iL0            -> xe0 = iL0/Kie
+%   ff=1 : iLref_ss = Kie*xe + iLoad = iL0    -> xe0 = 0   (iLoad == iL0 here)
+% Using iL0/Kie unconditionally for ff=1 DOUBLE COUNTS the load current: the
+% model then commands iLref = 2*iL0 at t=0 and produces a ~0.93 V spurious
+% transient from a state that is not actually steady (Phase 3A.5 defect A1).
+if cfg.ff
+    xe0 = 0;
+else
+    xe0 = iL0/cfg.Kie;
+end
 if isfield(cfg,'x0') && ~isempty(cfg.x0)
     x = cfg.x0(:);
 else
@@ -91,6 +104,32 @@ t = 0; k = 0; fi = 1;
 tOut(1) = 0; yOut(1,:) = x.'; dOut(1) = dSS; iRefOut(1) = iL0;
 tfOut(1) = 0; vcfOut(1) = x(2); ilfOut(1) = x(1);
 
+% ---------- load-current sensor model + feedforward supervisor ----------
+% DUAL-B needs a MEASURED load current. This block models everything between
+% the physical current and the number the controller sees:
+%   analog bandwidth pole -> transport delay -> gain error -> offset ->
+%   Gaussian noise -> ADC quantization -> injected faults
+% Every one of these is an ENGINEERING ASSUMPTION chosen for this study; none of
+% them comes from a real sensor datasheet (see the report, Task 2).
+if ~isfield(cfg,'sens') || isempty(cfg.sens), cfg.sens = struct(); end
+sd = struct('enable',false,'fBW',inf,'delayS',0,'gain',1,'offset',0, ...
+            'sigma',0,'lsb',0,'seed',7,'stuckAt',[],'oorAt',[],'tol',3.0, ...
+            'iMaxPhys',1.25*cfg.Vref/1.5);
+sf = fieldnames(cfg.sens);
+for q = 1:numel(sf), sd.(sf{q}) = cfg.sens.(sf{q}); end
+cfg.sens = sd;
+sensY = 0;                                     % analog filter state
+sensBuf = zeros(max(sd.delayS,0)+1,1);         % transport delay line
+sensStuck = false; sensStuckVal = 0;
+rng(sd.seed);                                  % deterministic noise -> S9
+ffOn = logical(cfg.ff);                        % supervisor output
+vCprev = x(2);
+faultCnt = 0; healthyCnt = 1e6;
+measHist = zeros(8,1); histIdx = 1;
+nTrip = 0; nRecover = 0; iFF = 0;
+iMeasLog = zeros(nTotal+1,1); ffLog = false(nTotal+1,1); faultLog = false(nTotal+1,1);
+iMeasLog(1) = x(2)/cfg.R; ffLog(1) = ffOn;
+
 awTerm = 0;                                    % held over the period
 while k < nTotal
     % ---------- control instant ----------
@@ -114,12 +153,83 @@ while k < nTotal
     if isfield(cfg,'Eclamp') && ~isempty(cfg.Eclamp) && isfinite(cfg.Eclamp)
         e = min(max(e, -cfg.Eclamp), cfg.Eclamp);
     end
-    iRefRaw = cfg.Kpe*e + cfg.Kie*x(3);
-    if cfg.ff
-        % measured load current. In the model iLoad = vC/R exactly; the
-        % implementation must MEASURE it (see the report's cost table).
-        iRefRaw = iRefRaw + x(2)/Rnow;
+    % ---------- load-current measurement ----------
+    iLoadTrue = x(2)/Rnow;
+    if sd.enable
+        if isfinite(sd.fBW) && sd.fBW > 0
+            aF = exp(-2*pi*sd.fBW*Ts);
+            sensY = aF*sensY + (1-aF)*iLoadTrue;   % analog bandwidth pole
+        else
+            sensY = iLoadTrue;
+        end
+        sensBuf = [sensY; sensBuf(1:end-1)];       % transport delay
+        iMeas = sensBuf(end);
+        iMeas = sd.gain*iMeas + sd.offset;         % gain error / zero offset
+        if sd.sigma > 0, iMeas = iMeas + sd.sigma*randn; end
+        if sd.lsb > 0, iMeas = sd.lsb*round(iMeas/sd.lsb); end
+        if ~isempty(sd.stuckAt) && t >= sd.stuckAt
+            if ~sensStuck, sensStuck = true; sensStuckVal = iMeas; end
+            iMeas = sensStuckVal;                  % frozen reading
+        end
+        if ~isempty(sd.oorAt) && t >= sd.oorAt, iMeas = 1.6*cfg.Imax; end
+    else
+        iMeas = iLoadTrue;
     end
+    % Physically plausible range. The load current cannot exceed Vref/Rmin
+    % (Rmin = 1.5 ohm -> 8 A), so anything outside [0, 1.25*8] is a hardware
+    % reading error. Clamping here means a railed sensor can never inject its
+    % full value into the current command, even before the supervisor reacts.
+    hardBad = (iMeas < -0.5) || (iMeas > 1.2*sd.iMaxPhys);
+    iMeas = min(max(iMeas, 0), sd.iMaxPhys);
+
+    % ---------- plausibility check (analytical redundancy) ----------
+    % The controller already has iL and vC, so iLoad is reconstructable:
+    %   iLoad = iL - C*dvC/dt
+    % Comparing the sensor against that estimate catches gross faults (frozen,
+    % open, railed) with no extra hardware. The derivative is noisy so the
+    % tolerance is generous, and three consecutive bad samples are required.
+    dvCdt = (x(2) - vCprev)/Ts;
+    iLoadEst = x(1) - cfg.C*dvCdt;
+    measHist(histIdx) = iMeas; histIdx = mod(histIdx,8)+1;
+    frozen = (max(measHist)-min(measHist) < 1e-9) && (abs(dvCdt) > 50);
+    bad = hardBad || frozen || (abs(iMeas - iLoadEst) > sd.tol);
+    if bad
+        faultCnt = faultCnt + 1; healthyCnt = 0;
+    else
+        faultCnt = 0; healthyCnt = healthyCnt + 1;
+    end
+    % A RANGE violation is unambiguous, so it trips on the FIRST sample -- with
+    % a railed sensor every sample of delay is 1.6 A of wrong current command.
+    % The plausibility / frozen tests are noise-prone, so they need 3 samples.
+    if ~cfg.supEnable
+        ffCmd = logical(cfg.ff);
+    elseif hardBad || faultCnt >= 3
+        ffCmd = false;
+    elseif healthyCnt >= 20
+        ffCmd = logical(cfg.ff);
+    else
+        ffCmd = ffOn;
+    end
+    if ~isempty(cfg.tFFoff) && t >= cfg.tFFoff, ffCmd = false; end
+    if ~isempty(cfg.tFFon)  && t >= cfg.tFFon,  ffCmd = true;  end
+
+    % ---------- bumpless transfer ----------
+    % iLref = Ki_e*xe + ff*iLoad. Toggling ff changes the command by the whole
+    % load current unless the integrator absorbs it, which would put a step on
+    % the inner loop. Shifting xe by -+iLoad/Ki_e keeps iLref continuous.
+    % On a TRIP the value to remove is the one that was actually in the last
+    % command (iFF), not the current -- possibly railed -- reading. Using the
+    % broken reading here would push the integrator by its full value.
+    if ffCmd && ~ffOn
+        x(3) = x(3) - iMeas/cfg.Kie; nRecover = nRecover + 1;
+    elseif ~ffCmd && ffOn
+        x(3) = x(3) + iFF/cfg.Kie;   nTrip = nTrip + 1;
+    end
+    ffOn = ffCmd;
+    vCprev = x(2);
+
+    iRefRaw = cfg.Kpe*e + cfg.Kie*x(3);
+    if ffOn, iRefRaw = iRefRaw + iMeas; iFF = iMeas; else, iFF = 0; end
     iRef = min(max(iRefRaw, cfg.Imin), cfg.Imax);
     dRaw = cfg.Vref/cfg.Vin + cfg.Kci*(iRef - x(1))/cfg.Vin;
     dSat = min(max(dRaw, cfg.Dmin), cfg.Dmax);
@@ -151,6 +261,7 @@ while k < nTotal
     end
     t = t + Ts; k = k + 1;
     tOut(k+1) = t; yOut(k+1,:) = x.'; dOut(k+1) = dApply; iRefOut(k+1) = iRef;
+    iMeasLog(k+1) = iMeas; ffLog(k+1) = ffOn; faultLog(k+1) = bad;
 end
 
 r = struct();
@@ -160,6 +271,13 @@ r.tf = tfOut; r.vCf = vcfOut; r.iLf = ilfOut;
 r.dMin = min(dOut); r.dMax = max(dOut);
 r.iLMax = max(ilfOut); r.iLRefMax = max(iRefOut);
 r.ratio = cfg.ratio; r.R1 = R1; r.cfg = cfg;
+% sensor / supervisor observability
+r.iLoadMeas = iMeasLog; r.ffOn = ffLog; r.faultFlag = faultLog;
+r.nTrip = nTrip; r.nRecover = nRecover;
+Rpost = R1;
+r.iLoadTrue = yOut(:,2)/Rpost;
+pre = r.t < cfg.tStep;
+r.iLoadTrue(pre) = yOut(pre,2)/cfg.R;
 end
 
 % ------------------------------------------------------------------

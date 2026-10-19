@@ -87,15 +87,20 @@ add_block('simulink/Math Operations/Sum',[mdl '/Int_in'],'Inputs','++');
 add_block('simulink/Continuous/Integrator',[mdl '/Int_xI'],'InitialCondition','0');
 add_block('simulink/Math Operations/Sum',[mdl '/iLref_sum'],'Inputs','++');
 
-% ---- current-reference clamp ----
-add_block('simulink/Discontinuities/Saturation',[mdl '/iLref_lim'], ...
-    'LowerLimit',num2str(d.Imin),'UpperLimit',num2str(d.Imax));
-add_block('simulink/Math Operations/Sum',[mdl '/iL_satdiff'],'Inputs','+-');
-
 % ---- load-current feedforward (optional) ----
+% ORDER MATTERS (Phase 3A.5 defect A2). The current limit must be applied to
+% the TOTAL inductor-current command, i.e. AFTER the feedforward has been
+% added. The 3A.4 model clamped Kp_e*e + Ki_e*xe and then added iLoad, so a
+% saturated command still grew by the whole load current and the limit could be
+% exceeded by up to iLoad (measured 8.42 A against an Imax of 6 A).
 if d.ff
     add_block('simulink/Math Operations/Sum',[mdl '/iLref_ff'],'Inputs','++');
 end
+
+% ---- current-reference clamp (on the TOTAL command) ----
+add_block('simulink/Discontinuities/Saturation',[mdl '/iLref_lim'], ...
+    'LowerLimit',num2str(d.Imin),'UpperLimit',num2str(d.Imax));
+add_block('simulink/Math Operations/Sum',[mdl '/iL_satdiff'],'Inputs','+-');
 
 % ---- inner current loop ----
 add_block('simulink/Math Operations/Sum',[mdl '/iL_err'],'Inputs','+-');
@@ -155,8 +160,6 @@ add_line(mdl,'Kie/1','Int_in/1');
 add_line(mdl,'AntiGain/1','Int_in/2');
 add_line(mdl,'Int_in/1','Int_xI/1');
 
-add_line(mdl,'iLref_sum/1','iLref_lim/1');
-add_line(mdl,'iLref_sum/1','iL_satdiff/2');       % - iLrefRaw
 add_line(mdl,'iLref_lim/1','iL_satdiff/1');       % + iLrefLim
 
 % NOTE: iL_err must take the CLAMPED reference (iLref_lim), not iL_satdiff.
@@ -164,10 +167,15 @@ add_line(mdl,'iLref_lim/1','iL_satdiff/1');       % + iLrefLim
 % by the anti-windup path. Wiring iL_err to it makes the inner loop see a zero
 % current error in normal operation (bug hit and fixed in this file).
 if d.ff
-    add_line(mdl,'iLref_lim/1','iLref_ff/1');
+    % iLref_raw(total) = Kp_e*e + xI + iLoad  -> clamp -> iL_err
+    add_line(mdl,'iLref_sum/1','iLref_ff/1');
     add_line(mdl,'Load/1','iLref_ff/2');          % + iLoad (measured)
-    add_line(mdl,'iLref_ff/1','iL_err/1');
+    add_line(mdl,'iLref_ff/1','iLref_lim/1');
+    add_line(mdl,'iLref_ff/1','iL_satdiff/2');    % - total raw
+    add_line(mdl,'iLref_lim/1','iL_err/1');
 else
+    add_line(mdl,'iLref_sum/1','iLref_lim/1');
+    add_line(mdl,'iLref_sum/1','iL_satdiff/2');
     add_line(mdl,'iLref_lim/1','iL_err/1');
 end
 add_line(mdl,'Demux/2','iL_err/2');
@@ -192,11 +200,7 @@ add_line(mdl,'Plant/1','Demux/1');
 add_line(mdl,'Demux/1','vC_sink/1');
 add_line(mdl,'Demux/2','iL_sink/1');
 add_line(mdl,'Duty_limit/1','duty_sink/1');
-if d.ff
-    add_line(mdl,'iLref_ff/1','iLref_sink/1');
-else
-    add_line(mdl,'iLref_lim/1','iLref_sink/1');
-end
+add_line(mdl,'iLref_lim/1','iLref_sink/1');
 add_line(mdl,'Error/1','err_sink/1');
 
 set_param(mdl,'StopTime',num2str(d.tStop),'Solver','ode45','MaxStep',num2str(d.maxStep));
