@@ -14,15 +14,22 @@ Buck 冻结标签 `buck-v1-sim-baseline` 未触碰。
 ```
 routing           9 /   9      signal / vision / AI  34 /  34
 precheck         16 /  16      robotics              31 /  31
-depProbe         17 /  17      codegen               11 /  11
+depProbe         23 /  23      codegen               11 /  11
 grading           6 /   6      ------------------------------------------
-refcheck         11 /  11      skill tests          177 / 177
+refcheck         11 /  11      skill tests          184 / 184
 bench              9 /   9      references            15 /  15
-modelCheck        2 /   2      cross-domain          15 /  15
-ctrlAnalyze      14 /  14        dev 12/12  held-out 3/3
-tableAudit       11 /  11      pipeline              15 /  15  (skillMatch 15/15)
-                 166 → 177
+capability         7 /   7      cross-domain          15 /  15
+modelCheck        2 /   2        dev 12/12  held-out 3/3
+ctrlAnalyze      14 /  14      pipeline              15 /  15  (skillMatch 15/15)
+tableAudit       11 /  11
+                 177 → 184
 ```
+
+套件健康度：`suitesErrored = 0` / `suitesRun = 13` / `allSuitesOk = 1`。
+崩溃的套件会被显式计数并打印 `!!!! N SUITE(S) ERRORED`，不会再消失在总分里（见 §9.5）。
+
+能力矩阵：**29 个工具、47 项能力**（31 VERIFIED / 13 NOT TESTED / 2 PARTIAL /
+1 UNSUPPORTED），`mas_capability_check` 4/4 CONSISTENT（见 §10）。
 
 Benchmark 台账：**R1 DONE / R2 SKIP / R3 SKIP → overall PARTIAL**（见 §9）。
 
@@ -538,8 +545,60 @@ res = struct('nPass', ..., 'cases', {T.name});   % 花括号多包了一层
 与其它标量字段冲突。麻烦之处在于它**不是稳定报错**——单独调用能过、在
 `run_all` 里失败，读起来像"偶发/ flaky"。改为逐字段赋值后彻底稳定。
 
-三条连起来是一个完整的失效链：**崩溃被吞 → 报错误的代码也崩 → 真正的错误是
-一个只在特定上下文出现的构造问题**。如果第二步没修，永远看不到第三条。
+## 10. Task 8：能力矩阵与防腐校验
+
+### 10.1 矩阵本身已经烂了
+
+Phase 4 建立的能力矩阵，到 Task 8 开始时**已经与代码不符**：
+
+| 项 | 矩阵声称 | 实际 |
+|---|---|---|
+| 工具数 | 14 | 磁盘上 29 |
+| matlab-codegen-deploy 三项能力 | 全部 NOT TESTED | 已实现并有 11 例测试 |
+| signal / robotics / data 的 Task 3/4 成果 | 未记录 | 34 / 31 / 11 例测试已通过 |
+
+没有任何机制会报告这件事。JSON 文件不会自己变响——它只是变成一个**看起来可信的谎言**，
+而能力矩阵正是人们据以分配工作的东西，所以它撒谎比没有更糟。
+
+### 10.2 `mas_capability_check`：把声明拿去和文件系统对质
+
+四组检查，全部双向：
+
+```
+tools        磁盘上每个 mas_*.m 必须在矩阵里；矩阵里每项必须在磁盘上
+skillOwners  工具必须归属它实际所在的 skill
+summary      统计数字必须等于条目实际数（手打的总数正是会失效的那种数字）
+evidence     每条 VERIFIED 必须引用存在的测试文件，或可复跑的评测任务 ID
+```
+
+现状：**29 个工具 / 47 项能力（31 VERIFIED、13 NOT TESTED、2 PARTIAL、1 UNSUPPORTED）**，
+统计由条目算出而非手填。
+
+### 10.3 校验器自己踩的五个坑（比它查出来的问题更值得记）
+
+写这个校验器时我错了五次，其中三次是同一类：
+
+| # | 错误 | 症状 | 根因 |
+|---|---|---|---|
+| C1 | `dir('skills/*/scripts')` 返回的是**目录内容**不是目录 | 报"116 个工具"，每个 owner 是 `.` | 通配符展开后 `name` 是文件名 |
+| C2 | `numel(Nx2 cell)` 返回 `2N` 不是 `N` | 29 个工具报成 58 | 用了 `numel` 而非 `size(·,1)` |
+| C3 | JSON 键不能含空格，`jsonencode` 会**静默删掉** | summary 键 `NOTTESTED` 与条目 `NOT TESTED` 对不上 | 同义不同形，看起来像计数错误 |
+| C4 | 双键镜像时**两个键各累加一次** | 31 项变成 62 | 镜像应该是赋值而非自增 |
+| C5 | 测试里局部函数引用父函数变量 | 9/9 全挂，报"输入参数过多" | MATLAB 需 `nested` |
+
+C2 最阴险：`58` 里唯一"缺失"的名字恰好是真缺的那个，所以第一眼看着像个小差异，
+不像 bug。**一个错误的计数只会让正确的检查看起来有问题。**
+
+### 10.4 测试必须有负对照
+
+7 例测试里 5 例是负对照：把真实矩阵复制到临时目录，分别破坏五种方式
+（删工具、加幽灵工具、改错归属、篡改统计、抹掉证据），断言对应的检查**确实报错**。
+
+一个只见过一致仓库的校验器，等于没有校验器；一个会误报的校验器更糟，
+因为人会开始忽略它——而矩阵正是他们据以工作的依据。
+
+真实仓库当前状态：`CONSISTENT`（4/4 检查通过，29 工具全部登记、归属正确、
+统计一致、31 条 VERIFIED 声明全部可复跑）。
 
 ---
 
