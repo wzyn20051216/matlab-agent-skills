@@ -1,29 +1,33 @@
-function res = run_crossdomain(outDir)
-%RUN_CROSSDOMAIN  Phase 4 Task 6: the same agent, eight different domains.
+function res = run_crossdomain(outDir, taskIds)
+%RUN_CROSSDOMAIN  The same harness, many domains, graded by an independent verifier.
 %
 %   res = run_crossdomain(outDir)
+%   res = run_crossdomain(outDir, {'D3','C1'})
 %
-% WHY THESE TASKS
-% Each one has an answer that exists BEFORE any code is written: an exact
-% integral, a closed-form kinematics solution, an analytic Butterworth response,
-% a rectangle whose area is known by construction, a first-order step response.
-% The task is graded against that reference, never against its own output. A task
-% that only checks "the script ran" would pass a wrong answer, which is the exact
-% failure mode Phase 3A/3B kept producing.
+% WHAT CHANGED FROM PHASE 4
+% Phase 4 let each task compute its own `status`. When D3's reference was wrong, the
+% task compared the filter against that wrong reference and reported PASS -- the
+% verdict was self-consistent and meaningless. Now:
 %
-% A task whose toolbox is not licensed is reported as SKIP with the missing
-% product; it is never reported as a pass and never silently dropped.
+%   task          -> returns NUMBERS only (values struct)
+%   mas_verify_task -> grades those numbers against evals/references/*.json
 %
-% OUTPUT per task:
-%   id, domain, status (PASS/FAIL/SKIP), elapsedS, values, reference, errors,
-%   errorClass, detail
+% The task's own `status` is still recorded, as `selfVerdict`, purely so a
+% disagreement can be reported. A disagreement is a finding, not a nuisance: it
+% means either the task's internal check or the frozen reference is wrong, and both
+% are worth knowing about.
+%
+% A missing product is SKIP with the reason from mas_dep_probe, never a pass.
 
 if nargin < 1 || isempty(outDir), outDir = getenv('MAS_OUT'); end
-if isempty(outDir), outDir = fullfile(pwd,'artifacts','validation','phase4'); end
-outDir = strrep(outDir,'/',filesep);
+if isempty(outDir), outDir = fullfile(pwd, 'artifacts', 'validation', 'phase4'); end
+outDir = strrep(outDir, '/', filesep);
 here = fileparts(mfilename('fullpath'));
-addpath(here); addpath(fullfile(here,'tasks'));
-if ~exist(outDir,'dir'), mkdir(outDir); end
+repo = fileparts(fileparts(fileparts(here)));
+addpath(here); addpath(fullfile(here, 'tasks'));
+addpath(fullfile(repo, 'skills', 'matlab-runner', 'scripts'));
+addpath(fullfile(repo, 'skills', 'matlab-testing-ci', 'scripts'));
+if ~exist(outDir, 'dir'), mkdir(outDir); end
 
 T = { ...
   struct('id','D1','domain','scientific computing','fn','cd_d1_linalg',    'need',{{}}); ...
@@ -33,97 +37,106 @@ T = { ...
   struct('id','D5','domain','control',             'fn','cd_d5_statespace','need',{{'Control System Toolbox'}}); ...
   struct('id','D6','domain','Simulink',            'fn','cd_d6_simulink',  'need',{{'Simulink'}}); ...
   struct('id','D7','domain','power electronics',   'fn','cd_d7_boost',     'need',{{}}); ...
-  struct('id','D8','domain','robotics',            'fn','cd_d8_kinematics','need',{{}}) };
+  struct('id','D8','domain','robotics',            'fn','cd_d8_kinematics','need',{{}}); ...
+  struct('id','C1','domain','control (stable)',    'fn','cd_c1_stable',    'need',{{'Control System Toolbox'}}); ...
+  struct('id','C2','domain','control (unstable)',  'fn','cd_c2_unstable',  'need',{{'Control System Toolbox'}}); ...
+  struct('id','C3','domain','control (multi-cross)','fn','cd_c3_multicross','need',{{'Control System Toolbox'}}); ...
+  struct('id','T1','domain','data cleaning',       'fn','cd_t1_clean',     'need',{{'Statistics and Machine Learning Toolbox'}}) };
 
-fprintf('===== Phase 4 Task 6: cross-domain tasks =====\n');
-fprintf('%-4s %-22s %-8s %8s  %s\n','id','domain','status','time','detail');
-R = struct('id',{},'domain',{},'status',{},'elapsedS',{},'values',{}, ...
-    'reference',{},'errorClass',{},'detail',{},'need',{});
+if nargin >= 2 && ~isempty(taskIds)
+    keep = false(1, numel(T));
+    for k = 1:numel(T), keep(k) = any(strcmpi(taskIds, T{k}.id)); end
+    T = T(keep);
+end
+
+fprintf('===== cross-domain tasks (graded by mas_verify_task) =====\n');
+fprintf('%-4s %-22s %-13s %8s  %s\n', 'id', 'domain', 'verdict', 'time', 'detail');
+R = struct('id', {}, 'domain', {}, 'status', {}, 'selfVerdict', {}, ...
+    'elapsedS', {}, 'values', {}, 'reference', {}, 'errorClass', {}, ...
+    'detail', {}, 'need', {}, 'perCheck', {}, 'refHash', {});
 
 for k = 1:numel(T)
     t = T{k};
     missing = '';
     for q = 1:numel(t.need)
-        [ok, why] = have_product(t.need{q});
-        if ~ok, missing = [missing ' ' t.need{q} '(' why ')']; end %#ok<AGROW>
+        d = mas_dep_probe('product', t.need{q});
+        if ~d.pass
+            missing = [missing ' ' t.need{q} '(' d.state ': ' d.detail ')']; %#ok<AGROW>
+        end
     end
     if ~isempty(missing)
-        fprintf('%-4s %-22s %-8s %8.2f  %s\n', t.id, t.domain, 'SKIP', 0, strtrim(missing));
-        R(end+1) = struct('id',t.id,'domain',t.domain,'status','SKIP','elapsedS',0, ...
-            'values',struct(),'reference',struct(),'errorClass','MISSING_PRODUCT', ...
-            'detail',strtrim(missing),'need',{t.need}); %#ok<AGROW>
+        fprintf('%-4s %-22s %-13s %8.2f  %s\n', t.id, t.domain, 'SKIP', 0, strtrim(missing));
+        R(end+1) = row(t, 'SKIP', '', 0, struct(), struct(), 'MISSING_PRODUCT', ...
+            strtrim(missing), struct([]), ''); %#ok<AGROW>
         continue;
     end
+
     t0 = tic;
     try
         out = feval(t.fn);
         el = toc(t0);
-        st = out.status; ec = '';
+        ec = '';
+        vals = out.values;
+        selfV = out.status;
+        ref = out.reference;
     catch ME
         el = toc(t0);
-        out = struct('values',struct(),'reference',struct(),'status','FAIL', ...
-            'detail',ME.message);
-        st = 'FAIL'; ec = classify(ME);
+        vals = struct(); selfV = 'ERROR'; ref = struct();
+        ec = classify(ME);
+        out = struct('detail', ME.message);
     end
-    if ~isfield(out,'detail'), out.detail = ''; end
-    fprintf('%-4s %-22s %-8s %8.2f  %s\n', t.id, t.domain, st, el, out.detail);
-    R(end+1) = struct('id',t.id,'domain',t.domain,'status',st,'elapsedS',el, ...
-        'values',out.values,'reference',out.reference,'errorClass',ec, ...
-        'detail',out.detail,'need',{t.need}); %#ok<AGROW>
+    if ~isfield(out, 'detail'), out.detail = ''; end
+
+    v = mas_verify_task(t.id, vals);
+    st = v.status;
+    det = v.detail;
+    if ~strcmp(selfV, st)
+        det = sprintf('[self %s vs verifier %s] %s', selfV, st, det);
+    end
+    fprintf('%-4s %-22s %-13s %8.2f  %s\n', t.id, t.domain, st, el, shorten(det, 84));
+    R(end+1) = row(t, st, selfV, el, vals, ref, ec, det, v.perCheck, v.refHash); %#ok<AGROW>
 end
 
-nP = nnz(strcmp({R.status},'PASS'));
-nF = nnz(strcmp({R.status},'FAIL'));
-nS = nnz(strcmp({R.status},'SKIP'));
-fprintf('\nPASS %d / FAIL %d / SKIP %d  (total %d)\n', nP, nF, nS, numel(R));
+nP = nnz(strcmp({R.status}, 'PASS'));
+nF = nnz(strcmp({R.status}, 'FAIL'));
+nS = nnz(strcmp({R.status}, 'SKIP'));
+nU = nnz(strcmp({R.status}, 'UNDETERMINED'));
+nDis = nnz(~strcmp({R.selfVerdict}, {R.status}));
+fprintf('\nPASS %d / FAIL %d / UNDETERMINED %d / SKIP %d  (total %d)', ...
+    nP, nF, nU, nS, numel(R));
+if nDis > 0
+    fprintf('  |  %d task(s) disagreed with their own verdict', nDis);
+end
+fprintf('\n');
 
-res = struct('level','Phase4-Task6','tasks',R,'nPass',nP,'nFail',nF,'nSkip',nS, ...
-    'matlabVersion',version,'outDir',outDir);
-save(fullfile(outDir,'crossdomain.mat'),'res');
-fid = fopen(fullfile(outDir,'crossdomain.json'),'w');
-if fid >= 0, fwrite(fid, jsonencode(res),'char'); fclose(fid); end
+res = struct('level', 'crossdomain', 'tasks', R, 'nPass', nP, 'nFail', nF, ...
+    'nSkip', nS, 'nUndetermined', nU, 'nSelfDisagreement', nDis, ...
+    'matlabVersion', version, 'outDir', outDir);
+save(fullfile(outDir, 'crossdomain.mat'), 'res');
+fid = fopen(fullfile(outDir, 'crossdomain.json'), 'w');
+if fid >= 0, fwrite(fid, jsonencode(res), 'char'); fclose(fid); end
 end
 
 % ---------------------------------------------------------------------------
-function [ok, why] = have_product(name)
-% Product NAME -> installed (ver) and licensed (license('test')).
-% The feature string is NOT the product name; the mapping below was verified on
-% this machine in this phase (see references/toolbox-feature-map.md).
-map = { ...
-  'Statistics Toolbox','Statistics_Toolbox'; ...
-  'Signal Processing Toolbox','Signal_Toolbox'; ...
-  'Image Processing Toolbox','Image_Toolbox'; ...
-  'Control System Toolbox','Control_Toolbox'; ...
-  'Robotics System Toolbox','Robotics_System_Toolbox'; ...
-  'Deep Learning Toolbox','Neural_Network_Toolbox'; ...
-  'Simulink','Simulink'; ...
-  'MATLAB Coder','MATLAB_Coder'};
-feat = '';
-for k = 1:size(map,1)
-    if strcmpi(map{k,1}, name), feat = map{k,2}; break; end
-end
-installed = any(strcmpi({ver().Name}, name));
-if isempty(feat)
-    ok = false; why = 'no verified feature name'; return;
-end
-licensed = license('test', feat);
-if strcmpi(name,'Simulink')
-    ok = installed; why = 'installed check only';
-else
-    ok = installed && licensed;
-    why = sprintf('installed %d, licensed %d', installed, licensed);
-end
+function r = row(t, st, selfV, el, vals, ref, ec, det, perCheck, refHash)
+r = struct('id', t.id, 'domain', t.domain, 'status', st, 'selfVerdict', selfV, ...
+    'elapsedS', el, 'values', vals, 'reference', ref, 'errorClass', ec, ...
+    'detail', det, 'need', {t.need}, 'perCheck', perCheck, 'refHash', refHash);
 end
 
 function c = classify(ME)
 id = ME.identifier;
-if contains(id,'license') || contains(id,'License')
+if contains(id, 'license') || contains(id, 'License')
     c = 'LICENSE_ERROR';
-elseif contains(id,'Undefined') || contains(id,'unrecognized')
+elseif contains(id, 'Undefined') || contains(id, 'unrecognized')
     c = 'MISSING_FUNCTION';
-elseif contains(id,'MATLAB:')
+elseif contains(id, 'MATLAB:')
     c = 'MATLAB_RUNTIME_ERROR';
 else
     c = 'UNKNOWN';
 end
+end
+
+function s = shorten(s, n)
+if numel(s) > n, s = [s(1:n-3) '...']; end
 end

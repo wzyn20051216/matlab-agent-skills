@@ -37,7 +37,11 @@ T(end+1) = ck('cells ragged','cell',{{1,[2 3],4},[]},false,'CELL_SHAPE_MISMATCH'
 
 % product name vs license feature: this product IS licensed on this machine
 T(end+1) = ck('toolbox by product name','toolbox',{'Deep Learning Toolbox'},true,'');
-T(end+1) = ck('unknown toolbox','toolbox',{'Quantum Basket Weaver'},false,'TOOLBOX_UNAVAILABLE');
+% The error class is now UNKNOWN_PRODUCT, from mas_dep_probe. It used to be the
+% blanket TOOLBOX_UNAVAILABLE; "the product is not in the table at all" and "the
+% product is installed but not licensed" need different fixes, so they are
+% different classes. The expected class is updated to the more specific one.
+T(end+1) = ck('unknown toolbox','toolbox',{'Quantum Basket Weaver'},false,'UNKNOWN_PRODUCT');
 
 T(end+1) = ck('path exists','path',{fullfile(repo,'matlab','boost')},true,'');
 T(end+1) = ck('path missing','path',{fullfile(repo,'no_such_dir')},false,'PATH_MISSING');

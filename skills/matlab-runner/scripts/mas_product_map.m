@@ -1,0 +1,109 @@
+function r = mas_product_map(query, mode)
+%MAS_PRODUCT_MAP  Product NAME <-> license FEATURE, with historical aliases.
+%
+%   m = mas_product_map()                 % the whole table
+%   m = mas_product_map('Deep Learning Toolbox')
+%   f = mas_product_map('Neural Network Toolbox')     % old name -> same entry
+%   all = mas_product_map('', 'all')                  % table as a struct array
+%
+% WHY THIS EXISTS
+% `license('test', X)` takes a FEATURE string, not a product display name, and the
+% two differ for several products. Measured on R2026a:
+%
+%   license('test','Deep_Learning_Toolbox')  -> 0     (a plausible-looking guess)
+%   license('test','Neural_Network_Toolbox') -> 1     (the real feature)
+%
+% So a hand-typed feature string produces a FALSE "not licensed" verdict, which is
+% the worst kind: it silently disables a capable environment. Two further traps
+% are handled here:
+%
+%   1. MathWorks renamed several products. A user (or an old script) may still say
+%      "Neural Network Toolbox", "Image Processing Toolbox" or "Statistics Toolbox".
+%      Each historical name is registered as an ALIAS of the current product, so a
+%      lookup never fails just because the name is old.
+%   2. Some products are installation-only: `license('test')` is not the right
+%      question for MATLAB, Simulink or Simscape. Those rows carry lic='n/a'.
+%
+% The table is DATA, not logic: `mas_dep_probe` reads it. A product that is not in
+% the table is reported as UNKNOWN_PRODUCT with the raw ver() list, never guessed.
+
+persistent T
+if isempty(T)
+    % name | feature | aliases (cellstr) | representative probe expression
+    % The probe expression is EITHER '' (nothing to execute) or a short call that
+    % must succeed. It is used only at the deepest level of mas_dep_probe.
+    T = { ...
+      'MATLAB',                        'MATLAB',                  {}, ''; ...
+      'Simulink',                      'Simulink',                {}, ''; ...
+      'Control System Toolbox',        'Control_Toolbox',         {}, 'tf(1,[1 1])'; ...
+      'Signal Processing Toolbox',     'Signal_Toolbox',          {}, 'freqz([1],[1 1],2,1)'; ...
+      'Image Processing Toolbox',      'Image_Toolbox',           {'Image Processing Toolbox'}, 'bwlabel(true(2))'; ...
+      'Statistics and Machine Learning Toolbox', 'Statistics_Toolbox', {'Statistics Toolbox'}, 'fitlm([1;2;3],[1;2;3.1])'; ...
+      'Optimization Toolbox',          'Optimization_Toolbox',    {}, 'optimoptions(''fmincon'')'; ...
+      'System Identification Toolbox', 'Identification_Toolbox',  {}, ''; ...
+      'Robotics System Toolbox',       'Robotics_System_Toolbox', {}, 'rigidBodyTree'; ...
+      'Deep Learning Toolbox',         'Neural_Network_Toolbox',  {'Neural Network Toolbox'}, 'dlnetwork'; ...
+      'Reinforcement Learning Toolbox','Reinforcement_Learning_Toolbox', {}, ''; ...
+      'Navigation Toolbox',            'Navigation_Toolbox',      {}, ''; ...
+      'Sensor Fusion and Tracking Toolbox', 'Sensor_Fusion_and_Tracking', {}, ''; ...
+      'ROS Toolbox',                   'Ros_Toolbox',             {'Robotics System Toolbox ROS'}, ''; ...
+      'MATLAB Coder',                  'MATLAB_Coder',            {}, ''; ...
+      'Simulink Coder',                'Real-Time_Workshop',      {}, ''; ...
+      'Embedded Coder',                'RTW_Embedded_Coder',      {}, ''; ...
+      'Fixed-Point Designer',          'Fixed_Point_Toolbox',     {}, ''; ...
+      'Simscape',                      'Simscape',                {}, ''; ...
+      'Simscape Electrical',           'Simscape_Electrical',     {'Simscape Power Systems'}, ''; ...
+      'Stateflow',                     'Stateflow',               {}, ''; ...
+      'Simulink Test',                 'Simulink_Test',           {}, ''; ...
+      'Parallel Computing Toolbox',    'Distrib_Computing_Toolbox', {}, ''; ...
+      'GPU Coder',                     'GPU_Coder',               {}, ''; ...
+      'HDL Coder',                     'HDL_Coder',               {}, ''; ...
+      'Text Analytics Toolbox',        'Text_Analytics_Toolbox',  {}, ''; ...
+      'Computer Vision Toolbox',       'Video_and_Image_Blockset', {}, ''};
+end
+
+if nargin < 1 || isempty(query)
+    r = T;
+    return;
+end
+if nargin >= 2 && strcmpi(mode, 'all'), r = T; return; end
+
+q = strtrim(query);
+hit = 0;
+for k = 1:size(T,1)
+    names = [{T{k,1}}, T{k,3}];
+    if any(strcmpi(names, q)), hit = k; break; end
+end
+if hit == 0
+    % A bare token like "signal" or "control" is a common mistake. Say so instead
+    % of returning an empty struct that a caller will mistake for "not licensed".
+    r = struct('found', false, 'name', q, 'feature', '', 'aliases', {{}}, ...
+        'probe', '', 'candidates', {candidate_names(q, T)});
+    return;
+end
+r = struct('found', true, 'name', T{hit,1}, 'feature', T{hit,2}, ...
+    'aliases', {T{hit,3}}, 'probe', T{hit,4}, ...
+    'installationOnly', any(strcmpi(T{hit,1}, {'MATLAB','Simulink','Simscape','Stateflow'})));
+end
+
+% ---------------------------------------------------------------------------
+function c = candidate_names(q, T)
+% closest names by substring, so the error message can suggest something useful
+names = T(:,1);
+q = lower(q);
+c = {};
+for k = 1:numel(names)
+    nm = lower(names{k});
+    if contains(nm, q) || contains(q, nm)
+        c{end+1} = names{k}; %#ok<AGROW>
+    end
+end
+for k = 1:size(T,1)
+    for a = 1:numel(T{k,3})
+        if contains(lower(T{k,3}{a}), q)
+            c{end+1} = sprintf('%s (alias of %s)', T{k,3}{a}, T{k,1}); %#ok<AGROW>
+        end
+    end
+end
+c = unique(c);
+end

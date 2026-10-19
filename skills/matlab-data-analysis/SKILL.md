@@ -45,3 +45,26 @@ assert(isfile(fullfile(outDir, "figure_1.png")))
 ```
 
 Do not accept a plot as "done" unless the underlying numerical summary also looks sane.
+
+## Cleaning That Accounts For Every Row
+
+```matlab
+r = mas_table_audit(T, struct('missing','drop','duplicates','drop', ...
+    'outliers', struct('method','iqr','factor',1.5,'action','remove')));
+r.balanced    % nRowsIn == nRowsOut + nDropped, and every dropped row has a reason
+r.audit       % per rule: before, after, dropped, filled
+r.dropped     % the removed rows WITH the rule that removed each one
+```
+
+The failure this prevents is not a crash, it is arithmetic that does not add up: three
+rules that each drop their own rows will double-count a row that qualifies for two,
+and "40 in, 30 out, dropped 3+4+4" reads fine and is wrong by one.
+
+So every row gets exactly ONE verdict, from the first rule that matches, and the
+balance identity is checked. Rule order (missing -> duplicates -> outliers) is part of
+the contract and is printed, because changing it changes the counts.
+
+Non-numeric columns are reported in `typeWarnings` and preserved; they are never
+silently converted or dropped. `tests/test_table_audit.m` covers the nominal fixture,
+a row that qualifies for two rules, fill-vs-drop, mixed types, an empty table and a
+non-table input.

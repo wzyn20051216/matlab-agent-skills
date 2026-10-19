@@ -60,6 +60,10 @@
         {
           "t": "model-based",
           "w": 3
+        },
+        {
+          "t": "建模",
+          "w": 2
         }
       ],
       "id": "matlab-simulink-modeling"
@@ -138,6 +142,38 @@
         {
           "t": "信号",
           "w": 1
+        },
+        {
+          "t": "低通",
+          "w": 3
+        },
+        {
+          "t": "高通",
+          "w": 3
+        },
+        {
+          "t": "巴特沃斯",
+          "w": 4
+        },
+        {
+          "t": "butterworth",
+          "w": 4
+        },
+        {
+          "t": "幅频",
+          "w": 3
+        },
+        {
+          "t": "相频",
+          "w": 2
+        },
+        {
+          "t": "相位特性",
+          "w": 2
+        },
+        {
+          "t": "信噪比",
+          "w": 3
         }
       ],
       "id": "matlab-signal-vision-ai"
@@ -200,6 +236,70 @@
         {
           "t": "调参",
           "w": 2
+        },
+        {
+          "t": "阶跃响应",
+          "w": 3
+        },
+        {
+          "t": "极点",
+          "w": 2
+        },
+        {
+          "t": "零点",
+          "w": 2
+        },
+        {
+          "t": "右半平面",
+          "w": 3
+        },
+        {
+          "t": "rhp",
+          "w": 3
+        },
+        {
+          "t": "交越",
+          "w": 3
+        },
+        {
+          "t": "穿越",
+          "w": 3
+        },
+        {
+          "t": "回路",
+          "w": 2
+        },
+        {
+          "t": "增益裕度",
+          "w": 3
+        },
+        {
+          "t": "闭环",
+          "w": 2
+        },
+        {
+          "t": "抗饱和",
+          "w": 3
+        },
+        {
+          "t": "饱和",
+          "w": 2
+        },
+        {
+          "t": "变换器",
+          "w": 2
+        },
+        {
+          "t": "占空比",
+          "w": 3
+        },
+        {
+          "t": "纹波",
+          "w": 2
+        },
+        {
+          "t": "稳态",
+          "w": 1
         }
       ],
       "id": "matlab-control-optimization"
@@ -250,6 +350,30 @@
         {
           "t": "table",
           "w": 2
+        },
+        {
+          "t": "数值积分",
+          "w": 3
+        },
+        {
+          "t": "积分",
+          "w": 2
+        },
+        {
+          "t": "线性方程组",
+          "w": 3
+        },
+        {
+          "t": "求解",
+          "w": 1
+        },
+        {
+          "t": "剔除",
+          "w": 2
+        },
+        {
+          "t": "清洗",
+          "w": 3
         }
       ],
       "id": "matlab-data-analysis"
@@ -338,6 +462,22 @@
         {
           "t": "传感器融合",
           "w": 3
+        },
+        {
+          "t": "正运动学",
+          "w": 3
+        },
+        {
+          "t": "逆运动学",
+          "w": 3
+        },
+        {
+          "t": "dh",
+          "w": 3
+        },
+        {
+          "t": "位姿",
+          "w": 2
         }
       ],
       "id": "matlab-robotics-autonomy"
@@ -380,6 +520,7 @@
   "notes": [
     "matlab-orchestrator itself is not scored: it is the router.",
     "Weights are deliberately small integers so a single strong term (e.g. 'kitti' 3) can carry a short prompt.",
-    "A route below minScore must be reported as CLARIFY, not guessed."
+    "A route below minScore must be reported as CLARIFY, not guessed.",
+    "Power-electronics prompts (变换器/占空比/纹波) route to matlab-control-optimization because that skill owns the stability and steady-state analysis methods; there is no separate power-electronics skill, and pretending otherwise would misreport coverage."
   ]
 }

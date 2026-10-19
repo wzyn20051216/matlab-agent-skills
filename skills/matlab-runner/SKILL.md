@@ -212,3 +212,24 @@ For open-source paper projects:
 3. Reproduce one figure or table before scaling to the whole paper.
 4. Save `manifest.json`, raw logs, processed data, and generated figures.
 5. Mark differences from the paper explicitly instead of smoothing them over.
+
+## One Dependency Mechanism, Five Failure Classes
+
+`mas_precheck('toolbox', X)` and `mas_dep_probe` now share a single product table
+(`mas_product_map.m`). Before this there were two copies and they could drift; the
+old one lived inside `mas_precheck` and the new one inside the probe.
+
+```matlab
+d = mas_dep_probe('product', 'Deep Learning Toolbox');
+d.state    % OK | NOT_INSTALLED | NOT_LICENSED | UNKNOWN_PRODUCT | EXEC_FAILED
+d.level    % 1 function resolved, 3 product installed, 4 feature licensed, 5 probe ran
+```
+
+`NOT_INSTALLED`, `NOT_LICENSED` and `UNKNOWN_PRODUCT` are different problems with
+different fixes, so they are different states. The probe reports which level it
+reached, so "it does not work" becomes a specific sentence.
+
+Historical product names are aliases of the current row (`Neural Network Toolbox` ->
+`Deep Learning Toolbox`, `Statistics Toolbox` -> `Statistics and Machine Learning
+Toolbox`), because a user typing the old name must not get "not licensed". Covered
+by `tests/test_dep_probe.m` (17 cases, 11 of which must fail to resolve).

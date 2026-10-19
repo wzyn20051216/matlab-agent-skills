@@ -91,3 +91,31 @@ that as PASS is exactly the failure this skill is supposed to prevent.
 Domain-specific thresholds (Buck S1-S9, Boost B1-B12, BER curves, THD limits) belong
 to the domain skill; `mas_grade` only consumes them. Never copy one domain's numbers
 into another. `tests/test_grade.m` covers six combinations.
+
+## References Are Frozen, Not Recomputed
+
+A task that grades itself is not being tested. `mas_verify_task(id, values)` grades a
+task's NUMBERS against `evals/references/reference_manifest.json`, which is committed
+with a SHA-256 per entry:
+
+```matlab
+v = mas_verify_task('D3', out.values);
+v.status       % PASS | FAIL | UNDETERMINED
+v.perCheck     % field, got, ref, op, tol, pass
+```
+
+Three guards, all of which must hold before a number is called a reference:
+
+1. Two or more INDEPENDENT derivation methods agree far tighter than the grading
+   tolerance (`mas_ref_derive.m`). The Phase 4 D3 error -- the analog Butterworth
+   formula used to grade a DIGITAL filter -- cannot survive this, because the second
+   method is a hand-written difference-equation recursion, not a restatement.
+2. The hand-declared value in `mas_ref_spec.m` agrees with the derived value at
+   freeze time. A transposed centroid or a wrong constant fails before freezing.
+3. `mas_refcheck('verify')` re-derives everything and compares hashes. Editing the
+   manifest -- even consistently -- is detected.
+
+`mas_refcheck('freeze')` rewrites the committed file and is deliberately NOT part of
+the normal test run: changing a reference must show up as a diff.
+`tests/test_refcheck.m` feeds the verifier wrong values and two kinds of tampered
+manifest and requires the right rejection in each case.

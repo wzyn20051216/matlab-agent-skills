@@ -26,8 +26,10 @@ dILana = boost_ripple(p, dq).dIL;
 
 ok = abs(ssErr) <= 0.5 && abs(dILmeas/dILana - 1) < 0.10;
 
+% The verifier grades a RATIO against 1, not two absolute values against a
+% constant: an absolute ripple limit would have to be re-tuned for every Vin.
 out.values = struct('duty',dq,'vOutMean',vOut,'ssErrPct',ssErr, ...
-    'iLrippleMeas',dILmeas,'iLrippleAna',dILana);
+    'iLrippleMeas',dILmeas,'iLrippleAna',dILana,'iLrippleRatio',dILmeas/dILana);
 out.reference = struct('Vref',p.Vref,'dutyClosedForm',dq,'rippleAnalytic',dILana);
 out.status = tern(ok,'PASS','FAIL');
 out.detail = sprintf('D %.4f, vOut %.4f V (%.3f %%), ripple %.4f vs %.4f A', ...

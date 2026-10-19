@@ -137,11 +137,19 @@ switch lower(kind)
             r.errorClass = 'CELL_SHAPE_MISMATCH';
         end
 
-    case 'toolbox'
+    case {'toolbox', 'dep'}
+        % Delegated to mas_dep_probe so there is ONE product/feature table in the
+        % repository. Before this, mas_precheck carried its own copy and the two
+        % could drift; the table now lives in mas_product_map and the five-level
+        % discovery in mas_dep_probe.
         name = varargin{1};
-        [ok, why] = toolbox_state(name);
-        r.pass = ok; r.detail = why;
-        if ~ok, r.errorClass = 'TOOLBOX_UNAVAILABLE'; end
+        d = mas_dep_probe('product', name);
+        r.pass = d.pass; r.detail = d.detail;
+        r.value = struct('state', d.state, 'level', d.level, ...
+            'product', d.product, 'feature', d.feature);
+        if ~d.pass
+            r.errorClass = d.state;
+        end
 
     case 'path'
         p = varargin{1};
@@ -175,47 +183,5 @@ switch lower(kind)
 
     otherwise
         error('mas_precheck:kind','unknown check kind "%s"', kind);
-end
-end
-
-% ---------------------------------------------------------------------------
-function [ok, why] = toolbox_state(name)
-% Product NAME -> (installed per ver, licensed per license('test', FEATURE)).
-% The feature strings were verified on R2026a in this repository; the product name
-% itself is NOT a valid license feature (Deep_Learning_Toolbox -> 0, while
-% Neural_Network_Toolbox -> 1 for the same installed product).
-map = { ...
-  'MATLAB',                    'MATLAB'; ...
-  'Simulink',                  'Simulink'; ...
-  'Control System Toolbox',    'Control_Toolbox'; ...
-  'Signal Processing Toolbox', 'Signal_Toolbox'; ...
-  'Image Processing Toolbox',  'Image_Toolbox'; ...
-  'Statistics and Machine Learning Toolbox', 'Statistics_Toolbox'; ...
-  'Optimization Toolbox',      'Optimization_Toolbox'; ...
-  'System Identification Toolbox','Identification_Toolbox'; ...
-  'Robotics System Toolbox',   'Robotics_System_Toolbox'; ...
-  'Deep Learning Toolbox',     'Neural_Network_Toolbox'; ...
-  'MATLAB Coder',              'MATLAB_Coder'; ...
-  'Simulink Coder',            'Real-Time_Workshop'; ...
-  'Embedded Coder',            'RTW_Embedded_Coder'; ...
-  'Fixed-Point Designer',      'Fixed_Point_Toolbox'; ...
-  'Simscape',                  'Simscape'};
-feat = '';
-for k = 1:size(map,1)
-    if strcmpi(map{k,1}, name), feat = map{k,2}; break; end
-end
-if isempty(feat)
-    ok = false;
-    why = sprintf('"%s" has no verified license feature in this table; add it after checking locally', name);
-    return;
-end
-installed = any(strcmpi({ver().Name}, name));
-if strcmpi(name,'Simulink') || strcmpi(name,'MATLAB') || strcmpi(name,'Simscape')
-    ok = installed;
-    why = sprintf('%s installed %d (installation-only product)', name, installed);
-else
-    licensed = license('test', feat);
-    ok = installed && licensed;
-    why = sprintf('%s: installed %d, feature %s licensed %d', name, installed, feat, licensed);
 end
 end
