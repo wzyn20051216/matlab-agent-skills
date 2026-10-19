@@ -16,6 +16,28 @@ Use this skill to execute MATLAB work safely and repeatably through the official
 5. Put generated files under `artifacts/` or a user-specified output folder.
 6. Keep scripts deterministic: seed random generators and record data sources.
 
+## Precheck Before A Long Run
+
+Phase 3B.1 shipped five scripts and none ran on the first attempt; most of those
+failures were detectable in seconds. Run the cheap checks first, in this order:
+
+```matlab
+r = mas_precheck('function', 'boost_params');                 % exists?
+r = mas_precheck('struct',   cfg, {'Vin','L','C'});           % fields present?
+r = mas_precheck('numeric',  x, struct('finite',true));        % NaN/Inf?
+r = mas_precheck('index',    mask, numel(target));             % mask length
+r = mas_precheck('toolbox',  'Control System Toolbox');        % product vs feature
+r = mas_precheck('model',    'matlab/boost/models/boost_avg.slx');
+```
+
+The `index` check exists because MATLAB does **not** error when a logical mask is
+shorter than the array it indexes: it silently returns the first `numel(mask)`
+elements. In Phase 3B.2 that turned every `iLref` reading into `0` and nearly
+produced the conclusion "the current command is railed". A length check makes it
+loud. `tests/test_precheck.m` covers 16 cases, half of them must-fail.
+
+Never start a 20-minute matrix after a failed precheck; fix the precheck first.
+
 ## MCP Required By Default
 
 When using this repository on this machine, use this decision rule:
@@ -116,10 +138,21 @@ When MATLAB fails:
   | Deep Learning Toolbox | `Neural_Network_Toolbox` |
   | Signal Processing Toolbox | `Signal_Toolbox` |
 
-  In this repository use `masacc.availability("MATLAB Coder")` / `masacc.licenseState(...)`
-  instead of calling `license` directly: they carry the verified mapping, handle the
-  27-character limit of `license('test')` (longer names throw `MATLAB:license:toomanychars`),
-  and return `[]` for "cannot determine" instead of a misleading `false`.
+  `license('test', FEATURE)` takes a **feature** name, not the product name, and the
+  two differ often enough to burn a run: on R2026a `license('test','Deep_Learning_Toolbox')`
+  returns `0` while `license('test','Neural_Network_Toolbox')` returns `1` for the same
+  installed product. Use the verified map instead of typing a name:
+
+  ```matlab
+  r = mas_precheck('toolbox', 'Deep Learning Toolbox');
+  r.pass, r.detail     % 1, "installed 1, feature Neural_Network_Toolbox licensed 1"
+  ```
+
+  The map and its provenance are in `references/toolbox-feature-map.md`; a product
+  missing from the map returns a failure that says so, rather than guessing.
+  (An earlier revision of this file told the agent to call `masacc.availability`.
+  No such package exists in this repository or in any installed toolbox -- a call
+  to it fails immediately. That instruction has been removed.)
 - Check path ambiguity with `which functionName -all`.
 - Re-run a minimal reproduction before editing large code.
 - Save the failing command and log path.

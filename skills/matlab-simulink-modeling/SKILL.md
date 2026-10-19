@@ -105,3 +105,18 @@ Watch for:
 ## Reporting
 
 Always report model path, stop time, solver, changed blocks, logged signals, and validation artifacts.
+
+## Verify A Model By Level, Not By Hope
+
+A saved `.slx` is not a working model. Phase 3B.2 generated a converter model that
+simulated happily while applying a zero duty for the first period, because a Unit
+Delay defaults to 0. Grade the model instead of asserting it works:
+
+```matlab
+r = mas_model_check('matlab/boost/models/boost_avg.slx', struct('tStop',0.01));
+r.level   % L0 missing | L1 loads | L2 updates | L3 simulates with finite signals
+```
+
+`L3` is the first level that means anything numerically. Toolboxes are checked with
+`mas_precheck('toolbox', ...)`, never by calling `license` with a product name.
+`tests/test_model_check.m` pins a real model at L3 and a missing file at L0.

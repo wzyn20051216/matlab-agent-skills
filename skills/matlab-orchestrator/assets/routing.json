@@ -1,0 +1,385 @@
+{
+  "version": "1.0",
+  "description": "Capability routing table. Each skill lists weighted trigger terms (Chinese and English). The matcher sums matched weights; runner is always loaded because every route needs execution.",
+  "minScore": 3,
+  "multiSkillRatio": 0.6,
+  "skills": {
+    "matlab-runner": {
+      "always": true,
+      "priority": 0,
+      "terms": [],
+      "id": "matlab-runner"
+    },
+    "matlab-simulink-modeling": {
+      "priority": 1,
+      "terms": [
+        {
+          "t": "simulink",
+          "w": 4
+        },
+        {
+          "t": "slx",
+          "w": 4
+        },
+        {
+          "t": "stateflow",
+          "w": 3
+        },
+        {
+          "t": "simscape",
+          "w": 3
+        },
+        {
+          "t": "模型",
+          "w": 1
+        },
+        {
+          "t": "仿真",
+          "w": 2
+        },
+        {
+          "t": "逆变器",
+          "w": 3
+        },
+        {
+          "t": "三相",
+          "w": 2
+        },
+        {
+          "t": "svpwm",
+          "w": 3
+        },
+        {
+          "t": "pwm",
+          "w": 2
+        },
+        {
+          "t": "框图",
+          "w": 2
+        },
+        {
+          "t": "model-based",
+          "w": 3
+        }
+      ],
+      "id": "matlab-simulink-modeling"
+    },
+    "matlab-signal-vision-ai": {
+      "priority": 2,
+      "terms": [
+        {
+          "t": "ofdm",
+          "w": 3
+        },
+        {
+          "t": "误码率",
+          "w": 3
+        },
+        {
+          "t": "ber",
+          "w": 2
+        },
+        {
+          "t": "通信",
+          "w": 2
+        },
+        {
+          "t": "调制",
+          "w": 2
+        },
+        {
+          "t": "滤波器",
+          "w": 2
+        },
+        {
+          "t": "filter",
+          "w": 1
+        },
+        {
+          "t": "频谱",
+          "w": 2
+        },
+        {
+          "t": "thd",
+          "w": 3
+        },
+        {
+          "t": "谐波",
+          "w": 3
+        },
+        {
+          "t": "图像",
+          "w": 2
+        },
+        {
+          "t": "分割",
+          "w": 2
+        },
+        {
+          "t": "边缘检测",
+          "w": 2
+        },
+        {
+          "t": "目标检测",
+          "w": 2
+        },
+        {
+          "t": "kitti",
+          "w": 3
+        },
+        {
+          "t": "深度学习",
+          "w": 2
+        },
+        {
+          "t": "神经网络",
+          "w": 2
+        },
+        {
+          "t": "信号",
+          "w": 1
+        }
+      ],
+      "id": "matlab-signal-vision-ai"
+    },
+    "matlab-control-optimization": {
+      "priority": 2,
+      "terms": [
+        {
+          "t": "pid",
+          "w": 3
+        },
+        {
+          "t": "pidtune",
+          "w": 3
+        },
+        {
+          "t": "控制",
+          "w": 2
+        },
+        {
+          "t": "传递函数",
+          "w": 2
+        },
+        {
+          "t": "状态空间",
+          "w": 2
+        },
+        {
+          "t": "稳定性",
+          "w": 2
+        },
+        {
+          "t": "裕度",
+          "w": 2
+        },
+        {
+          "t": "相位裕度",
+          "w": 3
+        },
+        {
+          "t": "最优",
+          "w": 2
+        },
+        {
+          "t": "优化",
+          "w": 2
+        },
+        {
+          "t": "辨识",
+          "w": 2
+        },
+        {
+          "t": "mpc",
+          "w": 3
+        },
+        {
+          "t": "电机",
+          "w": 2
+        },
+        {
+          "t": "调参",
+          "w": 2
+        }
+      ],
+      "id": "matlab-control-optimization"
+    },
+    "matlab-data-analysis": {
+      "priority": 3,
+      "terms": [
+        {
+          "t": "csv",
+          "w": 2
+        },
+        {
+          "t": "excel",
+          "w": 2
+        },
+        {
+          "t": "数据",
+          "w": 1
+        },
+        {
+          "t": "统计",
+          "w": 2
+        },
+        {
+          "t": "回归",
+          "w": 2
+        },
+        {
+          "t": "拟合",
+          "w": 2
+        },
+        {
+          "t": "缺失值",
+          "w": 3
+        },
+        {
+          "t": "论文图",
+          "w": 2
+        },
+        {
+          "t": "画图",
+          "w": 1
+        },
+        {
+          "t": "可视化",
+          "w": 2
+        },
+        {
+          "t": "table",
+          "w": 2
+        }
+      ],
+      "id": "matlab-data-analysis"
+    },
+    "matlab-codegen-deploy": {
+      "priority": 3,
+      "terms": [
+        {
+          "t": "代码生成",
+          "w": 3
+        },
+        {
+          "t": "coder",
+          "w": 3
+        },
+        {
+          "t": "部署",
+          "w": 2
+        },
+        {
+          "t": "stm32",
+          "w": 3
+        },
+        {
+          "t": "嵌入式",
+          "w": 2
+        },
+        {
+          "t": "hdl",
+          "w": 3
+        },
+        {
+          "t": "cuda",
+          "w": 3
+        },
+        {
+          "t": "mex",
+          "w": 2
+        },
+        {
+          "t": "定点",
+          "w": 3
+        },
+        {
+          "t": "代码",
+          "w": 2
+        },
+        {
+          "t": "生成",
+          "w": 1
+        }
+      ],
+      "id": "matlab-codegen-deploy"
+    },
+    "matlab-robotics-autonomy": {
+      "priority": 3,
+      "terms": [
+        {
+          "t": "ros",
+          "w": 3
+        },
+        {
+          "t": "机器人",
+          "w": 2
+        },
+        {
+          "t": "轨迹规划",
+          "w": 3
+        },
+        {
+          "t": "运动学",
+          "w": 2
+        },
+        {
+          "t": "导航",
+          "w": 2
+        },
+        {
+          "t": "slam",
+          "w": 3
+        },
+        {
+          "t": "无人机",
+          "w": 2
+        },
+        {
+          "t": "传感器融合",
+          "w": 3
+        }
+      ],
+      "id": "matlab-robotics-autonomy"
+    },
+    "matlab-testing-ci": {
+      "priority": 4,
+      "terms": [
+        {
+          "t": "测试",
+          "w": 2
+        },
+        {
+          "t": "回归测试",
+          "w": 3
+        },
+        {
+          "t": "ci",
+          "w": 3
+        },
+        {
+          "t": "覆盖率",
+          "w": 3
+        },
+        {
+          "t": "验收",
+          "w": 2
+        },
+        {
+          "t": "github actions",
+          "w": 3
+        },
+        {
+          "t": "复现",
+          "w": 1
+        }
+      ],
+      "id": "matlab-testing-ci"
+    }
+  },
+  "notes": [
+    "matlab-orchestrator itself is not scored: it is the router.",
+    "Weights are deliberately small integers so a single strong term (e.g. 'kitti' 3) can carry a short prompt.",
+    "A route below minScore must be reported as CLARIFY, not guessed."
+  ]
+}

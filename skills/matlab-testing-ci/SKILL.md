@@ -69,3 +69,25 @@ End every task with:
 - Skipped checks and reason.
 - Artifact folder.
 - Next highest-value regression test.
+
+## Three Questions, Three Answers
+
+"It ran", "the number is right" and "the requirement is met" are different claims,
+and Phase 3A/3B produced every combination of them. `mas_grade` keeps them apart:
+
+```matlab
+r = mas_grade(checks);   % each check: executed / kind / value / reference / limit
+r.ran      % did everything execute?
+r.correct  % true | false | 'UNDETERMINED'  (a numeric check with no independent
+           %                                  reference is UNDETERMINED, not true)
+r.meets    % true | false | 'UNDETERMINED'
+r.overall  % FAIL | CORRECT_NOT_ACCEPTED | UNDETERMINED | PASS
+```
+
+The `CORRECT_NOT_ACCEPTED` verdict exists for the Boost case where the output sat at
+47.88 V (correct) while recovery took 2.25 ms against a 2 ms requirement. Reporting
+that as PASS is exactly the failure this skill is supposed to prevent.
+
+Domain-specific thresholds (Buck S1-S9, Boost B1-B12, BER curves, THD limits) belong
+to the domain skill; `mas_grade` only consumes them. Never copy one domain's numbers
+into another. `tests/test_grade.m` covers six combinations.

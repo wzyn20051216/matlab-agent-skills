@@ -1,0 +1,72 @@
+{
+  "version": "1.0",
+  "phase": "Phase 4",
+  "date": "2026-10-19",
+  "legend": {
+    "VERIFIED": "exercised by a run in this repository, with an independent reference or a test that can fail",
+    "PARTIAL": "some sub-capability exercised, others not",
+    "UNSUPPORTED": "no implementation exists",
+    "NOT TESTED": "implementation may exist but nothing verified it in this phase"
+  },
+  "skills": {
+    "matlab-orchestrator": {
+      "routing": {"status": "VERIFIED", "evidence": "tests/test_routing.m 9/9, incl. OFDM / 3-phase THD / KITTI and two must-not-guess cases"},
+      "multi_skill": {"status": "VERIFIED", "evidence": "3-phase THD routes simulink + signal-vision-ai; runner always first"},
+      "clarify_on_low_confidence": {"status": "VERIFIED", "evidence": "below-threshold prompt returns CLARIFY; tie returns AMBIGUOUS"},
+      "mcp_execution": {"status": "NOT TESTED", "evidence": "no mcp__matlab* tool bound in this session"},
+      "acceptance_linkage": {"status": "PARTIAL", "evidence": "points at schemas/acceptance-report.schema.json; no end-to-end run through it in this phase"}
+    },
+    "matlab-runner": {
+      "precheck_function_struct_numeric_index_cell_path": {"status": "VERIFIED", "evidence": "tests/test_precheck.m 16/16, half must-fail"},
+      "toolbox_product_vs_feature": {"status": "VERIFIED", "evidence": "references/toolbox-feature-map.md generated from 15 live ver/license calls"},
+      "batch_execution": {"status": "VERIFIED", "evidence": "every script in Phases 3A/3B/4 ran through matlab -batch"},
+      "mcp_execution": {"status": "NOT TESTED", "evidence": "not bound"},
+      "error_recovery_automation": {"status": "PARTIAL", "evidence": "failure classes documented; only precheck failures are automatic, runtime repair is manual"}
+    },
+    "matlab-simulink-modeling": {
+      "model_lifecycle_L0_to_L3": {"status": "VERIFIED", "evidence": "tests/test_model_check.m 2/2; boost_avg.slx reaches L3 with 6 finite signals"},
+      "switching_model_construction": {"status": "VERIFIED", "evidence": "Phase 3B.2 boost_sw.slx: PWM, diode, DCM; 55.027 vs 55.024 V vs MATLAB engine"},
+      "parameter_sweeps": {"status": "PARTIAL", "evidence": "sweeps were done in MATLAB, not through the model"},
+      "stateflow_simscape": {"status": "NOT TESTED", "evidence": "no Stateflow chart or Simscape netlist built"}
+    },
+    "matlab-testing-ci": {
+      "three_level_grading": {"status": "VERIFIED", "evidence": "tests/test_grade.m 6/6 incl. CORRECT_NOT_ACCEPTED"},
+      "unit_tests_in_matlab": {"status": "VERIFIED", "evidence": "33 assertions across four suites, all runnable via matlab/validation/phase4/run_all.m"},
+      "github_actions_ci": {"status": "NOT TESTED", "evidence": "no workflow executed in this phase"},
+      "coverage": {"status": "NOT TESTED", "evidence": "MATLAB Test installed, coverage never collected"}
+    },
+    "matlab-control-optimization": {
+      "state_space_stability_step_metrics": {"status": "VERIFIED", "evidence": "cross-domain D5: poles -1+-1.732j, OS 16.29% vs 16.30%, Ts 4.04 vs 4.0 s"},
+      "frequency_domain_margins": {"status": "PARTIAL", "evidence": "Phase 3A/3B found multi-crossing margins the skill never mentions; the skill still has no margin recipe"},
+      "system_identification": {"status": "NOT TESTED", "evidence": "no iddata/tfest task"},
+      "robust_mpc": {"status": "NOT TESTED", "evidence": "no robust/MPC task"}
+    },
+    "matlab-signal-vision-ai": {
+      "digital_filter_design": {"status": "VERIFIED", "evidence": "cross-domain D3: -3.0103 dB at fc, -27.966 dB at 2fc vs prewarped reference"},
+      "image_segmentation": {"status": "VERIFIED", "evidence": "cross-domain D4: areas 592/100 exactly as painted"},
+      "deep_learning": {"status": "NOT TESTED", "evidence": "toolbox licensed (Neural_Network_Toolbox=1) but no training run"},
+      "video_pointcloud_medical": {"status": "NOT TESTED", "evidence": "no task"}
+    },
+    "matlab-data-analysis": {
+      "missing_values_and_regression": {"status": "VERIFIED", "evidence": "cross-domain D2: recovered a=2.504 (true 2.500), b=-0.7000, R2 0.9995, 3 NaN removed"},
+      "figure_reproduction": {"status": "NOT TESTED", "evidence": "no paper figure reproduced"},
+      "timetable_large_data": {"status": "NOT TESTED", "evidence": "no timetable/datastore task"}
+    },
+    "matlab-codegen-deploy": {
+      "mex_or_c_codegen": {"status": "NOT TESTED", "evidence": "no codegen task ran in any phase"},
+      "embedded_deployment": {"status": "NOT TESTED", "evidence": "no hardware"},
+      "hdl_cuda": {"status": "NOT TESTED", "evidence": "no task"}
+    },
+    "matlab-robotics-autonomy": {
+      "forward_kinematics": {"status": "VERIFIED", "evidence": "cross-domain D8: (0.866025403784, 1.3) vs geometric reference, base MATLAB only"},
+      "trajectory_planning": {"status": "NOT TESTED", "evidence": "no planner run"},
+      "ros_integration": {"status": "NOT TESTED", "evidence": "no ROS environment"}
+    }
+  },
+  "summary": {
+    "verified_capabilities": 12,
+    "partial": 4,
+    "not_tested": 14,
+    "unsupported": 0
+  }
+}

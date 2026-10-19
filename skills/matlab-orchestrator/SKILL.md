@@ -89,28 +89,37 @@ Failure classification and retry policy live in `matlab-runner`; classify before
 
 ## Routing
 
-Use these specialist skills:
+Do not choose a skill from memory. Run the matcher, which reads the weighted term
+table in `assets/routing.json`:
 
-- `matlab-runner`: execution wrapper, logs, local validation, reproducible artifacts.
-- `matlab-data-analysis`: tables, timetables, statistics, fitting, visualization, reports.
-- `matlab-simulink-modeling`: `.slx` models, simulation, signal logging, parameter sweeps.
-- `matlab-codegen-deploy`: MATLAB Coder, Embedded Coder, GPU Coder, HDL Coder, deployment.
-- `matlab-control-optimization`: control design, system identification, MPC, optimization.
-- `matlab-robotics-autonomy`: ROS, robotics, navigation, UAV, sensor fusion, trajectories.
-- `matlab-signal-vision-ai`: signal processing, image processing, computer vision, deep learning.
-- `matlab-testing-ci`: unit tests, Simulink Test, GitHub Actions, reproducible CI.
+```matlab
+r = mas_route("设计三相逆变器并分析 THD");
+r.decision     % 'ROUTE' | 'CLARIFY' | 'AMBIGUOUS'
+r.loadOrder    % {'matlab-runner','matlab-simulink-modeling','matlab-signal-vision-ai'}
+```
 
-If multiple domains apply, start with `matlab-runner`, then load the narrowest domain skill for the core work, and finish with `matlab-testing-ci` when the task is meant to be reusable.
+Rules the matcher enforces, and you must not override:
 
-## Closed-loop Definition
+- `matlab-runner` is always first: every route needs execution.
+- A score below `minScore` returns `CLARIFY`. Ask one question; do not guess.
+- Two domains tied at the top return `AMBIGUOUS`. Ask which one carries the core work.
+- Secondary skills join when their score is at least `multiSkillRatio * top`.
+- `matlab-testing-ci` joins only when the task is meant to be reusable or explicitly
+  needs acceptance/regression.
 
-A MATLAB task is complete only when it has:
+| Skill | Domain |
+| --- | --- |
+| `matlab-runner` | execution, logs, prechecks, artifacts (always loaded) |
+| `matlab-simulink-modeling` | `.slx`, Stateflow, Simscape, simulation, sweeps |
+| `matlab-signal-vision-ai` | signals, filters, spectra, images, video, AI |
+| `matlab-control-optimization` | controllers, state space, identification, MPC, optimization |
+| `matlab-data-analysis` | tables, statistics, fitting, figures, reports |
+| `matlab-codegen-deploy` | C/C++/CUDA/HDL generation, MEX, embedded deployment |
+| `matlab-robotics-autonomy` | ROS, kinematics, planning, navigation, sensor fusion |
+| `matlab-testing-ci` | unit tests, Simulink Test, coverage, CI, acceptance |
 
-- A runnable command or script.
-- Logs captured from MATLAB.
-- Artifacts saved in a predictable folder.
-- A numerical, visual, or structural acceptance check.
-- A short explanation of what was verified and what remains unverified.
+Routing is covered by `tests/test_routing.m` (9 cases, including the three from the
+Phase 4 brief and the two "must not guess" cases).
 
 ## Default Artifact Layout
 
