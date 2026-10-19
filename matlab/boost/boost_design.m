@@ -90,7 +90,17 @@ end
 % response of C*G*exp(-s*Td) so the delay is inside the number, not a footnote
 [w, Lw] = loop_response(LG, Td);
 c.LG = LG;
-[c.fcActual, c.PM, c.GM, c.nCross] = margins_from(w, Lw);
+% Margins are evaluated at EVERY crossing (see boost_margins.m). PM/GM keep their
+% old names but now mean the WORST over all crossings, not the highest/first one.
+mm = boost_margins(w, Lw);
+c.fcActual = mm.fcHighest;
+c.PM = mm.pmWorst;
+c.GM = mm.gmWorst;
+c.nCross = mm.nDown;
+c.nCrossUp = mm.nUp;
+c.crossDetail = mm.cross;
+c.gmDetail = mm.gm;
+c.marginsOK = mm.crossingsOK;
 c.fcReq = fc;
 c.fcErr = 100*(c.fcActual/fc - 1);
 c.w = w; c.L = Lw;
@@ -102,32 +112,4 @@ function [w, Lw] = loop_response(LG, Td)
 w = logspace(log10(2*pi*10), log10(2*pi*200e3), 4000).';
 Lw = squeeze(freqresp(LG, w));
 Lw = Lw(:).*exp(-1j*w*Td);
-end
-
-function [fc, PM, GM, nCross] = margins_from(w, Lw)
-% Gain crossover and phase margin. A loop with an LC resonance can cross 0 dB
-% more than once: |L| hovers near 1, the resonance pushes it up, and it falls
-% again. Taking the FIRST crossing (the first version) then reports a meaningless
-% 144 deg at 30 Hz while the loop actually crosses again near 300 Hz, where the
-% phase is -160 deg. The loop bandwidth is set by the HIGHEST crossing, so that is
-% the one reported, together with how many crossings were found.
-mag = abs(Lw); ph = unwrap(angle(Lw));
-ix = find(mag(1:end-1) >= 1 & mag(2:end) < 1);
-nCross = numel(ix);
-if isempty(ix)
-    fc = NaN; PM = NaN;
-else
-    i1 = ix(end);                       % highest downward crossing
-    r = (0 - log(mag(i1)))/(log(mag(i1+1))-log(mag(i1)));
-    fc = exp(log(w(i1)) + r*(log(w(i1+1))-log(w(i1))))/(2*pi);
-    phc = ph(i1) + r*(ph(i1+1)-ph(i1));
-    PM = 180 + phc*180/pi;
-end
-% gain margin: where the phase crosses -180
-j = find(ph(1:end-1) > -pi & ph(2:end) <= -pi, 1, 'first');
-if isempty(j)
-    GM = Inf;
-else
-    GM = -20*log10(mag(j));
-end
 end

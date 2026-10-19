@@ -73,8 +73,11 @@ for k = 1:nPer
     if t0 < o.Tss, vref = o.Vref0 + (p.Vref-o.Vref0)*t0/o.Tss; else, vref = p.Vref; end
 
     % ---- measurement at the period boundary ----
-    if c.arch == 'B', iIn = iL; else, iIn = iL; end
-    vOut = out_v(iL, vC, iIn, pCur);
+    % At the boundary the diode is still conducting (the ON edge comes next), so
+    % the capacitor current includes iL. Sampling exactly ON the edge makes this a
+    % convention, and the convention is stated: measured with vOut evaluated
+    % BEFORE the edge.
+    vOut = out_v(iL, vC, iL, pCur);
     iMeas = iL;
     if isfield(c,'sens') && c.sens.enable
         iMeas = c.sens.gain*iL + c.sens.offset;
@@ -92,7 +95,11 @@ for k = 1:nPer
         iLref = NaN;
     else
         ff = 0;
-        if isfield(c,'ff') && c.ff, ff = iMeas/(1 - c.D0); end
+        % load-current feedforward, NOT the measured inductor current: iL is the
+        % regulated quantity, so iL/(1-D0) is a positive feedback of gain ~2 that
+        % changes the loop rather than compensating the load. Same defect was
+        % found and fixed in boost_avg_sim.m.
+        if isfield(c,'ff') && c.ff, ff = (vOut/pCur.R)/(1 - c.D0); end
         iLrefRaw = c.Kpe*e + xI + ff;
         iLref = min(max(iLrefRaw, 0), c.Imax);
         iSig = iMeas + comp;
@@ -157,6 +164,17 @@ r.iLpeak = rILpk; r.iLvalley = rILvl; r.iLavg = rILav; r.dcmFrac = rDcm;
 r.dcmTime = sum(rDcm)*Ts;
 r.dcmPeriods = nnz(rDcm > 1e-9);
 r.cfg = c; r.opt = o; r.Rpost = Rcur; r.VinPost = VinCur;
+% DCM is a MODEL VALIDITY event: any time spent in DCM means the CCM design was
+% not validated on this run. Callers must not grade it as PASS.
+% r.dcmFrac is PER PERIOD (length nPer, set above); the run-level scalar gets its
+% own name so the two can never be confused. Overwriting dcmFrac with the scalar
+% here is what made the first version of boost_run_metrics crash.
+r.dcmFracTotal = r.dcmTime/(nPer*Ts);
+r.valid   = (r.dcmTime == 0);
+r.invalidReason = '';
+if r.dcmTime > 0
+    r.invalidReason = sprintf('DCM for %.3f %% of the run', 100*r.dcmFracTotal);
+end
 end
 
 % ---------------------------------------------------------------------------
