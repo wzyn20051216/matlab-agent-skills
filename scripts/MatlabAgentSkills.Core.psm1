@@ -1200,7 +1200,13 @@ function Sync-SkillDirectory {
 
     switch ($decision) {
         "unchanged" {
-            $result.Message = if ($localExtras.Count -gt 0) { "受管内容一致，跳过（保留用户新增文件 $($localExtras.Count) 个）" } else { "内容一致，跳过" }
+            if ($localExtras.Count -gt 0) {
+                # 未交换也要如实报告"目录里存在用户文件"，否则脚本化消费者看到空数组会误判。
+                $result.PreservedUserFiles = [string[]]$localExtras
+                $result.Message = "受管内容一致，跳过（保留用户新增文件 $($localExtras.Count) 个）"
+            } else {
+                $result.Message = "内容一致，跳过"
+            }
             return $result
         }
         "conflict" {

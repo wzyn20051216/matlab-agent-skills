@@ -210,6 +210,10 @@ $summary = [pscustomobject]@{
                 changed    = [bool]$_.Changed
                 backupPath = $_.BackupPath
                 message    = $_.Message
+                # 供脚本化消费者直接读取，不必解析中文 message。
+                preservedUserFiles = @($_.PreservedUserFiles)
+                restoredFromBackup = [bool]$_.RestoredFromBackup
+                recreatedFiles     = [int]$_.RecreatedFiles
             }
         })
 }
