@@ -46,6 +46,7 @@ doTools   = any(strcmpi(opt, {'all','tools'}));
 doOwners  = any(strcmpi(opt, {'all','owners'}));
 doSummary = any(strcmpi(opt, {'all','summary'}));
 doEvid    = any(strcmpi(opt, {'all','evidence'}));
+doRefs    = any(strcmpi(opt, {'all','references'}));
 
 C = struct('id', {}, 'pass', {}, 'detail', {});
 
@@ -212,10 +213,52 @@ if doEvid
         sprintf('%d claim(s) cite nothing that exists: %s', numel(noFile), strjoin(noFile, '; '))));
 end
 
+% ---- references: every referenced file must exist, and be reachable -------
+% Progressive loading only works if the pointer is right. A SKILL.md that says
+% "see references/x.md" for a file that was renamed is worse than a long file,
+% because the agent follows the pointer, misses, and concludes the skill is vague.
+if doRefs
+    refBad = {};
+    refN = 0;
+    sd = dir(fullfile(repo, 'skills', '*'));
+    for k = 1:numel(sd)
+        if ~sd(k).isdir, continue; end
+        skRoot = fullfile(repo, 'skills', sd(k).name);
+        f = fullfile(skRoot, 'SKILL.md');
+        if ~isfile(f), continue; end
+        txt = fileread(f);
+        % references/<name>.md, and the sibling form ../<skill>/references/<name>.md
+        tok = regexp(txt, 'references/[A-Za-z0-9_\-]+\.md', 'match');
+        for t = 1:numel(tok)
+            refN = refN + 1;
+            if isfile(fullfile(skRoot, tok{t}))
+                continue;
+            end
+            % sibling-skill spelling; keep the extension on the leaf
+            leaf = tok{t}(strfind(tok{t}, '/')+1:end);
+            sib = dir(fullfile(repo, 'skills', '*', 'references', leaf));
+            if isempty(sib)
+                refBad{end+1} = sprintf('%s -> %s', sd(k).name, tok{t}); %#ok<AGROW>
+            end
+        end
+    end
+    if isempty(refBad)
+        C(end+1) = struct('id', 'references', 'pass', true, ...
+            'detail', sprintf('all %d reference pointer(s) resolve to a real file', refN));
+    else
+        C(end+1) = struct('id', 'references', 'pass', false, ...
+            'detail', sprintf('%d dangling pointer(s): %s', numel(refBad), strjoin(refBad, '; ')));
+    end
+end
+
 nPass = nnz([C.pass]);
-r = struct('ok', all([C.pass]), 'checks', C, 'nPass', nPass, 'nTotal', numel(C), ...
-    'verdict', tern(all([C.pass]), 'CONSISTENT', 'DRIFTED'), ...
-    'detail', sprintf('%d/%d consistency checks passed', nPass, numel(C)));
+r = struct();
+r.ok = all([C.pass]);
+r.checks = C;
+r.nPass = nPass;
+r.nTotal = numel(C);
+r.verdict = tern(r.ok, 'CONSISTENT', 'DRIFTED');
+r.detail = sprintf('%d/%d consistency checks passed', nPass, numel(C));
 end
 
 % ---------------------------------------------------------------------------

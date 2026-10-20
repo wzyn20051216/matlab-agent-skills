@@ -30,6 +30,10 @@
    "held_out_generalisation": {
     "status": "VERIFIED",
     "evidence": "held-out set S1/R1/G1 3/3, graded only by mas_verify_task against frozen references"
+   },
+   "skill_call_graph": {
+    "status": "VERIFIED",
+    "evidence": "test_skill_graph.m 13/13: 8 known-answer graphs pin the detector (diamond and star must NOT be reported), plus no cycle / no dangling route / full coverage on the real 9 skills"
    }
   },
   "matlab-runner": {
@@ -219,15 +223,15 @@
  },
  "summary": {
   "capability_counts": {
-   "VERIFIED": 31,
+   "VERIFIED": 32,
    "NOTTESTED": 13,
    "PARTIAL": 2,
    "UNSUPPORTED": 1
   },
   "tool_counts": {
-   "VERIFIED": 29
+   "VERIFIED": 30
   },
-  "verified_capabilities": 31,
+  "verified_capabilities": 32,
   "note": "Counts are COMPUTED from the entries above, not typed in -- mas_capability_check.m fails if they drift. Keys carry no spaces because jsonencode strips them. Power electronics stays PARTIAL: there is no dedicated skill and routing.json says so. UNSUPPORTED means the product is not installed here (UAV); NOTTESTED means it might work but nothing in this repo exercised it. R2/R3 remain SKIP -- see the benchmark ledger."
  },
  "tools": {
@@ -404,6 +408,12 @@
    "status": "VERIFIED",
    "tests": "test_capability_check.m",
    "what": "keeps the matrix honest: every mas_*.m must be listed, owners must match disk, summary counts must be derived, and every VERIFIED claim must cite a test file or a graded task id"
+  },
+  "mas_skill_graph": {
+   "skill": "matlab-orchestrator",
+   "status": "VERIFIED",
+   "tests": "test_skill_graph.m 13/13",
+   "what": "builds the skill call graph from routing.json + SKILL.md + cross-skill script calls; detects cycles, dangling routes, duplicate loading; the detector is pinned against 8 graphs with known answers"
   }
  },
  "toolsNote": "Generated from the files under skills/*/scripts. mas_capability_check.m fails when this drifts from disk, because a matrix that silently rots is worse than no matrix."

@@ -16,20 +16,23 @@ routing           9 /   9      signal / vision / AI  34 /  34
 precheck         16 /  16      robotics              31 /  31
 depProbe         23 /  23      codegen               11 /  11
 grading           6 /   6      ------------------------------------------
-refcheck         11 /  11      skill tests          184 / 184
+refcheck         11 /  11      skill tests          197 / 197
 bench              9 /   9      references            15 /  15
 capability         7 /   7      cross-domain          15 /  15
-modelCheck        2 /   2        dev 12/12  held-out 3/3
-ctrlAnalyze      14 /  14      pipeline              15 /  15  (skillMatch 15/15)
+skillGraph        13 /  13        dev 12/12  held-out 3/3
+modelCheck        2 /   2      pipeline              15 /  15  (skillMatch 15/15)
+ctrlAnalyze      14 /  14
 tableAudit       11 /  11
-                 177 → 184
+                 184 → 197      (Task 8 续作：+13 skillGraph)
 ```
 
-套件健康度：`suitesErrored = 0` / `suitesRun = 13` / `allSuitesOk = 1`。
+套件健康度：`suitesErrored = 0` / `suitesRun = 14` / `allSuitesOk = 1`。
 崩溃的套件会被显式计数并打印 `!!!! N SUITE(S) ERRORED`，不会再消失在总分里（见 §9.5）。
 
-能力矩阵：**29 个工具、47 项能力**（31 VERIFIED / 13 NOT TESTED / 2 PARTIAL /
-1 UNSUPPORTED），`mas_capability_check` 4/4 CONSISTENT（见 §10）。
+能力矩阵：**30 个工具、48 项能力**（32 VERIFIED / 13 NOT TESTED / 2 PARTIAL /
+1 UNSUPPORTED），`mas_capability_check` 5/5 CONSISTENT（见 §10）。
+
+Skill 调用图：**9 条边、0 环、0 悬空、8/8 可路由**，检测器在 8 张已知图上全部正确（见 §10.5）。
 
 Benchmark 台账：**R1 DONE / R2 SKIP / R3 SKIP → overall PARTIAL**（见 §9）。
 
@@ -597,18 +600,74 @@ C2 最阴险：`58` 里唯一"缺失"的名字恰好是真缺的那个，所以�
 一个只见过一致仓库的校验器，等于没有校验器；一个会误报的校验器更糟，
 因为人会开始忽略它——而矩阵正是他们据以工作的依据。
 
-真实仓库当前状态：`CONSISTENT`（4/4 检查通过，29 工具全部登记、归属正确、
-统计一致、31 条 VERIFIED 声明全部可复跑）。
+真实仓库当前状态：`CONSISTENT`（5/5 检查通过，30 工具全部登记、归属正确、
+统计一致、32 条 VERIFIED 声明全部可复跑、9 个 references 指针全部解析）。
+
+### 10.5 Task 8 的另外两项：调用关系图与渐进式加载
+
+上一轮只做了矩阵，把 Task 8 明写的另外三项漏了。本轮补齐：
+
+**（一）Skill 调用关系图 —— `mas_skill_graph`**
+
+九个 SKILL.md 里有一批**长得像 Skill 名但不是**的字符串：`mcp.matlab-license`、
+`mcp.matlab-install` 是探针的 check id，`matlab-actions/run-tests@v3` 是 GitHub Action。
+朴素 grep 会把它们全算成跨 Skill 引用——一个真实的环就藏在这里面。所以图从三个
+可信来源构建：
+
+```
+routing.json   路由器权威（注意：对象键不能含连字符，真正的名字在 s.id 里）
+SKILL.md 正文  剔除外来命名空间后的兄弟 Skill 引用（自引用不算依赖）
+scripts/       一个 Skill 的脚本调用另一个 Skill 的 mas_* —— 最硬的那种依赖
+```
+
+当前实测：**9 条边、0 个环、0 悬空路由、8/8 技能可路由**。唯一的边是
+orchestrator → 其余 8 个（路由器本来就该知道全部），加 simulink → runner。
+
+**这个工具自己先错了一次**：第一版 DFS 在第一个根节点跑完后把所有节点标 BLACK，
+破坏了"回边=环、黑边=DAG"这个不变量，于是一张**没有自环的图报了 9 个环**。
+假警报会把人派去追一个不存在的路由死循环。
+
+因此环检测单独用 8 张答案已知的图钉住：空图、链、自环、2-环、**菱形**、**星形**、
+尾入环、两个不相交环。菱形和星形是关键——DFS 颜色处理写错时它们必报假环。
+13/13 通过。
+
+**（二）references 分层与渐进式加载**
+
+`matlab-runner/SKILL.md` 从 235 行降到 **205 行**，把三个大表格搬进 references：
+
+| 搬出的内容 | 为什么不该每次都加载 |
+|---|---|
+| MCP 七级探针阶梯 | 只在"要声称 MCP 就绪"时才需要 |
+| L1–L5 验收层级细则 | 只在写验收报告前需要，且随版本失效最快 |
+| 八类失败与重试策略 | 只在失败后决策时需要 |
+| product→feature 对照表 | 最易随 MATLAB 版本失效，且已经有脚本 `mas_product_map` 兜底 |
+
+主文件顶部新增索引表，写明每份 reference **什么时候该加载**。这不是整理癖：
+`references/` 目录此前只有 1 个文件，九个 Skill 里有 8 个把全部领域知识塞进主文件，
+每次任务都要为用不上的细节付出上下文。
+
+**（三）references 指针有效性纳入自动检查**
+
+渐进式加载只在指针正确时成立。`mas_capability_check` 新增第五组检查：
+**每个 `references/xxx.md` 指针必须解析到真实文件**（含 `../<skill>/references/`
+这种兄弟写法）。当前 9 个指针全部解析。
+
+第一版检查器在这里**误报了一个真实存在的指针**——它把 leaf 的扩展名剥掉再 glob。
+如果照着它去"修"文档，就会把一个正确的文档改坏。
 
 ---
 
 ## 8. 诚实边界
 
-1. **12/12 的 skillMatch 是路由器的成绩，不是 Agent 的行为。** `mas_pipeline` 直接调用
+1. **15/15 的 skillMatch 是路由器的成绩，不是 Agent 的行为。** `mas_pipeline` 直接调用
    `mas_route` 与入口函数，Skill 在本会话中**从未被自动触发**（没有技能运行时）。
-2. **R2/R3 仍是 SKIP。** 本会话工具列表中没有 `mcp__matlab*`；`matlab -batch` 不是 MCP。
+2. **R2/R3 仍是 SKIP**，且已查清是**绑定缺口不是缺安装**：`bin/matlab-mcp-server-windows-x64.exe`
+   在盘上（19.9 MB），R1 在 10-17 真实跑通 3/3，缺的只是本会话未绑定 `mcp__matlab*`。
+   台账 `evidence` 字段明写这一点，避免下一个人去重装一遍。
 3. **`mas_ref_derive` 的方法仍然是我写的代码。** 两条方法互不共享代码路径，能挡住
    "公式用错"和"代码写错"，挡不住"两条方法对同一个物理问题有同一个错误理解"。
-   这一层只能靠外部权威（教科书、器件手册、实测）补，报告里逐项标注了哪些参考
-   属于解析解（可信度高）与哪些属于约定（如 ESR 采样沿定义）。
-4. **D6 耗时 69 s**（Simulink 编译），是 12 条里唯一的重量级任务；其余 11 条合计 5 s。
+   这一层只能靠外部权威（教科书、器件手册、实测）补。
+4. **D6 是 15 条里唯一的重量级任务**（Simulink 编译，数十秒），其余 14 条合计数秒。
+5. **references 分层只做了 matlab-runner 一个。** 其余八个 Skill 的主文件仍有可搬的
+   大表格，判断标准已经由 `mas_capability_check` 的指针检查固定下来，但搬迁本身
+   未做——本轮不一次性生成大量未验证的改动。
