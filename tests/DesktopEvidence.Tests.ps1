@@ -12,7 +12,8 @@ Describe 'Desktop 技能证据的客户端与来源边界' {
         $script:DesktopEvidenceSource = Join-Path $script:DesktopEvidenceRoot 'session.jsonl'
         $script:DesktopEvidenceOutput = Join-Path $script:DesktopEvidenceRoot 'out'
         $script:DesktopFixture = @(
-            @{type='session_meta';timestamp='2026-10-20T00:00:00Z';payload=@{id='test';originator='Codex Desktop';cli_version='test'}}
+            @{type='session_meta';timestamp='2026-10-20T00:00:00Z';payload=@{id='test';originator='Codex Desktop';source='vscode';cli_version='test'}}
+            @{type='response_item';payload=@{type='message';role='developer';content=@(@{text='<app-context>cwd=/repo/matlab</app-context>'})}}
             @{type='response_item';payload=@{type='message';role='developer';content=@(@{text='- matlab-runner: 示例 (file: r1/matlab-runner/SKILL.md)'})}}
             @{type='response_item';payload=@{type='message';role='user';content=@(@{text='PRIVATE_USER_MESSAGE_DO_NOT_EXPORT'})}}
         )
@@ -40,6 +41,20 @@ Describe 'Desktop 技能证据的客户端与来源边界' {
             Set-Content -LiteralPath $script:DesktopEvidenceSource -Encoding UTF8
         (Test-Throws { & $script:DesktopExporter -SessionFile $script:DesktopEvidenceSource -OutputDirectory $script:DesktopEvidenceOutput }) | Should Be $true
         (Test-Path -LiteralPath $script:DesktopEvidenceOutput) | Should Be $false
+    }
+    It 'originator 同为 Codex Desktop 但 source=exec 的 CLI 会话也必须被拒绝' {
+        # CLI 0.147.0 的 exec 会话确实写 originator='Codex Desktop'，只查 originator 会放行。
+        $script:DesktopFixture[0].payload.source = 'exec'
+        $script:DesktopFixture | ForEach-Object { $_ | ConvertTo-Json -Depth 8 -Compress } |
+            Set-Content -LiteralPath $script:DesktopEvidenceSource -Encoding UTF8
+        (Test-Throws { & $script:DesktopExporter -SessionFile $script:DesktopEvidenceSource -OutputDirectory $script:DesktopEvidenceOutput }) | Should Be $true
+        (Test-Path -LiteralPath $script:DesktopEvidenceOutput) | Should Be $false
+    }
+    It '缺少 app-context 标记的会话不算 Desktop UI 会话' {
+        $script:DesktopFixture[1].payload.content[0].text = 'no marker here'
+        $script:DesktopFixture | ForEach-Object { $_ | ConvertTo-Json -Depth 8 -Compress } |
+            Set-Content -LiteralPath $script:DesktopEvidenceSource -Encoding UTF8
+        (Test-Throws { & $script:DesktopExporter -SessionFile $script:DesktopEvidenceSource -OutputDirectory $script:DesktopEvidenceOutput }) | Should Be $true
     }
     It '只把带成功返回正文的读取记为加载' {
         $script:DesktopFixture += @{type='response_item';payload=@{type='custom_tool_call';name='exec';call_id='read';input='Get-Content C:\Users\alice\.agents\skills\matlab-runner\SKILL.md'}}
@@ -71,8 +86,9 @@ Describe 'Desktop 技能证据的客户端与来源边界' {
         ($load.inputSha256 -match '^[A-F0-9]{64}$') | Should Be $true
         ($load.outputSha256 -match '^[A-F0-9]{64}$') | Should Be $true
         ($load.inputSha256 -ne $load.outputSha256) | Should Be $true
-        $load.sourcePointer.callEventIndex | Should Be 3
-        $load.sourcePointer.outputEventIndex | Should Be 4
+        # 夹具在 meta 之后多了一条 <app-context> developer 消息，事件下标整体 +1。
+        $load.sourcePointer.callEventIndex | Should Be 4
+        $load.sourcePointer.outputEventIndex | Should Be 5
         # PS7 会将 JSON ISO 时间自动解码为 DateTime；按同一 UTC 时刻比较。
         ([datetimeoffset]$load.timestamp).UtcDateTime.Ticks |
             Should Be ([datetimeoffset]'2026-10-20T00:00:01Z').UtcDateTime.Ticks

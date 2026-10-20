@@ -226,7 +226,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File .\tests\Invoke-Tests.ps1 -La
 为了排除"只是 180 秒不够久"，随后在测试框架之外单独跑了一次不设超时的直连调用：
 
 ```text
-E:/matlab/bin/matlab.exe -batch "fprintf('STARTUP_OK=%d\n',1); disp(version)" -logfile D:/Temp/ml-startup.log
+<MATLAB_ROOT>/bin/matlab.exe -batch "fprintf('STARTUP_OK=%d\n',1); disp(version)" -logfile <TEMP>/ml-startup.log
 实际耗时 68 分 57 秒 → 输出 "MATLAB error Exit Status: 0x00000001" → 退出码 1
 ```
 

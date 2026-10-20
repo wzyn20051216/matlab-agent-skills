@@ -33,4 +33,4 @@ $result = if ($PSCmdlet.ParameterSetName -eq 'Confirm') {
     Confirm-MasDesktopStartupReceipt -ReportPath $ConfirmReport
 } else { Start-MasMatlabDesktop @PSBoundParameters }
 $result | ConvertTo-Json -Depth 10
-if ($result.status -in @('START_FAILED', 'TIMEOUT', 'EXISTING_NOT_READY', 'NOT_NEW')) { exit 1 }
+if ($result.status -in @('START_FAILED', 'TIMEOUT', 'EXISTING_NOT_READY', 'NOT_NEW', 'UNSUPPORTED')) { exit 1 }

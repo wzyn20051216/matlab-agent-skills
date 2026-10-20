@@ -74,7 +74,7 @@ if (-not $StopFilePath) { $StopFilePath = Join-Path $Work "stop_session.flag" }
 
 # ---- 解析 matlab.exe ----
 # 复用 Execution 模块的解析逻辑（显式 > MATLAB_EXE > PATH > MATLAB_ROOT > 全盘扫描），
-# 不在这里硬编码任何盘符或安装路径——仓库有卫生检查禁止 E:/D: 硬编码。
+# 不在这里硬编码任何盘符或安装路径——仓库有卫生检查禁止盘符硬编码。
 $matlabModule = Join-Path $PSScriptRoot "MatlabAgentSkills.Execution.psm1"
 if (-not (Test-Path -LiteralPath $matlabModule)) {
     throw "未找到 $matlabModule"

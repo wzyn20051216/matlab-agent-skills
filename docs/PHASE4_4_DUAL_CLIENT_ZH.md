@@ -125,9 +125,11 @@ Desktop 的 diary 可能因 LiveEditor 执行通道而为空。报告显式记�
 
 ## 回归快照与限制
 
-免费全套[当前快照](../artifacts/validation/phase44/free_tests_after_autostart.json)为 `263/265`
-（2026-10-20 22:11，PS 5.1 / Pester 3.4.0，耗时 94.6 s）：既有硬编码盘符和
-PowerShell UTF-8 BOM 两项失败仍保留，不声称免费全套通过。
+免费全套[当前快照](../artifacts/validation/phase44/free_tests_final_4_4_1.json)为 `268/268`
+（2026-10-20 23:0x，PS 5.1 / Pester 3.4.0）。Phase 4.4.1 已定位并修掉此前两项失败：
+盘符检查的**判据误报**（大小写不敏感匹配把正则里的 `name:` 加空白序列误当成盘符路径）与真实硬编码分开处理，
+`Invoke-Phase43McpTask.ps1` 补上 PS 5.1 所需的 UTF-8 BOM。
+详见 [Phase 4.4.1 可靠性收尾](PHASE4_4_1_RELIABILITY_ZH.md)。
 Phase 4.3 grader [回归结果](../artifacts/validation/phase44/grader_tests.json)经真实官方 MCP 执行为 `43/43`；
 Phase 4.3 的 53 份历史原始结果未改写。
 Desktop 证据回归在 [PS5.1](../artifacts/validation/phase44/desktop_evidence_tests_ps51.json) /

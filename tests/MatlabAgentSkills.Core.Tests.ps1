@@ -426,19 +426,85 @@ Describe "下载安全（P0-6：无校验远程下载）" {
 
 Describe "仓库卫生（P0-7：机器专属路径与编码）" {
 
-    It "仓库里没有 E:/D: 盘符硬编码路径" {
+    # 旧测试名（历史失败文本，保留以便检索）：仓库里没有 E:/D: 盘符硬编码路径。
+    # 旧名里的 “E:/D:” 是规则名/散文，不是路径：Windows 路径段里冒号非法，
+    # 所以下面谓词要求分隔符后不能紧跟“字母:”，而真正的正斜杠盘符路径照常命中。
+    It "仓库里没有盘符硬编码路径（E 盘 / D 盘）" {
         # 动态拼 pattern，避免测试文件自身命中。
-        $drivePattern = "[" + [char]69 + [char]68 + "]:\\"
+        # 盘符必须处于“路径起点”上下文：左侧不能粘着单词字符（否则 name:\s
+        # 这类转义序列会误报），右侧不能是另一个“字母:”盘符标记（散文写法）。
+        # 大小写不敏感是故意的：小写盘符同样是机器专属路径。
+        $drivePattern = "(?<![A-Za-z0-9_])[" + [char]69 + [char]68 + "]:[\\/](?![A-Za-z]:)"
+
+        # 谓词自检：真盘符必须命中，转义序列与其他盘符必须不命中。
+        # 样本同样动态拼装，避免本测试文件自己变成第 0 个命中。
+        $colon = [string][char]58
+        $sep = [string][char]92
+        $E = [string][char]69
+        $D = [string][char]68
+        $C = [string][char]67
+        $positiveSamples = @(
+            ($E + $colon + $sep + "desktop" + $sep + "MATLAB"),
+            ($D + $colon + $sep + "Temp" + $sep + "x.m"),
+            ("e" + $colon + $sep + "desktop"),
+            ($E + $colon + "/desktop"),
+            ("--out=" + $D + $colon + $sep + "out")
+        )
+        $negativeSamples = @(
+            ("name" + $colon + $sep + "s*(matlab-"),
+            ("allowed" + $colon + $sep + "n"),
+            ($C + $colon + $sep + "Windows"),
+            # 约定名/散文写法：“X:/Y:” 不是路径（路径段里不能有冒号）。
+            ($E + $colon + "/" + $D + $colon)
+        )
+        foreach ($sample in $positiveSamples) {
+            ([bool]($sample | Select-String -Pattern $drivePattern -AllMatches)) | Should Be $true
+        }
+        foreach ($sample in $negativeSamples) {
+            ([bool]($sample | Select-String -Pattern $drivePattern -AllMatches)) | Should Be $false
+        }
+
+        # “仓库里”只指仓库真正分发的内容：git 忽略的本机文件（.mcp.json、
+        # .workbuddy/、.codex/ 等）是本机状态、不随仓库分发，不是仓库里的硬编码
+        # 路径。不在 git 工作区时（例如从源码压缩包运行）退回全量遍历 + 显式排除。
+        $tracked = @{}
+        Push-Location -LiteralPath $script:RepoRoot
+        try {
+            $listing = & git ls-files -z 2>$null
+            if ($LASTEXITCODE -eq 0 -and $listing) {
+                foreach ($relativePath in (($listing -join "") -split [string][char]0)) {
+                    if ($relativePath) { $tracked[($relativePath -replace "\\", "/")] = $true }
+                }
+            }
+        }
+        catch {
+            $tracked = @{}
+        }
+        finally { Pop-Location }
+
         $files = Get-ChildItem -LiteralPath $script:RepoRoot -Recurse -File |
-            Where-Object { $_.FullName -notmatch "[\\/]\.git[\\/]" -and $_.FullName -notmatch "[\\/]artifacts[\\/]" -and $_.FullName -notmatch "[\\/]bin[\\/]" } |
+            Where-Object { $_.FullName -notmatch "[\\/]\.(git|workbuddy|codex|vscode)[\\/]" } |
+            Where-Object { $_.Name -ne ".mcp.json" -and $_.FullName -notmatch "[\\/]artifacts[\\/]" -and $_.FullName -notmatch "[\\/]bin[\\/]" } |
             Where-Object { $_.Extension -in @(".ps1", ".psm1", ".m", ".md", ".json", ".yml", ".yaml") }
+        if ($tracked.Count -gt 0) {
+            $files = $files | Where-Object {
+                $tracked.ContainsKey(($_.FullName.Substring($script:RepoRoot.Length + 1) -replace "\\", "/"))
+            }
+        }
 
         $hits = @()
         foreach ($file in $files) {
             $matches = Select-String -LiteralPath $file.FullName -Pattern $drivePattern -AllMatches -ErrorAction SilentlyContinue
             if ($matches) { $hits += $matches }
         }
-        ($hits | ForEach-Object { "$($_.Filename):$($_.LineNumber)" }) -join ";" | Should Be ""
+        $summary = ($hits | ForEach-Object { "$($_.Filename):$($_.LineNumber)" }) -join ";"
+        # 失败信息里带上扫描模式与文件数：走 git 列表和走文件系统遍历的排除项
+        # 不同，不写清楚就无法判断这次失败到底扫了什么。
+        if ($summary) {
+            $scanMode = if ($tracked.Count -gt 0) { "git-tracked" } else { "filesystem-walk" }
+            $summary = "$summary [scan=$scanMode; files=$(@($files).Count)]"
+        }
+        $summary | Should Be ""
     }
 
     It "所有 PowerShell 脚本都能被 Windows PowerShell 5.1 解析" {

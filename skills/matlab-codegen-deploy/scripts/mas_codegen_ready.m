@@ -132,7 +132,7 @@ function p = resolve_path(x)
 % Resolve a file name OR a full path to a real file path.
 %
 % The first version only knew how to look up a FUNCTION NAME with `which`, and
-% the documentation explicitly accepts a file path -- so `mas_codegen_ready('D:\Temp\x.m')`
+% the documentation explicitly accepts a file path -- so `mas_codegen_ready(fullfile(tempdir,'x.m'))`
 % returned an empty string and read_text() failed with "cannot open " (empty
 % argument), which reads like an I/O problem rather than a path-resolution bug.
 %

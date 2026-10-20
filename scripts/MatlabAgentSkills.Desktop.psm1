@@ -57,10 +57,21 @@ function Get-MasDesktopWindowPid {
     return $null
 }
 
+function Test-MasDesktopSameProcess {
+    <# .SYNOPSIS 同一 PID 不必然是同一进程；以创建时间再确认一次。缺时间戳时退回 PID 判定。 #>
+    param($Prior, $Current)
+    if (-not $Prior -or -not $Current) { return $false }
+    if ([int]$Prior.pid -ne [int]$Current.pid) { return $false }
+    $priorStamp = [DateTimeOffset]::MinValue; $currentStamp = [DateTimeOffset]::MinValue
+    if (-not [DateTimeOffset]::TryParse([string]$Prior.startedAt, [ref]$priorStamp) -or
+        -not [DateTimeOffset]::TryParse([string]$Current.startedAt, [ref]$currentStamp)) { return $true }
+    return ([Math]::Abs(($priorStamp - $currentStamp).TotalSeconds) -lt 2)
+}
+
 function Get-MasDesktopStartupAssessment {
     <# .SYNOPSIS 按本次启动标记、实际 PID、桌面窗口及共享会话共同判定就绪。 #>
-    param([string]$LaunchId, $Receipt, $Session, [int[]]$BeforePids = @(), [object[]]$Processes = @(),
-        [datetime]$NotBefore = [datetime]::MinValue, [string]$ExpectedMatlabRoot)
+    param([string]$LaunchId, $Receipt, $Session, [int[]]$BeforePids = @(), [object[]]$BeforeProcesses = @(),
+        [object[]]$Processes = @(), [datetime]$NotBefore = [datetime]::MinValue, [string]$ExpectedMatlabRoot)
     $r = [ordered]@{ ready = $false; reason = 'BOOTSTRAP_NOT_OBSERVED'; runtimePid = $null; desktopPid = $null; coldStartVerified = $false }
     if (-not $Receipt) { return [pscustomobject]$r }
     if ($Receipt.launchId -ne $LaunchId) { $r.reason = 'STALE_LAUNCH_RECEIPT'; return [pscustomobject]$r }
@@ -69,8 +80,21 @@ function Get-MasDesktopStartupAssessment {
         $r.reason = 'INVALID_RUNTIME_PID'; return [pscustomobject]$r
     }
     $r.runtimePid = $runtimeNumber
-    if ($BeforePids -contains $runtimeNumber) { $r.reason = 'PREEXISTING_RUNTIME'; return [pscustomobject]$r }
     $runtime = @($Processes | Where-Object { $_.pid -eq $runtimeNumber })
+    if ($BeforePids -contains $runtimeNumber) {
+        # PID 回收会让新运行时继承旧 PID：只有同一创建时间才算"启动前已存在"。
+        $prior = @($BeforeProcesses | Where-Object { $_.pid -eq $runtimeNumber })
+        $isPreexisting = $true
+        if ($prior.Count -eq 1 -and $runtime.Count -eq 1) {
+            $isPreexisting = Test-MasDesktopSameProcess -Prior $prior[0] -Current $runtime[0]
+        }
+        if ($isPreexisting) {
+            $r.reason = 'PREEXISTING_RUNTIME'
+            if ($runtime.Count -eq 1) { $r.observedRuntimeStartedAt = $runtime[0].startedAt }
+            return [pscustomobject]$r
+        }
+        $r.recycledPidDetected = $true
+    }
     if ($runtime.Count -ne 1) {
         $r.reason = 'RUNTIME_EXITED'; return [pscustomobject]$r
     }
@@ -224,7 +248,23 @@ function Write-MasDesktopHolderState {
     $temporary = $StateFile + '.tmp'
     $State.updatedAt = [datetime]::UtcNow.ToString('o')
     [IO.File]::WriteAllText($temporary, ($State | ConvertTo-Json -Depth 5), (New-Object Text.UTF8Encoding($false)))
-    Move-Item -LiteralPath $temporary -Destination $StateFile -Force
+    # 父进程边读边写时，直接 Move-Item 可能因共享冲突终止整个 holder；
+    # 这里有限重试，最后才退回非原子复制，绝不因发布状态失败而放弃 COM 引用。
+    $published = $false
+    for ($attempt = 0; $attempt -lt 20 -and -not $published; $attempt++) {
+        try {
+            if (Test-Path -LiteralPath $StateFile) { [IO.File]::Replace($temporary, $StateFile, $null) }
+            else { [IO.File]::Move($temporary, $StateFile) }
+            $published = $true
+        } catch {
+            # 用线程睡眠而不是 Start-Sleep：发布重试不应与"轮询等待"共用同一个可计数行为。
+            [Threading.Thread]::Sleep(25)
+        }
+    }
+    if (-not $published) {
+        Copy-Item -LiteralPath $temporary -Destination $StateFile -Force -ErrorAction Stop
+        Remove-Item -LiteralPath $temporary -Force -ErrorAction SilentlyContinue
+    }
 }
 
 function New-MasDesktopComObject {
@@ -238,7 +278,7 @@ function Invoke-MasDesktopComHolder {
     param([Parameter(Mandatory)][string]$ConfigFile)
     $config = [IO.File]::ReadAllText($ConfigFile) | ConvertFrom-Json
     if ($config.launchId -notmatch '^[a-f0-9]{32}$' -or -not $config.expectedMatlabRoot -or -not $config.stateFile) { throw '无效的 COM holder 配置。' }
-    $state = [ordered]@{ schema='mas-desktop-holder/1'; launchId=$config.launchId; holderPid=$PID;
+    $state = [ordered]@{ schema='mas-desktop-holder/1'; launchId=$config.launchId; holderPid=$PID; holderStartedAt=$null;
         status='ACTIVATING'; runtimePid=$null; runtimeStartedAt=$null; reason=$null; updatedAt=$null }
     $matlab = $null; $runtime = $null; $hold = $false; $unbound = @()
     try {
@@ -263,6 +303,8 @@ function Invoke-MasDesktopComHolder {
         $bootstrap = $config.scriptFile.Replace('\','/').Replace("'","''")
         # 仅写启动回执与共享会话；后续用户计算仍经官方 MCP。
         $executionOutput = [string]$matlab.Execute("run('$bootstrap');")
+        # 只在真正持有时记录 holder 自身创建时间，供父进程区分"同一 holder"与 PID 回收。
+        $state.holderStartedAt = try { (Get-Process -Id $PID -ErrorAction Stop).StartTime.ToUniversalTime().ToString('o') } catch { $null }
         $state.status='HOLDING'; $state.reason='COM_REFERENCE_HELD_UNTIL_RUNTIME_EXIT'
         Write-MasDesktopHolderState -StateFile $config.stateFile -State $state
     } catch {
@@ -315,32 +357,60 @@ function Start-MasDesktopComHolder {
         beforePids=@($BeforePids); expectedMatlabRoot=$ExpectedMatlabRoot; launchRequestedAt=$LaunchRequestedAt.ToUniversalTime().ToString('o') }
     [IO.File]::WriteAllText($configFile, ($config | ConvertTo-Json -Depth 5), (New-Object Text.UTF8Encoding($false)))
     if (-not ('MasDesktop.NativeProcess' -as [type])) { Add-Type -Path (Join-Path $PSScriptRoot 'DesktopProcessNative.cs') }
+    # 先只读判定当前进程是否位于禁止 breakaway 的 Job：与其在 CreateProcessW 之后拿到
+    # 一个无法归因的错误，不如在启动前就给出可执行的结论。
+    $breakawayState = [MasDesktop.NativeProcess]::DescribeBreakawayState()
+    if (-not [MasDesktop.NativeProcess]::CanBreakaway()) {
+        $failure = New-Object InvalidOperationException (
+            "当前进程位于不允许 breakaway 的 Windows Job 中，ComDesktop 模式无法创建独立持有进程。$breakawayState 请改用默认 StartupCommand（经 Windows Shell 启动，MATLAB 不继承该 Job）。")
+        $failure.Data['masStatus'] = 'UNSUPPORTED'
+        $failure.Data['masReason'] = 'COM_HOLDER_BREAKAWAY_DENIED'
+        $failure.Data['breakawayState'] = $breakawayState
+        throw $failure
+    }
     $helperExe = Join-Path ([Environment]::GetFolderPath('System')) 'WindowsPowerShell/v1.0/powershell.exe'
     $helperScript = Join-Path $PSScriptRoot 'Invoke-MatlabDesktopHolder.ps1'
     $argv = @('-NoProfile','-NonInteractive','-ExecutionPolicy','Bypass','-STA','-File',$helperScript,'-ConfigFile',$configFile)
     $arguments = ($argv | ForEach-Object { Format-ProcessArgument -Argument $_ }) -join ' '
     $holderNumber = [MasDesktop.NativeProcess]::StartDetached($helperExe, $arguments, $PSScriptRoot)
     [pscustomobject]@{ holderPid=$holderNumber; stateFile=$stateFile; configFile=$configFile;
-        creationFlags='CREATE_BREAKAWAY_FROM_JOB|CREATE_NO_WINDOW'; inheritHandles=$false; apartment='STA' }
+        creationFlags='CREATE_BREAKAWAY_FROM_JOB|CREATE_NO_WINDOW'; inheritHandles=$false; apartment='STA'
+        breakawayState=$breakawayState }
 }
 
 function Read-MasDesktopHolderState {
     <# .SYNOPSIS 不返回任意 holder JSON 字段，只接受同次启动和同一持有进程的状态。 #>
     param($Holder, [string]$LaunchId)
     if (-not (Test-Path -LiteralPath $Holder.stateFile)) { return $null }
+    $stream = $null; $reader = $null
     try {
-        $state = [IO.File]::ReadAllText($Holder.stateFile) | ConvertFrom-Json
+        # 与写入方的原子替换共存：允许 ReadWrite+Delete 共享，避免读取期间阻塞 holder 发布状态。
+        $stream = [IO.File]::Open($Holder.stateFile, [IO.FileMode]::Open, [IO.FileAccess]::Read,
+            ([IO.FileShare]::ReadWrite -bor [IO.FileShare]::Delete))
+        $reader = New-Object IO.StreamReader($stream, (New-Object Text.UTF8Encoding($false)), $true)
+        $state = $reader.ReadToEnd() | ConvertFrom-Json
         if ($state.schema -ne 'mas-desktop-holder/1' -or $state.launchId -ne $LaunchId -or $state.holderPid -ne $Holder.holderPid) { return $null }
         [pscustomobject]@{status=[string]$state.status; runtimePid=$state.runtimePid; runtimeStartedAt=$state.runtimeStartedAt;
+            holderStartedAt=$state.holderStartedAt;
             reason=(Protect-MasDesktopDiagnosticText -Text ([string]$state.reason)); updatedAt=$state.updatedAt;
             preservation=[string]$state.preservation; unboundProcessPids=@($state.unboundProcessPids | Where-Object { $_ -is [int] -or $_ -is [long] }) }
     } catch { return $null }
+    finally {
+        if ($reader) { $reader.Dispose() } elseif ($stream) { $stream.Dispose() }
+    }
 }
 
 function Test-MasDesktopHolderAlive {
-    <# .SYNOPSIS 持有进程必须仍存在；创建进程成功本身不构成 MATLAB 就绪证据。 #>
-    param([int]$HolderPid)
-    return [bool](Get-Process -Id $HolderPid -ErrorAction SilentlyContinue)
+    <# .SYNOPSIS 持有进程必须仍存在且确为同一次启动的 powershell；PID 回收不算存活。 #>
+    param([int]$HolderPid, [string]$HolderStartedAt)
+    $process = Get-Process -Id $HolderPid -ErrorAction SilentlyContinue
+    if (-not $process) { return $false }
+    if ($process.ProcessName -ine 'powershell') { return $false }
+    if (-not $HolderStartedAt) { return $true }
+    $expected = [DateTimeOffset]::MinValue
+    if (-not [DateTimeOffset]::TryParse($HolderStartedAt, [ref]$expected)) { return $false }
+    $actual = [DateTimeOffset]$process.StartTime
+    return ([Math]::Abs(($actual - $expected).TotalSeconds) -lt 2)
 }
 
 function New-MasDesktopStartupPlan {
@@ -572,7 +642,7 @@ function Start-MasMatlabDesktop {
                     if ($LaunchMode -eq 'ComDesktop') {
                         $holderState = Read-MasDesktopHolderState -Holder $report.holder -LaunchId $launchId
                         if ($holderState -and $holderState.status -in @('NOT_NEW','FAILED','EXITED')) { break }
-                        if (-not (Test-MasDesktopHolderAlive -HolderPid $report.holder.holderPid)) { break }
+                        if (-not (Test-MasDesktopHolderAlive -HolderPid $report.holder.holderPid -HolderStartedAt $holderState.holderStartedAt)) { break }
                     }
                     $receipt = $null
                     if (Test-Path -LiteralPath $plan.receiptFile) {
@@ -580,7 +650,7 @@ function Start-MasMatlabDesktop {
                     }
                     $after = @(Get-MasMatlabDesktopProcesses)
                     $session = Read-MasDesktopSession -SessionFile $SessionFile
-                    $assessment = Get-MasDesktopStartupAssessment -LaunchId $launchId -Receipt $receipt -Session $session -BeforePids $beforePids -Processes $after `
+                    $assessment = Get-MasDesktopStartupAssessment -LaunchId $launchId -Receipt $receipt -Session $session -BeforePids $beforePids -BeforeProcesses $before -Processes $after `
                         -NotBefore $launchRequestedAt -ExpectedMatlabRoot $expectedRoot
                     if ($assessment.ready -and ($LaunchMode -ne 'ComDesktop' -or ($holderState -and $holderState.status -eq 'HOLDING' -and $holderState.runtimePid -eq $assessment.runtimePid))) { break }
                     if ($assessment.ready -and $LaunchMode -eq 'ComDesktop') { $assessment.ready=$false; $assessment.reason='COM_HOLDER_NOT_BOUND' }
@@ -592,14 +662,47 @@ function Start-MasMatlabDesktop {
                     if ($receipt -and $receipt.launchId -eq $launchId -and $receipt.shareStatus -eq 'ERROR') { break }
                     Start-Sleep -Milliseconds 250
                 }
+                # 结论只从跳出循环后重新采集的快照生成：循环头的 break 早于本轮刷新，
+                # 直接用旧局部变量会把 NOT_NEW 误判成 COM_HOLDER_OR_RUNTIME_EXITED。
+                if ($LaunchMode -eq 'ComDesktop') {
+                    $holderState = Read-MasDesktopHolderState -Holder $report.holder -LaunchId $launchId
+                }
+                $receipt = $null
+                if (Test-Path -LiteralPath $plan.receiptFile) {
+                    try { $receipt = [IO.File]::ReadAllText($plan.receiptFile) | ConvertFrom-Json } catch { }
+                }
+                if ($after.Count -eq 0) { $after = @(Get-MasMatlabDesktopProcesses) }
+                $session = Read-MasDesktopSession -SessionFile $SessionFile
+                $assessment = Get-MasDesktopStartupAssessment -LaunchId $launchId -Receipt $receipt -Session $session -BeforePids $beforePids -BeforeProcesses $before -Processes $after `
+                    -NotBefore $launchRequestedAt -ExpectedMatlabRoot $expectedRoot
+                # 刷新后的判定仍必须绑定"本次 holder 的 HOLDING 运行时"，
+                # 否则一个正确的回执就能掩盖 holder 绑定到别的实例。
+                if ($assessment.ready -and $LaunchMode -eq 'ComDesktop') {
+                    if (-not ($holderState -and $holderState.status -eq 'HOLDING' -and $holderState.runtimePid -eq $assessment.runtimePid)) {
+                        $assessment.ready = $false; $assessment.reason = 'COM_HOLDER_NOT_BOUND'
+                    }
+                }
                 $report.bootstrapReached = [bool]($receipt -and $receipt.launchId -eq $launchId)
                 $report.afterProcesses = $after
                 if ($LaunchMode -eq 'ComDesktop') { $report.holderState = $holderState }
                 if ($LaunchMode -eq 'ComDesktop' -and $holderState -and $holderState.status -eq 'NOT_NEW') {
-                    $report.status='NOT_NEW'; $report.reason='NOT_NEW_COM_SHARED_SERVER'; $report.reused=$true; $report.runtimePid=$holderState.runtimePid
+                    # 被回答的实例只有在"确实是已共享的可见桌面"时才能记 reused；
+                    # 否则它是一个未经核验的既有实例，不能算复用，也不能算另开。
+                    $servedSession = Read-MasDesktopSession -SessionFile $SessionFile
+                    $servedWindow = $null
+                    if ($servedSession -and $servedSession.pid -eq $holderState.runtimePid) {
+                        $servedWindow = Get-MasDesktopWindowPid -RuntimePid $holderState.runtimePid -Processes $after
+                    }
+                    $verifiedShared = [bool]($servedSession -and $servedSession.pid -eq $holderState.runtimePid -and $servedWindow)
+                    $report.status='NOT_NEW'; $report.reason='NOT_NEW_COM_SHARED_SERVER'; $report.reused=$verifiedShared
+                    $report.sharedDesktopVerified=$verifiedShared; $report.comServedExistingPid=$holderState.runtimePid
+                    $report.runtimePid=$holderState.runtimePid
+                    if (-not $verifiedShared) {
+                        $report.recommendedAction='共享 COM 未返回已核验的共享桌面；如需另开请用默认 StartupCommand（不加 -LaunchMode ComDesktop）'
+                    }
                 } elseif ($LaunchMode -eq 'ComDesktop' -and $holderState -and $holderState.status -eq 'FAILED') {
                     $report.status='START_FAILED'; $report.reason=$holderState.reason; $report.runtimePid=$holderState.runtimePid
-                } elseif ($LaunchMode -eq 'ComDesktop' -and (-not (Test-MasDesktopHolderAlive -HolderPid $report.holder.holderPid) -or ($holderState -and $holderState.status -eq 'EXITED'))) {
+                } elseif ($LaunchMode -eq 'ComDesktop' -and (-not (Test-MasDesktopHolderAlive -HolderPid $report.holder.holderPid -HolderStartedAt $holderState.holderStartedAt) -or ($holderState -and $holderState.status -eq 'EXITED'))) {
                     $report.status='START_FAILED'; $report.reason='COM_HOLDER_OR_RUNTIME_EXITED'
                 } elseif ($LaunchMode -eq 'Shortcut' -and $candidate -and -not $assessment.ready) {
                     $report.status = 'SHARED_DESKTOP_CANDIDATE'; $report.reason = '已发现新共享桌面；待官方 MCP 执行本次回执后再确认新启动。'
@@ -628,7 +731,13 @@ function Start-MasMatlabDesktop {
                     if ($report.status -eq 'START_FAILED') { $report.bootstrapErrorId = [string]$receipt.errorId }
                 }
             } catch {
-                $report.status = 'START_FAILED'; $report.reason = Protect-MasDesktopDiagnosticText -Text $_.Exception.Message
+                # 平台不支持（例如 Job 禁止 breakaway）必须与"启动失败"区分，并保留可归因字段。
+                if ($_.Exception.Data -and $_.Exception.Data['masStatus']) {
+                    $report.status = [string]$_.Exception.Data['masStatus']
+                    $report.reasonCode = [string]$_.Exception.Data['masReason']
+                    if ($_.Exception.Data['breakawayState']) { $report.breakawayState = [string]$_.Exception.Data['breakawayState'] }
+                } else { $report.status = 'START_FAILED' }
+                $report.reason = Protect-MasDesktopDiagnosticText -Text $_.Exception.Message
                 if ($_.Exception.Data.Contains('desktopHelper')) { $report.shell = $_.Exception.Data['desktopHelper'] }
             }
         }
@@ -660,12 +769,12 @@ function Confirm-MasDesktopStartupReceipt {
     $session = Read-MasDesktopSession -SessionFile $report.sessionFile
     $beforePids = [int[]]@($report.beforeProcesses | ForEach-Object { $_.pid })
     $assessment = Get-MasDesktopStartupAssessment -LaunchId $report.launchId -Receipt $receipt -Session $session `
-        -BeforePids $beforePids -Processes $processes -NotBefore ([datetime]$report.launchRequestedAt) -ExpectedMatlabRoot $report.expectedMatlabRoot
+        -BeforePids $beforePids -BeforeProcesses @($report.beforeProcesses) -Processes $processes -NotBefore ([datetime]$report.launchRequestedAt) -ExpectedMatlabRoot $report.expectedMatlabRoot
     if (-not $assessment.ready) { throw "启动回执确认失败：$($assessment.reason)" }
     if ($report.launchMode -eq 'ComDesktop') {
         $state = if ($report.holder) { Read-MasDesktopHolderState -Holder $report.holder -LaunchId $report.launchId } else { $null }
         if (-not $state -or $state.status -ne 'HOLDING' -or $state.runtimePid -ne $assessment.runtimePid -or
-            -not (Test-MasDesktopHolderAlive -HolderPid $report.holder.holderPid)) { throw '启动回执确认失败：COM_HOLDER_NOT_BOUND' }
+            -not (Test-MasDesktopHolderAlive -HolderPid $report.holder.holderPid -HolderStartedAt $state.holderStartedAt)) { throw '启动回执确认失败：COM_HOLDER_NOT_BOUND' }
     }
     $snapshot = Join-Path (Split-Path -Parent $ReportPath) 'startup_report.before_confirmation.json'
     if (-not (Test-Path -LiteralPath $snapshot)) { [IO.File]::WriteAllText($snapshot, [IO.File]::ReadAllText($ReportPath), (New-Object Text.UTF8Encoding($false))) }

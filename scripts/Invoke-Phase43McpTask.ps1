@@ -1,4 +1,4 @@
-param(
+﻿param(
     [Parameter(Mandatory)][string]$TaskId,
     [Parameter(Mandatory)][string]$TaskScript,
     [string]$WithSkills = "0",
@@ -19,7 +19,8 @@ param(
 # is the thing this whole project exists to prevent.
 
 $ErrorActionPreference = "Stop"
-$repo = "E:\desktop\MATLAB"
+# Repo root from the script location: the checkout must not carry a machine-specific path.
+$repo = Split-Path -Parent $PSScriptRoot
 Import-Module -Name (Join-Path $repo "scripts\MatlabAgentSkills.McpStdio.psm1") -Force -DisableNameChecking
 
 $null = Enable-McpLocalhostProxyBypass

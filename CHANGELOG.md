@@ -13,6 +13,17 @@ All notable changes to this project will be documented here.
 - 明确区分"另开"与"冷启动"：已有实例时 `-NewSession` 得到 `newSessionVerified=true` / `coldStartVerified=false`，默认模式仍复用或拒绝重复启动；`-LaunchMode ComDesktop` 在被 Job 禁止 breakaway 的宿主中明确失败（Win32 错误 5），本机自动打开使用默认 `StartupCommand`（经 Windows Shell，不继承工具 Job）。
 - 新增可见桌面启动、官方 stdio 连接重建和分层证据工具；已测范围、历史失败及未测部署环境见 [双端验收记录](docs/PHASE4_4_DUAL_CLIENT_ZH.md)。
 
+### Phase 4.4.1：安装与执行基础设施可靠性收尾
+
+不新增专业 Skill，只修可靠性。逐项结论与证据见 [Phase 4.4.1 记录](docs/PHASE4_4_1_RELIABILITY_ZH.md)。
+
+- 七个启动缺陷：B1/B2/B3/B4/B5/B6 已修，B7（`HOLDING` 未证明 bootstrap）明确 DEFERRED 并写明验收条件。B2 由"1 秒后一句无法归因的创建失败"改为**启动前预检**：`status=UNSUPPORTED`、`reasonCode=COM_HOLDER_BREAKAWAY_DENIED`、`breakawayState=IN_JOB=1;LIMIT_FLAGS=0x2000`，且不创建/不关闭任何 MATLAB（实测启动前后 PID 不变）。
+- 进程身份从"裸 PID"改为 `(PID, 创建时间)`：PID 回收不再把新运行时误判成 `PREEXISTING_RUNTIME`/`NOT_NEW`；holder 存活绑定自身 `holderStartedAt` + `ProcessName=powershell`。状态文件发布改为 `File.Replace`/`Move` + 有界重试，读侧允许 `ReadWrite|Delete` 共享，避免发布状态时把 holder（连同它持有的 MATLAB）弄死。
+- 免费层 `263/265` → **`270/270`**（Windows PowerShell 5.1 与 PowerShell 7 各 270/270，exit 0）。两项历史失败的真实结论：盘符检查**同时**存在判据误报（大小写不敏感把正则里的 `name:` + 空白序列当成盘符）与真实硬编码；BOM 是真实约定缺陷。判据改为 `(?<![A-Za-z0-9_])[ED]:[\\/](?![A-Za-z]:)`，附灵敏度/特异度自检，并且只扫 **git 跟踪文件**（无 git 时退回文件系统遍历并报告扫描模式）。
+- 安装侧：升级时**保留用户新增文件**并报告（`PreservedUserFiles`），且用户文件不再让每次同步都判成 update；单技能失败改为"补齐缺失文件"恢复（`RestoredFromBackup`/`RecreatedFiles`）并让退出码非零。修复过程中发现 `Remove-Item -Recurse -Force` 对占用文件只报非终止错误，会把缺文件的目录报成"已更新"——现已在交换路径显式 `-ErrorAction Stop`，并在交换后逐个核对源文件是否齐全。
+- Desktop 证据门修复：`originator=='Codex Desktop'` 不足以区分客户端（CLI 0.147.0 exec 会话也这么写），改为同时要求 `source='vscode'` 与会话含 `<app-context>`，并把这两项写进证据；新增 2 条负向回归。
+- 双端独立报告：CLI 与 Desktop 各自留证，未用一端结果替代另一端；Desktop UI 层与 CLI 本轮重跑均按 `NOT VERIFIED` 记录（原因：无 UI 驱动通道、账户额度耗尽）。
+
 ### 电力电子领域示例：Buck 稳定性与优化专项（第三阶段 3A.1）
 
 - Added: `matlab/buck/` Buck 电压环完整实现（48V→12V/50kHz）：符号+数值模型推导、平均/开关双模型、参数化闭环构建函数（PI + 抗饱和 back-calculation + 占空比限幅 + 可选陷波器 + 负载阶跃）。

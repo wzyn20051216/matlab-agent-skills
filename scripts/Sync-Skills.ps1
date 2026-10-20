@@ -101,6 +101,8 @@ try {
             $destination = Assert-MasManagedSkillPath -SkillRoot $SkillRoot -Name $source.Name
             $result = Sync-SkillDirectory -Name $source.Name -Source $source.FullName -Destination $destination `
                 -IsManaged $isManaged -Session $session -BackupRoot $BackupRoot -Force:$Force -DryRun:$DryRun
+            # 单技能同步失败已由 Sync-SkillDirectory 就地回滚，这里只把它计入整体失败。
+            if ($result.Decision -eq "error") { $failed = $true }
         }
         catch {
             $failed = $true
@@ -214,6 +216,12 @@ $summary = [pscustomobject]@{
 
 $summary | ConvertTo-Json -Depth 8
 
-if ($Strict -and ($conflicts.Count -gt 0 -or $failed)) {
+# 同步失败必须是非零结果：README 让用户直接运行本脚本，若失败仍返回 0，
+# 脚本化的安装流程会把半装状态当成成功。用 throw 而不是 exit：
+# 被 Bootstrap 以 & 调用时不会提前终止父脚本，而未捕获异常使进程退出码非零。
+if ($failed) {
+    throw "技能同步存在失败项（见上面的 failed 与 skills 字段）；失败技能已尝试从备份恢复，请复核后重试。"
+}
+if ($Strict -and $conflicts.Count -gt 0) {
     exit 2
 }

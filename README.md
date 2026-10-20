@@ -18,6 +18,7 @@ Full capability statement: this repository is open source, but its full workflow
 - Official MATLAB MCP guide: `docs/MCP_EXISTING_SESSION_ZH.md`
 - CLI / Desktop 共享安装与卸载：[安装说明](docs/SKILL_INSTALLATION_ZH.md)
 - 双端独立验收与可见桌面启动：[验收记录](docs/PHASE4_4_DUAL_CLIENT_ZH.md)、[启动说明](docs/MATLAB_DESKTOP_STARTUP_ZH.md)
+- 安装与执行基础设施可靠性收尾（缺陷逐项结论、免费层 270/270、平台范围）：[Phase 4.4.1 记录](docs/PHASE4_4_1_RELIABILITY_ZH.md)
 - Changelog: `CHANGELOG.md`
 
 ## Highlights

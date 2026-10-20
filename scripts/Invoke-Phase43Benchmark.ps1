@@ -2,7 +2,8 @@ param(
     [ValidateSet("R1", "R2", "R3", "ALL")]
     [string]$Group = "ALL",
     [int]$Repeats = 3,
-    [int]$TimeoutSeconds = 420
+    [int]$TimeoutSeconds = 420,
+    [string]$MatlabExe = ""
 )
 
 # Phase 4.3 benchmark driver.
@@ -21,7 +22,17 @@ param(
 # the channels, not to debug the driver.
 
 $ErrorActionPreference = "Stop"
-$repo = "E:\desktop\MATLAB"
+# Repo root from the script location: the checkout must not carry a machine-specific path.
+$repo = Split-Path -Parent $PSScriptRoot
+# The MATLAB install is machine-specific by nature: -MatlabExe > MATLAB_EXE > detection.
+if (-not $MatlabExe) { $MatlabExe = $env:MATLAB_EXE }
+if (-not $MatlabExe) {
+    Import-Module (Join-Path $repo "scripts\MatlabAgentSkills.Execution.psm1") -Force -DisableNameChecking
+    $MatlabExe = Resolve-MatlabExecutable
+}
+if (-not $MatlabExe -or -not (Test-Path -LiteralPath $MatlabExe)) {
+    throw "MATLAB executable not found: pass -MatlabExe or set MATLAB_EXE."
+}
 # The MATLAB and MCP helpers write their banner to STDERR, and with
 # ErrorActionPreference = "Stop" PowerShell turns any NativeCommandError into a
 # terminating one -- so the very first task aborted the whole run before R2 or
@@ -72,7 +83,7 @@ foreach ($g in $groups) {
                 $runner = Join-Path $dir "run_$($t.id).m"
                 $mpath = (Join-Path $sandbox ("task_$($t.id).m")).Replace("\", "/")
                 Set-Content -LiteralPath $runner -Value "run('$mpath');" -Encoding ascii
-                $resultText = & (Join-Path "E:" "matlab\bin\matlab.exe") -batch ("run('" + (Join-Path $dir ("run_$($t.id).m")).Replace("\", "/") + "')") 2>&1 | Out-String
+                $resultText = & $MatlabExe -batch ("run('" + (Join-Path $dir ("run_$($t.id).m")).Replace("\", "/") + "')") 2>&1 | Out-String
             } else {
                 $withSkills = if ($g -eq "R3") { "1" } else { "0" }
                 $resultText = & powershell -ExecutionPolicy Bypass -File (Join-Path $repo "scripts\Invoke-Phase43McpTask.ps1") `

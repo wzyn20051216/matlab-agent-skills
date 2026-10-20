@@ -1044,18 +1044,26 @@ function Get-DirectoryTreeHash {
     <#
     .SYNOPSIS
     目录内容指纹：按相对路径排序后对 “路径|SHA256” 聚合。
+    .PARAMETER ExcludeRelative
+    不参与聚合的相对路径（用户自己新增的文件），用于判断"受管内容是否一致"。
     #>
     [CmdletBinding()]
-    param([Parameter(Mandatory)][string]$Path)
+    param([Parameter(Mandatory)][string]$Path, [string[]]$ExcludeRelative = @())
 
     if (-not (Test-Path -LiteralPath $Path)) { return $null }
     $resolved = (Resolve-Path -LiteralPath $Path).Path
+    $excluded = New-Object 'System.Collections.Generic.HashSet[string]' ([StringComparer]::OrdinalIgnoreCase)
+    foreach ($relativePath in @($ExcludeRelative)) {
+        if ([string]::IsNullOrWhiteSpace($relativePath)) { continue }
+        [void]$excluded.Add((($relativePath -replace '\\', '/').TrimStart('/')))
+    }
 
     $lines = New-Object System.Collections.Generic.List[string]
     Get-ChildItem -LiteralPath $resolved -Recurse -File -Force -ErrorAction SilentlyContinue |
         Sort-Object FullName |
         ForEach-Object {
             $relative = $_.FullName.Substring($resolved.Length) -replace '^[\\/]+', '' -replace '\\', '/'
+            if ($excluded.Contains($relative)) { return }
             $fileHash = Get-FileSha256 -Path $_.FullName
             $lines.Add("$($relative.ToLowerInvariant())|$fileHash")
         }
@@ -1156,8 +1164,22 @@ function Sync-SkillDirectory {
         [switch]$DryRun
     )
 
+    # 用户自己加进技能目录的文件（源目录没有的相对路径）不能在升级时被静默删掉；
+    # 同时它们不参与"受管内容是否一致"的判定，否则每次同步都会被判成 update。
+    $localExtras = @()
+    if (Test-Path -LiteralPath $Destination) {
+        $sourceRelative = New-Object 'System.Collections.Generic.HashSet[string]' ([StringComparer]::OrdinalIgnoreCase)
+        foreach ($file in @(Get-ChildItem -LiteralPath $Source -Recurse -File -Force)) {
+            [void]$sourceRelative.Add($file.FullName.Substring($Source.Length).TrimStart([char[]]'\/'))
+        }
+        foreach ($file in @(Get-ChildItem -LiteralPath $Destination -Recurse -File -Force)) {
+            $relative = $file.FullName.Substring($Destination.Length).TrimStart([char[]]'\/')
+            if (-not $sourceRelative.Contains($relative)) { $localExtras += $relative }
+        }
+    }
+
     $sourceHash = Get-DirectoryTreeHash -Path $Source
-    $destinationHash = Get-DirectoryTreeHash -Path $Destination
+    $destinationHash = Get-DirectoryTreeHash -Path $Destination -ExcludeRelative $localExtras
     $decision = Get-SkillSyncDecision -SourceHash $sourceHash -DestinationHash $destinationHash `
         -IsManaged $IsManaged -Force:$Force
 
@@ -1170,11 +1192,15 @@ function Sync-SkillDirectory {
         DestinationHash = $destinationHash
         BackupPath      = $null
         Message         = ""
+        PreservedUserFiles = @()
+        RestoredFromBackup = $false
+        RecreatedFiles  = 0
+        MissingAfterRestore = @()
     }
 
     switch ($decision) {
         "unchanged" {
-            $result.Message = "内容一致，跳过"
+            $result.Message = if ($localExtras.Count -gt 0) { "受管内容一致，跳过（保留用户新增文件 $($localExtras.Count) 个）" } else { "内容一致，跳过" }
             return $result
         }
         "conflict" {
@@ -1202,20 +1228,83 @@ function Sync-SkillDirectory {
                 $result.BackupPath = Save-DirectoryBackupToSession -Session $tempSession -Path $Destination -Label $Name
                 Save-BackupManifest -Session $tempSession
             }
-            Remove-Item -LiteralPath $Destination -Recurse -Force
+            # 必须显式 Stop：Remove-Item -Recurse 遇到被占用文件默认只报非终止错误，
+            # 会继续走到 Move-Item，最后把"缺文件的半装目录"当成成功上报。
+            Remove-Item -LiteralPath $Destination -Recurse -Force -ErrorAction Stop
         }
         elseif ($null -ne $Session) {
             Add-BackupRecord -Session $Session -Kind "dir-absent" -TargetPath $Destination | Out-Null
         }
 
-        Move-Item -LiteralPath $staging -Destination $Destination
+        Move-Item -LiteralPath $staging -Destination $Destination -ErrorAction Stop
+        # 交换后自检：目标必须包含源目录的全部文件，否则判失败并进入恢复路径。
+        $missingAfterSwap = @(Get-ChildItem -LiteralPath $Source -Recurse -File -Force | Where-Object {
+            $relativeFile = $_.FullName.Substring($Source.Length).TrimStart([char[]]'\/')
+            -not (Test-Path -LiteralPath (Join-Path $Destination $relativeFile))
+        })
+        if ($missingAfterSwap.Count -gt 0) {
+            throw "SYNC_INCOMPLETE: 交换后缺少 $($missingAfterSwap.Count) 个文件"
+        }
+        if ($localExtras.Count -gt 0 -and $result.BackupPath -and (Test-Path -LiteralPath $result.BackupPath)) {
+            $preserved = @()
+            foreach ($relative in $localExtras) {
+                $from = Join-Path $result.BackupPath $relative
+                $to = Join-Path $Destination $relative
+                if (-not (Test-Path -LiteralPath $from)) { continue }
+                $parent = Split-Path -Parent $to
+                if ($parent -and -not (Test-Path -LiteralPath $parent)) { New-Item -ItemType Directory -Force -Path $parent | Out-Null }
+                Copy-Item -LiteralPath $from -Destination $to -Force
+                $preserved += $relative
+            }
+            $result.PreservedUserFiles = [string[]]$preserved
+        }
         $result.Message = if ($decision -eq "install") { "已安装" } else { "已更新（旧版本已备份）" }
+        if (@($result.PreservedUserFiles).Count -gt 0) {
+            $result.Message += "；保留用户新增文件 $($result.PreservedUserFiles.Count) 个"
+        }
         return $result
     }
     catch {
         $result.Changed = $false
-        $result.Message = "同步失败: $($_.Exception.Message)"
-        throw
+        $result.Decision = "error"
+        # 单技能失败必须自愈。关键：不能再用"删除目标目录"来恢复——
+        # 失败原因往往正是某个文件被占用，再删一次会撞同一个锁；而且删除成功一半时
+        # 目标目录已经残缺。这里改成"只重建缺失文件"：仍在的文件（含被占用的那个）
+        # 保持原样，缺的从本次备份补回，因此不依赖任何删除操作。
+        $restored = $false
+        if ($result.BackupPath -and (Test-Path -LiteralPath $result.BackupPath)) {
+            try {
+                if (-not (Test-Path -LiteralPath $Destination)) { New-Item -ItemType Directory -Force -Path $Destination | Out-Null }
+                $backupRoot = (Resolve-Path -LiteralPath $result.BackupPath).Path
+                $recreated = 0
+                foreach ($backupFile in @(Get-ChildItem -LiteralPath $backupRoot -Recurse -File -Force)) {
+                    $relative = $backupFile.FullName.Substring($backupRoot.Length).TrimStart([char[]]'\/')
+                    $target = Join-Path $Destination $relative
+                    if (Test-Path -LiteralPath $target) { continue }
+                    $parent = Split-Path -Parent $target
+                    if ($parent -and -not (Test-Path -LiteralPath $parent)) { New-Item -ItemType Directory -Force -Path $parent | Out-Null }
+                    Copy-Item -LiteralPath $backupFile.FullName -Destination $target -Force -ErrorAction Stop
+                    $recreated++
+                }
+                foreach ($backupDirectory in @(Get-ChildItem -LiteralPath $backupRoot -Recurse -Directory -Force)) {
+                    $relative = $backupDirectory.FullName.Substring($backupRoot.Length).TrimStart([char[]]'\/')
+                    $target = Join-Path $Destination $relative
+                    if (-not (Test-Path -LiteralPath $target)) { New-Item -ItemType Directory -Force -Path $target | Out-Null }
+                }
+                $result.RecreatedFiles = $recreated
+                # 恢复成功的判据是"备份里的每个文件都已在目标上"，而不是"没抛异常"。
+                $stillMissing = @(Get-ChildItem -LiteralPath $backupRoot -Recurse -File -Force | Where-Object {
+                    $relativeFile = $_.FullName.Substring($backupRoot.Length).TrimStart([char[]]'\/')
+                    -not (Test-Path -LiteralPath (Join-Path $Destination $relativeFile))
+                })
+                $restored = ($stillMissing.Count -eq 0)
+                if (-not $restored) { $result.MissingAfterRestore = [string[]]$stillMissing }
+            } catch { $restored = $false }
+        }
+        $result.RestoredFromBackup = $restored
+        $result.Message = "同步失败: $($_.Exception.Message)" +
+            $(if ($restored) { "；已从备份补齐缺失文件（重建 $($result.RecreatedFiles) 个），被占用的文件保持原样" } else { "；未能恢复，可能留下半装目录，请检查" })
+        return $result
     }
     finally {
         if (Test-Path -LiteralPath $staging) {

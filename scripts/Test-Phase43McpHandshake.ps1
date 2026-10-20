@@ -1,12 +1,15 @@
 param(
-    [string]$ServerExe = "E:\desktop\MATLAB\bin\matlab-mcp-server-windows-x64.exe",
+    [string]$ServerExe = "",
     [int]$TimeoutSeconds = 240
 )
 
 # Real MATLAB MCP handshake + tools/list over stdio. No mock, no simulation:
 # this starts the official server binary and speaks JSON-RPC to it.
 $ErrorActionPreference = "Stop"
-$repo = "E:\desktop\MATLAB"
+# Repo root from the script location: the checkout must not carry a machine-specific path.
+$repo = Split-Path -Parent $PSScriptRoot
+# Default to the repo's own server binary; -ServerExe still accepts any install.
+if (-not $ServerExe) { $ServerExe = Join-Path $repo "bin\matlab-mcp-server-windows-x64.exe" }
 Import-Module -Name (Join-Path $repo "scripts\MatlabAgentSkills.McpStdio.psm1") -Force -DisableNameChecking
 
 $null = Enable-McpLocalhostProxyBypass

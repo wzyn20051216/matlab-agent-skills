@@ -4,7 +4,7 @@
 clear; close all; clc;
 
 % 输出根目录由环境变量给出，避免依赖 mfilename 在 run/run 两种模式下的差异
-% BUCK_OUT 形如 E:/desktop/MATLAB/artifacts/validation/buck
+% BUCK_OUT 形如 <repo>/artifacts/validation/buck（不写本机盘符）
 if ~exist('BUCK_OUT','var') || isempty(BUCK_OUT)
     BUCK_OUT = getenv('BUCK_OUT');
 end

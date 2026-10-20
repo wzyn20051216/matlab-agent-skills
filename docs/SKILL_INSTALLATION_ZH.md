@@ -79,11 +79,37 @@ PowerShell 7 均为 23/23；加入 SHA-256 标准向量后，完整 free 回归�
 24/24。原安装器场景 23/23。机器可读报告位于
 `artifacts/validation/phase44/skill_installation_tests.json`、
 `skill_installation_ps7_tests.json` 和 `installer_scenarios_tests.json`。
-核心回归为 37/39，两个既有失败分别是“仓库里没有 E:/D: 盘符硬编码路径”和
-“含非 ASCII 字符的脚本带 UTF-8 BOM（PS5.1 正确解码的前提）”；
-后者命中历史脚本 `Invoke-Phase43McpTask.ps1`，前者命中历史工程与 Phase 4.3 文件。
-本轮新增文件未增加这两类违规，未扩大修改历史工程的范围。
+Phase 4.4.1 已把这两项历史失败处理完：盘符检查被证实同时存在**判据误报**
+（大小写不敏感匹配把正则里的 `name:` 加空白序列误当成盘符路径）与真实硬编码，判据已改为
+`(?<![A-Za-z0-9_])[ED]:[\\/](?![A-Za-z]:)` 并加自检样本、且只扫 git 跟踪文件；
+`Invoke-Phase43McpTask.ps1` 补上了 PS 5.1 解码所需的 UTF-8 BOM。
+免费层因此由 263/265 变为 **270/270**（含本轮新增用例），
+证据见 `artifacts/validation/phase44/free_tests_final_ps51.json` 与
+`free_tests_final_ps7.json`（两个宿主均 270/270、exit 0）。
 详情见 `artifacts/validation/phase44/installation_core_tests.json`。
+
+### 同步行为与退出码（Phase 4.4.1）
+
+```powershell
+# 默认：装到 <用户主目录>\.agents\skills
+powershell -ExecutionPolicy Bypass -File .\scripts\Sync-Skills.ps1
+
+# 严格模式：只要存在冲突就以退出码 2 结束
+powershell -ExecutionPolicy Bypass -File .\scripts\Sync-Skills.ps1 -Strict
+```
+
+- **失败即非零**：任一技能同步失败，脚本会 `throw`（不再以 0 退出），
+  并在 JSON 的 `failed`/`skills[].decision=error` 中留下记录。
+  被占用等失败会**只补齐缺失文件**恢复原目录（`RestoredFromBackup`、`RecreatedFiles`），
+  仍被占用的文件保持原样，不会被删除或改写。
+- **冲突 vs 失败**：外来同名目录属"冲突"，默认不覆盖、退出码 0；只有 `-Strict` 时才退出 2。
+  修改历史文件属"更新"，会先整目录备份。
+- **用户新增文件会被保留**：升级前快照、替换后回填，结果字段 `PreservedUserFiles`
+  列出被保留的相对路径；这类文件不参与"受管内容是否一致"的判定，
+  因此带用户文件的技能不会每次同步都被判成 update。
+- 备份根默认 `<SkillRoot>\.matlab-agent-skills\backups`，可用 `-BackupRoot` 指定。
+- 仍存在的限制：manifest 每次运行都会重写 `generatedAt`（"零写入"措辞偏强）；
+  卸载只删除 manifest 登记且未被本地修改的目录。
 
 真实共享用户目录也完成了升级、卸载与重装。CLI 0.147.0 与 Desktop 内置
 0.163.0-alpha.10.2 发现引擎每阶段均独立冷启动，`skills/list` 实返数量分别为

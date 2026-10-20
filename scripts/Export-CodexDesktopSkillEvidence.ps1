@@ -39,8 +39,15 @@ $events = @($sourceText -split "`r?`n" | Where-Object { $_.Trim() } | ForEach-Ob
     try { $_ | ConvertFrom-Json } catch { throw "会话 JSONL 损坏：$($_.Exception.Message)" }
 })
 $meta = $events | Where-Object { $_.type -eq 'session_meta' } | Select-Object -First 1
-if (-not $meta -or $meta.payload.originator -ne 'Codex Desktop') {
-    throw '输入不是有 Codex Desktop 标识的真实会话，不能替代桌面端证据。'
+# originator 不能区分客户端：CLI 0.147.0 的 exec 会话同样写 'Codex Desktop'。
+# 真实 Desktop UI 会话的判据是 source='vscode' 且会话内出现 <app-context> 标记。
+$sessionSource = if ($meta) { [string]$meta.payload.source } else { '' }
+# 真实客户端的 JSONL 用字面 <app-context>；由 PowerShell ConvertTo-Json 生成的夹具
+# 会把 < 转义成 \u003c，两种编码都要认，否则合法会话会被误判成非桌面会话。
+$hasAppContext = $sourceText.Contains('<app-context>') -or $sourceText.Contains('\u003capp-context\u003e')
+if (-not $meta -or $meta.payload.originator -ne 'Codex Desktop' -or $sessionSource -ne 'vscode' -or -not $hasAppContext) {
+    throw ('输入不是真实 Desktop UI 会话（要求 originator=Codex Desktop、source=vscode、且含 <app-context>；' +
+        "实际 originator=$($meta.payload.originator)、source=$sessionSource、appContext=$hasAppContext）。CLI exec 会话不能替代桌面端证据。")
 }
 $catalog = @($events | Where-Object {
     $_.type -eq 'response_item' -and $_.payload.type -eq 'message' -and
@@ -101,6 +108,8 @@ $result = [pscustomobject][ordered]@{
     sourceHash = $sourceHash
     sessionId = $meta.payload.id
     client = $meta.payload.originator
+    sessionSource = $sessionSource
+    appContextPresent = $hasAppContext
     engineVersion = $meta.payload.cli_version
     startedAt = $meta.timestamp
     skillDiscovery = [ordered]@{

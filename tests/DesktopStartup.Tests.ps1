@@ -90,6 +90,26 @@ InModuleScope MatlabAgentSkills.Desktop {
             $r.ready | Should Be $true
             $r.coldStartVerified | Should Be $false
         }
+        It '同一 PID 且创建时间一致时仍判为启动前已存在' {
+            $before = @([pscustomobject]@{pid=202;parentPid=201;path='C:\MATLAB\bin\win64\MATLAB.exe';startedAt='2026-10-20T08:00:01Z'})
+            $r = Get-MasDesktopStartupAssessment -LaunchId current -Receipt (New-DesktopTestReceipt) `
+                -BeforePids @(202) -BeforeProcesses $before `
+                -Session ([pscustomobject]@{pid=202;updatedAt='2026-10-20T08:00:03Z'}) -Processes (New-DesktopTestProcesses)
+            $r.ready | Should Be $false
+            $r.reason | Should Be PREEXISTING_RUNTIME
+        }
+        It 'PID 被系统回收时新运行时不能被当成启动前已存在' {
+            # 同一个 PID 202，但启动前的创建时间是 07:00，本次运行时是 08:00:01：属于回收后复用。
+            $before = @([pscustomobject]@{pid=202;parentPid=201;path='C:\MATLAB\bin\win64\MATLAB.exe';startedAt='2026-10-20T07:00:00Z'})
+            $r = Get-MasDesktopStartupAssessment -LaunchId current -Receipt (New-DesktopTestReceipt) `
+                -BeforePids @(202) -BeforeProcesses $before `
+                -Session ([pscustomobject]@{pid=202;updatedAt='2026-10-20T08:00:03Z'}) -Processes (New-DesktopTestProcesses) `
+                -NotBefore ([datetime]'2026-10-20T08:00:00Z') -ExpectedMatlabRoot 'C:\MATLAB'
+            $r.reason | Should Not Be PREEXISTING_RUNTIME
+            $r.ready | Should Be $true
+            $r.recycledPidDetected | Should Be $true
+            $r.coldStartVerified | Should Be $false
+        }
         It '共享函数报错的回执不能当成已就绪' {
             $receipt = New-DesktopTestReceipt
             $receipt.shareStatus = 'ERROR'
@@ -403,6 +423,27 @@ InModuleScope MatlabAgentSkills.Desktop {
             $r.bootstrapReached | Should Be $false
             $r.newSessionVerified | Should Be $false
             $r.coldStartVerified | Should Be $false
+            # 共享 COM 回答的实例并没有被核验成"已共享的可见桌面"，因此不能记 reused。
+            $r.reused | Should Be $false
+            $r.sharedDesktopVerified | Should Be $false
+            $r.comServedExistingPid | Should Be 89
+            Assert-MockCalled Start-MasDesktopViaShell -Exactly 0 -Scope It
+        }
+        It 'Job 禁止 breakaway 时 ComDesktop 明确报 UNSUPPORTED 并保留归因，不伪装成启动失败' {
+            $s = $script:DesktopSandbox
+            Mock Start-MasDesktopComHolder {
+                $failure = New-Object InvalidOperationException '当前进程位于不允许 breakaway 的 Windows Job 中。请改用默认 StartupCommand（经 Windows Shell 启动）。'
+                $failure.Data['masStatus'] = 'UNSUPPORTED'
+                $failure.Data['masReason'] = 'COM_HOLDER_BREAKAWAY_DENIED'
+                $failure.Data['breakawayState'] = 'IN_JOB=1;LIMIT_FLAGS=0x2800;BREAKAWAY_OK=0'
+                throw $failure
+            }
+            $r = Start-MasMatlabDesktop -MatlabExe $s.Exe -WorkingDirectory $s.Root -OutputDirectory $s.Output -SessionFile $s.Session -LaunchMode ComDesktop -TimeoutSeconds 2
+            $r.status | Should Be UNSUPPORTED
+            $r.reasonCode | Should Be COM_HOLDER_BREAKAWAY_DENIED
+            $r.breakawayState | Should Match 'BREAKAWAY_OK=0'
+            $r.reason | Should Match 'StartupCommand'
+            $r.newSessionVerified | Should Be $false
             Assert-MockCalled Start-MasDesktopViaShell -Exactly 0 -Scope It
         }
         It 'COM holder 已退出时即使存在正确回执也不能报就绪' {

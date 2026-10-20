@@ -1,7 +1,13 @@
 %% Phase 3A.4: figure for the report -- load-step response of all four controllers
 % Reads the stored waveforms from a4_acceptance.mat (no re-simulation).
 clear; close all;
-outDir = 'E:/desktop/MATLAB/artifacts/validation/buck';
+% Output dir must not be a machine-specific path: BUCK_OUT wins (same convention
+% as the other buck verify scripts), otherwise derive it from this script's
+% location (matlab/buck/verify -> repo root -> artifacts/validation/buck).
+here = fileparts(mfilename('fullpath'));
+outDir = getenv('BUCK_OUT');
+if isempty(outDir), outDir = fullfile(here, '..', '..', '..', 'artifacts', 'validation', 'buck'); end
+outDir = strrep(outDir, '/', filesep);
 D = load(fullfile(outDir,'a4_acceptance.mat'));
 recs = D.recs;
 ids = {'BASE','OPT','DUALA','DUALB'};

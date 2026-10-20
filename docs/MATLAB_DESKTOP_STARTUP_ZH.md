@@ -147,24 +147,40 @@ Shell 显示行为参考 [Microsoft Shell.ShellExecute](https://learn.microsoft.
 独立进程标志参考 [Microsoft Process Creation Flags](https://learn.microsoft.com/en-us/windows/win32/procthread/process-creation-flags)。
 `-r` 用于交互工作流；`-wait` 等待 MATLAB 退出，不能证明共享会话就绪。
 
-## 已知缺陷（2026-10-20 静态审查，未修复）
+## ComDesktop 判定为 UNSUPPORTED 的条件
 
-对启动器做过一次只读静态审查，全文见
-`artifacts/validation/phase44/auto_start/code_audit.md`。本次冷启动证据走的是
-`StartupCommand`，下列缺陷集中在 `ComDesktop` 路径，尚未修复；修好之前不应把
-`ComDesktop` 当作可靠路径：
+它不是"尝试后失败"，而是**启动前只读预检**：`IsProcessInJob` + `QueryInformationJobObject`
+读取当前 Job 的 `LimitFlags`，没有 `JOB_OBJECT_LIMIT_BREAKAWAY_OK`（0x0800）或
+`JOB_OBJECT_LIMIT_SILENT_BREAKAWAY_OK`（0x1000）时直接返回：
 
-- `-NewSession` 对 `ComDesktop` 并未真正"另开"：共享 COM 只要返回启动前已存在的
-  PID 就是 `NOT_NEW`（本机 2026-10-20 21:56 实测即为该状态）。
-- 禁止 breakaway 的 Job 中在 holder 创建阶段直接失败，且失败信息不带 Win32 错误码；
-  建议在 `DesktopProcessNative.StartDetached` 中附加 `NativeErrorCode` 便于归因。
-- holder 存活判定是裸 PID 查询，PID 复用可能让已结束的 holder 仍被当作 `HOLDING`，
-  `-ConfirmReport` 据此可能确认一个已死的持有进程。
-- 启动前/新实例分类仅用 PID，存在 PID 回收导致的误判。
-- 状态文件发布发生在 `HOLDING` 之后，写状态失败会进入 catch 并结束 holder。
-- `HOLDING` 只表示 `Execute` 返回，未证明 bootstrap 真的执行成功。
+```text
+status         = UNSUPPORTED
+reasonCode     = COM_HOLDER_BREAKAWAY_DENIED
+breakawayState = IN_JOB=1;LIMIT_FLAGS=0x2000;BREAKAWAY_OK=0;SILENT_BREAKAWAY_OK=0
+```
 
-这些都是实现与回归测试问题，不是文档措辞问题；`ComDesktop` 需要重做后再验收。
+预检发生在创建 holder 之前，因此**不会创建、也不会关闭任何 MATLAB**。
+本机 2026-10-20 22:32:41 实测：`durationMs=1096`，启动前后 MATLAB 进程均为 `9724,25692`。
+需要自动打开时用默认 `StartupCommand`（经 Windows Shell，进程不继承该 Job）。
+
+## 缺陷处理状态（Phase 4.4.1）
+
+Phase 4.4 静态审查（全文 `artifacts/validation/phase44/auto_start/code_audit.md`）
+列出的七个阻塞项，本轮的逐项结论如下（细节与实测证据见
+`artifacts/validation/phase44/defects_task1.md`）：
+
+| 编号 | 结论 | 说明 |
+|---|---|---|
+| B1 `-NewSession` 假另开 | FIXED（语义） | 只有被回答的实例确为"共享会话 PID + 可见窗口"才记 `reused=true`；否则 `reused=false` 并给 `recommendedAction` |
+| B2 breakaway 失败无归因 | FIXED + UNSUPPORTED | 预检 + `reasonCode` + `breakawayState` + Win32 码；本机明确报 UNSUPPORTED |
+| B3 holder 存活是裸 PID | FIXED | 绑定 `holderStartedAt` + `ProcessName=powershell` |
+| B4 分类只用 PID | FIXED | 身份 = (PID, 创建时间)；新增"PID 回收"回归 |
+| B5 状态发布争用 | FIXED | `File.Replace`/`Move` + 有界重试；读侧允许 `ReadWrite|Delete` 共享 |
+| B6 结论用陈旧局部变量 | FIXED | 跳出循环后重新采样，并重新施加 holder 绑定门禁 |
+| B7 `HOLDING` 未证明 bootstrap | DEFERRED | 本环境无法创建 holder，改了也无法验证；保留为已知缺陷并写明修法 |
+
+`ComDesktop` 在本机仍**不可用**（B2 结论），自动打开一律走 `StartupCommand`；
+B3/B5/B6 的修复由模块级回归覆盖，未声称真实 holder 端到端验证。
 
 ## 可复现测试
 
