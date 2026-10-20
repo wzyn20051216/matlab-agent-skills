@@ -16,6 +16,8 @@ Full capability statement: this repository is open source, but its full workflow
 - Chinese project introduction: `docs/SKILLS_INTRO_ZH.md`
 - Short-video script (Chinese): `docs/SHORT_VIDEO_SCRIPT_ZH.md`
 - Official MATLAB MCP guide: `docs/MCP_EXISTING_SESSION_ZH.md`
+- CLI / Desktop 共享安装与卸载：[安装说明](docs/SKILL_INSTALLATION_ZH.md)
+- 双端独立验收与可见桌面启动：[验收记录](docs/PHASE4_4_DUAL_CLIENT_ZH.md)、[启动说明](docs/MATLAB_DESKTOP_STARTUP_ZH.md)
 - Changelog: `CHANGELOG.md`
 
 ## Highlights
@@ -56,6 +58,10 @@ Deploy the skills into your local Codex skill directory:
 ```powershell
 powershell -ExecutionPolicy Bypass -File .\scripts\Sync-Skills.ps1
 ```
+
+默认安装到当前操作系统用户的 `.agents/skills`，Windows CLI 与 Desktop 共用一份；
+WSL 使用自己的 Linux 用户目录。实际发现、正文加载与 MCP 执行分别验收，详见
+[共享安装说明](docs/SKILL_INSTALLATION_ZH.md)。
 
 Windows one-liner bootstrap:
 

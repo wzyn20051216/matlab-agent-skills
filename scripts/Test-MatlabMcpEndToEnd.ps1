@@ -70,6 +70,7 @@ Import-Module (Join-Path $scriptDir "MatlabAgentSkills.McpStdio.psm1") -Force -D
 
 if (-not $TaskId) { $TaskId = New-AcceptanceTaskId -Prefix "mcp-e2e" }
 if (-not $WorkingDirectory) { $WorkingDirectory = Join-Path $repoRoot "artifacts\validation\mcp_e2e" }
+$WorkingDirectory = $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($WorkingDirectory)
 if (-not $OutputPath) { $OutputPath = Join-Path $repoRoot "artifacts\validation\mcp_e2e_report.json" }
 if (-not (Test-Path -LiteralPath $WorkingDirectory)) {
     New-Item -ItemType Directory -Force -Path $WorkingDirectory | Out-Null

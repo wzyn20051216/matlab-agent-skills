@@ -65,3 +65,18 @@ powershell -ExecutionPolicy Bypass -File .\scripts\Test-MatlabMcpExistingSession
 powershell -ExecutionPolicy Bypass -File .\scripts\Setup-MatlabMcpExistingSession.ps1
 powershell -ExecutionPolicy Bypass -File .\scripts\Test-MatlabMcpExistingSession.ps1
 ```
+
+## 自动打开可见 MATLAB 桌面
+
+先运行仓库的 `scripts/Start-MatlabDesktop.ps1`：优先复用匹配的现有共享运行时及
+桌面窗口；没有 MATLAB 时自动经 Windows Shell 打开可见桌面，等待本次唯一
+receipt，再重建官方 stdio `auto` 连接并用真实工具执行验证。
+如存在未就绪实例，先读报告决定是否用 `-NewSession` 另开，不关闭用户原会话。
+`REUSED_EXISTING` 不计作新启动；仅 `newSessionVerified=true` 且启动前没有
+MATLAB 进程时才可记录 `coldStartVerified=true`。端口、PID 或 receipt 单独成立
+都不能替代 MCP 执行验证。详见 `docs/MATLAB_DESKTOP_STARTUP_ZH.md`。
+需要精确复现手动入口时可用 `-LaunchMode Shortcut`；候选返回后，用官方 MCP 执行
+报告指定的 `mcpCodeFile`，再以 `-ConfirmReport` 核对回执。候选本身不算启动成功。
+可显式用 `-LaunchMode ComDesktop` 由独立 STA holder 激活已注册的可见桌面并保留 COM 引用；
+共享 COM 返回旧 PID 时为 `NOT_NEW`，不会重写该用户会话或算作新启动。
+holder 就绪后仍须重建官方 stdio `auto` 并验证实际执行；还需在启动工具退出后复核持续存活。

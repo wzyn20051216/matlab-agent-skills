@@ -4,6 +4,15 @@ All notable changes to this project will be documented here.
 
 ## Unreleased
 
+### Phase 4.4：CLI / Desktop 共享技能与独立验收
+
+- 共享安装默认使用当前系统用户的 `.agents/skills`，补充归属校验、内容指纹、备份和保守卸载；Windows 与 WSL 的默认用户目录分开解析。
+- 两端发现引擎分别冷启动，真实共享目录升级、卸载、重装的技能数量为 9 / 0 / 9；CLI 和 Desktop 的控制任务分别通过官方 MCP 执行，再由独立解析评分器核对。
+- Phase 4.3 grader 修复 logical、缺失结果和损坏证据的统计；保留 53 份历史任务记录，真实 MATLAB 回归 43/43。
+- 可见桌面自动启动补上最终证据：零 MATLAB 进程、且 `sessionDetails.json` 仍指向已退出 PID 的条件下，默认 `StartupCommand` 得到 `status=READY`、`beforeProcesses=[]`、`coldStartVerified=true`（9724/25692，23.3 s）；随后官方 stdio `auto` 在该实例执行控制任务，`matlabPid` 与启动报告 `runtimePid` 一致，故 `startupSessionBinding=PASS`。
+- 明确区分"另开"与"冷启动"：已有实例时 `-NewSession` 得到 `newSessionVerified=true` / `coldStartVerified=false`，默认模式仍复用或拒绝重复启动；`-LaunchMode ComDesktop` 在被 Job 禁止 breakaway 的宿主中明确失败（Win32 错误 5），本机自动打开使用默认 `StartupCommand`（经 Windows Shell，不继承工具 Job）。
+- 新增可见桌面启动、官方 stdio 连接重建和分层证据工具；已测范围、历史失败及未测部署环境见 [双端验收记录](docs/PHASE4_4_DUAL_CLIENT_ZH.md)。
+
 ### 电力电子领域示例：Buck 稳定性与优化专项（第三阶段 3A.1）
 
 - Added: `matlab/buck/` Buck 电压环完整实现（48V→12V/50kHz）：符号+数值模型推导、平均/开关双模型、参数化闭环构建函数（PI + 抗饱和 back-calculation + 占空比限幅 + 可选陷波器 + 负载阶跃）。
