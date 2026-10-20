@@ -4,6 +4,24 @@ All notable changes to this project will be documented here.
 
 ## Unreleased
 
+### Phase 4.5：真实自主执行验证与 Windows 测试版准备
+
+- **修掉一个真实传输缺陷**：`MatlabAgentSkills.McpStdio.psm1` 未设置标准流编码，.NET 用进程默认
+  OEM 代码页写 stdin，导致**经 MCP 提交的含中文 MATLAB 代码被转成 U+FFFD**（实测 346 个替换字符
+  写进了产物）。现在 StandardInput/Output/Error 三个流都显式钉 UTF-8，并有回归证据。
+- 三个自然语言任务（数据拟合+误差分析 / 数字滤波器设计+采样条件 / Simulink 动态模型+阶跃验收）
+  由 Agent 自主完成并被**独立验证器**复核：20/20、22/22、21/21。过程中 Agent 自己发现并修复了
+  5 个错误（含一次正反馈符号错误导致响应发散），失败尝试保留在记录里。
+- 安装侧：`Sync-Skills` 的 JSON 摘要现在投影 `preservedUserFiles` / `restoredFromBackup` /
+  `recreatedFiles`，脚本化消费者不必解析中文 message；`unchanged` 路径也会如实报告用户新增文件。
+- 新增 Windows 测试版材料：[WINDOWS_BETA_ZH](docs/WINDOWS_BETA_ZH.md)（快速开始、九个技能用途、
+  许可与依赖、诊断、已验证/未验证、卸载回滚、演示任务、发布前 checklist）；README 增加
+  "Windows beta status" 段落，明确不写"全平台兼容/全面自主执行/成功率提升"。
+- 发布安全：去掉 `docs/PHASE4_3_VERIFICATION_ZH.md` 中的本机用户名绝对路径（首次推送前必须清除，
+  否则会永久进入公开历史）。
+- **未完成（明确 BLOCKED）**：本轮 CLI / Desktop 的自主执行因 `chatgpt.com` / `api.openai.com`
+  在本机不可达而无法进行；R1/R2/R3 增益对照同样无法执行，故**不作任何增益声明**。
+
 ### Phase 4.4：CLI / Desktop 共享技能与独立验收
 
 - 共享安装默认使用当前系统用户的 `.agents/skills`，补充归属校验、内容指纹、备份和保守卸载；Windows 与 WSL 的默认用户目录分开解析。

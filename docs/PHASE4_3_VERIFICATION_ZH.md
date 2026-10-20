@@ -54,7 +54,7 @@ Phase 4.2 说"9 个 Skills 就位"，指的是**仓库源码**。实际安装状
 ## 2. 真实 Skills 加载证据（Task 1）
 
 用 WorkBuddy 的 `Skill` 工具逐个加载 9 个技能，平台返回
-`Base directory for this skill: C:\Users\23201\.workbuddy\skills\<name>`
+`Base directory for this skill: %USERPROFILE%\.workbuddy\skills\<name>`
 与完整 SKILL.md 正文。这就是**内容被加载**的硬证据。
 
 新增 `mas_skill_audit.m` 把五级事件固化成台账：
