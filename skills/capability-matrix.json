@@ -34,12 +34,16 @@
    "skill_call_graph": {
     "status": "VERIFIED",
     "evidence": "test_skill_graph.m 13/13: 8 known-answer graphs pin the detector (diamond and star must NOT be reported), plus no cycle / no dangling route / full coverage on the real 9 skills"
+   },
+   "skill_discovery_and_loading": {
+    "status": "VERIFIED",
+    "evidence": "mas_skill_audit report: 9 skills DISCOVERED and 9 LOADED on this platform, with per-skill receipts in artifacts/validation/phase43/skill_load_receipts.json. SELECTED/WORKFLOW/ACCEPTED stay UNOBSERVED and are reported as such."
    }
   },
   "matlab-runner": {
    "dependency_discovery_five_levels": {
     "status": "VERIFIED",
-    "evidence": "test_dep_probe.m 23/23; built-ins are no longer reported missing (chol/svd/eig/inv pinned)"
+    "evidence": "test_dep_probe.m 26/26: built-ins not reported missing, UAV Toolbox resolves (it IS installed and licensed), and Communications Toolbox is judged usable by its probe even though license('test','Communications_Toolbox') returns 0, with a negative control that falls back to NOT_LICENSED when the probe is suppressed"
    },
    "product_feature_alias_table": {
     "status": "VERIFIED",
@@ -52,6 +56,14 @@
    "interactive_execution": {
     "status": "PARTIAL",
     "evidence": "matlab -batch runs real code, but it is NOT the MCP path; R2/R3 remain SKIP"
+   },
+   "official_matlab_mcp_link": {
+    "status": "VERIFIED",
+    "evidence": "scripts/Test-Phase43McpHandshake.ps1 and scripts/Invoke-Phase43McpTask.ps1 drove the official matlab-mcp-server-windows-x64.exe v0.15.0 over stdio: initialize 757 ms, tools/list returned 5 real tools, and evaluate_matlab_code ran on real R2026a and listed 117 toolboxes. Raw evidence in artifacts/validation/phase43/mcp_tools_list.json"
+   },
+   "r1_r2_r3_benchmark": {
+    "status": "PARTIAL",
+    "evidence": "mas_phase43_grade over 53 runs: R1 15/18, R2 15/17, R3 18/18. The only differing task (B6) needs mas_codegen_ready, which only exists in this repository, so R3 wins BY CONSTRUCTION. The task programs are FIXED, so this measures the channel and tool availability, not an agent's own reasoning -- see docs/PHASE4_3_VERIFICATION_ZH.md section 8"
    }
   },
   "matlab-simulink-modeling": {
@@ -171,7 +183,7 @@
    },
    "static_codegen_readiness_audit": {
     "status": "VERIFIED",
-    "evidence": "test_codegen.m; array growth is a blocker only INSIDE a loop, verified by two fixtures with the same line"
+    "evidence": "test_codegen.m 12/12; array growth is a blocker only INSIDE a loop, verified by two fixtures with the same line; a file given by FULL PATH resolves (the earlier version dropped it because which() returns empty for a path)"
    },
    "fixed_point_range_and_quantization_cost": {
     "status": "VERIFIED",
@@ -216,30 +228,29 @@
     "evidence": "occupancyMap/manipulatorRRT resolve as functions but were never exercised against a frozen reference"
    },
    "uav_scenario_simulation": {
-    "status": "UNSUPPORTED",
-    "evidence": "UAV Toolbox is NOT INSTALLED (probed: UAV Toolbox -> NOT_INSTALLED)"
+    "status": "NOT TESTED",
+    "evidence": "UAV Toolbox 26.1 (R2026a) IS installed and licensed on this machine (verified 2026-10-20 via the MATLAB MCP server's detect_matlab_toolboxes, which lists 117 toolboxes including UAV Toolbox, and via license('test','UAV_Toolbox')=1). Phase 4.2 recorded it as NOT INSTALLED because ver('UAV Toolbox') single-argument lookup returns 0 for a product that IS present in the ver() list -- that false negative is fixed by adding the product to mas_product_map.m."
    }
   }
  },
  "summary": {
   "capability_counts": {
-   "VERIFIED": 32,
-   "NOTTESTED": 13,
-   "PARTIAL": 2,
-   "UNSUPPORTED": 1
+   "VERIFIED": 34,
+   "NOTTESTED": 14,
+   "PARTIAL": 3
   },
   "tool_counts": {
-   "VERIFIED": 30
+   "VERIFIED": 32
   },
-  "verified_capabilities": 32,
-  "note": "Counts are COMPUTED from the entries above, not typed in -- mas_capability_check.m fails if they drift. Keys carry no spaces because jsonencode strips them. Power electronics stays PARTIAL: there is no dedicated skill and routing.json says so. UNSUPPORTED means the product is not installed here (UAV); NOTTESTED means it might work but nothing in this repo exercised it. R2/R3 remain SKIP -- see the benchmark ledger."
+  "verified_capabilities": 34,
+  "note": "Counts are COMPUTED from the entries above, not typed in -- mas_capability_check.m fails if they drift. Keys carry no spaces because jsonencode strips them. R1/R2/R3 benchmark ran for real on 2026-10-20 (docs/PHASE4_3_VERIFICATION_ZH.md); the official MATLAB MCP server is reachable over stdio. PARTIAL on the benchmark entry is deliberate: the task scripts are fixed, so it does not yet measure an agents own skill selection or recovery."
  },
  "tools": {
   "mas_codegen_ready": {
    "skill": "matlab-codegen-deploy",
    "status": "VERIFIED",
-   "tests": "test_codegen.m",
-   "what": "blocker vs warning audit; loop-depth tracking, not a regex grep"
+   "tests": "test_codegen.m 12/12",
+   "what": "blocker vs warning audit; loop-depth tracking, not a regex grep; resolves a full file path as well as a function name"
   },
   "mas_codegen_verify": {
    "skill": "matlab-codegen-deploy",
@@ -316,8 +327,8 @@
   "mas_dep_probe": {
    "skill": "matlab-runner",
    "status": "VERIFIED",
-   "tests": "test_dep_probe.m 23/23",
-   "what": "five-level dependency discovery, 8 named states, built-ins pinned"
+   "tests": "test_dep_probe.m 26/26",
+   "what": "five-level dependency discovery, 8 named states, built-ins pinned, UAV resolved, and a probe that rescues a wrong feature name"
   },
   "mas_precheck": {
    "skill": "matlab-runner",
@@ -414,6 +425,18 @@
    "status": "VERIFIED",
    "tests": "test_skill_graph.m 13/13",
    "what": "builds the skill call graph from routing.json + SKILL.md + cross-skill script calls; detects cycles, dangling routes, duplicate loading; the detector is pinned against 8 graphs with known answers"
+  },
+  "mas_skill_audit": {
+   "skill": "matlab-testing-ci",
+   "status": "VERIFIED",
+   "tests": "test_bench.m (ledger shape) + live receipts",
+   "what": "five-stage skill audit (DISCOVERED/LOADED/SELECTED/WORKFLOW/ACCEPTED); a stage with no evidence stays UNOBSERVED, never silently OK"
+  },
+  "mas_phase43_grade": {
+   "skill": "matlab-testing-ci",
+   "status": "VERIFIED",
+   "tests": "53 graded runs in artifacts/validation/phase43/grade.json",
+   "what": "grades R1/R2/R3 runs against the frozen references; reads only the MAS_RESULT line, never the task's own verdict; a missing result is ERROR, not FAIL"
   }
  },
  "toolsNote": "Generated from the files under skills/*/scripts. mas_capability_check.m fails when this drifts from disk, because a matrix that silently rots is worse than no matrix."

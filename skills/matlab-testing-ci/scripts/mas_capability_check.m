@@ -181,27 +181,37 @@ if doEvid
             if ~strcmp(info.status, 'VERIFIED'), continue; end
             ev = '';
             if isfield(info, 'evidence'), ev = info.evidence; end
-            % A VERIFIED claim must point at something a reader can re-run.
-            % Two forms count: a test file under skills/*/tests, or a cross-domain
-            % task id (D1..T1, S1/R1/G1) which is graded against a frozen
-            % reference by mas_verify_task. Evidence is often written as a RANGE
-            % ("D1..G1", "15 references"), so an explicit single id is not
-            % required -- but "15 references" alone is, because nothing in it
-            % points at a runnable artefact.
-            tokF = regexp(ev, '[A-Za-z0-9_]+\.m', 'match');
-            tokT = regexp(ev, '(D[1-8]|C[1-3]|T1|S1|R1|G1)', 'match');
-            tokR = regexp(ev, '(D[1-8]\.\.|cross-domain\s+[0-9]+|held-out\s+set)', 'match');
-            if isempty(tokF) && isempty(tokT) && isempty(tokR)
-                noFile{end+1} = sprintf('%s/%s cites no test file, task id or range', ...
-                    f{k}, cf{q}); %#ok<AGROW>
-                continue;
-            end
-            missingF = {};
-            for t = 1:numel(tokF)
-                if isempty(dir(fullfile(repo, 'skills', '*', 'tests', tokF{t})))
-                    missingF{end+1} = tokF{t}; %#ok<AGROW>
-                end
-            end
+            % A VERIFIED claim must point at something a reader can re-run. Accepted
+% forms, because the repo's evidence is not all .m:
+%   - a test file under skills/*/tests
+%   - a graded cross-domain task id (D1..T1, S1/R1/G1)
+%   - a driver script under scripts/ (*.ps1), which is how the MCP and
+%     benchmark evidence is produced
+%   - a committed artefact under artifacts/validation/ (*.json)
+% The last two matter: the MATLAB MCP link and the R1/R2/R3 benchmark are
+% driven from PowerShell, so a checker that only accepts .m files would call
+% the strongest evidence in this repository "no evidence".
+tokF = regexp(ev, '[A-Za-z0-9_\-]+\.(?:m|ps1)', 'match');
+tokJ = regexp(ev, 'artifacts/[A-Za-z0-9_\-/]+\.json', 'match');
+tokT = regexp(ev, '(D[1-8]|C[1-3]|T1|S1|R1|G1)', 'match');
+tokR = regexp(ev, '(D[1-8]\.\.|cross-domain\s+[0-9]+|held-out\s+set)', 'match');
+if isempty(tokF) && isempty(tokJ) && isempty(tokT) && isempty(tokR)
+    noFile{end+1} = sprintf('%s/%s cites no test file, script, artefact or task id', ...
+        f{k}, cf{q}); %#ok<AGROW>
+    continue;
+end
+missingF = {};
+for t = 1:numel(tokF)
+    if isempty(dir(fullfile(repo, 'skills', '*', 'tests', tokF{t}))) && ...
+       isempty(dir(fullfile(repo, 'scripts', tokF{t})))
+        missingF{end+1} = tokF{t}; %#ok<AGROW>
+    end
+end
+for t = 1:numel(tokJ)
+    if ~isfile(fullfile(repo, tokJ{t}))
+        missingF{end+1} = tokJ{t}; %#ok<AGROW>
+    end
+end
             if ~isempty(missingF)
                 noFile{end+1} = sprintf('%s/%s cites missing %s', f{k}, cf{q}, ...
                     strjoin(missingF, ', ')); %#ok<AGROW>

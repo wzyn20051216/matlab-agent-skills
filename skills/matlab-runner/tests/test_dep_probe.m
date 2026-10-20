@@ -26,6 +26,21 @@ T(end+1) = tc('feature probe',            @() mas_dep_probe('feature', 'Signal_T
 T(end+1) = tc('exec probe ok',            @() mas_dep_probe('exec', 'x = 1;'),                         'OK', true, '');
 T(end+1) = tc('exec probe fails',         @() mas_dep_probe('exec', 'error(''boom'')'),                'EXEC_FAILED', false, '');
 T(end+1) = tc('deep function probe',      @() mas_dep_probe('function', 'tf', struct('deep', true)),  'OK', true, '');
+% UAV Toolbox: installed AND licensed on this machine. It was absent from the
+% product map, so the probe answered UNKNOWN_PRODUCT -- a false negative that
+% then propagated into the capability matrix as "UAV Toolbox is NOT INSTALLED".
+T(end+1) = tc('UAV product resolves',     @() mas_dep_probe('product', 'UAV Toolbox'),               'OK', true, '');
+% Communications Toolbox: installed, and USABLE, but the feature name in our map
+% is wrong -- license('test','Communications_Toolbox') returns 0 while the
+% product's own probe runs. The probe is the stronger evidence, so the verdict
+% must be OK rather than a false NOT_LICENSED.
+T(end+1) = tc('probe rescues wrong feature name', @() mas_dep_probe('product', 'Communications Toolbox'), 'OK', true, '');
+% NEGATIVE CONTROL for the line above. The rescue is conditional on the probe
+% actually RUNNING and SUCCEEDING. With the probe suppressed, the same wrong
+% feature name must fall back to NOT_LICENSED -- otherwise the "rescue" is just
+% a way of always saying OK, which would make every missing toolbox look
+% available.
+T(end+1) = tc('neg: no probe -> NOT_LICENSED', @() mas_dep_probe('product', 'Communications Toolbox', struct('skipExec', true)), 'NOT_LICENSED', false, '');
 
 % ---- core built-ins must NOT be reported missing ----------------------------
 % exist(name,'file') excludes built-ins by design, so chol/eig/inv came back

@@ -218,6 +218,30 @@ lic = license('test', pm.feature);
 r.level = 4;
 r.evidence{end+1} = sprintf('license(''test'',''%s'')=%d', pm.feature, lic);
 if ~lic
+    % A failed licence check is NOT the end of the investigation: the feature
+    % name in our table is a GUESS, and a wrong guess turns a working product
+    % into a false "NOT_LICENSED". The evidence here is concrete: on R2026a
+    % Communications Toolbox is installed, `license('test','Communications_Toolbox')`
+    % returns 0, and yet `qammod` runs -- so the product IS usable and our
+    % feature name is wrong.
+    %
+    % So when the product has an EXECUTABLE probe, run it. If the probe works,
+    % the product works, whatever the licence feature string says. The probe is
+    % the stronger evidence; the feature string is bookkeeping.
+    if ~opts.skipExec && ~isempty(pm.probe)
+        [pok, pmsg] = run_probe(pm.probe);
+        r.evidence{end+1} = sprintf('probe(''%s'')=%d', pm.probe, pok);
+        if pok
+            r.state = 'OK';
+            r.level = 5;
+            r.detail = sprintf(['%s usable: installed, and probe "%s" ran ' ...
+                'although license(''test'',''%s'') returned 0 -- the feature ' ...
+                'name in the map is wrong, the product itself works'], ...
+                pm.name, pm.probe, pm.feature);
+            ok = true; return;
+        end
+        r.evidence{end+1} = sprintf('probe failed: %s', pmsg);
+    end
     r.state = 'NOT_LICENSED';
     r.detail = sprintf('%s installed but feature %s not licensed', pm.name, pm.feature);
     ok = false; return;

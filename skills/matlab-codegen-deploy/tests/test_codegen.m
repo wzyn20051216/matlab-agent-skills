@@ -31,6 +31,12 @@ add('ready: eval is a blocker', @() ready_eval());
 add('ready: growth in loop is blocker', @() ready_grow_in());
 add('ready: growth outside loop is only warning', @() ready_grow_out());
 add('ready: strict promotes warnings', @() ready_strict());
+% A file given by FULL PATH must resolve. `which()` returns empty for a full
+% path (it searches the path, not the file system), so a resolver that only
+% uses which() returns "" and read_text() then fails with "cannot open " -- an
+% empty argument, which reads like an I/O fault instead of a path bug. This
+% case uses a temp file that is deliberately NOT on the path.
+add('ready: full path resolves', @() ready_fullpath());
 
 % ---- codegen_verify -----------------------------------------------------
 add('verify: PASS on a real function', @() verify_pass());
@@ -124,6 +130,23 @@ end
 function v = ready_strict()
 r = mas_codegen_ready('grow_outside', struct('strict', true));
 v = strcmp(r.verdict, 'BLOCKED') && ~r.ok;
+end
+
+function v = ready_fullpath()
+% Write a clean file into a directory that is NOT on the path, then audit it by
+% FULL PATH. A bare function name is never used, so addpath cannot hide a
+% resolver that only understands names -- which is exactly how the original
+% bug survived: every other case had its fixture directory on the path.
+d = fullfile(tempdir, sprintf('p43_ready_%d', feature('getpid')));
+if ~exist(d, 'dir'), mkdir(d); end
+c = onCleanup(@() rmdir(d, 's'));
+f = fullfile(d, 'off_path_fn.m');
+fid = fopen(f, 'w');
+if fid < 0, v = false; return; end
+fwrite(fid, sprintf('function y = off_path_fn(x)\n%%#codegen\ny = zeros(size(x));\nfor k = 1:numel(x)\n  y(k) = x(k)^2;\nend\nend\n'), 'char');
+fclose(fid);
+r = mas_codegen_ready(f);          % FULL PATH, not a name
+v = strcmp(r.verdict, 'READY');
 end
 
 % ===========================================================================

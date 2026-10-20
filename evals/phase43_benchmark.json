@@ -1,0 +1,85 @@
+{
+  "schema": "mas-phase43-benchmark/1",
+  "description": "R1/R2/R3 controlled comparison. The SAME tasks, the SAME MATLAB, the SAME independent grader. The only thing that differs is HOW the code reaches MATLAB: (R1) CLI batch, (R2) official MATLAB MCP, (R3) official MATLAB MCP + this project's Skills. R1 and R2 run in a sandbox that does NOT contain the skills directory, so neither can accidentally read this project's worked solutions.",
+  "referenceProvenance": "Every reference below was derived on 2026-10-20 by TWO INDEPENDENT routes in MATLAB, not written from memory. The first draft of this file was written from memory and five of six references were WRONG: B1's solution vector (hand-written [1;-3;2] has residual 4.12, the true solution is [0.318182;-3.090909;3.318182]), B2's phase margin (51.83 claimed vs 55.862240 measured; the first transfer function had no 0 dB crossing at all, so margin returned Inf), B3's FFT bin (claimed bin 10, actually bin 11 in 1-based indexing), B4's fit (claimed slope 2.02/intercept 0.02, actually 2.01/0.03), and B5's x (claimed 1.1294 from a wrong cos(75) term, actually 0.995434926336). The derivations are in artifacts/derive_phase43_refs.m.",
+  "controls": {
+    "sameTasks": "the task list below is the only input difference-free variable; every group gets the identical list",
+    "sameGrader": "every group is graded by the same scripts, against the same references, by the same comparison operators",
+    "skillIsolation": "R1 and R2 execute with a working directory and MATLAB path that exclude skills/ ; the skill directory is visible ONLY to R3",
+    "noReferenceLeak": "the grader's reference table is NOT in the sandbox; only the grader process reads it, after the run",
+    "repeats": "each group runs the task list 3 times; the prompt and environment are identical between repeats, so the spread measures model stochasticity"
+  },
+  "tasks": [
+    {
+      "id": "B1",
+      "domain": "numerical computing",
+      "prompt": "Solve the 3x3 linear system A*x=b with A = [4 -1 2; -1 4 -1; 2 -1 4] and b = [11; -16; 17], and report the solution vector and the residual norm.",
+      "skill": "matlab-data-analysis",
+      "reference": "x = [0.318182; -3.090909; 3.318182], residual norm = 0",
+      "referenceDerivation": "A\\b and pinv(A)*b agree to 1e-12; residual norm(A*x-b) = 0",
+      "checks": [
+        {"field": "x", "op": "maxabsdiff", "ref": [0.3181818181818182, -3.090909090909091, 3.318181818181818], "tol": 1e-9},
+        {"field": "residual", "op": "absdiff", "ref": 0, "tol": 1e-9}
+      ]
+    },
+    {
+      "id": "B2",
+      "domain": "control analysis",
+      "prompt": "For the unity-feedback loop with open-loop transfer function L(s) = 10/((s+1)*(s+2)), report the phase margin in degrees at the 0 dB crossing, the gain margin, and whether the closed loop is stable.",
+      "skill": "matlab-control-optimization",
+      "reference": "pm = 55.862240 deg, gm = Inf, closed loop stable",
+      "referenceDerivation": "margin(L) gives pm=55.862239880; the exact crossing w0 = sqrt((-5+sqrt(409))/2) = 2.758962524 gives pm = 180 - atan(w0) - atan(w0/2) = 55.862044360, agreeing to 2.0e-4 (margin interpolates); closed-loop poles -1.5 +/- 3.1225i, both in the LHP; the 2-pole loop's phase never reaches -180 deg, so the gain margin is Inf",
+      "checks": [
+        {"field": "pmDeg", "op": "absdiff", "ref": 55.862239880, "tol": 0.05},
+        {"field": "loopStable", "op": "true", "ref": 1, "tol": 0}
+      ]
+    },
+    {
+      "id": "B3",
+      "domain": "signal processing",
+      "prompt": "Generate a 10 Hz sine wave sampled at 1000 Hz for 1 second, compute its single-sided amplitude FFT, and report the amplitude and the 1-based FFT bin index of the peak.",
+      "skill": "matlab-signal-vision-ai",
+      "reference": "amplitude 1.0, peak at 1-based bin 11 (bin k corresponds to (k-1)*fs/N = 10 Hz)",
+      "referenceDerivation": "abs(fft(x))/N*2 peaks at index 11 with amplitude 1.000000000; direct DFT projection sum(x.*exp(-2i*pi*10*t))/N gives the same 1.000000000; X(10) is 0 because 1-based bin 11 is the 10 Hz bin",
+      "checks": [
+        {"field": "ampAt10", "op": "absdiff", "ref": 1.0, "tol": 0.01},
+        {"field": "peakBin", "op": "absdiff", "ref": 11, "tol": 0}
+      ]
+    },
+    {
+      "id": "B4",
+      "domain": "data analysis",
+      "prompt": "Fit a straight line to the data x = [1 2 3 4 5], y = [2.1 4.0 6.1 7.9 10.2] by least squares, and report the slope and the intercept.",
+      "skill": "matlab-data-analysis",
+      "reference": "slope 2.01, intercept 0.03",
+      "referenceDerivation": "polyfit, fitlm and the hand formula sum((x-xbar)(y-ybar))/sum((x-xbar)^2) all give slope=2.0100000000 and intercept=0.0300000000",
+      "checks": [
+        {"field": "slope", "op": "absdiff", "ref": 2.01, "tol": 1e-6},
+        {"field": "intercept", "op": "absdiff", "ref": 0.03, "tol": 1e-6}
+      ]
+    },
+    {
+      "id": "B5",
+      "domain": "robotics kinematics",
+      "prompt": "For a 2-link planar arm with link lengths 1.0 and 0.5 and joint angles 30 and 45 degrees, report the end-effector x and y position.",
+      "skill": "matlab-robotics-autonomy",
+      "reference": "x = 0.995434926336, y = 0.982962913145",
+      "referenceDerivation": "L1*cos(q1)+L2*cos(q1+q2) and the homogeneous-transform route A1*A2 agree to 1e-12",
+      "checks": [
+        {"field": "x", "op": "absdiff", "ref": 0.9954349263361332, "tol": 1e-9},
+        {"field": "y", "op": "absdiff", "ref": 0.9829629131445341, "tol": 1e-9}
+      ]
+    },
+    {
+      "id": "B6",
+      "domain": "codegen readiness",
+      "prompt": "Audit this MATLAB function for MATLAB Coder readiness and report the verdict: function y = f(x) n = length(x); y = zeros(1,n); for k = 1:n, y(k) = x(k)^2; end",
+      "skill": "matlab-codegen-deploy",
+      "reference": "READY: fixed-size preallocation, no eval/input/clear/load, no array growth inside the loop",
+      "referenceDerivation": "mas_codegen_ready on this function returns READY_WITH no blockers; the same file with x(end+1)=v moved inside the loop returns BLOCKED, which is the negative control",
+      "checks": [
+        {"field": "verdict", "op": "eq", "ref": "READY", "tol": 0}
+      ]
+    }
+  ]
+}

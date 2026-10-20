@@ -129,17 +129,46 @@ end
 
 % ===========================================================================
 function p = resolve_path(x)
+% Resolve a file name OR a full path to a real file path.
+%
+% The first version only knew how to look up a FUNCTION NAME with `which`, and
+% the documentation explicitly accepts a file path -- so `mas_codegen_ready('D:\Temp\x.m')`
+% returned an empty string and read_text() failed with "cannot open " (empty
+% argument), which reads like an I/O problem rather than a path-resolution bug.
+%
+% Two facts drive the order below:
+%   - `exist(x,'file')` answers for BOTH a bare name on the path and a full path
+%   - `which(fullPath)` returns EMPTY for a full path, because which() searches
+%     the MATLAB path rather than the file system
+% So the file system is checked first, and `which` is only consulted for a name
+% that is not a file as given.
 if ischar(x) || (isstring(x) && isscalar(x))
     x = char(x);
-    if exist(x, 'file') == 2
-        p = which(x);
-        return;
-    end
+    % Resolve in this order, because each step fails for a different shape of
+    % input:
+    %   1. which([x '.m']) -- a bare NAME without the extension
+    %   2. which(x)        -- a name WITH the extension, or a .p / .mex file
+    %   3. the string as a PATH -- which() returns '' for a full path, because
+    %      it searches the path rather than the file system, and that is the
+    %      case the original version dropped
+    % Step 3 is verified with a real fopen() rather than trusted: a bare name
+    % that exist() reports as a file is not necessarily openable as a path
+    % (exist('grow_outside','file') is 2, fopen('grow_outside','r') fails).
     p = which([x '.m']);
-    if ~isempty(p), return; end
-    p = which(x);
-    if ~isempty(p), return; end
-    error('mas_codegen_ready:notfound', 'cannot resolve "%s" to a file', x);
+    if isempty(p), p = which(x); end
+    if isempty(p)
+        if exist(x, 'file') ~= 0
+            fid = fopen(x, 'r');
+            if fid >= 0
+                fclose(fid);
+                p = x;
+            end
+        end
+    end
+    if isempty(p)
+        error('mas_codegen_ready:notfound', 'cannot resolve "%s" to a file', x);
+    end
+    return;
 else
     error('mas_codegen_ready:type', 'expected a file name or function name');
 end
