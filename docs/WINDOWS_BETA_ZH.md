@@ -124,7 +124,7 @@ powershell -ExecutionPolicy Bypass -File .\tests\Invoke-Tests.ps1 -Layer free
 | Codex CLI 自主执行（本轮） | **BLOCKED**：`chatgpt.com` / `api.openai.com` 本机不可达（10 s 超时，GitHub 可达）；客户端侧无法补救 |
 | Codex Desktop 自主执行 | **NOT VERIFIED**：无可程序化 UI 通道；且同样受上述网络限制 |
 | Desktop UI 层可见性/选中标识 | **NOT VERIFIED**：只能由引擎级 `skills/list` 与会话注入证明"被发现"，不能证明 UI 里可见 |
-| Skills 是否带来可测量增益（R1/R2/R3） | **BLOCKED**：无可用 Agent 运行，故不作任何增益声明；任务/参考答案/验收规则已冻结，待环境恢复后执行 |
+| Skills 是否带来可测量增益（R1/R2/R3） | **BLOCKED**：无可用 Agent 运行，故不作任何增益声明；任务/参考答案/验收规则已冻结（`artifacts/validation/phase45/benchmark/freeze_manifest.json`），runner 对 9 个 arm×task 全部输出 BLOCKED 并附网络证据，评分器自检 T1/T2/T3 = 18/18、17/17、51/51。待环境恢复后执行 |
 | `ComDesktop` 启动模式 | **UNSUPPORTED**：本机 Windows Job 禁止 breakaway（Win32 5）；默认 `StartupCommand` 可依赖 |
 | B7：holder `HOLDING` 未证明 bootstrap 已执行 | **DEFERRED**：本机无法创建 holder，无法验证；修法已写入 `docs/MATLAB_DESKTOP_STARTUP_ZH.md` |
 | WSL / Linux / macOS | **未实测**：仅有路径解析逻辑，不能声称支持 |

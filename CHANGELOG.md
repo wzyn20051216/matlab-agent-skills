@@ -21,6 +21,9 @@ All notable changes to this project will be documented here.
   否则会永久进入公开历史）。
 - **未完成（明确 BLOCKED）**：本轮 CLI / Desktop 的自主执行因 `chatgpt.com` / `api.openai.com`
   在本机不可达而无法进行；R1/R2/R3 增益对照同样无法执行，故**不作任何增益声明**。
+  R1/R2/R3 的任务、参考答案与验收规则已在任何运行之前冻结（含 SHA-256 清单），
+  runner 对 9 个 arm×task 一律输出 BLOCKED 并附 `github.com` 对照探针，
+  评分器用合成夹具自检通过（T1 18/18、T2 17/17、T3 51/51）。
 
 ### Phase 4.4：CLI / Desktop 共享技能与独立验收
 
