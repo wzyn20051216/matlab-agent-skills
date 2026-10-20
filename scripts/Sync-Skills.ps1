@@ -13,6 +13,8 @@
 
 .PARAMETER BackupRoot
 备份根目录。默认 <SkillRoot>/.matlab-agent-skills/backups。
+.PARAMETER SkillRoot
+显式指定技能目录；省略时使用当前 Windows/Linux/WSL 用户的 .agents/skills。
 #>
 [CmdletBinding()]
 param(
@@ -32,15 +34,15 @@ if (-not (Test-Path -LiteralPath $corePath)) {
     throw "缺少核心模块: $corePath"
 }
 Import-Module -Name $corePath -Force -DisableNameChecking
+Import-Module (Join-Path $PSScriptRoot 'MatlabAgentSkills.SkillInstallation.psm1') -Force -DisableNameChecking
 
 if (-not $RepositoryRoot) {
     $RepositoryRoot = Split-Path -Parent $PSScriptRoot
 }
+$RepositoryRoot = $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($RepositoryRoot)
 
-if (-not $SkillRoot) {
-    $codexHome = if ($env:CODEX_HOME) { $env:CODEX_HOME } else { Join-Path $HOME ".codex" }
-    $SkillRoot = Join-Path $codexHome "skills"
-}
+$installation = Resolve-MasSkillInstallation -SkillRoot $SkillRoot
+$SkillRoot = Assert-MasSkillRootPath -SkillRoot $installation.skillRoot
 
 if (-not $BackupRoot) {
     $BackupRoot = Join-Path $SkillRoot ".matlab-agent-skills\backups"
@@ -54,11 +56,26 @@ if (-not (Test-Path -LiteralPath $sourceRoot)) {
 Write-Step "同步 skills: $sourceRoot -> $SkillRoot"
 if ($DryRun) { Write-Info "[DryRun] 不会写入任何文件" }
 
+$manifest = Read-SkillManifest -SkillRoot $SkillRoot
+if ((Test-Path -LiteralPath $manifest.Path) -and -not $manifest.Exists) {
+    throw '现有技能清单无法解析，拒绝改写；请先人工复核清单或选择新的 -SkillRoot。'
+}
+if ($manifest.Exists -and $manifest.Skills.Count -gt 0) {
+    # 不把其他仓库的条目带入本次同步，避免重写 owner 后被本仓卸载器误删。
+    $rawManifest = Read-JsonConfig -Path $manifest.Path
+    $owner = if ($rawManifest.Contains('repository')) { [string]$rawManifest['repository'] } else { '' }
+    $comparison = if ([Environment]::OSVersion.Platform -eq [PlatformID]::Win32NT) {
+        [StringComparison]::OrdinalIgnoreCase
+    } else { [StringComparison]::Ordinal }
+    if (-not $owner -or -not [string]::Equals(
+            [IO.Path]::GetFullPath($owner).TrimEnd([char[]]'\/'),
+            $RepositoryRoot.TrimEnd([char[]]'\/'), $comparison)) {
+        throw '非空技能清单归属其他仓库或缺少归属，拒绝同步；-Force 不接管。请使用原仓库、选择新的 -SkillRoot，或人工复核迁移。'
+    }
+}
 if (-not $DryRun -and -not (Test-Path -LiteralPath $SkillRoot)) {
     New-Item -ItemType Directory -Force -Path $SkillRoot | Out-Null
 }
-
-$manifest = Read-SkillManifest -SkillRoot $SkillRoot
 $managedSkills = $manifest.Skills
 $session = $null
 if (-not $DryRun) {
@@ -81,6 +98,7 @@ try {
         $isManaged = $managedSkills.Contains($source.Name)
 
         try {
+            $destination = Assert-MasManagedSkillPath -SkillRoot $SkillRoot -Name $source.Name
             $result = Sync-SkillDirectory -Name $source.Name -Source $source.FullName -Destination $destination `
                 -IsManaged $isManaged -Session $session -BackupRoot $BackupRoot -Force:$Force -DryRun:$DryRun
         }
@@ -129,6 +147,7 @@ try {
         foreach ($managedName in @($managedSkills.Keys)) {
             if ($sourceNames -contains $managedName) { continue }
             $managedPath = Join-Path $SkillRoot $managedName
+            $managedPath = Assert-MasManagedSkillPath -SkillRoot $SkillRoot -Name $managedName
             if (-not (Test-Path -LiteralPath $managedPath)) {
                 $managedSkills.Remove($managedName)
                 continue
@@ -138,8 +157,8 @@ try {
             if ($managedSkills[$managedName] -and $managedSkills[$managedName].hash) {
                 $expectedHash = $managedSkills[$managedName].hash
             }
-            if ($expectedHash -and $currentHash -ne $expectedHash) {
-                Write-Warning "跳过清理（目录已被本地修改）: $managedName"
+            if (-not $expectedHash -or $currentHash -ne $expectedHash) {
+                Write-Warning "跳过清理（目录已被本地修改或缺少可信安装指纹）: $managedName"
                 continue
             }
             if ($DryRun) {
@@ -174,6 +193,7 @@ $summary = [pscustomobject]@{
     dryRun        = [bool]$DryRun
     sourceRoot    = $sourceRoot
     skillRoot     = $SkillRoot
+    skillEnvironment = $installation
     manifestPath  = if ($DryRun) { Join-Path $SkillRoot ".matlab-agent-skills-manifest.json" } else { $manifestPath }
     backupRoot    = if ($session) { $session.Directory } else { $null }
     installed     = @($results | Where-Object { $_.Decision -eq "install" }).Count

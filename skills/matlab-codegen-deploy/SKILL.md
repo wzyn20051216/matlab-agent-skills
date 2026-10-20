@@ -1,6 +1,6 @@
 ---
 name: matlab-codegen-deploy
-description: MATLAB R2026a code generation and deployment workflow for MATLAB Coder, Simulink Coder, Embedded Coder, GPU Coder, HDL Coder, fixed-point conversion, MEX validation, and embedded deployment readiness. Use whenever the user asks to generate C/C++/CUDA/HDL/code, deploy algorithms, or validate generated code.
+description: MATLAB code generation and deployment workflow for MATLAB Coder, Simulink Coder, Embedded Coder, GPU Coder, HDL Coder, fixed-point conversion, MEX validation, and embedded deployment readiness. Use whenever the user asks to generate C/C++/CUDA/HDL/code, deploy algorithms, or validate generated code.
 ---
 
 # MATLAB Codegen Deploy

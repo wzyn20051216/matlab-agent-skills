@@ -1,6 +1,6 @@
 ---
 name: matlab-testing-ci
-description: MATLAB R2026a testing, validation, and CI workflow for matlab.unittest, MATLAB Test, Simulink Test, coverage, artifact generation, GitHub Actions, and open-source reproducibility. Use whenever MATLAB work needs verification, regression tests, CI, GitHub publication, or acceptance criteria.
+description: MATLAB testing, validation, and CI workflow for matlab.unittest, MATLAB Test, Simulink Test, coverage, artifact generation, GitHub Actions, and open-source reproducibility. Use whenever MATLAB work needs verification, regression tests, CI, GitHub publication, or acceptance criteria.
 ---
 
 # MATLAB Testing CI

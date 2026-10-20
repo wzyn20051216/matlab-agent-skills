@@ -1,6 +1,6 @@
 ---
 name: matlab-robotics-autonomy
-description: MATLAB R2026a robotics and autonomy workflow for ROS Toolbox, Robotics System Toolbox, Navigation Toolbox, UAV Toolbox, sensor fusion, trajectory planning, simulation, and reproducible robot experiments. Use for ROS/ROS 2 bags, robot models, path planning, SLAM, state estimation, and autonomy prototyping.
+description: MATLAB robotics and autonomy workflow for ROS Toolbox, Robotics System Toolbox, Navigation Toolbox, UAV Toolbox, sensor fusion, trajectory planning, simulation, and reproducible robot experiments. Use for ROS/ROS 2 bags, robot models, path planning, SLAM, state estimation, and autonomy prototyping.
 ---
 
 # MATLAB Robotics Autonomy
@@ -139,5 +139,5 @@ result is cross-checked against `eul2rotm` / `quat2rotm` and the deviation repor
 never faked. `angleUnit='rad'` rejects input whose magnitude exceeds 2*pi, which is
 what degree-valued data looks like.
 
-`tests/test_robotics.m` — 31 cases, each graded against an independent value, with a
+`tests/test_robotics.m` — cases are graded against an independent value, with a
 negative control for every metric that could pass vacuously.

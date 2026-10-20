@@ -1,6 +1,6 @@
 ---
 name: matlab-runner
-description: Run MATLAB R2026a tasks from Codex with reliable MCP-based execution, logs, artifacts, toolbox inventory, smoke tests, and reproducible validation. Use whenever MATLAB code, .m/.mlx scripts, MATLAB tests, local toolbox probing, or command-line automation is needed.
+description: Run MATLAB tasks from Codex with reliable MCP-based execution, logs, artifacts, toolbox inventory, smoke tests, and reproducible validation. Use whenever MATLAB code, .m/.mlx scripts, MATLAB tests, local toolbox probing, or command-line automation is needed.
 ---
 
 # MATLAB Runner
@@ -47,7 +47,7 @@ The `index` check exists because MATLAB does **not** error when a logical mask i
 shorter than the array it indexes: it silently returns the first `numel(mask)`
 elements. In Phase 3B.2 that turned every `iLref` reading into `0` and nearly
 produced the conclusion "the current command is railed". A length check makes it
-loud. `tests/test_precheck.m` covers 16 cases, half of them must-fail.
+loud. `tests/test_precheck.m` covers positive and must-fail cases.
 
 Never start a 20-minute matrix after a failed precheck; fix the precheck first.
 
@@ -202,4 +202,4 @@ reached, so "it does not work" becomes a specific sentence.
 Historical product names are aliases of the current row (`Neural Network Toolbox` ->
 `Deep Learning Toolbox`, `Statistics Toolbox` -> `Statistics and Machine Learning
 Toolbox`), because a user typing the old name must not get "not licensed". Covered
-by `tests/test_dep_probe.m` (17 cases, 11 of which must fail to resolve).
+by `tests/test_dep_probe.m`, including must-fail dependency cases.

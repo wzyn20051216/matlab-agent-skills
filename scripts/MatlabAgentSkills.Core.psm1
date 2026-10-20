@@ -75,9 +75,22 @@ function Test-HashMatch {
 }
 
 function Get-FileSha256 {
+    <#
+    .SYNOPSIS
+    直接用 .NET 计算 SHA-256，避免嵌套 PS5.1 的模块路径导致 Get-FileHash 不可用。
+    #>
     param([Parameter(Mandatory)][string]$Path)
     if (-not (Test-Path -LiteralPath $Path)) { return $null }
-    return (Get-FileHash -LiteralPath $Path -Algorithm SHA256).Hash.ToUpperInvariant()
+    $sha = [System.Security.Cryptography.SHA256]::Create()
+    $stream = $null
+    try {
+        $stream = [System.IO.File]::OpenRead($Path)
+        return [System.BitConverter]::ToString($sha.ComputeHash($stream)).Replace('-', '')
+    }
+    finally {
+        if ($stream) { $stream.Dispose() }
+        $sha.Dispose()
+    }
 }
 
 #endregion
@@ -1043,7 +1056,7 @@ function Get-DirectoryTreeHash {
         Sort-Object FullName |
         ForEach-Object {
             $relative = $_.FullName.Substring($resolved.Length) -replace '^[\\/]+', '' -replace '\\', '/'
-            $fileHash = (Get-FileHash -LiteralPath $_.FullName -Algorithm SHA256).Hash
+            $fileHash = Get-FileSha256 -Path $_.FullName
             $lines.Add("$($relative.ToLowerInvariant())|$fileHash")
         }
 

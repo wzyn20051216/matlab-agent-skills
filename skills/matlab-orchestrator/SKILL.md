@@ -1,11 +1,11 @@
 ---
 name: matlab-orchestrator
-description: MATLAB R2026a agentic workflow router. Use this whenever the user asks for MATLAB, Simulink, .m/.mlx/.slx work, toolbox-driven engineering, paper reproduction, simulation, code generation, data analysis, control, robotics, signal/image/AI workflows, or wants an end-to-end automated MATLAB task with validation. For Simulink tasks on this machine, default to a visible workflow: open MATLAB/Simulink windows first so the user can watch modeling, simulation, tuning, and plotting progress.
+description: MATLAB agentic workflow router. Use this whenever the user asks for MATLAB, Simulink, .m/.mlx/.slx work, toolbox-driven engineering, paper reproduction, simulation, code generation, data analysis, control, robotics, signal/image/AI workflows, or wants an end-to-end automated MATLAB task with validation. For Simulink tasks on this machine, default to a visible workflow: open MATLAB/Simulink windows first so the user can watch modeling, simulation, tuning, and plotting progress.
 ---
 
 # MATLAB Orchestrator
 
-Use this skill as the entry point for MATLAB R2026a work. The goal is to turn a loose engineering request into a closed-loop workflow: select the right specialist skill, run MATLAB when possible, save artifacts, and verify the result before reporting back.
+Use this skill as the entry point for MATLAB work. The goal is to turn a loose engineering request into a closed-loop workflow: select the right specialist skill, run MATLAB when possible, save artifacts, and verify the result before reporting back.
 
 ## Execution Requirement On This Machine
 
@@ -118,7 +118,7 @@ Rules the matcher enforces, and you must not override:
 | `matlab-robotics-autonomy` | ROS, kinematics, planning, navigation, sensor fusion |
 | `matlab-testing-ci` | unit tests, Simulink Test, coverage, CI, acceptance |
 
-Routing is covered by `tests/test_routing.m` (9 cases, including the three from the
+Routing is covered by `tests/test_routing.m` (including the examples from the
 Phase 4 brief and the two "must not guess" cases).
 
 ## Default Artifact Layout

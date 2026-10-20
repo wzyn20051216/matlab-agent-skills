@@ -26,6 +26,7 @@ param(
     [string]$DisplayMode = "desktop",
     [string[]]$Clients = @("auto"),
     [string]$MatlabRoot = "",
+    [string]$SkillRoot = "",
     [string]$ExpectedServerSha256 = "",
     [string]$BackupRoot = "",
     [switch]$SkipBaseSetup,
@@ -153,7 +154,11 @@ if (-not $SkipSkillsSync) {
     Write-Step "同步 Skills"
     $syncScript = Join-Path (Join-Path $repoDir "scripts") "Sync-Skills.ps1"
     if (-not (Test-Path -LiteralPath $syncScript)) { throw "缺少脚本: $syncScript" }
-    & $syncScript -RepositoryRoot $repoDir -BackupRoot $BackupRoot -Force:$Force -DryRun:$DryRun | Out-Null
+    $syncSummary = & $syncScript -RepositoryRoot $repoDir -SkillRoot $SkillRoot -BackupRoot $BackupRoot `
+        -Force:$Force -DryRun:$DryRun | Out-String | ConvertFrom-Json
+    if ($syncSummary.failed -or @($syncSummary.conflicts).Count -gt 0) {
+        throw '技能同步存在错误或冲突，Bootstrap 停止；请先查看 Sync-Skills 的结果。'
+    }
 }
 
 Write-Step "安装 MCP 客户端接入"
@@ -198,5 +203,6 @@ $installSummary = if ($installOutput) { $installOutput | ConvertFrom-Json } else
     sessionMode       = $SessionMode
     clients           = $Clients
     backupRoot        = $BackupRoot
+    skills            = if ($SkipSkillsSync) { $null } else { $syncSummary }
     install           = $installSummary
 } | ConvertTo-Json -Depth 8

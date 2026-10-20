@@ -1,6 +1,6 @@
 ---
 name: matlab-data-analysis
-description: MATLAB R2026a data analysis workflow for tables, timetables, statistics, fitting, optimization-assisted analysis, visualization, report artifacts, and reproducible paper figures. Use whenever the user asks MATLAB to analyze data, plot results, fit models, process CSV/Excel/MAT files, or reproduce figures.
+description: MATLAB data analysis workflow for tables, timetables, statistics, fitting, optimization-assisted analysis, visualization, report artifacts, and reproducible paper figures. Use whenever the user asks MATLAB to analyze data, plot results, fit models, process CSV/Excel/MAT files, or reproduce figures.
 ---
 
 # MATLAB Data Analysis

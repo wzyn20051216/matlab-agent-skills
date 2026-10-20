@@ -1,6 +1,6 @@
 ---
 name: matlab-control-optimization
-description: MATLAB R2026a workflow for control systems, system identification, robust control, MPC, Simulink Control Design, parameter tuning, constrained optimization, and numerical validation. Use whenever the user asks for controllers, transfer functions, state-space models, tuning, identification, optimal control, or solver-based engineering.
+description: MATLAB workflow for control systems, system identification, robust control, MPC, Simulink Control Design, parameter tuning, constrained optimization, and numerical validation. Use whenever the user asks for controllers, transfer functions, state-space models, tuning, identification, optimal control, or solver-based engineering.
 ---
 
 # MATLAB Control Optimization

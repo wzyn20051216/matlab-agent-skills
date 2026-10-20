@@ -1,6 +1,6 @@
 ---
 name: matlab-signal-vision-ai
-description: MATLAB R2026a workflow for signal processing, DSP, image processing, computer vision, lidar, medical imaging, deep learning, and AI-assisted reproducible experiments. Use for filters, spectrograms, wavelets, object detection, segmentation, classification, training, inference, and generated figures.
+description: MATLAB workflow for signal processing, DSP, image processing, computer vision, lidar, medical imaging, deep learning, and AI-assisted reproducible experiments. Use for filters, spectrograms, wavelets, object detection, segmentation, classification, training, inference, and generated figures.
 ---
 
 # MATLAB Signal Vision AI
@@ -104,6 +104,6 @@ leaves a class empty silently rebalances the problem), plus `classBalance` with 
 achieved per-class fraction, because per-class rounding can differ from the target by
 up to `0.5/n_c` and that is a number to look at rather than a boolean to trust.
 
-`tests/test_signal_vision.m` — 32 cases, each graded against a value that does not come
+`tests/test_signal_vision.m` — cases are graded against a value that does not come
 from the code under test, with a negative control for every metric that could pass
 vacuously.
