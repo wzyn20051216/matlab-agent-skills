@@ -4,6 +4,27 @@ All notable changes to this project will be documented here.
 
 ## Unreleased
 
+### Phase 4.6：发布工程化与陌生用户安装验收
+
+- **版本入口与 main 解耦**：新增不可变标签 `v0.6.0-preview.1` 与分支 `release/windows-preview`
+  （同一提交）；README/WINDOWS_BETA 的安装步骤改为固定入口 + `rev-parse` 比对，
+  明确写出"main 仍是早期快照、默认 clone 装到的是旧技能"，并删除指向移动 `main` 的
+  `irm … | iex` 一行命令（它执行旧代码且属于本次要消除的供应链模式）。
+- **安全修复（来自独立审查，均有复现）**：MCP server 自动解析不再把当前工作目录当隐式候选
+  （原实现会接受任意目录里放的同名非 PE 文件）；回归 PS 5.1/7 各 270/270。
+- **干净环境安装验收**：隔离 fake home 下默认安装 9 目录/62 文件、逐技能哈希等于仓库；
+  幂等、旧版升级、锁定文件回滚、卸载全部通过；真实用户目录哈希前后不变。
+- **发布门禁 A–F 分离**：Installation / Discovery / Execution / Workflow / Quality 有实测证据，
+  **Comparison（R1/R2/R3）显式 BLOCKED**，不因前五项通过而标 PASS。
+- **Agent 复核（隔离目录、预注册参考）**：三题重跑并按冻结规则评分；
+  v2 规则 23/23；v1 的 3 项失败定位为规则自身的测量定义缺陷（t=5τ 理论值 0.993262、
+  t=τ 点受变步长网格影响、模型文件名写死），v1 规则未回改、结果原样保留。
+- **PR 整理**：补齐缺失的 P0 基础 PR（#3），更新 #1 的 head，把 #2 的 base 改到 p1，
+  新建 #4（phase3b1 → phase3a）；合并顺序 #3 → #1 → #2 → #4，审计已用 scratch 合并验证
+  最终树与 `8a9da2f` 完全一致。
+- 新增 `docs/TROUBLESHOOTING_ZH.md` 与 `docs/SUPPORT_MATRIX_ZH.md`；
+  未创建 GitHub Release、未合并 main（等待人工批准）。
+
 ### Phase 4.5：真实自主执行验证与 Windows 测试版准备
 
 - **修掉一个真实传输缺陷**：`MatlabAgentSkills.McpStdio.psm1` 未设置标准流编码，.NET 用进程默认

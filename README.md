@@ -20,6 +20,8 @@ Full capability statement: this repository is open source, but its full workflow
 - 双端独立验收与可见桌面启动：[验收记录](docs/PHASE4_4_DUAL_CLIENT_ZH.md)、[启动说明](docs/MATLAB_DESKTOP_STARTUP_ZH.md)
 - 安装与执行基础设施可靠性收尾（缺陷逐项结论、免费层 270/270、平台范围）：[Phase 4.4.1 记录](docs/PHASE4_4_1_RELIABILITY_ZH.md)
 - Windows 测试版说明、验证边界与卸载回滚：[WINDOWS_BETA_ZH](docs/WINDOWS_BETA_ZH.md)
+- 故障排查：[TROUBLESHOOTING_ZH](docs/TROUBLESHOOTING_ZH.md)
+- 支持环境矩阵（哪些实测、哪些没测）：[SUPPORT_MATRIX_ZH](docs/SUPPORT_MATRIX_ZH.md)
 - Changelog: `CHANGELOG.md`
 
 ## Highlights
