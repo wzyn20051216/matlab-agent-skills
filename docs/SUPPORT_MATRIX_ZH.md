@@ -7,8 +7,8 @@
 | 组件 | 版本 / 环境 | 状态 | 证据 |
 |---|---|---|---|
 | Windows | Windows 10.0.26100（本机） | 实测 | Phase 4.4–4.6 全部验收 |
-| Windows PowerShell | 5.1.26100.7462（Desktop） | 免费层 270/270、exit 0 | `free_tests_ps51.json` |
-| PowerShell | 7.6.7（Core） | 免费层 270/270、exit 0 | `free_tests_ps7.json` |
+| Windows PowerShell | 5.1.26100.7462（Desktop） | 免费层 306/306、exit 0 | `phase49/free_ps51.json` |
+| PowerShell | 7.6.7（Core） | 免费层 306/306、exit 0 | `phase49/free_ps7.json` |
 | Pester | 3.4.0（锁定版本） | 通过 | 测试框架要求 |
 | Codex CLI | 0.147.0 | 发现 9/9（引擎级） | `install/discovery/cli/verification.json` |
 | Codex Desktop（内置引擎） | 0.163.0-alpha.10.2 | 发现 9/9（引擎级） | `install/discovery/desktop-engine/verification.json` |

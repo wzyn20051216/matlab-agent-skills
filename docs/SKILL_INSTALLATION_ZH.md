@@ -83,9 +83,9 @@ Phase 4.4.1 已把这两项历史失败处理完：盘符检查被证实同时�
 （大小写不敏感匹配把正则里的 `name:` 加空白序列误当成盘符路径）与真实硬编码，判据已改为
 `(?<![A-Za-z0-9_])[ED]:[\\/](?![A-Za-z]:)` 并加自检样本、且只扫 git 跟踪文件；
 `Invoke-Phase43McpTask.ps1` 补上了 PS 5.1 解码所需的 UTF-8 BOM。
-免费层因此由 263/265 变为 **270/270**（含本轮新增用例），
+免费层因此由 263/265 变为 **270/270**（Phase 4.4.1 时点；后续加入供应链与进程清理用例，现为 **306/306**），
 证据见 `artifacts/validation/phase44/free_tests_final_ps51.json` 与
-`free_tests_final_ps7.json`（两个宿主均 270/270、exit 0）。
+`free_tests_final_ps7.json`（当时两个宿主均 270/270、exit 0；当前为 306/306）。
 详情见 `artifacts/validation/phase44/installation_core_tests.json`。
 
 ### 同步行为与退出码（Phase 4.4.1）

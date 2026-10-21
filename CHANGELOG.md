@@ -4,6 +4,18 @@ All notable changes to this project will be documented here.
 
 ## Unreleased
 
+### Phase 4.9：main 发布收尾（文档与实际行为对齐）
+
+- README / WINDOWS_BETA **删除"main 是旧快照、须用固定 tag"的过期说明**：四层 PR 合并后
+  `main`（`44052fd`）就是通过验收的版本，默认克隆即可安装；固定 tag 作为可选复现入口保留，
+  并明确"tag 内容与 main 完全相同、不是 Release、不会被移动"。
+- README 免费层数字更新为 **306/306**（PS 5.1 与 PS 7 各一遍）。
+- 新增 [Windows 技术预览 Release Notes 草案](docs/RELEASE_NOTES_WINDOWS_BETA_ZH.md)：
+  版本建议、能力清单、支持矩阵、已知限制、安全更新与回滚说明。
+- 本轮只改文档与发布元数据，未改动任何已稳定的安装/执行逻辑，未创建 GitHub Release，
+  未移动或覆盖任何 tag。
+
+
 ### Phase 4.7：最终安全修复与合并门禁
 
 - **MCP Server 供应链改为固定清单 + fail closed**：新增 `config/mcp-server-manifest.json`，
