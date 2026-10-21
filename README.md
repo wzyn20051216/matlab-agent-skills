@@ -50,16 +50,20 @@ This repository provides that workflow layer:
 
 ## Installation
 
-`main` **is** the validated Windows technical preview: a default clone gives exactly the version
-that was verified and merged on 2026-10-21 (commit `44052fd`, tree `a0f6540`). No branch switch,
-no pinned branch, no extra flag.
+`main` **is** the validated Windows technical preview. A default clone gives the version that was
+verified end-to-end on 2026-10-21; no branch switch or extra flag.
+
+To confirm you have the validated content, compare your commit with the preview tag
+`v0.6.0-preview.2` (the tag is created on the validated commit; documentation commits after the
+initial validation do not change installed content):
 
 ### Default (recommended)
 
 ```powershell
 git clone https://github.com/wzyn20051216/matlab-agent-skills.git
 cd matlab-agent-skills
-git rev-parse HEAD                      # validated release: 44052fd9db887a3cd9650b2c5fd7a05697fa3b3f
+git rev-parse HEAD                           # compare with the preview tag's commit
+git rev-parse 'v0.6.0-preview.2^{commit}'    # once the tag is published; the two should match
 powershell -ExecutionPolicy Bypass -File .\scripts\Sync-Skills.ps1
 ```
 

@@ -20,15 +20,17 @@
 前置：Windows 10/11；已安装 MATLAB R2026a（建议；更早版本未验证）；已安装 Codex CLI 或 Codex Desktop。
 
 > **版本入口（已同步，2026-10-21）**：`main` **就是**通过验收的技术预览版本，
-> 默认克隆即可，不再需要切换分支。已验证提交：`44052fd9db887a3cd9650b2c5fd7a05697fa3b3f`。
-> 固定不变入口（可选）：tag `v0.6.0-preview.1`（`100e6d4`），内容与 `main` **完全一致**，
+> 默认克隆即可，不再需要切换分支。与验收版本核对：`git rev-parse HEAD` 应等于预览 tag
+> `v0.6.0-preview.2` 指向的提交（文档类小改动不改变已安装内容）。
+> 固定不变入口（可选）：tag `v0.6.0-preview.1`（`100e6d4`），内容与验收树**完全相同**，
 > 不是 GitHub Release，也不会被移动。
 
 ```powershell
 # 1) 取仓库（默认分支 = 已验证版本）
 git clone https://github.com/wzyn20051216/matlab-agent-skills.git
 cd matlab-agent-skills
-git rev-parse HEAD    # 44052fd9db887a3cd9650b2c5fd7a05697fa3b3f
+git rev-parse HEAD                          # 与预览 tag v0.6.0-preview.2 的提交一致
+git rev-parse 'v0.6.0-preview.2^{commit}'   # tag 发布后可用
 
 # 2) 安装 9 个 Skills（默认装到当前用户 %USERPROFILE%\.agents\skills，无需 -SkillRoot）
 powershell -ExecutionPolicy Bypass -File .\scripts\Sync-Skills.ps1

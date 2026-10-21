@@ -2,9 +2,10 @@
 
 状态：**待批准**。本文件是发布材料草稿；尚未创建 GitHub Release，也尚未创建新 tag。
 
-- 目标提交：`44052fd9db887a3cd9650b2c5fd7a05697fa3b3f`（`main`）
-- 对标内容：与 tag `v0.6.0-preview.1`（`100e6d4`）**同一棵树**（`a0f6540…`）
-- 建议 tag：`v0.6.0-preview.2`，打在 `44052fd`（新增合并提交后不可变入口）
+- 目标提交：**合并 PR #5（文档同步）之后的 `main` 提交**；创建 tag 时记录确切 SHA
+- 对标内容：已验收树 `a0f6540…`（与 tag `v0.6.0-preview.1` 的 `100e6d4` 同一棵树；
+  PR #5 只改文档，不改变这棵树里的安装内容）
+- 建议 tag：`v0.6.0-preview.2`，打在合并 #5 之后的最新 `main`（新增合并提交后的不可变入口）
 - 不建议：移动或覆盖 `v0.6.0-preview.1` / `v0.1.0`；不建议现在创建正式 Release
 
 ## 1. 这个版本包含什么
@@ -51,7 +52,7 @@ powershell -ExecutionPolicy Bypass -File .\scripts\Install-MatlabMcpClients.ps1 
 
 | 项 | 结果 |
 |---|---|
-| 默认安装（9 skills / 62 文件） | PASS，逐技能树哈希等于仓库（干净克隆实测） |
+| 默认安装（9 skills / 64 文件，含 manifest） | PASS，逐技能树哈希等于仓库（干净克隆实测） |
 | 重复安装幂等 | PASS（`unchanged=9`，不新建多余备份） |
 | 升级 / 锁定文件回滚 | PASS（失败返回非零、树哈希恢复、0 缺失） |
 | 安全卸载 | PASS（只删未修改的受管目录，保留用户改动与无关目录） |
@@ -104,8 +105,8 @@ powershell -ExecutionPolicy Bypass -File .\scripts\Install-MatlabMcpClients.ps1 
 ## 9. 建议的发布动作（等待批准）
 
 ```bash
-# 1) 新 tag（不改动任何历史 tag）
-git tag -a v0.6.0-preview.2 44052fd9db887a3cd9650b2c5fd7a05697fa3b3f \
+# 1) 新 tag（不改动任何历史 tag；<NEW_MAIN> = 合并 PR #5 后的 main SHA）
+git tag -a v0.6.0-preview.2 <NEW_MAIN> \
   -m "Windows technical preview 0.6.0-preview.2"
 git push origin v0.6.0-preview.2
 
