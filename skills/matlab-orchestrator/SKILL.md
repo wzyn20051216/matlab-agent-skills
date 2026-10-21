@@ -94,18 +94,34 @@ table in `assets/routing.json`:
 
 ```matlab
 r = mas_route("设计三相逆变器并分析 THD");
-r.decision     % 'ROUTE' | 'CLARIFY' | 'AMBIGUOUS'
-r.loadOrder    % {'matlab-runner','matlab-simulink-modeling','matlab-signal-vision-ai'}
+r.schemaVersion   % '1.1'
+r.decision        % 'ROUTE' | 'CLARIFY' | 'AMBIGUOUS' | 'BLOCKED'
+r.loadOrder       % {'matlab-runner','matlab-simulink-modeling','matlab-signal-vision-ai'}
+r.nextAction      % 'load' | 'ask' | 'stop'
 ```
 
-Rules the matcher enforces, and you must not override:
+Consume the decision before anything else, and do not override it:
 
-- `matlab-runner` is always first: every route needs execution.
-- A score below `minScore` returns `CLARIFY`. Ask one question; do not guess.
-- Two domains tied at the top return `AMBIGUOUS`. Ask which one carries the core work.
-- Secondary skills join when their score is at least `multiSkillRatio * top`.
-- `matlab-testing-ci` joins only when the task is meant to be reusable or explicitly
-  needs acceptance/regression.
+- `ROUTE` → load `loadOrder` in order. It is already dependency-sorted;
+  `matlab-runner` is always first because every route needs execution.
+- `CLARIFY` → the best score is below `minScore`. Ask one question; never use
+  `ranked(1)` as if it were a decision.
+- `AMBIGUOUS` → two domains tied. Ask which one carries the core work.
+- `BLOCKED` → stop. `missing` names the absent skill, damaged `SKILL.md`,
+  unlicensed hard toolbox, missing dependency, or dependency cycle. Do not
+  substitute a different domain and do not run a partial workflow; `loadOrder`
+  is empty by contract.
+
+Secondary skills join when their score is at least `multiSkillRatio * top`.
+`matlab-testing-ci` joins only when the task is meant to be reusable or
+explicitly needs acceptance/regression. A soft requirement that is unlicensed
+appears in `notes` and does not block.
+
+The router is lexical. Negation is handled per clause, and ASCII terms of three
+characters or fewer match on word boundaries, but a prompt with no matching
+terms must come back as `CLARIFY` rather than a guess. The full field list,
+blocker kinds, and consumer rules are in
+[`references/routing-contract.md`](references/routing-contract.md).
 
 | Skill | Domain |
 | --- | --- |
@@ -118,8 +134,10 @@ Rules the matcher enforces, and you must not override:
 | `matlab-robotics-autonomy` | ROS, kinematics, planning, navigation, sensor fusion |
 | `matlab-testing-ci` | unit tests, Simulink Test, coverage, CI, acceptance |
 
-Routing is covered by `tests/test_routing.m` (including the examples from the
-Phase 4 brief and the two "must not guess" cases).
+`tests/test_routing.m` 9/9 preserves the Phase 4 brief examples and the two
+"must not guess" cases. `tests/test_routing_contract.m` 16/16 pins the
+versioned contract, including refusal, dependency order, and availability
+blockers. Routing changes are covered by both.
 
 ## Default Artifact Layout
 

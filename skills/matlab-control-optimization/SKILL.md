@@ -44,34 +44,47 @@ Watch for:
 - Hidden actuator saturation.
 - Controller instability outside nominal operating points.
 
-## Margins Belong To Crossings, Not To Loops
+## Stability Is Three Answers, Not One
+
+Use `mas_stability_verdict` before reporting any stability conclusion:
 
 ```matlab
-r = mas_ctrl_analyze(L);            % L = tf/ss/zpk; r.crossings has EVERY crossing
-r.pmWorst, r.gmWorst, r.verdict     % worst over all of them, and a verdict
+r = mas_ctrl_analyze(L);                 % every crossing, poles, notes
+v = mas_stability_verdict(L);            % or mas_stability_verdict(r)
+v.math.stability                         % STABLE | UNSTABLE | UNDETERMINED
+v.target.status                          % PASS | FAIL | UNDETERMINED
+v.evidence.quality                       % VERIFIED | PARTIAL | NOT VERIFIED
+v.notes                                  % why a value is NaN / undetermined
 r = mas_ctrl_pid_design(P, struct('pmTarget',50,'gmTarget',6));
-r = mas_ctrl_aw_sim(P, cfg, opts);  % saturation + 'none'|'clamp'|'backcalc'
+r = mas_ctrl_aw_sim(P, cfg, opts);       % saturation + 'none'|'clamp'|'backcalc'
 ```
 
-`margin(L)` returns one number. A loop with a resonance crosses 0 dB twice, and the
-first crossing can read +83 deg while the second reads -95 deg -- measured, see the
-C3 case. A margin report that keeps the first crossing calls that loop healthy and
-the closed loop oscillates. `mas_ctrl_analyze` reports every crossing, takes the
-worst, and returns `UNSTABLE` when a crossing has a negative margin even if all poles
-are in the LHP.
+Never turn "MATLAB ran", "poles are stable", "PM passed", or "the curve looks
+smooth" into one of the other answers. A missing margin is `UNDETERMINED`, not
+`PASS`. When the closed-loop poles and the frequency margins disagree, the verdict
+is `UNDETERMINED` with an `EVIDENCE_CONFLICT` note.
 
-Other facts this tool encodes, each one a defect that was actually paid for:
+Boundary rules this tool encodes (each one a paid-for defect):
 
-- Phase must be **unwrapped** before interpolation. A loop with an integrator runs
-  past -180 deg and `angle()` folds it back, turning the worst margin into the best.
-- A **delay** leaves |L| untouched but adds -180 crossings, so a first-order loop
-  with Inf gain margin can have a finite one. Measured: 10.1 dB at 5.1 Hz.
-- **Anti-windup back-calculation must divide the deficit by Ki**: the integrator holds
-  I = integral(e) and u = Kp*e + Ki*I. Without the 1/Ki the correction gain scales
-  with Ki and the loop diverged to 1e300 in the first test.
-- A **PID design that cannot meet the target** returns `feasible=false` and says so;
-  it never returns the least-bad candidate as if it had succeeded.
+- `margin()` returns `Gm` as an **absolute ratio**, not dB; `allmargin` also
+  reports a ratio. `c2d(10/(s+1),0.01)` has ratio 20.0002 = **26.02 dB**.
+- Phase is unwrapped and PM is wrapped into `(-180,180]`. Without the wrap a
+  negative-gain loop reports `+275.7 deg` instead of `-84.26 deg`.
+- DC unity gain has its PM **at DC** (`1/(s+1)` -> 180 deg), not NaN.
+- Phase = -180 at DC with `|L|>1` is a negative GM at `w=0`; `-10/(s+1)` is
+  UNSTABLE although its 0 dB crossing looks healthy.
+- Discrete loops reach -180 at `pi/Ts`; that Nyquist boundary must be checked.
+- Multiple crossings: the worst one binds, never the first.
+- Delay: rational closed-loop poles exclude the delay, so evidence is `PARTIAL`.
 
-`tests/test_ctrl_analyze.m` covers a known-stable loop, a known-unstable plant, the
-multi-crossing loop, a discrete loop, a delayed loop, PID design (feasible and
-impossible) and anti-windup.
+Units are explicit: every crossing carries `f` (Hz) and `wRadPerSec` (rad/s), and
+`opts.freqUnit` selects how `wmin/wmax` are interpreted. Verify `w = 2*pi*f`.
+
+Full definitions, boundary table, and independent reference values:
+`references/stability-contracts.md`.
+
+`tests/test_ctrl_analyze.m` covers the known-stable loop, known-unstable plant,
+multi-crossing loop, discrete and delayed loops, PID design and anti-windup.
+`tests/test_stability_contract.m` covers the negative-gain encirclement, DC unity,
+double integrator, discrete Nyquist margin, no-crossing target, target-not-met,
+Hz/rad-s equivalence, NaN/Inf/empty inputs, and `margin` return-order units.

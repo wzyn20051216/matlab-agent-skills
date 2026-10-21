@@ -41,6 +41,7 @@ end
 nNum = 0; nDom = 0;
 ran = true;
 numOK = true; domOK = true;
+domInvalid = false;
 failures = {};
 
 for k = 1:numel(checks)
@@ -62,10 +63,30 @@ for k = 1:numel(checks)
                 failures{end+1} = sprintf('%s: no independent reference', c.id); %#ok<AGROW>
                 continue;
             end
+            % Absence is not a pass. An empty value made `err <= tol` empty and
+            % the old `if` treated it as false, so a check that never produced a
+            % number could leave numOK untouched. NaN and Inf are the same kind
+            % of non-evidence and must fail loudly.
+            if isempty(c.value) || ~isnumeric(c.value) || ~isscalar(c.value) || ...
+                    ~isfinite(c.value)
+                numOK = false;
+                failures{end+1} = sprintf('%s: value is empty/non-scalar/non-finite', c.id); %#ok<AGROW>
+                continue;
+            end
+            if ~isnumeric(c.reference) || ~isscalar(c.reference) || ~isfinite(c.reference)
+                numOK = false;
+                failures{end+1} = sprintf('%s: reference is not a finite scalar', c.id); %#ok<AGROW>
+                continue;
+            end
             tol = 0;
             if isfield(c,'tol') && ~isempty(c.tol)
                 if isstruct(c.tol), tol = c.tol.rel*abs(c.reference);
                 else, tol = c.tol; end
+            end
+            if ~isfinite(tol) || tol < 0
+                numOK = false;
+                failures{end+1} = sprintf('%s: tolerance is invalid', c.id); %#ok<AGROW>
+                continue;
             end
             err = abs(c.value - c.reference);
             if ~(err <= tol)
@@ -75,6 +96,12 @@ for k = 1:numel(checks)
             end
         case 'domain'
             nDom = nDom + 1;
+            if isempty(c.value) || ~isnumeric(c.value) || ~isscalar(c.value) || ...
+                    ~isfinite(c.value) || ~isfinite(c.limit)
+                domInvalid = true;
+                failures{end+1} = sprintf('%s: domain measurement is empty/non-finite', c.id); %#ok<AGROW>
+                continue;
+            end
             cmp = 'le';
             if isfield(c,'cmp') && ~isempty(c.cmp), cmp = c.cmp; end
             if strcmpi(cmp,'le'), ok = c.value <= c.limit;
@@ -96,7 +123,7 @@ if nNum == 0
 else
     r.correct = numOK;
 end
-if nDom == 0
+if nDom == 0 || (domInvalid && domOK)
     r.meets = 'UNDETERMINED';
 else
     r.meets = domOK;

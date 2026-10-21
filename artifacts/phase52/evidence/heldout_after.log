@@ -1,0 +1,19 @@
+froze 7 held-out entries -> E:\desktop\MATLAB\matlab\validation\phase52\heldout_reference.json
+  H1 math/numerics                          hash bc991d16a970
+  H2 dynamic systems                        hash fc391062fabe
+  H3 control (negative gain)                hash 0e70fbb04033
+  H4 control (discrete / no crossing)       hash bbba3f08f87c
+  H5 Simulink (parameter propagation)       hash e710d236f650
+  H6 signal processing (OFDM)               hash 39d91926402e
+  H7 multi-skill routing                    hash 8e89b19e3b9d
+=== Phase 5.2 held-out (phase52-heldout/1, frozen 2026-10-21 19:10:44) ===
+id   domain                                 verdict  detail
+H1   math/numerics                          PASS     2/2 checks
+H2   dynamic systems                        PASS     2/2 checks
+H3   control (negative gain)                PASS     4/4 checks
+H4   control (discrete / no crossing)       PASS     8/8 checks
+H5   Simulink (parameter propagation)       PASS     4/4 checks
+H6   signal processing (OFDM)               PASS     1/1 checks
+H7   multi-skill routing                    PASS     4/4 checks
+
+---- 7 / 7 held-out cases passed ----

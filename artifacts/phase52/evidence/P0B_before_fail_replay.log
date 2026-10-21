@@ -1,0 +1,19 @@
+=== disturbance propagation tests ===
+  [FAIL] A proper propagation                         -> ERROR         MATLAB:UndefinedFunction :: 未定义与 'struct' 类型的输入参数相对应的函数 'mas_dist_enter'。
+  [FAIL] B disturbance disconnected                   -> ERROR         MATLAB:UndefinedFunction :: 未定义与 'struct' 类型的输入参数相对应的函数 'mas_dist_enter'。
+  [FAIL] C controller-only update                     -> ERROR         MATLAB:UndefinedFunction :: 未定义与 'struct' 类型的输入参数相对应的函数 'mas_dist_enter'。
+  [FAIL] D wrong injection time                       -> ERROR         MATLAB:UndefinedFunction :: 未定义与 'struct' 类型的输入参数相对应的函数 'mas_dist_enter'。
+  [FAIL] E insensitive output / state changes         -> ERROR         MATLAB:UndefinedFunction :: 未定义与 'struct' 类型的输入参数相对应的函数 'mas_dist_enter'。
+  [FAIL] E-neg insensitive but state unchanged        -> ERROR         MATLAB:UndefinedFunction :: 未定义与 'struct' 类型的输入参数相对应的函数 'mas_dist_enter'。
+  [FAIL] F wrong amplitude                            -> ERROR         MATLAB:UndefinedFunction :: 未定义与 'struct' 类型的输入参数相对应的函数 'mas_dist_enter'。
+  [FAIL] G wrong direction                            -> ERROR         MATLAB:UndefinedFunction :: 未定义与 'struct' 类型的输入参数相对应的函数 'mas_dist_enter'。
+  [FAIL] H missing plant evidence is UNDETERMINED     -> ERROR         MATLAB:UndefinedFunction :: 未定义与 'struct' 类型的输入参数相对应的函数 'mas_dist_enter'。
+  [FAIL] I simulation error is UNDETERMINED           -> ERROR         MATLAB:UndefinedFunction :: 未定义与 'struct' 类型的输入参数相对应的函数 'mas_dist_enter'。
+  [FAIL] J no independent prediction is PARTIAL       -> ERROR         MATLAB:UndefinedFunction :: 未定义与 'struct' 类型的输入参数相对应的函数 'mas_dist_enter'。
+  [FAIL] K input amplitude reaches the plant          -> ERROR         MATLAB:UndefinedFunction :: 未定义与 'struct' 类型的输入参数相对应的函数 'mas_dist_enter'。
+  [FAIL] L initial state reaches the plant            -> ERROR         MATLAB:UndefinedFunction :: 未定义与 'struct' 类型的输入参数相对应的函数 'mas_dist_enter'。
+  [FAIL] M input evidence missing is UNDETERMINED     -> ERROR         MATLAB:UndefinedFunction :: 未定义与 'struct' 类型的输入参数相对应的函数 'mas_dist_enter'。
+  [FAIL] N state evidence missing is UNDETERMINED     -> ERROR         MATLAB:UndefinedFunction :: 未定义与 'struct' 类型的输入参数相对应的函数 'mas_dist_enter'。
+  [SKIP] Simulink cases: 未定义与 'struct' 类型的输入参数相对应的函数 'mas_dist_enter'。
+
+---- 0 passed, 4 skipped, 15 run ----

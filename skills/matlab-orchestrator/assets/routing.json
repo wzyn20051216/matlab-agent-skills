@@ -1,5 +1,5 @@
 {
-  "version": "1.0",
+  "version": "1.1",
   "description": "Capability routing table. Each skill lists weighted trigger terms (Chinese and English). The matcher sums matched weights; runner is always loaded because every route needs execution.",
   "minScore": 3,
   "multiSkillRatio": 0.6,
@@ -7,11 +7,23 @@
     "matlab-runner": {
       "always": true,
       "priority": 0,
+      "dependsOn": [],
       "terms": [],
       "id": "matlab-runner"
     },
     "matlab-simulink-modeling": {
       "priority": 1,
+      "dependsOn": [
+        "matlab-runner"
+      ],
+      "requires": [
+        {
+          "type": "toolbox",
+          "name": "Simulink",
+          "feature": "Simulink",
+          "hard": true
+        }
+      ],
       "terms": [
         {
           "t": "simulink",
@@ -70,6 +82,17 @@
     },
     "matlab-signal-vision-ai": {
       "priority": 2,
+      "dependsOn": [
+        "matlab-runner"
+      ],
+      "requires": [
+        {
+          "type": "toolbox",
+          "name": "Signal Processing Toolbox",
+          "feature": "Signal_Toolbox",
+          "hard": false
+        }
+      ],
       "terms": [
         {
           "t": "ofdm",
@@ -180,6 +203,17 @@
     },
     "matlab-control-optimization": {
       "priority": 2,
+      "dependsOn": [
+        "matlab-runner"
+      ],
+      "requires": [
+        {
+          "type": "toolbox",
+          "name": "Control System Toolbox",
+          "feature": "Control_Toolbox",
+          "hard": true
+        }
+      ],
       "terms": [
         {
           "t": "pid",
@@ -306,6 +340,17 @@
     },
     "matlab-data-analysis": {
       "priority": 3,
+      "dependsOn": [
+        "matlab-runner"
+      ],
+      "requires": [
+        {
+          "type": "toolbox",
+          "name": "Statistics and Machine Learning Toolbox",
+          "feature": "Statistics_Toolbox",
+          "hard": false
+        }
+      ],
       "terms": [
         {
           "t": "csv",
@@ -380,6 +425,23 @@
     },
     "matlab-codegen-deploy": {
       "priority": 3,
+      "dependsOn": [
+        "matlab-runner"
+      ],
+      "requires": [
+        {
+          "type": "toolbox",
+          "name": "MATLAB Coder",
+          "feature": "MATLAB_Coder",
+          "hard": true
+        },
+        {
+          "type": "toolbox",
+          "name": "Simulink Coder",
+          "feature": "Real-Time_Workshop",
+          "hard": false
+        }
+      ],
       "terms": [
         {
           "t": "代码生成",
@@ -430,6 +492,23 @@
     },
     "matlab-robotics-autonomy": {
       "priority": 3,
+      "dependsOn": [
+        "matlab-runner"
+      ],
+      "requires": [
+        {
+          "type": "toolbox",
+          "name": "Robotics System Toolbox",
+          "feature": "Robotics_System_Toolbox",
+          "hard": false
+        },
+        {
+          "type": "toolbox",
+          "name": "ROS Toolbox",
+          "feature": "ROS_Toolbox",
+          "hard": false
+        }
+      ],
       "terms": [
         {
           "t": "ros",
@@ -484,6 +563,9 @@
     },
     "matlab-testing-ci": {
       "priority": 4,
+      "dependsOn": [
+        "matlab-runner"
+      ],
       "terms": [
         {
           "t": "测试",

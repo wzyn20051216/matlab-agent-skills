@@ -81,6 +81,16 @@ for k = 1:numel(sel)
         strcmp(rr.decision, 'ROUTE'), 'OK', rr.decision), ...
         sprintf('%s -> %s (%s)', t.prompt, skill, rr.decision));
 
+    if strcmp(rr.decision, 'BLOCKED')
+        out(end+1) = pack(t, skill, match, step_route, false, 'SKIP', '', ...
+            rr.reason, step_route, toc(T0), struct()); %#ok<AGROW>
+        if opts.verbose
+            fprintf('%-4s %-10s %-6d %-14s %s\n', t.id, shortid(skill), match, 'SKIP', ...
+                shorten(rr.reason, 62));
+        end
+        continue;
+    end
+
     % ---- step 2: dependencies ---------------------------------------------
     s2 = tic;
     missing = {};

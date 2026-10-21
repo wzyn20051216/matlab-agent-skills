@@ -19,6 +19,10 @@
     "status": "VERIFIED",
     "evidence": "test_routing.m 9/9: below-threshold prompt returns CLARIFY, a tie returns AMBIGUOUS"
    },
+   "routing_output_contract": {
+    "status": "VERIFIED",
+    "evidence": "test_routing_contract.m 16/16: schema 1.1 fields on every decision, no duplicate/irrelevant load, negation and short-token boundaries, blocked output carries no load order, dependency order and cycles, availability blockers"
+   },
    "end_to_end_pipeline_with_trace": {
     "status": "VERIFIED",
     "evidence": "mas_pipeline over 15 tasks (cross-domain D1..G1), skillMatch 15/15, per-step trace recorded"
@@ -86,6 +90,10 @@
    "simulink_test_coverage": {
     "status": "NOT TESTED",
     "evidence": "Simulink Test is installed but never driven"
+   },
+   "disturbance_propagation_to_plant": {
+    "status": "VERIFIED",
+    "evidence": "test_dist_enter.m 19/19 incl. disconnected disturbance, controller-only update, late step, insensitive output with internal-state evidence, input amplitude, initial state, missing input/state evidence, and four real .slx variants"
    }
   },
   "matlab-testing-ci": {
@@ -134,6 +142,10 @@
    "power_electronics_dedicated": {
     "status": "PARTIAL",
     "evidence": "D7/C2/C3 reuse this skill's steady-state and stability methods; there is NO dedicated power-electronics skill, and routing.json records that explicitly"
+   },
+   "three_dimension_stability_verdict": {
+    "status": "VERIFIED",
+    "evidence": "test_stability_contract.m 32/32; math/target/evidence are separate dimensions, including negative gain, DC unity, double integrator, discrete Nyquist, NaN/Inf/empty, and Hz-vs-rad/s"
    }
   },
   "matlab-signal-vision-ai": {
@@ -269,14 +281,14 @@
  },
  "summary": {
   "capability_counts": {
-   "VERIFIED": 34,
+   "VERIFIED": 37,
    "NOTTESTED": 14,
    "PARTIAL": 3
   },
   "tool_counts": {
-   "VERIFIED": 32
+   "VERIFIED": 34
   },
-  "verified_capabilities": 34,
+  "verified_capabilities": 37,
   "note": "Counts are COMPUTED from the entries above, not typed in -- mas_capability_check.m fails if they drift. Keys carry no spaces because jsonencode strips them. R1/R2/R3 benchmark ran for real on 2026-10-20 (docs/PHASE4_3_VERIFICATION_ZH.md); the official MATLAB MCP server is reachable over stdio. PARTIAL on the benchmark entry is deliberate: the task scripts are fixed, so it does not yet measure an agents own skill selection or recovery. Phase 4.5 changed no mas_* tool status, so these counts are unchanged; it added the autonomousExecution block (agent workflow evidence for three natural-language tasks) and recorded the R1/R2/R3 comparison as UNKNOWN/BLOCKED instead of measured."
  },
  "tools": {
@@ -331,8 +343,8 @@
   "mas_route": {
    "skill": "matlab-orchestrator",
    "status": "VERIFIED",
-   "tests": "test_routing.m 9/9",
-   "what": "weighted router; CLARIFY/AMBIGUOUS instead of guessing"
+   "tests": "test_routing.m 9/9 + test_routing_contract.m 16/16",
+   "what": "weighted router with schema 1.1; CLARIFY/AMBIGUOUS instead of guessing, BLOCKED for unavailable skills/toolboxes/dependencies, dependency-first load order"
   },
   "mas_ekf_check": {
    "skill": "matlab-robotics-autonomy",
@@ -471,6 +483,18 @@
    "status": "VERIFIED",
    "tests": "53 graded runs in artifacts/validation/phase43/grade.json",
    "what": "grades R1/R2/R3 runs against the frozen references; reads only the MAS_RESULT line, never the task's own verdict; a missing result is ERROR, not FAIL"
+  },
+  "mas_stability_verdict": {
+   "skill": "matlab-control-optimization",
+   "status": "VERIFIED",
+   "tests": "test_stability_contract.m 32/32",
+   "what": "three answers kept separate: math stability, engineering target, evidence quality; rejects a label when no source produced a usable value"
+  },
+  "mas_dist_enter": {
+   "skill": "matlab-simulink-modeling",
+   "status": "VERIFIED",
+   "tests": "test_dist_enter.m 19/19",
+   "what": "walks change -> plant receipt -> output/state effect -> timing -> independent prediction; insensitive outputs require internal-state evidence"
   }
  },
  "toolsNote": "Generated from the files under skills/*/scripts. mas_capability_check.m fails when this drifts from disk, because a matrix that silently rots is worse than no matrix."

@@ -1,0 +1,37 @@
+
+	Sponsored License -- for use in support of a program or activity sponsored by MathWorks.
+	Not for government, commercial or other non-sponsored organizational use.
+
+=== stability contract tests ===
+  [FAIL] A1 negative gain: not STABLE                         -> false
+  [FAIL] A2 negative gain: GM is negative at DC               -> notnegative
+  [FAIL] A3 negative gain: CL pole is in RHP                  -> ERROR:  :: closedLoopPoles field missing
+  [FAIL] A4 DC-unity loop: PM is finite (evaluated at w=0)    -> false
+  [FAIL] A5 double integrator: not STABLE                     -> false
+  [FAIL] A6 discrete loop: finite GM at Nyquist               -> false
+  [FAIL] A7 discrete loop: GM close to 20 dB                  -> false
+  [PASS] A8 C3 multi-cross: UNSTABLE                          -> true
+  [PASS] A9 known stable: STABLE                              -> true
+  [FAIL] B1 margin(): Gm is an absolute ratio, not dB         -> false
+  [PASS] B2 margin(): Pm sign at 0 dB crossing                -> positive
+  [PASS] B3 allmargin(): negative-gain Pm is negative         -> negative
+  [FAIL] B4 analyzer PM agrees with allmargin (negative gain) -> false
+  [PASS] B5 analyzer worst PM agrees with allmargin (multi-cross) -> true
+  [FAIL] C1 stable loop: STABLE / PASS / VERIFIED             -> ERROR: MATLAB:UndefinedFunction :: 未定义与 'tf' 类型的输入参数相对应的函数 'mas_stability_verdict'。
+  [FAIL] C2 negative gain: UNSTABLE / FAIL / VERIFIED         -> ERROR: MATLAB:UndefinedFunction :: 未定义与 'tf' 类型的输入参数相对应的函数 'mas_stability_verdict'。
+  [FAIL] C3 multi-cross: UNSTABLE / FAIL / VERIFIED           -> ERROR: MATLAB:UndefinedFunction :: 未定义与 'tf' 类型的输入参数相对应的函数 'mas_stability_verdict'。
+  [FAIL] C4 DC-unity: STABLE / PASS / VERIFIED                -> ERROR: MATLAB:UndefinedFunction :: 未定义与 'tf' 类型的输入参数相对应的函数 'mas_stability_verdict'。
+  [FAIL] C5 no crossing: STABLE / UNDETERMINED / PARTIAL      -> ERROR: MATLAB:UndefinedFunction :: 未定义与 'tf' 类型的输入参数相对应的函数 'mas_stability_verdict'。
+  [FAIL] C6 target not met: STABLE / FAIL / VERIFIED          -> ERROR: MATLAB:UndefinedFunction :: 未定义与 'tf' 类型的输入参数相对应的函数 'mas_stability_verdict'。
+  [FAIL] C7 discrete loop: STABLE / PASS / VERIFIED           -> ERROR: MATLAB:UndefinedFunction :: 未定义与 'tf' 类型的输入参数相对应的函数 'mas_stability_verdict'。
+  [FAIL] C8 marginal poles: UNSTABLE with marginal flag       -> ERROR: MATLAB:UndefinedFunction :: 未定义与 'tf' 类型的输入参数相对应的函数 'mas_stability_verdict'。
+  [FAIL] C9 empty input: UNDETERMINED / UNDETERMINED / NOT VERIFIED -> ERROR: MATLAB:UndefinedFunction :: 未定义与 'struct' 类型的输入参数相对应的函数 'mas_stability_verdict'。
+  [FAIL] D1 Hz vs rad/s bounds describe the same loop         -> ERROR: MATLAB:UndefinedFunction :: 未定义与 'tf' 类型的输入参数相对应的函数 'mas_stability_verdict'。
+  [FAIL] D2 crossing frequencies obey w = 2*pi*f              -> ERROR: MATLAB:nonExistentField :: 无法识别的字段名称 "wRadPerSec"。
+  [FAIL] D3 unit tag is echoed                                -> ERROR: MATLAB:UndefinedFunction :: 未定义与 'tf' 类型的输入参数相对应的函数 'mas_stability_verdict'。
+  [PASS] E1 empty domain value is not a PASS                  -> UNDETERMINED
+  [PASS] E2 NaN numeric value fails                           -> FAIL
+  [PASS] E3 Inf reference is rejected                         -> FAIL
+
+---- 8 / 29 stability-contract cases passed ----
+RESULT 8/29 pass=0

@@ -1,0 +1,17 @@
+=== control analysis tests ===
+  [PASS] C1 stable: PM 95.74 deg              -> 95.74
+  [PASS] C1 stable: one crossing              -> 1
+  [PASS] C2 unstable: 1 RHP pole              -> 1
+  [PASS] C2 unstable: verdict                 -> UNSTABLE
+  [PASS] C3: two downward crossings           -> 2
+  [PASS] C3: worst PM is negative             -> negative
+  [PASS] C3: first crossing looks fine        -> true
+  [PASS] C3: verdict UNSTABLE                 -> UNSTABLE
+  [PASS] discrete: poles inside unit circle   -> lt1
+  [PASS] discrete: still stable               -> STABLE
+  [PASS] delay reduces PM                     -> true
+  [PASS] PID design meets PM target           -> true
+  [PASS] PID design refuses impossible target -> true
+  [PASS] anti-windup reduces overshoot        -> true
+
+---- 14 / 14 control cases passed ----

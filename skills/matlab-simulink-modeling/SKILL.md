@@ -74,6 +74,34 @@ A model task passes only when:
 - Required signals are logged and nonempty.
 - Generated `.slx`, `.mat`, `.png`, or report artifacts are saved.
 
+## Verify That The Disturbance Reached The Plant
+
+When the task involves a step, load change, parameter sweep, initial-state
+change, or timed injection, a moving output is not evidence that the
+disturbance reached the plant. A controller can read the new value while the
+plant never sees it; an insensitive output can stay flat while the plant is
+correctly excited.
+
+```matlab
+r = mas_dist_enter(struct( ...
+    'name','load step', 'base',struct('R',1), 'perturbed',struct('R',2), ...
+    'tInject',0.5, 'simFcn',@run_case, ...
+    'expect',struct('direction','increase','delta',1.0,'tol',0.02)));
+r.verdict          % PASS | FAIL | UNDETERMINED
+r.reasons          % PARAM_NOT_ENTERED_PLANT, OUTPUT_UNCHANGED, TIMING, ...
+r.effectiveTime    % when the change actually took effect
+```
+
+`run_case` must return `t`, `y`, the parameter values the plant used
+(`plantParams`), and ideally `x`, `paramLog`, and a `disturbanceLog` recorded at
+the plant input. When the output is expected to be insensitive, `x` is
+mandatory: no state evidence is UNDETERMINED, not PASS. `expect.delta` must be
+an independent prediction, not a value read back from the same run.
+
+The full chain, configuration fields, evidence rules, and the Simulink logging
+recipe are in `references/excitation-checks.md`. Pinned by
+`tests/test_dist_enter.m` 19/19, including four real `.slx` variants.
+
 ## Post-Edit Self Check
 
 After writing or modifying a Simulink model, run a self-check before reporting completion:

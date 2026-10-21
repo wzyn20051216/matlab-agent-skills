@@ -1,0 +1,19 @@
+id   skill      match  verdict        detail
+D1   matlab-dat 1      PASS           4/4 checks matched the frozen reference (8ab81eead7f1)
+D2   matlab-dat 1      PASS           3/3 checks matched the frozen reference (c1aab3fbeefc)
+D3   matlab-sig 1      PASS           4/4 checks matched the frozen reference (fc49eafd9423)
+D4   matlab-sig 1      PASS           2/2 checks matched the frozen reference (bc57bb04ebc7)
+D5   matlab-con 1      PASS           4/4 checks matched the frozen reference (008f790406eb)
+D6   matlab-sim 1      PASS           2/2 checks matched the frozen reference (0b4b2612734b)
+D7   matlab-con 1      PASS           2/2 checks matched the frozen reference (6223210197c0)
+D8   matlab-rob 1      PASS           2/2 checks matched the frozen reference (45e192f9b09c)
+C1   matlab-con 1      PASS           4/4 checks matched the frozen reference (a4b6f537ef17)
+C2   matlab-con 1      PASS           3/3 checks matched the frozen reference (f2ba7747be4d)
+C3   matlab-con 1      PASS           3/3 checks matched the frozen reference (4420b23b11dd)
+T1   matlab-dat 1      PASS           5/5 checks matched the frozen reference (6a6ec4187caa)
+S1   matlab-sig 1      PASS           3/3 checks matched the frozen reference (13515453f6e5)
+R1   matlab-rob 1      PASS           3/3 checks matched the frozen reference (7093b07d29d7)
+G1   matlab-cod 1      PASS           2/2 checks matched the frozen reference (5bdb35bdb033)
+
+15 tasks: PASS 15 / FAIL 0 / UNDETERMINED 0 / SKIP 0
+router agreed with the task's intended skill on 15/15
