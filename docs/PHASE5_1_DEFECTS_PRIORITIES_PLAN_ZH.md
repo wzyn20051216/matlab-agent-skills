@@ -24,6 +24,9 @@
 | 10 | 错误恢复没有重新验证结果 | 18 |
 | | **合计** | **123** |
 
+**状态（来自逐条证据）**：FIXED **110** / OPEN **10** / PARTIAL 1 / UNSUPPORTED 1 / DEFERRED 1。
+这说明仓库**很会记录修复、但不擅长把修复提升成可复用检查**——这正是 Phase 5.2 要改的。
+
 ### 1.2 三个主导家族（决定优先级）
 
 1. **测量/判据错误（C5+C6=28）**：数字对，问题错。例：`margin()` 返回值顺序被读错
@@ -47,6 +50,13 @@
 | G7 | 非物理结果被接受（C8-04：慢发散只掉 −2.28%） | **物理性边界**：能量/幅值/时间常数落在可解释区间；趋势检查（连续 N 步单调发散即失败） |
 | G8 | 恢复后不复核（C10=18） | **恢复后重测**：任何 retry/回退后必须重跑同一判据并保留前后哈希 |
 
+**建议落成的脚本名（Phase 5.2 命名）**：
+`mas_broadcast_guard`（隐式扩展/形状子集）、`mas_dist_enter`（扰动可达 + "过于理想"哨兵）、
+`mas_stability_verdict`（把 buck 里仅限本案例的 Floquet/有界判据提升为通用三级判定）、
+`mas_absence_verdict`（"缺证据"不得等于 PASS）、`mas_settle` / `mas_fft_verify` / `mas_window_covers_signal`
+（测量定义）、`mas_atomic_publish`（写入后逐文件复核，防"静默成功"）。
+其中 `mas_precheck('index')`、`mas_refcheck` 已存在且质量高，应**复用而不是重写**。
+
 ### 1.4 硬编码修复反模式（必须避免重犯）
 
 | 反模式 | 证据 | 正确做法 |
@@ -55,6 +65,14 @@
 | SKILL.md 写死 MATLAB 版本 | `matlab-orchestrator` / `matlab-runner` 硬编码 `R2026a`（C7-09） | 运行时探测 `version('-release')` |
 | 为单一案例加特例分支 | 多处（如 `mas_precheck` 的 `exist==2` 与 `mas_dep_probe` 的修法不一致，C1-21） | 抽成一个共用依赖探测函数，全仓库单一实现 |
 | 用"能跑"当验收 | `mas_model_check` L3 = 信号有限；`test_codegen` 无 codegen 时 `return true` | 判据必须对照独立值；缺依赖时标 SKIP 而不是 PASS |
+| A1 特例守卫只重演一次历史设计 | `selfcheck_notch_equivalence.m:9-10,40-43` 钉死 `fn=5504.8/zn/zd/Kp/Ki` | 守卫应参数化到"任意陷波设计"，而非复刻单一案例 |
+| A2 枚举式正则 | 盘符正则只列 `[ED]:`（`PHASE4_4_1:42`），C:/F: 未覆盖 | 用谓词/白名单而不是枚举 |
+| A3 证据门禁绑定单一构建 | Desktop 门禁硬编码 `source=='vscode'` 与某引擎版本 | 按语义字段判定，版本作为参数 |
+| A4 手打测量值 | `boost_b1_task6_agent.m` 硬编码"首次成功率 0" | 由脚本写 JSON，报告只读 |
+| A5 字面 true | `matlabValidation.passed=$true` | 由实际检查结果生成 |
+| A6 参考规则绑死文件名 | v1 benchmark 规则写死模型文件名 | 用结构/内容识别，不绑名字 |
+| A7 文档写死 commit SHA | 已由 `c406cc0`/`22b4cd2` 修 | 引用 tag 而非 SHA |
+| A8（可接受）| Pester 固定 3.4.0 | 有理由且有测试，记录为"有意的约束" |
 
 ### 1.5 仍未关闭（保持可见）
 
@@ -68,6 +86,7 @@
 | C8-04 | 慢发散（每 120 ms 增长 1.03）只掉 −2.28%，看起来"正常" | **OPEN** |
 | C9-03 | 中文语序导致子串匹配失败（"代码生成" vs "生成 C 代码"） | 部分修复，路由仍 6/15 CLARIFY |
 | C9-04 | `matlab-runner` 对所有 prompt 强制加载，属设计选择但放大了 token 成本 | 设计如此，记录 |
+| C9-10 | `mas_route` **没有文档化的输出契约**：本轮我用 `r.skills/matched/missing` 绑定，12/12 全部 `<unexpected>`，改用 `decision/primary/loadOrder` 才正确 | **OPEN（文档缺陷）** |
 | B7 / ComDesktop / R1R2R3 | holder bootstrap 未证 / COM 模式 UNSUPPORTED / 增益未测 | 延续 4.6 结论 |
 
 ---
@@ -188,7 +207,8 @@
   - `tests/test_measure_check.m`（含"无穿越""多穿越""离散系统"三类负例）
 - **最小可执行任务**：给定 5 个已知传递函数，输出每个的 PM/GM/穿越点，并与 `allmargin` + 解析值对齐。
 - **修复前后对照**：同一批系统，改前只报 verdict；改后报"测量值 + 判据 + 无效原因(notes)"。
-- **成功标准**：`test_measure_check` ≥ 15 条断言全过；对无穿越系统返回 `verdict='NO_CROSSING'` 而非 `STABLE`。
+- **成功标准**：`test_measure_check` ≥ 15 条断言全过；对无穿越系统返回 `verdict='UNDETERMINED'` 而非 `STABLE`；
+  并把"缺证据"统一走 `mas_absence_verdict` 的三值逻辑（PASS/FAIL/UNDETERMINED）。
 - **改动范围/风险**：2 个技能、~400 行、无安装器改动；风险是与既有 `mas_ctrl_analyze` 契约兼容（保持旧字段，新增字段）。
 
 ### P0-B：Simulink 激励可达性 + 物理性（Excitation & Physicality）
@@ -198,8 +218,9 @@
 - **计划增强的技能**：`matlab-simulink-modeling`（主）、`matlab-runner`（预检）。
 - **新增 references/scripts/tests**：
   - `references/excitation-checks.md`（阶跃/扰动/负载的可达性判据）
-  - `scripts/mas_excitation_check.m`（注入已知幅值，量测 Δy/Δu 与解析增益对比；检查 Step 块参数名、端口符号、信号非空）
-  - `tests/test_excitation_check.m`（反例：扰动接错端口、StepTime 拼错、信号为空）
+  - `scripts/mas_dist_enter.m`（注入已知幅值；检查阶跃**符号/幅度**、量测 Δy/Δu 与解析增益一致、
+    "过于理想"哨兵：若扰动后响应与未扰动几乎相同则判失败；同时校验 Step 块参数名 `Time` 而非 `StepTime`）
+  - `tests/test_dist_enter.m`（反例：Buck 阶跃反向 6Ω→18Ω、Boost 的 R 根本没传入、StepTime 拼错、信号为空）
 - **最小可执行任务**：对一阶系统 `.slx` 注入 10% 负载阶跃，验证量测点稳态增量在容差内。
 - **成功标准**：正例通过；三个反例全部被拒（不能只是"不报错"）。
 - **改动范围/风险**：1 个技能 + 1 个脚本；仅 Simulink，回归风险局限在 MATLAB 层。

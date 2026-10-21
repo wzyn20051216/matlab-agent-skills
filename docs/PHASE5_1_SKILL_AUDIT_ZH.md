@@ -218,7 +218,11 @@ runner 是唯一做了渐进式加载的技能。
 10. **唯一完整跑批记录不是绿的**：`artifacts/validation/phase4/phase4_all.json` 记录
     `skillPass 200/201`、`allSuitesOk=false`、`capability 6/7`，且只列了 15 个套件中的 14 个
     （缺 `test_phase43_grade`），而 `suitesErrored` 仍为 0——统计口径本身有问题。
-11. **领域级结论**：把上面的证据按 13 域归并后，**只有 2 个领域达到领域级 VERIFIED**
+11. **路由脚本无输出契约**：`mas_route` 未文档化返回字段；本轮首次探测按 `skills/matched/missing`
+    绑定，12/12 全部 `<unexpected>`，改用 `decision/primary/loadOrder` 才正确（C9-10，OPEN）。
+12. **缺陷状态分布**：123 条中 **FIXED 110 / OPEN 10 / PARTIAL 1 / UNSUPPORTED 1 / DEFERRED 1**；
+    仓库强于"记录修复"，弱于"把修复提升成通用检查"（如 settle 指标仍只在 buck 内）。
+13. **领域级结论**：把上面的证据按 13 域归并后，**只有 2 个领域达到领域级 VERIFIED**
     （4 信号/通信、11 Simulink 核心建模仿真），其余为 PARTIAL 或 NOT TESTED（见能力矩阵）。
 
 ## 5. 本轮的验证边界
