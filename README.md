@@ -48,12 +48,24 @@ This repository provides that workflow layer:
 
 ## Installation
 
-Clone the repository:
+> **Version note (read this first).** `main` currently predates the validated Windows release:
+> it ships the nine skills but in their **older, pre-Phase-4 form**, and it does not contain the
+> desktop launcher, the MCP code runner, the uninstaller or the release docs. A plain
+> `git clone` of `main` therefore installs the **old** skills, not the ones this README documents.
+> Until the reviewed merge into `main` lands, install the **pinned preview version** below.
+
+### Windows technical preview — pinned version
 
 ```powershell
-git clone https://github.com/wzyn20051216/matlab-agent-skills.git
+# pinned, reproducible: tag v0.6.0-preview.1
+git clone --branch v0.6.0-preview.1 --depth 1 https://github.com/wzyn20051216/matlab-agent-skills.git
 cd matlab-agent-skills
+git rev-parse HEAD
+git rev-parse 'v0.6.0-preview.1^{commit}'   # the two values must match
 ```
+
+`release/windows-preview` is the same content as a mutable branch, if you prefer a branch name.
+Neither is a GitHub Release; both are technical-preview entry points and can be re-cut.
 
 Deploy the skills into your local Codex skill directory:
 
@@ -65,7 +77,17 @@ powershell -ExecutionPolicy Bypass -File .\scripts\Sync-Skills.ps1
 WSL 使用自己的 Linux 用户目录。实际发现、正文加载与 MCP 执行分别验收，详见
 [共享安装说明](docs/SKILL_INSTALLATION_ZH.md)。
 
-Windows one-liner bootstrap:
+### After `main` is updated
+
+Only once the audited merge lands does the default clone give the validated version:
+
+```powershell
+git clone https://github.com/wzyn20051216/matlab-agent-skills.git
+cd matlab-agent-skills
+git rev-parse HEAD   # should then match the released tag
+```
+
+Windows one-liner bootstrap (uses `main`, so it is **old until the merge lands**):
 
 ```powershell
 irm https://raw.githubusercontent.com/wzyn20051216/matlab-agent-skills/main/scripts/Bootstrap-MatlabAgentSkills.ps1 | iex

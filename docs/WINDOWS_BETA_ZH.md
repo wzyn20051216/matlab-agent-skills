@@ -19,10 +19,17 @@
 
 前置：Windows 10/11；已安装 MATLAB R2026a（建议；更早版本未验证）；已安装 Codex CLI 或 Codex Desktop。
 
+> **版本入口（必读）**：`main` 目前仍是早期快照——有 9 个技能，但是旧版内容，
+> 且**没有**桌面启动器、MCP 代码执行器、卸载器和本批发布文档。
+> 直接 `git clone`（默认主分支）装到的是**旧技能**，不是本文档描述的版本。
+> 在审查通过并合并进 `main` 之前，请使用下面的**固定版本入口**。
+
 ```powershell
-# 1) 取仓库
-git clone https://github.com/wzyn20051216/matlab-agent-skills.git
+# 1) 取仓库并固定到已验证的预览标签
+git clone --branch v0.6.0-preview.1 --depth 1 https://github.com/wzyn20051216/matlab-agent-skills.git
 cd matlab-agent-skills
+git rev-parse HEAD
+git rev-parse 'v0.6.0-preview.1^{commit}'   # 两个值必须一致
 
 # 2) 安装 9 个 Skills（默认装到当前用户 %USERPROFILE%\.agents\skills，无需 -SkillRoot）
 powershell -ExecutionPolicy Bypass -File .\scripts\Sync-Skills.ps1
@@ -30,6 +37,10 @@ powershell -ExecutionPolicy Bypass -File .\scripts\Sync-Skills.ps1
 # 3) 配置官方 MATLAB MCP（生成/合并客户端配置，并校验服务器二进制）
 powershell -ExecutionPolicy Bypass -File .\scripts\Install-MatlabMcpClients.ps1 -McpServerName matlab-official
 ```
+
+`release/windows-preview` 是同一内容的分支形式（可变，预览重切时指向新提交）；
+两者都不是 GitHub Release。合并进 `main` 之后，默认 `git clone` 才会指向同一版本，
+届时本文档的版本提示会被移除。
 
 重启（或新开）Codex 会话后用一句话自检：
 
