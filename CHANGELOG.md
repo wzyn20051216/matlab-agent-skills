@@ -4,6 +4,94 @@ All notable changes to this project will be documented here.
 
 ## Unreleased
 
+### Phase 4.7：最终安全修复与合并门禁
+
+- **MCP Server 供应链改为固定清单 + fail closed**：新增 `config/mcp-server-manifest.json`，
+  固定上游 **v0.15.0** 的 release tag、下载 URL、SHA-256 与字节数（摘要取自 GitHub Release API
+  的 `asset.digest`，并与本机已验证二进制交叉一致）。安装器不再使用 `releases/latest`；
+  清单缺失/条目缺失/哈希不符/字节数不符一律拒绝；已存在的 `bin/` 二进制同样校验；
+  `Verified=false` 只有在显式 `-AllowUnverifiedServer` 下才放行，且状态记为
+  `UNVERIFIED_ACCEPTED_BY_OPERATOR`，绝不当成安装成功。安装摘要新增
+  `serverReleaseTag` / `serverIntegrity` / `serverDownloadSrc`。
+- **共享会话清理改为归属校验**：`Start-MatlabSharedSession.ps1` 不再按 `sessionDetails.json`
+  的 PID 强制结束。启动时写本次运行的所有者文件（PID + StartTime + 可执行路径 + Windows
+  会话 id + runId），清理前逐项复核；PID 回收、exe 路径不符、会话不符、进程已退出、
+  旧运行遗留的所有者文件都只报告不终止；默认温和关闭，`-AllowForceStop` 才强制。
+  就绪文件、日志与报告不含 `apiKey` / `certificate`。
+- **清除构建产物里的账号名**：`matlab/boost/models/*.slx` 的 OPC 元数据
+  (`metadata/coreProperties.xml`) 里嵌入了 Windows 账号名，纯文本扫描看不到（zip 压缩）。
+  已把 `dc:creator` / `cp:lastModifiedBy` 改为 `matlab-agent-skills`，并验证两个模型仍能
+  正常加载（59 / 62 个块）。
+- **修正 CI 门禁自身**：仓库卫生检查原来的正则同时有误报（把 MATLAB 字符串里的换行转义、
+  以及测试夹具里的假用户目录判成机器路径）和漏报（不匹配正斜杠写法）。现在与 Pester 测试
+  共用同一判据，并允许占位符与固定夹具；两处真实路径注释已改为占位符。
+- **ACL 测试可在任意宿主通过**：CI runner 的当前用户可能就是 `S-1-5-18`，与用例标的 SID
+  撞车导致 3 例失败；测试改为动态选取一个"外来 SID"并先清理同名 ACE，断言不再依赖宿主默认 ACE。
+- 免费层升至 **306/306**（增加供应链 12 例、进程清理 24 例），Windows PowerShell 5.1 与
+  PowerShell 7 各一遍、exit 0。**未合并 main、未创建 GitHub Release**（等待人工批准）。
+
+### Phase 4.6：发布工程化与陌生用户安装验收
+
+- **版本入口与 main 解耦**：新增不可变标签 `v0.6.0-preview.1` 与分支 `release/windows-preview`
+  （同一提交）；README/WINDOWS_BETA 的安装步骤改为固定入口 + `rev-parse` 比对，
+  明确写出"main 仍是早期快照、默认 clone 装到的是旧技能"，并删除指向移动 `main` 的
+  `irm … | iex` 一行命令（它执行旧代码且属于本次要消除的供应链模式）。
+- **安全修复（来自独立审查，均有复现）**：MCP server 自动解析不再把当前工作目录当隐式候选
+  （原实现会接受任意目录里放的同名非 PE 文件）；回归 PS 5.1/7 各 270/270。
+- **干净环境安装验收**：隔离 fake home 下默认安装 9 目录/62 文件、逐技能哈希等于仓库；
+  幂等、旧版升级、锁定文件回滚、卸载全部通过；真实用户目录哈希前后不变。
+- **发布门禁 A–F 分离**：Installation / Discovery / Execution / Workflow / Quality 有实测证据，
+  **Comparison（R1/R2/R3）显式 BLOCKED**，不因前五项通过而标 PASS。
+- **Agent 复核（隔离目录、预注册参考）**：三题重跑并按冻结规则评分；
+  v2 规则 23/23；v1 的 3 项失败定位为规则自身的测量定义缺陷（t=5τ 理论值 0.993262、
+  t=τ 点受变步长网格影响、模型文件名写死），v1 规则未回改、结果原样保留。
+- **PR 整理**：补齐缺失的 P0 基础 PR（#3），更新 #1 的 head，把 #2 的 base 改到 p1，
+  新建 #4（phase3b1 → phase3a）；合并顺序 #3 → #1 → #2 → #4，审计已用 scratch 合并验证
+  最终树与 `8a9da2f` 完全一致。
+- 新增 `docs/TROUBLESHOOTING_ZH.md` 与 `docs/SUPPORT_MATRIX_ZH.md`；
+  未创建 GitHub Release、未合并 main（等待人工批准）。
+
+### Phase 4.5：真实自主执行验证与 Windows 测试版准备
+
+- **修掉一个真实传输缺陷**：`MatlabAgentSkills.McpStdio.psm1` 未设置标准流编码，.NET 用进程默认
+  OEM 代码页写 stdin，导致**经 MCP 提交的含中文 MATLAB 代码被转成 U+FFFD**（实测 346 个替换字符
+  写进了产物）。现在 StandardInput/Output/Error 三个流都显式钉 UTF-8，并有回归证据。
+- 三个自然语言任务（数据拟合+误差分析 / 数字滤波器设计+采样条件 / Simulink 动态模型+阶跃验收）
+  由 Agent 自主完成并被**独立验证器**复核：20/20、22/22、21/21。过程中 Agent 自己发现并修复了
+  5 个错误（含一次正反馈符号错误导致响应发散），失败尝试保留在记录里。
+- 安装侧：`Sync-Skills` 的 JSON 摘要现在投影 `preservedUserFiles` / `restoredFromBackup` /
+  `recreatedFiles`，脚本化消费者不必解析中文 message；`unchanged` 路径也会如实报告用户新增文件。
+- 新增 Windows 测试版材料：[WINDOWS_BETA_ZH](docs/WINDOWS_BETA_ZH.md)（快速开始、九个技能用途、
+  许可与依赖、诊断、已验证/未验证、卸载回滚、演示任务、发布前 checklist）；README 增加
+  "Windows beta status" 段落，明确不写"全平台兼容/全面自主执行/成功率提升"。
+- 发布安全：去掉 `docs/PHASE4_3_VERIFICATION_ZH.md` 中的本机用户名绝对路径（首次推送前必须清除，
+  否则会永久进入公开历史）。
+- **未完成（明确 BLOCKED）**：本轮 CLI / Desktop 的自主执行因 `chatgpt.com` / `api.openai.com`
+  在本机不可达而无法进行；R1/R2/R3 增益对照同样无法执行，故**不作任何增益声明**。
+  R1/R2/R3 的任务、参考答案与验收规则已在任何运行之前冻结（含 SHA-256 清单），
+  runner 对 9 个 arm×task 一律输出 BLOCKED 并附 `github.com` 对照探针，
+  评分器用合成夹具自检通过（T1 18/18、T2 17/17、T3 51/51）。
+
+### Phase 4.4：CLI / Desktop 共享技能与独立验收
+
+- 共享安装默认使用当前系统用户的 `.agents/skills`，补充归属校验、内容指纹、备份和保守卸载；Windows 与 WSL 的默认用户目录分开解析。
+- 两端发现引擎分别冷启动，真实共享目录升级、卸载、重装的技能数量为 9 / 0 / 9；CLI 和 Desktop 的控制任务分别通过官方 MCP 执行，再由独立解析评分器核对。
+- Phase 4.3 grader 修复 logical、缺失结果和损坏证据的统计；保留 53 份历史任务记录，真实 MATLAB 回归 43/43。
+- 可见桌面自动启动补上最终证据：零 MATLAB 进程、且 `sessionDetails.json` 仍指向已退出 PID 的条件下，默认 `StartupCommand` 得到 `status=READY`、`beforeProcesses=[]`、`coldStartVerified=true`（9724/25692，23.3 s）；随后官方 stdio `auto` 在该实例执行控制任务，`matlabPid` 与启动报告 `runtimePid` 一致，故 `startupSessionBinding=PASS`。
+- 明确区分"另开"与"冷启动"：已有实例时 `-NewSession` 得到 `newSessionVerified=true` / `coldStartVerified=false`，默认模式仍复用或拒绝重复启动；`-LaunchMode ComDesktop` 在被 Job 禁止 breakaway 的宿主中明确失败（Win32 错误 5），本机自动打开使用默认 `StartupCommand`（经 Windows Shell，不继承工具 Job）。
+- 新增可见桌面启动、官方 stdio 连接重建和分层证据工具；已测范围、历史失败及未测部署环境见 [双端验收记录](docs/PHASE4_4_DUAL_CLIENT_ZH.md)。
+
+### Phase 4.4.1：安装与执行基础设施可靠性收尾
+
+不新增专业 Skill，只修可靠性。逐项结论与证据见 [Phase 4.4.1 记录](docs/PHASE4_4_1_RELIABILITY_ZH.md)。
+
+- 七个启动缺陷：B1/B2/B3/B4/B5/B6 已修，B7（`HOLDING` 未证明 bootstrap）明确 DEFERRED 并写明验收条件。B2 由"1 秒后一句无法归因的创建失败"改为**启动前预检**：`status=UNSUPPORTED`、`reasonCode=COM_HOLDER_BREAKAWAY_DENIED`、`breakawayState=IN_JOB=1;LIMIT_FLAGS=0x2000`，且不创建/不关闭任何 MATLAB（实测启动前后 PID 不变）。
+- 进程身份从"裸 PID"改为 `(PID, 创建时间)`：PID 回收不再把新运行时误判成 `PREEXISTING_RUNTIME`/`NOT_NEW`；holder 存活绑定自身 `holderStartedAt` + `ProcessName=powershell`。状态文件发布改为 `File.Replace`/`Move` + 有界重试，读侧允许 `ReadWrite|Delete` 共享，避免发布状态时把 holder（连同它持有的 MATLAB）弄死。
+- 免费层 `263/265` → **`270/270`**（Windows PowerShell 5.1 与 PowerShell 7 各 270/270，exit 0）。两项历史失败的真实结论：盘符检查**同时**存在判据误报（大小写不敏感把正则里的 `name:` + 空白序列当成盘符）与真实硬编码；BOM 是真实约定缺陷。判据改为 `(?<![A-Za-z0-9_])[ED]:[\\/](?![A-Za-z]:)`，附灵敏度/特异度自检，并且只扫 **git 跟踪文件**（无 git 时退回文件系统遍历并报告扫描模式）。
+- 安装侧：升级时**保留用户新增文件**并报告（`PreservedUserFiles`），且用户文件不再让每次同步都判成 update；单技能失败改为"补齐缺失文件"恢复（`RestoredFromBackup`/`RecreatedFiles`）并让退出码非零。修复过程中发现 `Remove-Item -Recurse -Force` 对占用文件只报非终止错误，会把缺文件的目录报成"已更新"——现已在交换路径显式 `-ErrorAction Stop`，并在交换后逐个核对源文件是否齐全。
+- Desktop 证据门修复：`originator=='Codex Desktop'` 不足以区分客户端（CLI 0.147.0 exec 会话也这么写），改为同时要求 `source='vscode'` 与会话含 `<app-context>`，并把这两项写进证据；新增 2 条负向回归。
+- 双端独立报告：CLI 与 Desktop 各自留证，未用一端结果替代另一端；Desktop UI 层与 CLI 本轮重跑均按 `NOT VERIFIED` 记录（原因：无 UI 驱动通道、账户额度耗尽）。
+
 ### 电力电子领域示例：Buck 稳定性与优化专项（第三阶段 3A.1）
 
 - Added: `matlab/buck/` Buck 电压环完整实现（48V→12V/50kHz）：符号+数值模型推导、平均/开关双模型、参数化闭环构建函数（PI + 抗饱和 back-calculation + 占空比限幅 + 可选陷波器 + 负载阶跃）。

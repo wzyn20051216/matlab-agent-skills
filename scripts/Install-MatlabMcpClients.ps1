@@ -19,7 +19,7 @@ param(
     [string]$ServerExePath = "",
     [string]$MatlabRoot = "",
     [string]$ServerName = "matlab-official",
-    [string]$McpServerDownloadUrl = "https://github.com/matlab/matlab-mcp-server/releases/latest/download/matlab-mcp-server-windows-x64.exe",
+    [string]$McpServerDownloadUrl = "",
     [ValidateSet("auto", "existing", "new")]
     [string]$SessionMode = "auto",
     [bool]$InitializeMatlabOnStartup = $true,
@@ -34,6 +34,8 @@ param(
     [string]$ExpectedServerSha256 = "",
     [switch]$NoDownload,
     [switch]$ForceDownload,
+    # 只有操作员明确接受风险时才允许使用未通过固定清单校验的二进制；状态会被记录为非验证。
+    [switch]$AllowUnverifiedServer,
 
     [string]$BackupRoot = "",
     [switch]$DryRun,
@@ -108,11 +110,15 @@ function New-McpClientEntry {
 Write-Step "解析 MATLAB MCP Server 可执行文件"
 $server = Resolve-McpServerExecutable -Hint $ServerExePath -DownloadUrl $McpServerDownloadUrl `
     -ScriptRoot $PSScriptRoot -ExpectedSha256 $ExpectedServerSha256 `
-    -NoDownload:$NoDownload -ForceDownload:$ForceDownload -DryRun:$DryRun
-Write-Info "server: $($server.Path) (source=$($server.Source))"
+    -NoDownload:$NoDownload -ForceDownload:$ForceDownload -AllowUnverifiedServer:$AllowUnverifiedServer -DryRun:$DryRun
+Write-Info "server: $($server.Path) (source=$($server.Source), release=$($server.ReleaseTag), integrity=$($server.IntegrityStatus))"
 
 if (-not $DryRun -and -not (Test-Path -LiteralPath $server.Path)) {
     throw "MATLAB MCP Server 可执行文件不存在: $($server.Path)"
+}
+# 未通过固定清单校验的二进制不得被静默当成安装成功。
+if (-not $DryRun) {
+    Assert-McpServerTrusted -Server $server -AllowUnverifiedServer:$AllowUnverifiedServer
 }
 
 $resolvedClients = Resolve-Clients -RequestedClients $Clients
@@ -137,6 +143,9 @@ $summary = [ordered]@{
     serverExePath     = $server.Path
     serverExeSha256   = $server.Sha256
     serverExeVerified = [bool]$server.Verified
+    serverReleaseTag  = $server.ReleaseTag
+    serverIntegrity   = $server.IntegrityStatus
+    serverDownloadSrc = $server.DownloadSource
     serverArgs        = $serverArgs
     droppedArguments  = [string[]]$argBuild.DroppedArguments
     clients           = [string[]]$resolvedClients

@@ -1,0 +1,477 @@
+{
+ "version": "2.0",
+ "phase": "4.5 (autonomous execution verification + Windows beta prep)",
+ "date": "2026-10-21",
+ "legend": {
+  "VERIFIED": "exercised by a run in this repository, with an independent reference or a test that can fail",
+  "PARTIAL": "some sub-capability exercised, others not",
+  "UNSUPPORTED": "no implementation exists",
+  "NOT TESTED": "implementation may exist but nothing verified it in this phase",
+  "UNKNOWN": "cannot be determined from inside this environment; distinct from NOT TESTED and from UNSUPPORTED"
+ },
+ "skills": {
+  "matlab-orchestrator": {
+   "weighted_routing": {
+    "status": "VERIFIED",
+    "evidence": "test_routing.m 9/9 incl. OFDM, three-phase THD, KITTI and two must-not-guess cases"
+   },
+   "clarify_instead_of_guessing": {
+    "status": "VERIFIED",
+    "evidence": "test_routing.m 9/9: below-threshold prompt returns CLARIFY, a tie returns AMBIGUOUS"
+   },
+   "end_to_end_pipeline_with_trace": {
+    "status": "VERIFIED",
+    "evidence": "mas_pipeline over 15 tasks (cross-domain D1..G1), skillMatch 15/15, per-step trace recorded"
+   },
+   "skill_runtime_invocation": {
+    "status": "NOT TESTED",
+    "evidence": "SKILL.md files are documentation; no skill runtime has ever auto-triggered them in this session"
+   },
+   "held_out_generalisation": {
+    "status": "VERIFIED",
+    "evidence": "held-out set S1/R1/G1 3/3, graded only by mas_verify_task against frozen references"
+   },
+   "skill_call_graph": {
+    "status": "VERIFIED",
+    "evidence": "test_skill_graph.m 13/13: 8 known-answer graphs pin the detector (diamond and star must NOT be reported), plus no cycle / no dangling route / full coverage on the real 9 skills"
+   },
+   "skill_discovery_and_loading": {
+    "status": "VERIFIED",
+    "evidence": "mas_skill_audit report: 9 skills DISCOVERED and 9 LOADED on this platform, with per-skill receipts in artifacts/validation/phase43/skill_load_receipts.json. SELECTED/WORKFLOW/ACCEPTED stay UNOBSERVED and are reported as such."
+   }
+  },
+  "matlab-runner": {
+   "dependency_discovery_five_levels": {
+    "status": "VERIFIED",
+    "evidence": "test_dep_probe.m 26/26: built-ins not reported missing, UAV Toolbox resolves (it IS installed and licensed), and Communications Toolbox is judged usable by its probe even though license('test','Communications_Toolbox') returns 0, with a negative control that falls back to NOT_LICENSED when the probe is suppressed"
+   },
+   "product_feature_alias_table": {
+    "status": "VERIFIED",
+    "evidence": "test_dep_probe.m 23/23, incl. alias pairs (Neural Network / Deep Learning, Statistics, Simscape Power Systems) and Communications Toolbox resolving instead of UNKNOWN_PRODUCT"
+   },
+   "preflight_checks": {
+    "status": "VERIFIED",
+    "evidence": "test_precheck.m 16/16, roughly half of them negative"
+   },
+   "interactive_execution": {
+    "status": "PARTIAL",
+    "evidence": "matlab -batch runs real code, but it is NOT the MCP path; R2/R3 remain SKIP"
+   },
+   "official_matlab_mcp_link": {
+    "status": "VERIFIED",
+    "evidence": "scripts/Test-Phase43McpHandshake.ps1 and scripts/Invoke-Phase43McpTask.ps1 drove the official matlab-mcp-server-windows-x64.exe v0.15.0 over stdio: initialize 757 ms, tools/list returned 5 real tools, and evaluate_matlab_code ran on real R2026a and listed 117 toolboxes. Raw evidence in artifacts/validation/phase43/mcp_tools_list.json"
+   },
+   "r1_r2_r3_benchmark": {
+    "status": "PARTIAL",
+    "evidence": "mas_phase43_grade over 53 runs: R1 15/18, R2 15/17, R3 18/18. The only differing task (B6) needs mas_codegen_ready, which only exists in this repository, so R3 wins BY CONSTRUCTION. The task programs are FIXED, so this measures the channel and tool availability, not an agent's own reasoning -- see docs/PHASE4_3_VERIFICATION_ZH.md section 8"
+   }
+  },
+  "matlab-simulink-modeling": {
+   "model_build_and_simulate": {
+    "status": "VERIFIED",
+    "evidence": "cross-domain D6 against 1-exp(-2t); plus matlab/boost/models/{boost_avg,boost_sw}.slx from Phase 3B.2"
+   },
+   "model_lint_l0_l3": {
+    "status": "VERIFIED",
+    "evidence": "test_model_check.m 2/2"
+   },
+   "stateflow_chart_generation": {
+    "status": "NOT TESTED",
+    "evidence": "Stateflow is installed but no chart was authored or exercised"
+   },
+   "simulink_coder_build": {
+    "status": "NOT TESTED",
+    "evidence": "not exercised in this phase"
+   },
+   "simulink_test_coverage": {
+    "status": "NOT TESTED",
+    "evidence": "Simulink Test is installed but never driven"
+   }
+  },
+  "matlab-testing-ci": {
+   "three_level_verdict": {
+    "status": "VERIFIED",
+    "evidence": "test_grade.m 6/6 incl. CORRECT_NOT_ACCEPTED"
+   },
+   "frozen_reference_derivation": {
+    "status": "VERIFIED",
+    "evidence": "test_refcheck.m 11/11 incl. two tamper attacks (VALUE gate and HASH gate)"
+   },
+   "independent_task_verification": {
+    "status": "VERIFIED",
+    "evidence": "15 references verified by mas_refcheck; cross-domain 15/15 graded by mas_verify_task (D1, C3, S1, G1 among them)"
+   },
+   "benchmark_ledger": {
+    "status": "VERIFIED",
+    "evidence": "test_bench.m 9/9; a SKIP can never be laundered into a PASS, and UNKNOWN is never collapsed into SKIP"
+   },
+   "ci_pipeline_generation": {
+    "status": "NOT TESTED",
+    "evidence": "no CI config was generated or executed in this phase"
+   }
+  },
+  "matlab-control-optimization": {
+   "margins_at_every_crossing": {
+    "status": "VERIFIED",
+    "evidence": "test_ctrl_analyze.m 14/14 incl. C3: two downward 0 dB crossings, worst PM -95.4 deg, first one +83.1 deg"
+   },
+   "pid_design_under_constraints": {
+    "status": "VERIFIED",
+    "evidence": "test_ctrl_analyze.m; infeasible designs return feasible=false rather than the least-bad"
+   },
+   "anti_windup_simulation": {
+    "status": "VERIFIED",
+    "evidence": "test_ctrl_analyze.m; back-calculation must divide by Ki (omitting it diverges to 1e300)"
+   },
+   "state_space_step_metrics": {
+    "status": "VERIFIED",
+    "evidence": "cross-domain D5 against closed-form overshoot 16.30 %, peak time 1.8138 s, settling 4.0 s"
+   },
+   "hinf_robust_control": {
+    "status": "NOT TESTED",
+    "evidence": "hinfm was never exercised"
+   },
+   "power_electronics_dedicated": {
+    "status": "PARTIAL",
+    "evidence": "D7/C2/C3 reuse this skill's steady-state and stability methods; there is NO dedicated power-electronics skill, and routing.json records that explicitly"
+   }
+  },
+  "matlab-signal-vision-ai": {
+   "spectrum_leakage_and_concentration": {
+    "status": "VERIFIED",
+    "evidence": "test_signal_vision.m 34/34; half-bin offset must drop concentration from 1.000 to 0.408"
+   },
+   "ofdm_ber_vs_closed_form": {
+    "status": "VERIFIED",
+    "evidence": "test_signal_vision.m; tolerance tracks counting noise (0/4 dB stay 15 %, 8 dB widens to 39 %) and still rejects the CP-penalty defect"
+   },
+   "image_segmentation_metrics": {
+    "status": "VERIFIED",
+    "evidence": "test_signal_vision.m; hand-counted confusion matrices; area-correct/position-wrong masks must give IoU 0"
+   },
+   "reproducible_stratified_split": {
+    "status": "VERIFIED",
+    "evidence": "test_signal_vision.m; stratification must actually work on imbalanced data (negative control)"
+   },
+   "deep_learning_training": {
+    "status": "NOT TESTED",
+    "evidence": "Deep Learning Toolbox is licensed; no training loop was run and no pretrained model was exercised"
+   }
+  },
+  "matlab-data-analysis": {
+   "table_cleaning_with_row_ledger": {
+    "status": "VERIFIED",
+    "evidence": "test_table_audit.m 11/11; balanced = (nRowsIn == nRowsOut + nDropped), each row judged exactly once"
+   },
+   "regression_and_missing_data": {
+    "status": "VERIFIED",
+    "evidence": "cross-domain D2 (aHat 2.5, bHat -0.7, nMissing 3) against a frozen reference"
+   },
+   "numerical_integration": {
+    "status": "VERIFIED",
+    "evidence": "cross-domain D1: integral of 4/(1+t^2) on [0,1] = pi, Gauss-Legendre-64 vs trapezoid"
+   },
+   "large_scale_dataframes": {
+    "status": "NOT TESTED",
+    "evidence": "nothing in this repo reads a real multi-GB dataset"
+   }
+  },
+  "matlab-codegen-deploy": {
+   "mex_generation_and_golden_comparison": {
+    "status": "VERIFIED",
+    "evidence": "test_codegen.m 11/11; mas_codegen_verify runs real codegen -> MSVC 2022 build -> both executed -> compared"
+   },
+   "static_codegen_readiness_audit": {
+    "status": "VERIFIED",
+    "evidence": "test_codegen.m 12/12; array growth is a blocker only INSIDE a loop, verified by two fixtures with the same line; a file given by FULL PATH resolves (the earlier version dropped it because which() returns empty for a path)"
+   },
+   "fixed_point_range_and_quantization_cost": {
+    "status": "VERIFIED",
+    "evidence": "test_codegen.m; 16-bit SQNR > 80 dB, 8-bit overflow reported as a FRACTION"
+   },
+   "hdl_codegen": {
+    "status": "NOT TESTED",
+    "evidence": "HDL Coder is installed but NOT LICENSED on this machine"
+   },
+   "embedded_stm32_chain": {
+    "status": "NOT TESTED",
+    "evidence": "no STM32 target hardware and no CubeMX package installed; see docs/PHASE4_2_SKILLS_ZH.md"
+   },
+   "simulink_coder_slbuild": {
+    "status": "NOT TESTED",
+    "evidence": "Simulink Coder is present but no model in this repo is configured for RTW build"
+   }
+  },
+  "matlab-robotics-autonomy": {
+   "forward_kinematics_and_jacobian": {
+    "status": "VERIFIED",
+    "evidence": "test_robotics.m 31/31; analytic Jacobian compared element-wise against a central difference"
+   },
+   "inverse_kinematics_dls_with_limits": {
+    "status": "VERIFIED",
+    "evidence": "test_robotics.m; near-singular (q2=1e-4) DLS raw step stays ~0.12 rad while the normal equations reach 6.4e3 rad"
+   },
+   "state_estimator_consistency_nees_nis": {
+    "status": "VERIFIED",
+    "evidence": "test_robotics.m; ANEES 1.92 PASS, R/100 -> 107 FAIL, R*100 -> 0.81 FAIL (two-sided by design)"
+   },
+   "frame_transform_hygiene": {
+    "status": "VERIFIED",
+    "evidence": "test_robotics.m; cross-checked against MathWorks eul2rotm/quat2rotm, deviation 0 and 1.1e-16"
+   },
+   "ros_bag_processing": {
+    "status": "NOT TESTED",
+    "evidence": "ROS Toolbox is licensed but no bag file and no ROS 2 runtime in this environment"
+   },
+   "path_planning_and_slam": {
+    "status": "NOT TESTED",
+    "evidence": "occupancyMap/manipulatorRRT resolve as functions but were never exercised against a frozen reference"
+   },
+   "uav_scenario_simulation": {
+    "status": "NOT TESTED",
+    "evidence": "UAV Toolbox 26.1 (R2026a) IS installed and licensed on this machine (verified 2026-10-20 via the MATLAB MCP server's detect_matlab_toolboxes, which lists 117 toolboxes including UAV Toolbox, and via license('test','UAV_Toolbox')=1). Phase 4.2 recorded it as NOT INSTALLED because ver('UAV Toolbox') single-argument lookup returns 0 for a product that IS present in the ver() list -- that false negative is fixed by adding the product to mas_product_map.m."
+   }
+  }
+ },
+ "autonomousExecution": {
+  "scope": "workflow-level evidence only; it does not upgrade any mas_* tool claim, which stays governed by the per-entry evidence",
+  "tasks": {
+   "A_data_fitting": {
+    "status": "VERIFIED",
+    "workflow": "matlab-data-analysis + matlab-runner",
+    "artifact": "artifacts/validation/phase45/agent/taskA",
+    "independentVerifier": "20/20 checks (independent numpy refit, not MATLAB)",
+    "selfRecoveredErrors": 1
+   },
+   "B_filter_design": {
+    "status": "VERIFIED",
+    "workflow": "matlab-signal-vision-ai + matlab-runner",
+    "artifact": "artifacts/validation/phase45/agent/taskB",
+    "independentVerifier": "22/22 checks (numpy DTFT from exported coefficients, not freqz)",
+    "selfRecoveredErrors": 2
+   },
+   "C_simulink_model": {
+    "status": "VERIFIED",
+    "workflow": "matlab-simulink-modeling + matlab-runner",
+    "artifact": "artifacts/validation/phase45/agent/taskC",
+    "independentVerifier": "21/21 checks (analytic solution re-implemented in Python)",
+    "selfRecoveredErrors": 2
+   }
+  },
+  "executionClient": {
+   "status": "PARTIAL",
+   "reason": "the three tasks ran in the harness-native agent of this session, not in Codex CLI or Desktop; both Codex clients were BLOCKED by the network condition below, and the Desktop UI is not programmatically drivable"
+  },
+  "r1r2r3Gain": {
+   "status": "UNKNOWN",
+   "reason": "agent backend unreachable from this host (chatgpt.com and api.openai.com TCP timeouts while a github.com control probe succeeds); the frozen spec, reference answers and runner exist under artifacts/validation/phase45/benchmark, and all 9 arm x task pairs report BLOCKED. No skill-gain claim is made in either direction"
+  }
+ },
+ "summary": {
+  "capability_counts": {
+   "VERIFIED": 34,
+   "NOTTESTED": 14,
+   "PARTIAL": 3
+  },
+  "tool_counts": {
+   "VERIFIED": 32
+  },
+  "verified_capabilities": 34,
+  "note": "Counts are COMPUTED from the entries above, not typed in -- mas_capability_check.m fails if they drift. Keys carry no spaces because jsonencode strips them. R1/R2/R3 benchmark ran for real on 2026-10-20 (docs/PHASE4_3_VERIFICATION_ZH.md); the official MATLAB MCP server is reachable over stdio. PARTIAL on the benchmark entry is deliberate: the task scripts are fixed, so it does not yet measure an agents own skill selection or recovery. Phase 4.5 changed no mas_* tool status, so these counts are unchanged; it added the autonomousExecution block (agent workflow evidence for three natural-language tasks) and recorded the R1/R2/R3 comparison as UNKNOWN/BLOCKED instead of measured."
+ },
+ "tools": {
+  "mas_codegen_ready": {
+   "skill": "matlab-codegen-deploy",
+   "status": "VERIFIED",
+   "tests": "test_codegen.m 12/12",
+   "what": "blocker vs warning audit; loop-depth tracking, not a regex grep; resolves a full file path as well as a function name"
+  },
+  "mas_codegen_verify": {
+   "skill": "matlab-codegen-deploy",
+   "status": "VERIFIED",
+   "tests": "test_codegen.m",
+   "what": "real codegen -> MSVC build -> both run -> compare, five stages reported"
+  },
+  "mas_fixpt_range": {
+   "skill": "matlab-codegen-deploy",
+   "status": "VERIFIED",
+   "tests": "test_codegen.m",
+   "what": "observed range + SQNR + overflow FRACTION; SKIP without Fixed-Point Designer"
+  },
+  "mas_ctrl_analyze": {
+   "skill": "matlab-control-optimization",
+   "status": "VERIFIED",
+   "tests": "test_ctrl_analyze.m 14/14",
+   "what": "all 0dB/-180 crossings, unwrapped phase, worst margin not first"
+  },
+  "mas_ctrl_aw_sim": {
+   "skill": "matlab-control-optimization",
+   "status": "VERIFIED",
+   "tests": "test_ctrl_analyze.m",
+   "what": "three anti-windup modes incl. back-calculation divided by Ki"
+  },
+  "mas_ctrl_pid_design": {
+   "skill": "matlab-control-optimization",
+   "status": "VERIFIED",
+   "tests": "test_ctrl_analyze.m",
+   "what": "max bandwidth subject to a margin constraint; feasible=false when impossible"
+  },
+  "mas_table_audit": {
+   "skill": "matlab-data-analysis",
+   "status": "VERIFIED",
+   "tests": "test_table_audit.m 11/11",
+   "what": "row ledger: balanced = nIn == nOut + nDropped, each row judged once"
+  },
+  "mas_pipeline": {
+   "skill": "matlab-orchestrator",
+   "status": "VERIFIED",
+   "tests": "mas_pipeline 15/15",
+   "what": "prompt->route->products->execute->independent verify, with per-step trace"
+  },
+  "mas_route": {
+   "skill": "matlab-orchestrator",
+   "status": "VERIFIED",
+   "tests": "test_routing.m 9/9",
+   "what": "weighted router; CLARIFY/AMBIGUOUS instead of guessing"
+  },
+  "mas_ekf_check": {
+   "skill": "matlab-robotics-autonomy",
+   "status": "VERIFIED",
+   "tests": "test_robotics.m",
+   "what": "NEES/NIS consistency with a two-sided chi-square band"
+  },
+  "mas_frame_check": {
+   "skill": "matlab-robotics-autonomy",
+   "status": "VERIFIED",
+   "tests": "test_robotics.m",
+   "what": "SE(3)/SO(3) hygiene; orthErr and det reported separately"
+  },
+  "mas_kin_check": {
+   "skill": "matlab-robotics-autonomy",
+   "status": "VERIFIED",
+   "tests": "test_robotics.m",
+   "what": "planar n-R FK; analytic vs central-difference Jacobian element-wise"
+  },
+  "mas_kin_ik": {
+   "skill": "matlab-robotics-autonomy",
+   "status": "VERIFIED",
+   "tests": "test_robotics.m",
+   "what": "DLS + step clamp + joint limits; reports raw and clamped step"
+  },
+  "mas_dep_probe": {
+   "skill": "matlab-runner",
+   "status": "VERIFIED",
+   "tests": "test_dep_probe.m 26/26",
+   "what": "five-level dependency discovery, 8 named states, built-ins pinned, UAV resolved, and a probe that rescues a wrong feature name"
+  },
+  "mas_precheck": {
+   "skill": "matlab-runner",
+   "status": "VERIFIED",
+   "tests": "test_precheck.m 16/16",
+   "what": "8 cheap checks; toolbox delegates to mas_dep_probe"
+  },
+  "mas_product_map": {
+   "skill": "matlab-runner",
+   "status": "VERIFIED",
+   "tests": "36 rows, aliases tested",
+   "what": "product<->license feature table incl. historical names"
+  },
+  "mas_toolbox_map": {
+   "skill": "matlab-runner",
+   "status": "VERIFIED",
+   "tests": "used by mas_precheck",
+   "what": "thin wrapper kept for backward compatibility"
+  },
+  "mas_image_metrics": {
+   "skill": "matlab-signal-vision-ai",
+   "status": "VERIFIED",
+   "tests": "test_signal_vision.m",
+   "what": "IoU/Dice/P/R/F1 plus per-object matching by argmax over truth labels"
+  },
+  "mas_ofdm_ber": {
+   "skill": "matlab-signal-vision-ai",
+   "status": "VERIFIED",
+   "tests": "test_signal_vision.m",
+   "what": "OFDM+QPSK chain vs erfc; per-point tolerance from counting noise"
+  },
+  "mas_spectrum_check": {
+   "skill": "matlab-signal-vision-ai",
+   "status": "VERIFIED",
+   "tests": "test_signal_vision.m",
+   "what": "leakage, concentration, Parseval against the WINDOW-WEIGHTED power"
+  },
+  "mas_split_seed": {
+   "skill": "matlab-signal-vision-ai",
+   "status": "VERIFIED",
+   "tests": "test_signal_vision.m",
+   "what": "reproducible stratified split with leak assertions"
+  },
+  "mas_model_check": {
+   "skill": "matlab-simulink-modeling",
+   "status": "VERIFIED",
+   "tests": "test_model_check.m 2/2",
+   "what": "L0-L3 model lint"
+  },
+  "mas_bench_record": {
+   "skill": "matlab-testing-ci",
+   "status": "VERIFIED",
+   "tests": "test_bench.m 9/9",
+   "what": "R1/R2/R3 ledger; SKIP can never become PASS, UNKNOWN never collapses to SKIP"
+  },
+  "mas_grade": {
+   "skill": "matlab-testing-ci",
+   "status": "VERIFIED",
+   "tests": "test_grade.m 6/6",
+   "what": "ran/correct/meets, incl. CORRECT_NOT_ACCEPTED"
+  },
+  "mas_ref_derive": {
+   "skill": "matlab-testing-ci",
+   "status": "VERIFIED",
+   "tests": "15 references cross-checked",
+   "what": ">=2 independent methods per reference"
+  },
+  "mas_ref_spec": {
+   "skill": "matlab-testing-ci",
+   "status": "VERIFIED",
+   "tests": "15 grading specs",
+   "what": "field/op/tolerance/why, frozen alongside the values"
+  },
+  "mas_refcheck": {
+   "skill": "matlab-testing-ci",
+   "status": "VERIFIED",
+   "tests": "test_refcheck.m 11/11",
+   "what": "freeze/verify with SHA-256; two tamper attacks caught"
+  },
+  "mas_verify_task": {
+   "skill": "matlab-testing-ci",
+   "status": "VERIFIED",
+   "tests": "15 references, 15/15 cross-domain",
+   "what": "grades NUMBERS against the frozen manifest; never reads the task verdict"
+  },
+  "mas_capability_check": {
+   "skill": "matlab-testing-ci",
+   "status": "VERIFIED",
+   "tests": "test_capability_check.m",
+   "what": "keeps the matrix honest: every mas_*.m must be listed, owners must match disk, summary counts must be derived, and every VERIFIED claim must cite a test file or a graded task id"
+  },
+  "mas_skill_graph": {
+   "skill": "matlab-orchestrator",
+   "status": "VERIFIED",
+   "tests": "test_skill_graph.m 13/13",
+   "what": "builds the skill call graph from routing.json + SKILL.md + cross-skill script calls; detects cycles, dangling routes, duplicate loading; the detector is pinned against 8 graphs with known answers"
+  },
+  "mas_skill_audit": {
+   "skill": "matlab-testing-ci",
+   "status": "VERIFIED",
+   "tests": "test_bench.m (ledger shape) + live receipts",
+   "what": "five-stage skill audit (DISCOVERED/LOADED/SELECTED/WORKFLOW/ACCEPTED); a stage with no evidence stays UNOBSERVED, never silently OK"
+  },
+  "mas_phase43_grade": {
+   "skill": "matlab-testing-ci",
+   "status": "VERIFIED",
+   "tests": "53 graded runs in artifacts/validation/phase43/grade.json",
+   "what": "grades R1/R2/R3 runs against the frozen references; reads only the MAS_RESULT line, never the task's own verdict; a missing result is ERROR, not FAIL"
+  }
+ },
+ "toolsNote": "Generated from the files under skills/*/scripts. mas_capability_check.m fails when this drifts from disk, because a matrix that silently rots is worse than no matrix."
+}

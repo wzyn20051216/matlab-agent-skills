@@ -75,9 +75,22 @@ function Test-HashMatch {
 }
 
 function Get-FileSha256 {
+    <#
+    .SYNOPSIS
+    直接用 .NET 计算 SHA-256，避免嵌套 PS5.1 的模块路径导致 Get-FileHash 不可用。
+    #>
     param([Parameter(Mandatory)][string]$Path)
     if (-not (Test-Path -LiteralPath $Path)) { return $null }
-    return (Get-FileHash -LiteralPath $Path -Algorithm SHA256).Hash.ToUpperInvariant()
+    $sha = [System.Security.Cryptography.SHA256]::Create()
+    $stream = $null
+    try {
+        $stream = [System.IO.File]::OpenRead($Path)
+        return [System.BitConverter]::ToString($sha.ComputeHash($stream)).Replace('-', '')
+    }
+    finally {
+        if ($stream) { $stream.Dispose() }
+        $sha.Dispose()
+    }
 }
 
 #endregion
@@ -248,79 +261,266 @@ function Get-McpServerCandidatePaths {
     if ($ScriptRoot) {
         $candidates.Add((Join-Path $ScriptRoot "..\bin\matlab-mcp-server-windows-x64.exe"))
     }
-    $candidates.Add((Join-Path (Get-Location).Path "matlab-mcp-server-windows-x64.exe"))
+    # 不再把"当前工作目录"作为隐式候选：在共享目录/下载目录里执行时，
+    # 同名的攻击文件会被当作服务器执行（安全审查已复现：24 字节非 PE 文件被接受）。
+    # 确实要放在 CWD 时必须显式 -ServerExePath。
     $candidates.Add((Join-Path $HOME "Downloads\matlab-mcp-server-windows-x64.exe"))
     $candidates.Add((Join-Path $HOME "download\matlab-mcp-server-windows-x64.exe"))
     return [string[]]$candidates.ToArray()
 }
 
+function Get-McpServerManifest {
+    <#
+    .SYNOPSIS
+    读取固定的 MCP server 发布清单（config/mcp-server-manifest.json）。
+
+    没有清单就拒绝自动下载与执行：fail closed，而不是"没有哈希就当作可信"。
+    #>
+    [CmdletBinding()]
+    param([string]$RepositoryRoot)
+    if (-not $RepositoryRoot) { $RepositoryRoot = Split-Path -Parent $PSScriptRoot }
+    $manifestPath = Join-Path $RepositoryRoot "config/mcp-server-manifest.json"
+    if (-not (Test-Path -LiteralPath $manifestPath)) {
+        throw ("缺少 MCP server 固定发布清单: $manifestPath。" +
+            " 为避免执行未经校验的二进制，本工具链拒绝在无清单时自动下载或执行。" +
+            " 手动安装：从 https://github.com/matlab/matlab-mcp-server/releases 下载与你的 MATLAB 匹配的版本，" +
+            "校验其 SHA-256 后用 -ServerExePath <路径> 显式指定（或 -AllowUnverifiedServer 明确承担风险）。")
+    }
+    $data = $null
+    try { $data = [IO.File]::ReadAllText($manifestPath) | ConvertFrom-Json }
+    catch { throw "MCP server 清单无法解析: $manifestPath（$($_.Exception.Message)）" }
+    if ($data.schema -ne "mas-mcp-server-manifest/1") { throw "MCP server 清单 schema 不受支持: $($data.schema)" }
+    if (-not $data.upstream -or -not $data.upstream.releaseTag -or [string]$data.upstream.releaseTag -notmatch '^v[0-9]+\.[0-9]+\.[0-9]+') {
+        throw "MCP server 清单的 upstream.releaseTag 未固定为具体版本（不得使用 latest）。"
+    }
+    [pscustomobject]@{ Path = $manifestPath; Data = $data; ReleaseTag = [string]$data.upstream.releaseTag }
+}
+
+function Get-McpServerAssetName {
+    <# .SYNOPSIS 按当前平台选择清单条目名；不做跨平台猜测。 #>
+    if ([Environment]::OSVersion.Platform -eq [PlatformID]::Win32NT) { return "matlab-mcp-server-windows-x64.exe" }
+    $uname = ""
+    try { $uname = (& uname -sm 2>$null) -join " " } catch { $uname = "" }
+    if ($uname -match "Darwin.*arm64") { return "matlab-mcp-server-macos-arm64" }
+    if ($uname -match "Darwin") { return "matlab-mcp-server-macos-x64" }
+    if ($uname -match "Linux.*x86_64") { return "matlab-mcp-server-linux-x64" }
+    throw "无法从平台信息（$uname）确定 MCP server 资产名；请在清单中显式添加该平台条目。"
+}
+
+function Get-McpServerAsset {
+    <# .SYNOPSIS 取某个平台的固定资产条目，并校验清单自身的一致性。 #>
+    [CmdletBinding()]
+    param($Manifest, [string]$AssetName)
+    if (-not $AssetName) { $AssetName = Get-McpServerAssetName }
+    $asset = $Manifest.Data.assets.PSObject.Properties[$AssetName]
+    if (-not $asset) {
+        throw "MCP server 清单缺少平台条目 '$AssetName'；拒绝猜测下载地址。请手动安装并用 -ServerExePath 指定。"
+    }
+    $a = $asset.Value
+    if ([string]$a.sha256 -notmatch '^[A-Fa-f0-9]{64}$') { throw "清单条目 $AssetName 的 sha256 非法。" }
+    $expectedFragment = "/releases/download/$($Manifest.ReleaseTag)/"
+    if ([string]$a.url -notlike "*$expectedFragment*") { throw "清单条目 $AssetName 的 URL 与 releaseTag $($Manifest.ReleaseTag) 不一致。" }
+    if (-not $a.bytes -or [int64]$a.bytes -le 0) { throw "清单条目 $AssetName 缺少字节数，无法检测截断下载。" }
+    [pscustomobject]@{
+        Name      = $AssetName
+        Url       = [string]$a.url
+        Sha256    = ([string]$a.sha256).ToUpperInvariant()
+        Bytes     = [int64]$a.bytes
+        ReleaseTag = $Manifest.ReleaseTag
+    }
+}
+
+function Get-McpServerIntegrity {
+    <#
+    .SYNOPSIS 计算并核对二进制完整性。
+
+    Hashed   = 已经算过哈希（任何文件都能算）
+    Verified = 哈希与固定清单一致（这才叫"可信来源已验证"）
+    #>
+    [CmdletBinding()]
+    param([Parameter(Mandatory)][string]$Path, $Asset)
+    if (-not (Test-Path -LiteralPath $Path)) { throw "文件不存在: $Path" }
+    $sha = (Get-FileSha256 -Path $Path).ToUpperInvariant()
+    $size = (Get-Item -LiteralPath $Path).Length
+    $matchesHash = $false
+    if ($Asset) { $matchesHash = [string]::Equals($sha, $Asset.Sha256, [StringComparison]::OrdinalIgnoreCase) }
+    [pscustomobject]@{
+        Path             = $Path
+        Sha256           = $sha
+        Bytes            = $size
+        ExpectedSha256   = if ($Asset) { $Asset.Sha256 } else { $null }
+        ExpectedBytes    = if ($Asset) { $Asset.Bytes } else { $null }
+        Hashed           = $true
+        Verified         = $matchesHash
+        ReleaseTag       = if ($Asset) { $Asset.ReleaseTag } else { $null }
+        Source           = if ($Asset) { $Asset.Url } else { $null }
+        IntegrityStatus  = if ($matchesHash) { "VERIFIED_AGAINST_MANIFEST" } elseif ($Asset) { "HASH_MISMATCH" } else { "UNVERIFIED_NO_MANIFEST_ENTRY" }
+    }
+}
+
+function Assert-McpServerTrusted {
+    <# .SYNOPSIS Verified=false 绝不能被静默当成安装成功；只有操作员显式授权才放行并记录。 #>
+    [CmdletBinding()]
+    param($Server, [switch]$AllowUnverifiedServer)
+    if ($Server -and $Server.Verified -eq $true) { return }
+    if ($AllowUnverifiedServer) {
+        Write-Warning ("正在使用未经固定清单校验的 MCP server: $($Server.Path)（SHA256=$($Server.Sha256)）。" +
+            " 状态记为 UNVERIFIED_ACCEPTED_BY_OPERATOR，安装摘要不会把它标为已验证。")
+        return
+    }
+    throw ("MCP server 未通过固定清单校验（Verified=false），拒绝继续执行。" +
+        " 路径: $($Server.Path)；实际 SHA256: $($Server.Sha256)。" +
+        " 处理方式：1) 删除该文件后重跑以从固定版本重新下载；2) 或传入 -ExpectedServerSha256 显式固定；" +
+        " 3) 或从官方 releases 手动下载并校验后用 -ServerExePath 指定；" +
+        " 4) 明确接受风险时加 -AllowUnverifiedServer（会被记录为非验证状态）。")
+}
+
 function Resolve-McpServerExecutable {
     <#
     .SYNOPSIS
-    找到或下载 MCP server 可执行文件。
+    找到或下载 MCP server 可执行文件，并强制对照固定发布清单校验。
 
-    安全措施：下载走 Save-VerifiedDownload（HTTPS、临时文件、可选 SHA256、原子替换），
-    已存在文件默认复用（幂等），可用 -ForceDownload 覆盖。
+    安全策略（Phase 4.7）：
+    - 下载地址来自 config/mcp-server-manifest.json 的固定 release tag，不再用 releases/latest；
+    - 本地已有文件和下载结果都必须匹配清单 SHA-256 才会被标记 Verified；
+    - 清单缺失、平台条目缺失、哈希不符、字节数不符都 fail closed，并给出手动安装指引；
+    - 只有显式 -AllowUnverifiedServer 才允许使用未验证二进制，且状态必须记录为未验证。
     #>
     [CmdletBinding()]
     param(
         [string]$Hint,
-        [string]$DownloadUrl = "https://github.com/matlab/matlab-mcp-server/releases/latest/download/matlab-mcp-server-windows-x64.exe",
+        [string]$DownloadUrl,
         [string]$ScriptRoot,
         [string]$ExpectedSha256 = "",
+        [string]$RepositoryRoot,
         [switch]$NoDownload,
         [switch]$ForceDownload,
+        [switch]$AllowUnverifiedServer,
         [switch]$DryRun
     )
+
+    if (-not $RepositoryRoot) {
+        $RepositoryRoot = if ($ScriptRoot) { Split-Path -Parent $ScriptRoot } else { Split-Path -Parent $PSScriptRoot }
+    }
+
+    $manifest = $null; $asset = $null; $manifestProblem = $null
+    try { $manifest = Get-McpServerManifest -RepositoryRoot $RepositoryRoot } catch { $manifestProblem = $_.Exception.Message }
+    if ($manifest) {
+        try { $asset = Get-McpServerAsset -Manifest $manifest } catch { $manifestProblem = $_.Exception.Message }
+    }
+
+    $build = {
+        param($path, $source, $integrityStatus, $downloaded)
+        $sha = $null; $bytes = 0
+        if ($path -and (Test-Path -LiteralPath $path)) {
+            $sha = (Get-FileSha256 -Path $path).ToUpperInvariant()
+            $bytes = (Get-Item -LiteralPath $path).Length
+        }
+        $verified = ($integrityStatus -eq "VERIFIED_AGAINST_MANIFEST")
+        [pscustomobject]@{
+            Path            = $path
+            Source          = $source
+            Sha256          = $sha
+            Bytes           = $bytes
+            Hashed          = [bool]$sha
+            Verified        = $verified
+            IntegrityStatus = $integrityStatus
+            ReleaseTag      = if ($asset) { $asset.ReleaseTag } else { $null }
+            DownloadSource  = if ($asset) { $asset.Url } else { $DownloadUrl }
+            Downloaded      = [bool]$downloaded
+        }
+    }
 
     if ($Hint) {
         if (-not (Test-Path -LiteralPath $Hint)) { throw "指定的 ServerExePath 不存在: $Hint" }
         $resolved = (Resolve-Path -LiteralPath $Hint).Path
-        return [pscustomobject]@{
-            Path     = $resolved
-            Source   = "explicit"
-            Sha256   = (Get-FileSha256 -Path $resolved)
-            Verified = (Test-HashMatch -Expected $ExpectedSha256 -Actual (Get-FileSha256 -Path $resolved))
-            Downloaded = $false
+        if (-not $asset) {
+            if (-not $AllowUnverifiedServer) { throw ($manifestProblem + " 因此拒绝使用未校验的文件: $resolved。") }
+            return (& $build $resolved "explicit" "UNVERIFIED_ACCEPTED_BY_OPERATOR" $false)
         }
+        $integrity = Get-McpServerIntegrity -Path $resolved -Asset $asset
+        if ($integrity.Verified) { return (& $build $resolved "explicit" $integrity.IntegrityStatus $false) }
+        if ($ExpectedSha256 -and (Test-HashMatch -Expected $ExpectedSha256 -Actual $integrity.Sha256)) {
+            return (& $build $resolved "explicit" "VERIFIED_AGAINST_OPERATOR_DIGEST" $false)
+        }
+        if ($AllowUnverifiedServer) { return (& $build $resolved "explicit" "UNVERIFIED_ACCEPTED_BY_OPERATOR" $false) }
+        throw ("指定的 MCP server 与固定清单不匹配：期望 $($asset.Sha256)（$($asset.ReleaseTag)），实际 $($integrity.Sha256)。" +
+            " 可能被替换或版本不符；已拒绝执行。确认无误可加 -AllowUnverifiedServer，或删除后用 -ForceDownload 重新获取。")
     }
 
     foreach ($candidate in (Get-McpServerCandidatePaths -ScriptRoot $ScriptRoot)) {
-        if (Test-Path -LiteralPath $candidate) {
-            $resolved = (Resolve-Path -LiteralPath $candidate).Path
-            $sha = Get-FileSha256 -Path $resolved
-            return [pscustomobject]@{
-                Path     = $resolved
-                Source   = "existing"
-                Sha256   = $sha
-                Verified = (Test-HashMatch -Expected $ExpectedSha256 -Actual $sha)
-                Downloaded = $false
-            }
+        if (-not (Test-Path -LiteralPath $candidate)) { continue }
+        $resolved = (Resolve-Path -LiteralPath $candidate).Path
+        if (-not $asset) {
+            if ($AllowUnverifiedServer) { return (& $build $resolved "existing" "UNVERIFIED_ACCEPTED_BY_OPERATOR" $false) }
+            throw ($manifestProblem + " 因此拒绝使用未校验的现有文件: $resolved。")
         }
+        $integrity = Get-McpServerIntegrity -Path $resolved -Asset $asset
+        if ($integrity.Verified) { return (& $build $resolved "existing" $integrity.IntegrityStatus $false) }
+        if ($ForceDownload) {
+            Write-Warning "现有文件 $resolved 与固定清单不匹配（期望 $($asset.Sha256)，实际 $($integrity.Sha256)），将重新下载。"
+            break
+        }
+        if ($AllowUnverifiedServer) { return (& $build $resolved "existing" "UNVERIFIED_ACCEPTED_BY_OPERATOR" $false) }
+        throw ("现有 MCP server 文件与固定清单不匹配：$resolved（期望 $($asset.Sha256)，实际 $($integrity.Sha256)）。" +
+            " 为避免执行被替换的二进制已拒绝；确认后可用 -ForceDownload 重新获取，或删除该文件。")
     }
 
     if ($NoDownload) {
-        throw "未找到 matlab-mcp-server 可执行文件，且指定了 -NoDownload。请用 -ServerExePath 显式传入。"
+        throw ("未找到与固定清单匹配的 matlab-mcp-server 可执行文件，且指定了 -NoDownload。" +
+            " 手动安装：从 https://github.com/matlab/matlab-mcp-server/releases/tag/$($manifest.ReleaseTag) 下载，" +
+            "校验 SHA-256 后用 -ServerExePath 显式指定。")
+    }
+    if (-not $asset) {
+        throw ($manifestProblem + " 为避免执行未校验的二进制，拒绝自动下载。请手动安装并用 -ServerExePath 指定。")
     }
 
-    $binDir = if ($ScriptRoot) { Join-Path $ScriptRoot "..\bin" } else { Join-Path (Get-Location).Path "bin" }
-    $downloadPath = Join-Path $binDir "matlab-mcp-server-windows-x64.exe"
+    $binDir = if ($ScriptRoot) { Join-Path $ScriptRoot "..\bin" } else { Join-Path $RepositoryRoot "bin" }
+    $downloadPath = Join-Path $binDir $asset.Name
+    $download = Save-VerifiedDownload -Uri $asset.Url -Destination $downloadPath `
+        -ExpectedSha256 $asset.Sha256 -ExpectedBytes $asset.Bytes -DryRun:$DryRun
 
-    $download = Save-VerifiedDownload -Uri $DownloadUrl -Destination $downloadPath `
-        -ExpectedSha256 $ExpectedSha256 -DryRun:$DryRun
-
-    return [pscustomobject]@{
-        Path       = $downloadPath
-        Source     = "download"
-        Sha256     = $download.Sha256
-        Verified   = $download.Verified
-        Downloaded = [bool]$download.Downloaded
+    if ($DryRun) { return (& $build $downloadPath "download" "DRY_RUN" $false) }
+    if (-not $download.Verified) {
+        throw ("下载得到的 MCP server 未通过固定清单校验（期望 $($asset.Sha256)）。已丢弃，不执行。" +
+            " 请检查网络/代理是否篡改内容，或手动安装后用 -ServerExePath 指定。")
     }
+    return (& $build $downloadPath "download" "VERIFIED_AGAINST_MANIFEST" $true)
 }
 
 #endregion
 
 #region 下载（P0-6）
+
+function Test-DownloadIntegrity {
+    <#
+    .SYNOPSIS 纯函数：判定一次下载是否可接受（可单测，不触碰网络）。
+
+    返回 Ok + Reason：TOO_SMALL / SIZE_MISMATCH / HASH_MISMATCH / NO_EXPECTED_DIGEST / VERIFIED。
+    "算过哈希"不等于"验证过来源"：没有期望摘要时一律不返回 Ok。
+    #>
+    [CmdletBinding()]
+    param(
+        [int64]$Bytes,
+        [string]$Sha256,
+        [string]$ExpectedSha256 = "",
+        [int64]$ExpectedBytes = 0,
+        [int]$MinimumBytes = 1024
+    )
+    if ($Bytes -lt $MinimumBytes) {
+        return [pscustomobject]@{ Ok = $false; Reason = "TOO_SMALL"; Detail = "只有 $Bytes 字节，低于最小阈值 $MinimumBytes（可能是错误页或截断）" }
+    }
+    if ($ExpectedBytes -gt 0 -and $Bytes -ne $ExpectedBytes) {
+        return [pscustomobject]@{ Ok = $false; Reason = "SIZE_MISMATCH"; Detail = "期望 $ExpectedBytes 字节，实际 $Bytes" }
+    }
+    if (-not $ExpectedSha256) {
+        return [pscustomobject]@{ Ok = $false; Reason = "NO_EXPECTED_DIGEST"; Detail = "未提供期望 SHA256，只能算过哈希、不能验证来源" }
+    }
+    if (-not (Test-HashMatch -Expected $ExpectedSha256 -Actual $Sha256)) {
+        return [pscustomobject]@{ Ok = $false; Reason = "HASH_MISMATCH"; Detail = "期望 $ExpectedSha256，实际 $Sha256" }
+    }
+    [pscustomobject]@{ Ok = $true; Reason = "VERIFIED"; Detail = "字节数与 SHA256 均匹配" }
+}
 
 function Save-VerifiedDownload {
     <#
@@ -333,6 +533,7 @@ function Save-VerifiedDownload {
         [Parameter(Mandatory)][string]$Uri,
         [Parameter(Mandatory)][string]$Destination,
         [string]$ExpectedSha256 = "",
+        [int64]$ExpectedBytes = 0,
         [int]$MinimumBytes = 1024,
         [switch]$AllowInsecure,
         [switch]$DryRun
@@ -353,6 +554,8 @@ function Save-VerifiedDownload {
         Verified   = $false
         Downloaded = $false
         DryRun     = [bool]$DryRun
+        Hashed     = $false
+        IntegrityStatus = "NOT_CHECKED"
     }
 
     if ($DryRun) {
@@ -384,15 +587,22 @@ function Save-VerifiedDownload {
 
         $sha = Get-FileSha256 -Path $tempPath
         $record.Sha256 = $sha
+        $record.Hashed = $true
 
-        if ($ExpectedSha256) {
-            if (-not (Test-HashMatch -Expected $ExpectedSha256 -Actual $sha)) {
-                throw "SHA256 校验失败。期望 $ExpectedSha256，实际 $sha。已丢弃下载内容。"
+        $verdict = Test-DownloadIntegrity -Bytes $size -Sha256 $sha -ExpectedSha256 $ExpectedSha256 `
+            -ExpectedBytes $ExpectedBytes -MinimumBytes $MinimumBytes
+        $record.IntegrityStatus = $verdict.Reason
+        if (-not $verdict.Ok) {
+            if ($verdict.Reason -eq "NO_EXPECTED_DIGEST") {
+                # 只"算过哈希"不等于"已验证来源"；调用方不得把这种状态当成成功。
+                Write-Warning "未提供期望 SHA256，无法校验下载文件来源完整性。实际 SHA256=$sha（记为未验证状态）。"
             }
-            $record.Verified = $true
+            else {
+                throw "下载校验失败[$($verdict.Reason)]：$($verdict.Detail)。已丢弃下载内容。"
+            }
         }
         else {
-            Write-Warning "未提供 -ExpectedServerSha256，无法校验下载文件来源完整性。实际 SHA256=$sha（已记录到安装摘要）。"
+            $record.Verified = $true
         }
 
         Move-Item -LiteralPath $tempPath -Destination $Destination -Force
@@ -1031,19 +1241,27 @@ function Get-DirectoryTreeHash {
     <#
     .SYNOPSIS
     目录内容指纹：按相对路径排序后对 “路径|SHA256” 聚合。
+    .PARAMETER ExcludeRelative
+    不参与聚合的相对路径（用户自己新增的文件），用于判断"受管内容是否一致"。
     #>
     [CmdletBinding()]
-    param([Parameter(Mandatory)][string]$Path)
+    param([Parameter(Mandatory)][string]$Path, [string[]]$ExcludeRelative = @())
 
     if (-not (Test-Path -LiteralPath $Path)) { return $null }
     $resolved = (Resolve-Path -LiteralPath $Path).Path
+    $excluded = New-Object 'System.Collections.Generic.HashSet[string]' ([StringComparer]::OrdinalIgnoreCase)
+    foreach ($relativePath in @($ExcludeRelative)) {
+        if ([string]::IsNullOrWhiteSpace($relativePath)) { continue }
+        [void]$excluded.Add((($relativePath -replace '\\', '/').TrimStart('/')))
+    }
 
     $lines = New-Object System.Collections.Generic.List[string]
     Get-ChildItem -LiteralPath $resolved -Recurse -File -Force -ErrorAction SilentlyContinue |
         Sort-Object FullName |
         ForEach-Object {
             $relative = $_.FullName.Substring($resolved.Length) -replace '^[\\/]+', '' -replace '\\', '/'
-            $fileHash = (Get-FileHash -LiteralPath $_.FullName -Algorithm SHA256).Hash
+            if ($excluded.Contains($relative)) { return }
+            $fileHash = Get-FileSha256 -Path $_.FullName
             $lines.Add("$($relative.ToLowerInvariant())|$fileHash")
         }
 
@@ -1143,8 +1361,22 @@ function Sync-SkillDirectory {
         [switch]$DryRun
     )
 
+    # 用户自己加进技能目录的文件（源目录没有的相对路径）不能在升级时被静默删掉；
+    # 同时它们不参与"受管内容是否一致"的判定，否则每次同步都会被判成 update。
+    $localExtras = @()
+    if (Test-Path -LiteralPath $Destination) {
+        $sourceRelative = New-Object 'System.Collections.Generic.HashSet[string]' ([StringComparer]::OrdinalIgnoreCase)
+        foreach ($file in @(Get-ChildItem -LiteralPath $Source -Recurse -File -Force)) {
+            [void]$sourceRelative.Add($file.FullName.Substring($Source.Length).TrimStart([char[]]'\/'))
+        }
+        foreach ($file in @(Get-ChildItem -LiteralPath $Destination -Recurse -File -Force)) {
+            $relative = $file.FullName.Substring($Destination.Length).TrimStart([char[]]'\/')
+            if (-not $sourceRelative.Contains($relative)) { $localExtras += $relative }
+        }
+    }
+
     $sourceHash = Get-DirectoryTreeHash -Path $Source
-    $destinationHash = Get-DirectoryTreeHash -Path $Destination
+    $destinationHash = Get-DirectoryTreeHash -Path $Destination -ExcludeRelative $localExtras
     $decision = Get-SkillSyncDecision -SourceHash $sourceHash -DestinationHash $destinationHash `
         -IsManaged $IsManaged -Force:$Force
 
@@ -1157,11 +1389,21 @@ function Sync-SkillDirectory {
         DestinationHash = $destinationHash
         BackupPath      = $null
         Message         = ""
+        PreservedUserFiles = @()
+        RestoredFromBackup = $false
+        RecreatedFiles  = 0
+        MissingAfterRestore = @()
     }
 
     switch ($decision) {
         "unchanged" {
-            $result.Message = "内容一致，跳过"
+            if ($localExtras.Count -gt 0) {
+                # 未交换也要如实报告"目录里存在用户文件"，否则脚本化消费者看到空数组会误判。
+                $result.PreservedUserFiles = [string[]]$localExtras
+                $result.Message = "受管内容一致，跳过（保留用户新增文件 $($localExtras.Count) 个）"
+            } else {
+                $result.Message = "内容一致，跳过"
+            }
             return $result
         }
         "conflict" {
@@ -1189,20 +1431,83 @@ function Sync-SkillDirectory {
                 $result.BackupPath = Save-DirectoryBackupToSession -Session $tempSession -Path $Destination -Label $Name
                 Save-BackupManifest -Session $tempSession
             }
-            Remove-Item -LiteralPath $Destination -Recurse -Force
+            # 必须显式 Stop：Remove-Item -Recurse 遇到被占用文件默认只报非终止错误，
+            # 会继续走到 Move-Item，最后把"缺文件的半装目录"当成成功上报。
+            Remove-Item -LiteralPath $Destination -Recurse -Force -ErrorAction Stop
         }
         elseif ($null -ne $Session) {
             Add-BackupRecord -Session $Session -Kind "dir-absent" -TargetPath $Destination | Out-Null
         }
 
-        Move-Item -LiteralPath $staging -Destination $Destination
+        Move-Item -LiteralPath $staging -Destination $Destination -ErrorAction Stop
+        # 交换后自检：目标必须包含源目录的全部文件，否则判失败并进入恢复路径。
+        $missingAfterSwap = @(Get-ChildItem -LiteralPath $Source -Recurse -File -Force | Where-Object {
+            $relativeFile = $_.FullName.Substring($Source.Length).TrimStart([char[]]'\/')
+            -not (Test-Path -LiteralPath (Join-Path $Destination $relativeFile))
+        })
+        if ($missingAfterSwap.Count -gt 0) {
+            throw "SYNC_INCOMPLETE: 交换后缺少 $($missingAfterSwap.Count) 个文件"
+        }
+        if ($localExtras.Count -gt 0 -and $result.BackupPath -and (Test-Path -LiteralPath $result.BackupPath)) {
+            $preserved = @()
+            foreach ($relative in $localExtras) {
+                $from = Join-Path $result.BackupPath $relative
+                $to = Join-Path $Destination $relative
+                if (-not (Test-Path -LiteralPath $from)) { continue }
+                $parent = Split-Path -Parent $to
+                if ($parent -and -not (Test-Path -LiteralPath $parent)) { New-Item -ItemType Directory -Force -Path $parent | Out-Null }
+                Copy-Item -LiteralPath $from -Destination $to -Force
+                $preserved += $relative
+            }
+            $result.PreservedUserFiles = [string[]]$preserved
+        }
         $result.Message = if ($decision -eq "install") { "已安装" } else { "已更新（旧版本已备份）" }
+        if (@($result.PreservedUserFiles).Count -gt 0) {
+            $result.Message += "；保留用户新增文件 $($result.PreservedUserFiles.Count) 个"
+        }
         return $result
     }
     catch {
         $result.Changed = $false
-        $result.Message = "同步失败: $($_.Exception.Message)"
-        throw
+        $result.Decision = "error"
+        # 单技能失败必须自愈。关键：不能再用"删除目标目录"来恢复——
+        # 失败原因往往正是某个文件被占用，再删一次会撞同一个锁；而且删除成功一半时
+        # 目标目录已经残缺。这里改成"只重建缺失文件"：仍在的文件（含被占用的那个）
+        # 保持原样，缺的从本次备份补回，因此不依赖任何删除操作。
+        $restored = $false
+        if ($result.BackupPath -and (Test-Path -LiteralPath $result.BackupPath)) {
+            try {
+                if (-not (Test-Path -LiteralPath $Destination)) { New-Item -ItemType Directory -Force -Path $Destination | Out-Null }
+                $backupRoot = (Resolve-Path -LiteralPath $result.BackupPath).Path
+                $recreated = 0
+                foreach ($backupFile in @(Get-ChildItem -LiteralPath $backupRoot -Recurse -File -Force)) {
+                    $relative = $backupFile.FullName.Substring($backupRoot.Length).TrimStart([char[]]'\/')
+                    $target = Join-Path $Destination $relative
+                    if (Test-Path -LiteralPath $target) { continue }
+                    $parent = Split-Path -Parent $target
+                    if ($parent -and -not (Test-Path -LiteralPath $parent)) { New-Item -ItemType Directory -Force -Path $parent | Out-Null }
+                    Copy-Item -LiteralPath $backupFile.FullName -Destination $target -Force -ErrorAction Stop
+                    $recreated++
+                }
+                foreach ($backupDirectory in @(Get-ChildItem -LiteralPath $backupRoot -Recurse -Directory -Force)) {
+                    $relative = $backupDirectory.FullName.Substring($backupRoot.Length).TrimStart([char[]]'\/')
+                    $target = Join-Path $Destination $relative
+                    if (-not (Test-Path -LiteralPath $target)) { New-Item -ItemType Directory -Force -Path $target | Out-Null }
+                }
+                $result.RecreatedFiles = $recreated
+                # 恢复成功的判据是"备份里的每个文件都已在目标上"，而不是"没抛异常"。
+                $stillMissing = @(Get-ChildItem -LiteralPath $backupRoot -Recurse -File -Force | Where-Object {
+                    $relativeFile = $_.FullName.Substring($backupRoot.Length).TrimStart([char[]]'\/')
+                    -not (Test-Path -LiteralPath (Join-Path $Destination $relativeFile))
+                })
+                $restored = ($stillMissing.Count -eq 0)
+                if (-not $restored) { $result.MissingAfterRestore = [string[]]$stillMissing }
+            } catch { $restored = $false }
+        }
+        $result.RestoredFromBackup = $restored
+        $result.Message = "同步失败: $($_.Exception.Message)" +
+            $(if ($restored) { "；已从备份补齐缺失文件（重建 $($result.RecreatedFiles) 个），被占用的文件保持原样" } else { "；未能恢复，可能留下半装目录，请检查" })
+        return $result
     }
     finally {
         if (Test-Path -LiteralPath $staging) {

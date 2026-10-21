@@ -1,0 +1,42 @@
+{
+  "schema": "mas-mcp-server-manifest/1",
+  "purpose": "Pinned, verifiable source of truth for the official MATLAB MCP server binary. No download or local binary may be treated as trusted unless its SHA-256 matches an entry here.",
+  "upstream": {
+    "repository": "https://github.com/matlab/matlab-mcp-server",
+    "releaseTag": "v0.15.0",
+    "publishedAt": "2026-10-15T18:25:29Z",
+    "digestSource": "GitHub Release API asset.digest (sha256) queried 2026-10-21 via `gh api repos/matlab/matlab-mcp-server/releases`; the same digest independently matched the locally downloaded v0.15.0 Windows asset.",
+    "doNotUseLatest": "The previous default used releases/latest/download, a moving target that cannot be pinned. It is intentionally not referenced anywhere in this manifest."
+  },
+  "assets": {
+    "matlab-mcp-server-windows-x64.exe": {
+      "platform": "windows",
+      "releaseTag": "v0.15.0",
+      "url": "https://github.com/matlab/matlab-mcp-server/releases/download/v0.15.0/matlab-mcp-server-windows-x64.exe",
+      "sha256": "A1F67DD917C5731F88399E1671EBE4F6959D2FD520C78DCAA1FAF3AD37EA9518",
+      "bytes": 19896160
+    },
+    "matlab-mcp-server-linux-x64": {
+      "platform": "linux",
+      "releaseTag": "v0.15.0",
+      "url": "https://github.com/matlab/matlab-mcp-server/releases/download/v0.15.0/matlab-mcp-server-linux-x64",
+      "sha256": "82EB7343F0613ABA2DE0A9D9E3EED13ADB9A6474C548CEC60830DB0376DA8B80",
+      "bytes": 19259552
+    },
+    "matlab-mcp-server-macos-arm64": {
+      "platform": "macos-arm64",
+      "releaseTag": "v0.15.0",
+      "url": "https://github.com/matlab/matlab-mcp-server/releases/download/v0.15.0/matlab-mcp-server-macos-arm64",
+      "sha256": "E1198D344A48393BB35D11993065190A3A883F8F1957A8576B9BBA8B8ADF0548",
+      "bytes": 18638752
+    },
+    "matlab-mcp-server-macos-x64": {
+      "platform": "macos-x64",
+      "releaseTag": "v0.15.0",
+      "url": "https://github.com/matlab/matlab-mcp-server/releases/download/v0.15.0/matlab-mcp-server-macos-x64",
+      "sha256": "9F8B43CB1061B637B2C5CD9BB264B6F644BEC3E560C88893B7AE7E0010067CB5",
+      "bytes": 20030528
+    }
+  },
+  "failurePolicy": "If the manifest is missing, the platform entry is absent, or a hash does not match, the installers must fail closed and print manual installation instructions. An unverified binary may only be used when the operator explicitly passes -AllowUnverifiedServer, and that state must be recorded as UNVERIFIED_ACCEPTED_BY_OPERATOR, never as success."
+}

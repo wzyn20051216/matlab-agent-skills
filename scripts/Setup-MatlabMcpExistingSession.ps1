@@ -46,6 +46,7 @@ param(
     [string]$ExpectedServerSha256 = "",
     [switch]$NoDownload,
     [switch]$ForceDownload,
+    [switch]$AllowUnverifiedServer,
 
     [string]$BackupRoot = "",
     [switch]$DryRun,
@@ -127,12 +128,15 @@ try {
     Write-Step "解析 MATLAB MCP Server 可执行文件"
     $server = Resolve-McpServerExecutable -Hint $ServerExePath -DownloadUrl $McpServerDownloadUrl `
         -ScriptRoot $PSScriptRoot -ExpectedSha256 $ExpectedServerSha256 `
-        -NoDownload:$NoDownload -ForceDownload:$ForceDownload -DryRun:$DryRun
+        -NoDownload:$NoDownload -ForceDownload:$ForceDownload -AllowUnverifiedServer:$AllowUnverifiedServer -DryRun:$DryRun
 
     $report.serverExePath = $server.Path
     $report.serverExeSha256 = $server.Sha256
     $report.serverExeVerified = [bool]$server.Verified
-    Write-Info "server: $($server.Path) (source=$($server.Source))"
+    $report.serverReleaseTag = $server.ReleaseTag
+    $report.serverIntegrity = $server.IntegrityStatus
+    $report.serverDownloadSrc = $server.DownloadSource
+    Write-Info "server: $($server.Path) (source=$($server.Source), release=$($server.ReleaseTag), integrity=$($server.IntegrityStatus))"
 
     Write-Step "解析 MATLAB 安装目录"
     $resolvedMatlabRoot = Resolve-MatlabRoot -Hint $MatlabRoot
@@ -147,6 +151,10 @@ try {
     }
 
     Write-Step "安装 MATLAB MCP Server Toolbox"
+    # 真正执行二进制前必须先确认它可信；Verified=false 不得静默继续。
+    if (-not $DryRun) {
+        Assert-McpServerTrusted -Server $server -AllowUnverifiedServer:$AllowUnverifiedServer
+    }
     if ($DryRun) {
         Write-Info "[DryRun] $($server.Path) --setup-matlab --matlab-root=$resolvedMatlabRoot"
     }

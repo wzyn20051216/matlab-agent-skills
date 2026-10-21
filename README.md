@@ -16,6 +16,12 @@ Full capability statement: this repository is open source, but its full workflow
 - Chinese project introduction: `docs/SKILLS_INTRO_ZH.md`
 - Short-video script (Chinese): `docs/SHORT_VIDEO_SCRIPT_ZH.md`
 - Official MATLAB MCP guide: `docs/MCP_EXISTING_SESSION_ZH.md`
+- CLI / Desktop 共享安装与卸载：[安装说明](docs/SKILL_INSTALLATION_ZH.md)
+- 双端独立验收与可见桌面启动：[验收记录](docs/PHASE4_4_DUAL_CLIENT_ZH.md)、[启动说明](docs/MATLAB_DESKTOP_STARTUP_ZH.md)
+- 安装与执行基础设施可靠性收尾（缺陷逐项结论、免费层 270/270、平台范围）：[Phase 4.4.1 记录](docs/PHASE4_4_1_RELIABILITY_ZH.md)
+- Windows 测试版说明、验证边界与卸载回滚：[WINDOWS_BETA_ZH](docs/WINDOWS_BETA_ZH.md)
+- 故障排查：[TROUBLESHOOTING_ZH](docs/TROUBLESHOOTING_ZH.md)
+- 支持环境矩阵（哪些实测、哪些没测）：[SUPPORT_MATRIX_ZH](docs/SUPPORT_MATRIX_ZH.md)
 - Changelog: `CHANGELOG.md`
 
 ## Highlights
@@ -44,12 +50,24 @@ This repository provides that workflow layer:
 
 ## Installation
 
-Clone the repository:
+> **Version note (read this first).** `main` currently predates the validated Windows release:
+> it ships the nine skills but in their **older, pre-Phase-4 form**, and it does not contain the
+> desktop launcher, the MCP code runner, the uninstaller or the release docs. A plain
+> `git clone` of `main` therefore installs the **old** skills, not the ones this README documents.
+> Until the reviewed merge into `main` lands, install the **pinned preview version** below.
+
+### Windows technical preview — pinned version
 
 ```powershell
-git clone https://github.com/wzyn20051216/matlab-agent-skills.git
+# pinned, reproducible: tag v0.6.0-preview.1
+git clone --branch v0.6.0-preview.1 --depth 1 https://github.com/wzyn20051216/matlab-agent-skills.git
 cd matlab-agent-skills
+git rev-parse HEAD
+git rev-parse 'v0.6.0-preview.1^{commit}'   # the two values must match
 ```
+
+`release/windows-preview` is the same content as a mutable branch, if you prefer a branch name.
+Neither is a GitHub Release; both are technical-preview entry points and can be re-cut.
 
 Deploy the skills into your local Codex skill directory:
 
@@ -57,11 +75,56 @@ Deploy the skills into your local Codex skill directory:
 powershell -ExecutionPolicy Bypass -File .\scripts\Sync-Skills.ps1
 ```
 
-Windows one-liner bootstrap:
+默认安装到当前操作系统用户的 `.agents/skills`，Windows CLI 与 Desktop 共用一份；
+WSL 使用自己的 Linux 用户目录。实际发现、正文加载与 MCP 执行分别验收，详见
+[共享安装说明](docs/SKILL_INSTALLATION_ZH.md)。
+
+### After `main` is updated
+
+Only once the audited merge lands does the default clone give the validated version:
 
 ```powershell
-irm https://raw.githubusercontent.com/wzyn20051216/matlab-agent-skills/main/scripts/Bootstrap-MatlabAgentSkills.ps1 | iex
+git clone https://github.com/wzyn20051216/matlab-agent-skills.git
+cd matlab-agent-skills
+git rev-parse HEAD   # should then match the released tag
 ```
+
+There is intentionally **no** `irm … | iex` one-liner in this preview: the only one available
+today reads the moving `main` branch, which is still the old code, and piping a moving branch
+into `iex` is exactly the supply-chain pattern this release is trying to remove. Use the pinned
+clone above; a pinned one-liner can be added once `main` is updated to the released tag.
+
+## Windows beta status (technical preview)
+
+This repository is a **Windows technical preview**. The open-source code is not a MATLAB licence:
+running these skills requires your own valid MathWorks licence and the relevant toolboxes.
+
+Verified on the reference machine (details and evidence paths in [WINDOWS_BETA_ZH](docs/WINDOWS_BETA_ZH.md)):
+
+- free test layer **270/270** on Windows PowerShell 5.1 and PowerShell 7;
+- default install to `%USERPROFILE%\.agents\skills`: 9 skills, 62 files, tree hashes identical to `skills/`;
+- upgrade, idempotent re-sync, user-file preservation, failure rollback, and scoped uninstall;
+- **Codex CLI 0.147.0** and **Codex Desktop engine 0.163.0-alpha.10.2** both discover 9/9 skills with `discoveryErrors=[]`;
+- MATLAB MCP cold start, session binding and reuse.
+
+Not verified — do not assume:
+
+- autonomous CLI/Desktop task execution in this round (the Codex backend was unreachable from this host);
+- Desktop UI visibility (only engine-level discovery was proven);
+- any R1/R2/R3 "skills improve the agent" claim (blocked; no agent runs, therefore no gain claim);
+- `ComDesktop` launch mode (UNSUPPORTED under a Windows Job that forbids breakaway);
+- WSL / Linux / macOS (path-resolution logic only, no real machine).
+
+After installing, run one real task instead of a toy prompt:
+
+```text
+单位负反馈系统，开环传递函数 L(s)=10/((s+1)(s+2))。
+请报告 0 dB 交越处的相位裕度、增益裕度、闭环是否稳定以及闭环极点，
+并用官方 MATLAB MCP 在真实 MATLAB 里算，不要手算。
+```
+
+Expected: `matlab-control-optimization` + `matlab-runner` are used through the official MCP, and the
+numbers come back as PM ≈ 55.862240°, GM = Inf, closed-loop stable, poles −1.5 ± 3.1224989992j.
 
 ## Clients
 
