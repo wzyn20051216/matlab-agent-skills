@@ -17,7 +17,7 @@ param(
     [string]$InstallDir = (Join-Path $HOME "matlab-agent-skills"),
     [string]$RepoUrl = "https://github.com/wzyn20051216/matlab-agent-skills.git",
     [string]$RepoZipUrl = "https://github.com/wzyn20051216/matlab-agent-skills/archive/refs/heads/main.zip",
-    [string]$McpServerDownloadUrl = "https://github.com/matlab/matlab-mcp-server/releases/latest/download/matlab-mcp-server-windows-x64.exe",
+    [string]$McpServerDownloadUrl = "",
     [string]$ServerName = "matlab-official",
     [ValidateSet("auto", "existing", "new")]
     [string]$SessionMode = "auto",
@@ -32,6 +32,7 @@ param(
     [switch]$SkipBaseSetup,
     [switch]$SkipSkillsSync,
     [switch]$NoDownload,
+    [switch]$AllowUnverifiedServer,
     [switch]$Force,
     [switch]$DryRun
 )
@@ -127,27 +128,18 @@ Write-Step "解析 MATLAB 安装目录"
 $resolvedMatlabRoot = Resolve-MatlabRoot -Hint $MatlabRoot
 Write-Info "matlabRoot: $resolvedMatlabRoot"
 
-Write-Step "准备 MATLAB MCP Server 二进制"
-$binPath = Join-Path (Join-Path $repoDir "bin") "matlab-mcp-server-windows-x64.exe"
-$serverExePath = $null
-$serverSha = $null
-$serverVerified = $false
-
-if ((Test-Path -LiteralPath $binPath) -and -not $Force) {
-    $serverExePath = $binPath
-    $serverSha = Get-FileSha256 -Path $binPath
-    $serverVerified = Test-HashMatch -Expected $ExpectedServerSha256 -Actual $serverSha
-    Write-Info "复用已有二进制（幂等，未重复下载）: $binPath"
-}
-else {
-    if ($NoDownload) {
-        throw "本地没有 $binPath，且指定了 -NoDownload。"
-    }
-    $download = Save-VerifiedDownload -Uri $McpServerDownloadUrl -Destination $binPath `
-        -ExpectedSha256 $ExpectedServerSha256 -DryRun:$DryRun
-    $serverExePath = $binPath
-    $serverSha = $download.Sha256
-    $serverVerified = [bool]$download.Verified
+Write-Step "准备 MATLAB MCP Server 二进制（固定清单校验）"
+$server = Resolve-McpServerExecutable -ScriptRoot (Join-Path $repoDir "scripts") `
+    -DownloadUrl $McpServerDownloadUrl -ExpectedSha256 $ExpectedServerSha256 `
+    -NoDownload:$NoDownload -ForceDownload:$Force -AllowUnverifiedServer:$AllowUnverifiedServer -DryRun:$DryRun
+$binPath = $server.Path
+$serverExePath = $server.Path
+$serverSha = $server.Sha256
+$serverVerified = [bool]$server.Verified
+Write-Info "server: $binPath (source=$($server.Source), release=$($server.ReleaseTag), integrity=$($server.IntegrityStatus))"
+# Verified=false 不能被静默当成成功；DryRun 只预演，不做信任断言。
+if (-not $DryRun) {
+    Assert-McpServerTrusted -Server $server -AllowUnverifiedServer:$AllowUnverifiedServer
 }
 
 if (-not $SkipSkillsSync) {

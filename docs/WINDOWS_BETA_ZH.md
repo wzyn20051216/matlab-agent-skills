@@ -82,6 +82,27 @@ powershell -ExecutionPolicy Bypass -File .\scripts\Start-MatlabDesktop.ps1 -Time
 - **Codex 客户端**：需要 Codex CLI 或 Codex Desktop 及可用账号；账号额度/网络由用户侧决定。
 - **本项目许可**：见仓库 LICENSE（开源不等于 MATLAB 免费）。
 
+## 4.1 MCP 二进制供应链校验（Phase 4.7）
+
+安装器不再从 `releases/latest` 取二进制。固定清单是 `config/mcp-server-manifest.json`：
+它把 **release tag、下载 URL、SHA-256、字节数** 写死，安装与执行都以它为准。
+
+- **只有哈希匹配清单才算"已验证"**。算过哈希（`Hashed=true`）不等于验证过来源（`Verified=true`）。
+- 清单缺失、平台条目缺失、哈希不符、字节数不符 → **fail closed**，并给出手动安装指引。
+- 已存在的 `bin/` 二进制也会被校验；不匹配会被拒绝使用（可 `-ForceDownload` 重新获取）。
+- 确实要使用未校验二进制时，必须显式 `-AllowUnverifiedServer`，状态记录为
+  `UNVERIFIED_ACCEPTED_BY_OPERATOR`，不会被当成安装成功。
+- 自己复核：
+
+```powershell
+(Get-FileHash .\bin\matlab-mcp-server-windows-x64.exe -Algorithm SHA256).Hash
+# 与 config/mcp-server-manifest.json 中 assets.'matlab-mcp-server-windows-x64.exe'.sha256 比对
+```
+
+当前固定上游 **v0.15.0**；升级版本时改清单里的 tag/URL/sha256/bytes，并重跑
+`tests/McpSupplyChain.Tests.ps1`。手动安装：从上游 releases 下载对应平台文件，校验后用
+`-ServerExePath <路径>` 指定。
+
 ## 5. MCP 安装与配置
 
 ```powershell

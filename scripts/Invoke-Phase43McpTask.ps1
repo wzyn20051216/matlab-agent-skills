@@ -51,7 +51,7 @@ $pathPrefix = ($skillsPath -join [System.IO.Path]::PathSeparator)
 $code = ""
 if ($WithSkills -eq "1" -and $pathPrefix -ne "") {
     # forward slashes: a backslash inside a MATLAB single-quoted string is an
-    # escape character, so 'C:\Users\...' arrives with \U and \t mangled.
+    # escape character, so 'C:\Users\<user>\...' arrives with \U and \t mangled.
     $code += "addpath('$($pathPrefix.Replace('\','/'))'); "
 }
 # run() with a BARE NAME searches the MATLAB path; run() with a full path does
@@ -60,7 +60,7 @@ if ($WithSkills -eq "1" -and $pathPrefix -ne "") {
 #
 # The path is converted to forward slashes and the quotes are doubled: a
 # backslash inside a MATLAB single-quoted string is an ESCAPE character, so
-# 'C:\Users\...' would arrive with \U and \t mangled.
+# 'C:\Users\<user>\...' would arrive with \U and \t mangled.
 $matlabPath = $scriptPath.Replace("\", "/")
 $code += "run('$matlabPath');"
 

@@ -59,7 +59,12 @@ jobs:
             Where-Object { $_.Extension -in '.md', '.ps1', '.psm1', '.m', '.json', '.yml', '.yaml', '.txt' } |
             Select-Object -ExpandProperty FullName
 
-          $matches = Select-String -Path $files -Pattern 'C:\\Users\\[^<]|[ED]:\\' -AllMatches
+          # 判据与 tests/MatlabAgentSkills.Core.Tests.ps1 对齐：
+          # 1) 盘符绝对路径：正斜杠与反斜杠两种写法都算；左界排除 name 冒号空白转义这类误报
+          # 2) C:\Users\ 允许 <user> 占位符与测试固定的 alice 夹具
+          $drivePattern = '(?<![A-Za-z0-9_])[ED]:[\\/](?![A-Za-z]:)'
+          $userPattern  = 'C:\\Users\\(?!<|alice\b)'
+          $matches = Select-String -Path $files -Pattern $drivePattern, $userPattern -AllMatches
           if ($matches) {
             $matches | ForEach-Object {
               "{0}:{1}:{2}" -f $_.Path, $_.LineNumber, $_.Line.Trim()

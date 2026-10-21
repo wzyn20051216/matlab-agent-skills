@@ -4,6 +4,32 @@ All notable changes to this project will be documented here.
 
 ## Unreleased
 
+### Phase 4.7：最终安全修复与合并门禁
+
+- **MCP Server 供应链改为固定清单 + fail closed**：新增 `config/mcp-server-manifest.json`，
+  固定上游 **v0.15.0** 的 release tag、下载 URL、SHA-256 与字节数（摘要取自 GitHub Release API
+  的 `asset.digest`，并与本机已验证二进制交叉一致）。安装器不再使用 `releases/latest`；
+  清单缺失/条目缺失/哈希不符/字节数不符一律拒绝；已存在的 `bin/` 二进制同样校验；
+  `Verified=false` 只有在显式 `-AllowUnverifiedServer` 下才放行，且状态记为
+  `UNVERIFIED_ACCEPTED_BY_OPERATOR`，绝不当成安装成功。安装摘要新增
+  `serverReleaseTag` / `serverIntegrity` / `serverDownloadSrc`。
+- **共享会话清理改为归属校验**：`Start-MatlabSharedSession.ps1` 不再按 `sessionDetails.json`
+  的 PID 强制结束。启动时写本次运行的所有者文件（PID + StartTime + 可执行路径 + Windows
+  会话 id + runId），清理前逐项复核；PID 回收、exe 路径不符、会话不符、进程已退出、
+  旧运行遗留的所有者文件都只报告不终止；默认温和关闭，`-AllowForceStop` 才强制。
+  就绪文件、日志与报告不含 `apiKey` / `certificate`。
+- **清除构建产物里的账号名**：`matlab/boost/models/*.slx` 的 OPC 元数据
+  (`metadata/coreProperties.xml`) 里嵌入了 Windows 账号名，纯文本扫描看不到（zip 压缩）。
+  已把 `dc:creator` / `cp:lastModifiedBy` 改为 `matlab-agent-skills`，并验证两个模型仍能
+  正常加载（59 / 62 个块）。
+- **修正 CI 门禁自身**：仓库卫生检查原来的正则同时有误报（把 `d:\n` 转义、`C:\Users\alice`
+  测试夹具判成机器路径）和漏报（不匹配正斜杠 `E:/`）。现在与 Pester 测试共用同一判据，
+  并允许 `<user>` 占位符与 alice 夹具；两处真实路径注释已改为占位符。
+- **ACL 测试可在任意宿主通过**：CI runner 的当前用户可能就是 `S-1-5-18`，与用例标的 SID
+  撞车导致 3 例失败；测试改为动态选取一个"外来 SID"并先清理同名 ACE，断言不再依赖宿主默认 ACE。
+- 免费层升至 **306/306**（增加供应链 12 例、进程清理 24 例），Windows PowerShell 5.1 与
+  PowerShell 7 各一遍、exit 0。**未合并 main、未创建 GitHub Release**（等待人工批准）。
+
 ### Phase 4.6：发布工程化与陌生用户安装验收
 
 - **版本入口与 main 解耦**：新增不可变标签 `v0.6.0-preview.1` 与分支 `release/windows-preview`
