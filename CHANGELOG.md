@@ -22,9 +22,9 @@ All notable changes to this project will be documented here.
   (`metadata/coreProperties.xml`) 里嵌入了 Windows 账号名，纯文本扫描看不到（zip 压缩）。
   已把 `dc:creator` / `cp:lastModifiedBy` 改为 `matlab-agent-skills`，并验证两个模型仍能
   正常加载（59 / 62 个块）。
-- **修正 CI 门禁自身**：仓库卫生检查原来的正则同时有误报（把 `d:\n` 转义、`C:\Users\alice`
-  测试夹具判成机器路径）和漏报（不匹配正斜杠 `E:/`）。现在与 Pester 测试共用同一判据，
-  并允许 `<user>` 占位符与 alice 夹具；两处真实路径注释已改为占位符。
+- **修正 CI 门禁自身**：仓库卫生检查原来的正则同时有误报（把 MATLAB 字符串里的换行转义、
+  以及测试夹具里的假用户目录判成机器路径）和漏报（不匹配正斜杠写法）。现在与 Pester 测试
+  共用同一判据，并允许占位符与固定夹具；两处真实路径注释已改为占位符。
 - **ACL 测试可在任意宿主通过**：CI runner 的当前用户可能就是 `S-1-5-18`，与用例标的 SID
   撞车导致 3 例失败；测试改为动态选取一个"外来 SID"并先清理同名 ACE，断言不再依赖宿主默认 ACE。
 - 免费层升至 **306/306**（增加供应链 12 例、进程清理 24 例），Windows PowerShell 5.1 与
