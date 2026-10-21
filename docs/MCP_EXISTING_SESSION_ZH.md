@@ -44,7 +44,7 @@ powershell -ExecutionPolicy Bypass -File .\scripts\Setup-MatlabMcpExistingSessio
 1. 安装 `MATLAB MCP Server Toolbox`
 2. 修正 `%APPDATA%\MathWorks\MATLAB MCP Server` ACL
 3. 可选写入 `startup.m`，让 MATLAB 启动时自动共享会话
-4. 把官方 MCP server 注册到 `Codex`
+4. 把官方 MCP server 注册到 `Codex`（仅在检测到 `codex` 命令时执行；未安装则告警跳过，不影响前三步）
 
 ## 一句命令接入客户端
 
@@ -155,3 +155,31 @@ shareMATLABSession()
 - 纯命令行烟雾测试
 - 批量导出图表/数据
 - 不依赖桌面可视化的可重复验证
+
+## 安装器安全行为（第一阶段 P0 重构）
+
+安装脚本现在默认安全：所有写操作都可预演、都有备份、失败会回滚。
+
+```powershell
+# 只看计划，不写任何文件
+powershell -ExecutionPolicy Bypass -File .\scripts\Install-MatlabMcpClients.ps1 `
+  -Clients auto -DryRun
+
+# 只配置 Claude Code（不需要安装 Codex）
+powershell -ExecutionPolicy Bypass -File .\scripts\Install-MatlabMcpClients.ps1 `
+  -Clients claude
+
+# existing 模式下不要传 display-mode：脚本会自动省略并告警
+powershell -ExecutionPolicy Bypass -File .\scripts\Install-MatlabMcpClients.ps1 `
+  -SessionMode existing -Clients codex
+```
+
+要点：
+
+1. `existing` 模式不会再生成 `--matlab-display-mode` / `--matlab-root` / `--initialize-matlab-on-startup`（官方参数约束）。
+2. `.mcp.json`、`.vscode/mcp.json` 采用合并写入，用户其它 server 配置保留；文件 JSON 语法错误时直接中止。
+3. Codex / Claude 注册参数一致时完全不动；需要变更时先存快照，失败自动还原。
+4. `startup.m` 用托管标记块包裹，重复执行不会重复追加，也不会覆盖你自己写的钩子。
+5. ACL 改为“给当前用户追加授权”，不再剥离继承；需要旧行为时加 `-RestrictAclInheritance`。
+6. 备份目录默认 `artifacts/backups/<时间戳>-<动作>/`，内含 `manifest.json` 记录每次改动。
+

@@ -1,4 +1,4 @@
-<#
+﻿<#
 .SYNOPSIS
 验证 MATLAB 官方 MCP 配置与会话状态。
 #>

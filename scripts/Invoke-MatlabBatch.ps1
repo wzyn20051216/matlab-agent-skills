@@ -1,4 +1,4 @@
-param(
+﻿param(
     [string]$MatlabPath = $env:MATLAB_EXE,
     [string]$Code,
     [string]$Script,
