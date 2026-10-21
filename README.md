@@ -203,6 +203,94 @@ artifacts/
   validation/
 ```
 
+## Power-Electronics Demo: 48 V → 12 V Buck
+
+A closed-loop 48 V → 12 V, 50 kHz Buck converter (L = 150 µH, C = 220 µF, R = 6 Ω) used as
+the repository's flagship *engineering* example: a cascaded dual loop (outer PI voltage loop →
+inductor-current command → proportional inner current loop → duty), load-current feedforward,
+boundary sampling with analytic half-ripple compensation, and one switching period of
+computation delay.
+
+This is a **simulation** demo. It is validated up to switching-level simulation with a
+non-ideal sensor chain. There is no hardware measurement, no device-level (Simscape) model,
+and no DCM operating region in the model — see [Limitations](#limitations-of-this-demo).
+
+### Run it
+
+```bash
+# 40 s, base MATLAB only: reproduces the published numbers and exits nonzero on failure
+matlab -batch "run('matlab/buck/verify/buck_smoke.m')"
+
+# full acceptance matrix (C1-C7 x baseline + stress configs, ~10 min)
+export BUCK_OUT="$PWD/artifacts/validation/buck"
+matlab -batch "run('matlab/buck/verify/buck_a6_task6_accept.m')"
+```
+
+`BUCK_OUT` is the only knob: every script writes its JSON/MAT/PNG there and reads nothing
+from it that it did not produce itself, so a run in an empty directory is self-contained.
+
+### Toolbox requirements
+
+`matlab.codetools.requiredFilesAndProducts` is the source of truth here, not a guess:
+
+| Entry point | Products |
+| --- | --- |
+| `verify/buck_smoke.m` | MATLAB |
+| `verify/buck_a6_task4_phase.m` | MATLAB |
+| `verify/buck_a6_task5_margin.m` | MATLAB |
+| `verify/buck_a6_task6_accept.m` | MATLAB |
+| `verify/buck_a6_task1_stability.m` | MATLAB, Control System Toolbox |
+| `build_buck_switching.m` (reference model) | MATLAB, Simulink |
+
+The switching-level acceptance path therefore runs on **base MATLAB**. Control System Toolbox
+is needed only for the average-model design scripts (PM/GM design values, discrete poles), and
+Simulink only for the reference switching model that the fast engine is cross-checked against.
+If a required product is missing, MATLAB fails inside the entry point; the table above tells
+you which one before you start.
+
+### Acceptance criteria (unchanged since Phase 3A.1)
+
+| ID | Criterion | Threshold |
+| --- | --- | --- |
+| S1 | Stability | local asymptotic stability of the periodic orbit (Floquet multipliers < 1) |
+| S2 | Phase margin | ≥ 50° |
+| S3 | Gain margin | ≥ 6 dB |
+| S4 | Steady-state error | ≤ 0.1 % |
+| S5 | Settling | within ±1 %, continuously, ≤ 1 ms |
+| S6 | Start-up overshoot | ≤ 5 % |
+| S7 | Load-step dip | ≤ 12 % |
+| S8 | Duty cycle | 0.05 … 0.85 |
+| S9 | Reproducibility | same seed, bit-identical results |
+
+Verification levels: **A** average model, **B** discrete average model, **C** discrete + sensor
+non-idealities, **D** switching (PWM, ripple, conduction losses), **D+** switching + sensor
+chain, **E** hardware *(not performed)*. Results per level and per criterion are in
+[`docs/PHASE3A6_JOINT_AND_FREEZE_ZH.md`](docs/PHASE3A6_JOINT_AND_FREEZE_ZH.md) and
+[`docs/PHASE3A6B_TASKS4_7_ZH.md`](docs/PHASE3A6B_TASKS4_7_ZH.md).
+
+### Limitations of this demo
+
+Read these before quoting any number from the demo:
+
+- **S2 / S3 are average-model design values, not switching-level measurements.** A phase margin
+  is a small-signal LTI quantity; the switching converter is periodic and has no single linear
+  loop to break. Substitutes measured on the switching dynamics are the delay margin (1 period)
+  and the controller-gain margin (×1.253). They are *weaker* claims than PM/GM.
+- **CCM only.** The plant equations continue through zero inductor current, so operation below
+  the CCM boundary (roughly R > 20 Ω at 150 µH, i.e. below ~0.6 A) is **not modelled**.
+  Results in that region are undefined, not "good".
+- **Conduction parameters are placeholders.** `RonSW = 1 mΩ`, `RonD = 2 mΩ`, `Vf = 0.35 V` are
+  not datasheet values for a real 48 V design; the tolerance study in
+  `verify/buck_a6_task5_margin.m` includes a realistic 50 mΩ switch as a sensitivity case.
+- **The current clamp is on the current *command*, not the instantaneous switch current.**
+  `Imax = 12 A` bounds the cycle average; the measured instantaneous peak reaches
+  `Imax + ΔiL/2`, which is 12.04 A at 150 µH. A real protection must be defined on the
+  instantaneous current.
+- **No hardware.** Level E is absent. Nothing here is a statement about a physical board.
+- **L = 220 µH is a simulation candidate, not a selection.** It improves ripple, S4 and S5 but
+  worsens the load-step dip; no candidate dominates on every criterion, and none has been
+  measured.
+
 ## Repository Layout
 
 ```text
