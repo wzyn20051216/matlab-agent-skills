@@ -261,7 +261,9 @@ function Get-McpServerCandidatePaths {
     if ($ScriptRoot) {
         $candidates.Add((Join-Path $ScriptRoot "..\bin\matlab-mcp-server-windows-x64.exe"))
     }
-    $candidates.Add((Join-Path (Get-Location).Path "matlab-mcp-server-windows-x64.exe"))
+    # 不再把"当前工作目录"作为隐式候选：在共享目录/下载目录里执行时，
+    # 同名的攻击文件会被当作服务器执行（安全审查已复现：24 字节非 PE 文件被接受）。
+    # 确实要放在 CWD 时必须显式 -ServerExePath。
     $candidates.Add((Join-Path $HOME "Downloads\matlab-mcp-server-windows-x64.exe"))
     $candidates.Add((Join-Path $HOME "download\matlab-mcp-server-windows-x64.exe"))
     return [string[]]$candidates.ToArray()

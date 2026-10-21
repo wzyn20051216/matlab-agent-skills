@@ -87,11 +87,10 @@ cd matlab-agent-skills
 git rev-parse HEAD   # should then match the released tag
 ```
 
-Windows one-liner bootstrap (uses `main`, so it is **old until the merge lands**):
-
-```powershell
-irm https://raw.githubusercontent.com/wzyn20051216/matlab-agent-skills/main/scripts/Bootstrap-MatlabAgentSkills.ps1 | iex
-```
+There is intentionally **no** `irm … | iex` one-liner in this preview: the only one available
+today reads the moving `main` branch, which is still the old code, and piping a moving branch
+into `iex` is exactly the supply-chain pattern this release is trying to remove. Use the pinned
+clone above; a pinned one-liner can be added once `main` is updated to the released tag.
 
 ## Windows beta status (technical preview)
 
