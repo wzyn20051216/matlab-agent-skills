@@ -1,4 +1,4 @@
-# Windows 技术预览 — Release Notes 草案（v0.6.0-preview.2）
+﻿# Windows 技术预览 — Release Notes 草案（v0.6.0-preview.2）
 
 状态：**待批准**。本文件是发布材料草稿；尚未创建 GitHub Release，也尚未创建新 tag。
 
@@ -24,7 +24,7 @@
 ```powershell
 git clone https://github.com/wzyn20051216/matlab-agent-skills.git
 cd matlab-agent-skills
-git rev-parse HEAD                      # 44052fd9db887a3cd9650b2c5fd7a05697fa3b3f
+git rev-parse HEAD                      # compare with the preview tag's commit
 powershell -ExecutionPolicy Bypass -File .\scripts\Sync-Skills.ps1
 powershell -ExecutionPolicy Bypass -File .\scripts\Install-MatlabMcpClients.ps1 -McpServerName matlab-official
 ```
