@@ -154,7 +154,7 @@ Describe "Install-MatlabMcpClients：首次安装与安全合并" {
     It "existing 模式生成的 .mcp.json 不含 --matlab-display-mode" {
         $sandbox = New-Sandbox
         try {
-            $json = & $script:InstallScript -ServerExePath $sandbox.FakeServer -MatlabRoot $sandbox.MatlabRoot `
+            $json = & $script:InstallScript -AllowUnverifiedServer -ServerExePath $sandbox.FakeServer -MatlabRoot $sandbox.MatlabRoot `
                 -Clients generic -ProjectPath $sandbox.Work -SkipBaseSetup -SessionMode existing `
                 -BackupRoot $sandbox.Backup | Out-String | ConvertFrom-Json
 
@@ -174,7 +174,7 @@ Describe "Install-MatlabMcpClients：首次安装与安全合并" {
     It "auto 模式生成的配置包含 display-mode 与 matlab-root" {
         $sandbox = New-Sandbox
         try {
-            & $script:InstallScript -ServerExePath $sandbox.FakeServer -MatlabRoot $sandbox.MatlabRoot `
+            & $script:InstallScript -AllowUnverifiedServer -ServerExePath $sandbox.FakeServer -MatlabRoot $sandbox.MatlabRoot `
                 -Clients generic -ProjectPath $sandbox.Work -SkipBaseSetup -SessionMode auto `
                 -BackupRoot $sandbox.Backup | Out-Null
 
@@ -192,7 +192,7 @@ Describe "Install-MatlabMcpClients：首次安装与安全合并" {
             $configPath = Join-Path $sandbox.Work ".mcp.json"
             Write-Utf8NoBom -Path $configPath -Text '{"mcpServers":{"my-own":{"command":"node","args":["x.js"]}},"extra":{"keep":1}}'
 
-            & $script:InstallScript -ServerExePath $sandbox.FakeServer -MatlabRoot $sandbox.MatlabRoot `
+            & $script:InstallScript -AllowUnverifiedServer -ServerExePath $sandbox.FakeServer -MatlabRoot $sandbox.MatlabRoot `
                 -Clients generic -ProjectPath $sandbox.Work -SkipBaseSetup -BackupRoot $sandbox.Backup | Out-Null
 
             $config = Read-McpConfig -Path $configPath
@@ -211,7 +211,7 @@ Describe "Install-MatlabMcpClients：首次安装与安全合并" {
             $configPath = Join-Path $vscodeDir "mcp.json"
             Write-Utf8NoBom -Path $configPath -Text '{"servers":{"other":{"type":"stdio","command":"x","args":[]}},"inputs":[]}'
 
-            & $script:InstallScript -ServerExePath $sandbox.FakeServer -MatlabRoot $sandbox.MatlabRoot `
+            & $script:InstallScript -AllowUnverifiedServer -ServerExePath $sandbox.FakeServer -MatlabRoot $sandbox.MatlabRoot `
                 -Clients vscode -ProjectPath $sandbox.Work -SkipBaseSetup -BackupRoot $sandbox.Backup | Out-Null
 
             $config = Read-McpConfig -Path $configPath
@@ -225,12 +225,12 @@ Describe "Install-MatlabMcpClients：首次安装与安全合并" {
     It "重复安装是幂等的（第二次全部 unchanged，文件字节不变）" {
         $sandbox = New-Sandbox
         try {
-            & $script:InstallScript -ServerExePath $sandbox.FakeServer -MatlabRoot $sandbox.MatlabRoot `
+            & $script:InstallScript -AllowUnverifiedServer -ServerExePath $sandbox.FakeServer -MatlabRoot $sandbox.MatlabRoot `
                 -Clients generic -ProjectPath $sandbox.Work -SkipBaseSetup -BackupRoot $sandbox.Backup | Out-Null
             $configPath = Join-Path $sandbox.Work ".mcp.json"
             $first = [System.IO.File]::ReadAllBytes($configPath)
 
-            $json = & $script:InstallScript -ServerExePath $sandbox.FakeServer -MatlabRoot $sandbox.MatlabRoot `
+            $json = & $script:InstallScript -AllowUnverifiedServer -ServerExePath $sandbox.FakeServer -MatlabRoot $sandbox.MatlabRoot `
                 -Clients generic -ProjectPath $sandbox.Work -SkipBaseSetup -BackupRoot $sandbox.Backup | Out-String | ConvertFrom-Json
 
             $second = [System.IO.File]::ReadAllBytes($configPath)
@@ -248,7 +248,7 @@ Describe "Install-MatlabMcpClients：首次安装与安全合并" {
             Write-Utf8NoBom -Path $configPath -Text $broken
             $before = [System.IO.File]::ReadAllBytes($configPath)
 
-            (Test-Throws { & $script:InstallScript -ServerExePath $sandbox.FakeServer -MatlabRoot $sandbox.MatlabRoot `
+            (Test-Throws { & $script:InstallScript -AllowUnverifiedServer -ServerExePath $sandbox.FakeServer -MatlabRoot $sandbox.MatlabRoot `
                     -Clients generic -ProjectPath $sandbox.Work -SkipBaseSetup -BackupRoot $sandbox.Backup }) | Should Be $true
 
             ([System.IO.File]::ReadAllBytes($configPath) -join ",") | Should Be ($before -join ",")
@@ -259,7 +259,7 @@ Describe "Install-MatlabMcpClients：首次安装与安全合并" {
     It "DryRun 不写 .mcp.json" {
         $sandbox = New-Sandbox
         try {
-            $json = & $script:InstallScript -ServerExePath $sandbox.FakeServer -MatlabRoot $sandbox.MatlabRoot `
+            $json = & $script:InstallScript -AllowUnverifiedServer -ServerExePath $sandbox.FakeServer -MatlabRoot $sandbox.MatlabRoot `
                 -Clients generic -ProjectPath $sandbox.Work -SkipBaseSetup -BackupRoot $sandbox.Backup -DryRun `
                 | Out-String | ConvertFrom-Json
 
@@ -279,7 +279,7 @@ Describe "Install-MatlabMcpClients：客户端解耦（P0-2）" {
             New-ClientStub -StubDir $sandbox.StubDir -Name "claude" | Out-Null
             Use-StubsOnly $sandbox
 
-            $json = & $script:InstallScript -ServerExePath $sandbox.FakeServer -MatlabRoot $sandbox.MatlabRoot `
+            $json = & $script:InstallScript -AllowUnverifiedServer -ServerExePath $sandbox.FakeServer -MatlabRoot $sandbox.MatlabRoot `
                 -Clients claude -SkipBaseSetup -BackupRoot $sandbox.Backup | Out-String | ConvertFrom-Json
 
             $json.ok | Should Be $true
@@ -296,7 +296,7 @@ Describe "Install-MatlabMcpClients：客户端解耦（P0-2）" {
             New-ClientStub -StubDir $sandbox.StubDir -Name "claude" | Out-Null
             Use-StubsOnly $sandbox
 
-            (Test-Throws { & $script:InstallScript -ServerExePath $sandbox.FakeServer -MatlabRoot $sandbox.MatlabRoot `
+            (Test-Throws { & $script:InstallScript -AllowUnverifiedServer -ServerExePath $sandbox.FakeServer -MatlabRoot $sandbox.MatlabRoot `
                     -Clients codex -SkipBaseSetup -BackupRoot $sandbox.Backup }) | Should Be $true
         }
         finally { Remove-Sandbox $sandbox }
@@ -308,9 +308,9 @@ Describe "Install-MatlabMcpClients：客户端解耦（P0-2）" {
             New-ClientStub -StubDir $sandbox.StubDir -Name "claude" | Out-Null
             Use-StubsOnly $sandbox
 
-            & $script:InstallScript -ServerExePath $sandbox.FakeServer -MatlabRoot $sandbox.MatlabRoot `
+            & $script:InstallScript -AllowUnverifiedServer -ServerExePath $sandbox.FakeServer -MatlabRoot $sandbox.MatlabRoot `
                 -Clients claude -SkipBaseSetup -BackupRoot $sandbox.Backup | Out-Null
-            $json = & $script:InstallScript -ServerExePath $sandbox.FakeServer -MatlabRoot $sandbox.MatlabRoot `
+            $json = & $script:InstallScript -AllowUnverifiedServer -ServerExePath $sandbox.FakeServer -MatlabRoot $sandbox.MatlabRoot `
                 -Clients claude -SkipBaseSetup -BackupRoot $sandbox.Backup | Out-String | ConvertFrom-Json
 
             $json.results.claude.Action | Should Be "unchanged"
@@ -324,7 +324,7 @@ Describe "Install-MatlabMcpClients：客户端解耦（P0-2）" {
             $stub = New-ClientStub -StubDir $sandbox.StubDir -Name "claude"
             Use-StubsOnly $sandbox
 
-            & $script:InstallScript -ServerExePath $sandbox.FakeServer -MatlabRoot $sandbox.MatlabRoot `
+            & $script:InstallScript -AllowUnverifiedServer -ServerExePath $sandbox.FakeServer -MatlabRoot $sandbox.MatlabRoot `
                 -Clients claude -SkipBaseSetup -SessionMode existing -BackupRoot $sandbox.Backup | Out-Null
 
             $registered = Get-Content -Raw -LiteralPath $stub.StateFile
@@ -364,7 +364,7 @@ Describe "Install-MatlabMcpClients：客户端解耦（P0-2）" {
             Write-Utf8NoBom -Path $stub.StateFile -Text $previous
             Write-Utf8NoBom -Path $stub.FailFlag -Text "fail once"
 
-            (Test-Throws { & $script:InstallScript -ServerExePath $sandbox.FakeServer -MatlabRoot $sandbox.MatlabRoot `
+            (Test-Throws { & $script:InstallScript -AllowUnverifiedServer -ServerExePath $sandbox.FakeServer -MatlabRoot $sandbox.MatlabRoot `
                     -Clients codex -SkipBaseSetup -BackupRoot $sandbox.Backup }) | Should Be $true
 
             $restored = Get-Content -Raw -LiteralPath $stub.StateFile
@@ -384,7 +384,7 @@ Describe "Setup-MatlabMcpExistingSession：失败回滚（P0-6）" {
             $original = "disp('original user startup');"
             Write-Utf8NoBom -Path $startupPath -Text $original
 
-            (Test-Throws { & $script:SetupScript -ServerExePath $sandbox.FakeServer -MatlabRoot $sandbox.MatlabRoot `
+            (Test-Throws { & $script:SetupScript -AllowUnverifiedServer -ServerExePath $sandbox.FakeServer -MatlabRoot $sandbox.MatlabRoot `
                     -McpDataDir $sandbox.DataDir -StartupDirectory $sandbox.StartupDir `
                     -SessionMode auto -SkipClientRegistration -SkipAclFix `
                     -FailAfterStep startup -BackupRoot $sandbox.Backup }) | Should Be $true
@@ -400,7 +400,7 @@ Describe "Setup-MatlabMcpExistingSession：失败回滚（P0-6）" {
         $sandbox = New-Sandbox
         try {
             $startupPath = Join-Path $sandbox.StartupDir "startup.m"
-            $json = & $script:SetupScript -ServerExePath $sandbox.FakeServer -MatlabRoot $sandbox.MatlabRoot `
+            $json = & $script:SetupScript -AllowUnverifiedServer -ServerExePath $sandbox.FakeServer -MatlabRoot $sandbox.MatlabRoot `
                 -McpDataDir $sandbox.DataDir -StartupDirectory $sandbox.StartupDir `
                 -SessionMode existing -SkipClientRegistration -SkipAclFix `
                 -BackupRoot $sandbox.Backup -DryRun | Out-String | ConvertFrom-Json

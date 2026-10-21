@@ -21,3 +21,6 @@ codegen/
 .DS_Store
 Thumbs.db
 .workbuddy/
+# 本机 Codex 接入配置含机器专属绝对路径，不随仓库分发。
+.codex/
+__pycache__/

@@ -1,6 +1,6 @@
 ---
 name: matlab-simulink-modeling
-description: MATLAB R2026a and Simulink workflow for creating, inspecting, modifying, simulating, validating, and exporting .slx models. Use for Simulink, Stateflow, Simscape, model-based design, parameter sweeps, signal logging, requirements, and simulation automation. On this machine, Simulink tasks should be visual-first: open the model in a visible Simulink window before doing substantial automated modeling or simulation so the user can watch the process.
+description: MATLAB and Simulink workflow for creating, inspecting, modifying, simulating, validating, and exporting .slx models. Use for Simulink, Stateflow, Simscape, model-based design, parameter sweeps, signal logging, requirements, and simulation automation. On this machine, Simulink tasks should be visual-first: open the model in a visible Simulink window before doing substantial automated modeling or simulation so the user can watch the process.
 ---
 
 # MATLAB Simulink Modeling
@@ -9,11 +9,17 @@ Use this skill for model-based design and simulation workflows.
 
 ## First Checks
 
-1. Confirm `Simulink` is installed with `ver` and licensed with `license('test','Simulink')`.
-   For any product whose feature name differs from its display name, do not guess — use
-   `masacc.availability(product)` (e.g. `Simulink Coder` → feature `Real-Time_Workshop`,
-   `Embedded Coder` → `RTW_Embedded_Coder`). Passing the display name returns `0` and looks
-   like "not licensed" even when the license exists.
+1. Confirm the product with the precheck, not by guessing a license string:
+
+   ```matlab
+   r = mas_precheck('toolbox', 'Simulink Coder');   % installed + licensed, with reason
+   ```
+
+   `license('test', X)` takes a FEATURE name, and passing the display name returns `0`
+   even when the product is licensed (`Deep_Learning_Toolbox` → 0 while
+   `Neural_Network_Toolbox` → 1 on R2026a). The verified map lives in
+   `../matlab-runner/references/toolbox-feature-map.md`. An earlier revision of this
+   file pointed at `masacc.availability`, which does not exist anywhere — removed.
 2. Prefer an official MATLAB MCP auto session tied to a visible MATLAB/Simulink desktop before substantial edits. Use `load_system`, `open_system`, and `set_param(modelName,"ZoomFactor","FitSystem")` so the user can see the model.
 3. Audit topology before editing: blocks, lines, solver config, sample times, logged signals.
 4. Prefer existing model architecture and naming.
@@ -105,3 +111,18 @@ Watch for:
 ## Reporting
 
 Always report model path, stop time, solver, changed blocks, logged signals, and validation artifacts.
+
+## Verify A Model By Level, Not By Hope
+
+A saved `.slx` is not a working model. Phase 3B.2 generated a converter model that
+simulated happily while applying a zero duty for the first period, because a Unit
+Delay defaults to 0. Grade the model instead of asserting it works:
+
+```matlab
+r = mas_model_check('matlab/boost/models/boost_avg.slx', struct('tStop',0.01));
+r.level   % L0 missing | L1 loads | L2 updates | L3 simulates with finite signals
+```
+
+`L3` is the first level that means anything numerically. Toolboxes are checked with
+`mas_precheck('toolbox', ...)`, never by calling `license` with a product name.
+`tests/test_model_check.m` pins a real model at L3 and a missing file at L0.

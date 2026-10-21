@@ -218,17 +218,20 @@ Describe "ACL 有效权限：真实目录" {
 
     It "FullControl 但无继承标志时，目录通过、子对象不通过" {
         if (-not (Get-Command icacls -ErrorAction SilentlyContinue)) { return }
+        # CI runner 上当前进程用户可能就是 S-1-5-18；与"外来 SID"撞车会让用例失真。
+        $testSid = if ([Security.Principal.WindowsIdentity]::GetCurrent().User.Value -eq 'S-1-5-18') { 'S-1-5-11' } else { 'S-1-5-18' }
         $sandbox = New-TestSandbox -Prefix "acl-noinherit"
         try {
             $dir = New-SealedTestDir -Sandbox $sandbox
-            & icacls $dir /grant:r "*S-1-5-18:F" | Out-Null
+            & icacls $dir /remove ("*" + $testSid) | Out-Null
+            & icacls $dir /grant:r ("*" + $testSid + ":F") | Out-Null
             $LASTEXITCODE | Should Be 0
 
-            $withoutInheritance = Test-AclGrantsFullControl -Path $dir -Sid "S-1-5-18"
+            $withoutInheritance = Test-AclGrantsFullControl -Path $dir -Sid $testSid
             $withoutInheritance.Granted | Should Be $true
             $withoutInheritance.FolderRights | Should Be $script:FullControl
 
-            $withInheritance = Test-AclGrantsFullControl -Path $dir -Sid "S-1-5-18" -RequireInheritance
+            $withInheritance = Test-AclGrantsFullControl -Path $dir -Sid $testSid -RequireInheritance
             $withInheritance.Granted | Should Be $false
             $withInheritance.ChildRights | Should Be 0
             ($withInheritance.Reason -match "继承") | Should Be $true
@@ -357,9 +360,11 @@ Describe "ACL 归一化：真实 ACL 的字段" {
         $sandbox = New-TestSandbox -Prefix "acl-normalize-deny"
         try {
             $dir = New-SealedTestDir -Sandbox $sandbox
-            & icacls $dir /deny "*S-1-5-18:(OI)(CI)R" | Out-Null
+            $testSid = if ([Security.Principal.WindowsIdentity]::GetCurrent().User.Value -eq 'S-1-5-18') { 'S-1-5-11' } else { 'S-1-5-18' }
+            & icacls $dir /remove ("*" + $testSid) | Out-Null
+            & icacls $dir /deny ("*" + $testSid + ":(OI)(CI)R") | Out-Null
 
-            $rules = @(Get-AclNormalizedRules -Path $dir -Sid "S-1-5-18")
+            $rules = @(Get-AclNormalizedRules -Path $dir -Sid $testSid)
             $rules.Count | Should Be 1
             $rules[0].AccessType | Should Be "Deny"
             $rules[0].HasContainer | Should Be $true
@@ -373,8 +378,10 @@ Describe "ACL 归一化：真实 ACL 的字段" {
         $sandbox = New-TestSandbox -Prefix "acl-scope"
         try {
             $dir = New-SealedTestDir -Sandbox $sandbox
-            @(Get-AclNormalizedRules -Path $dir -Sid "S-1-5-18").Count | Should Be 0
-            $verification = Test-AclGrantsFullControl -Path $dir -Sid "S-1-5-18" -RequireInheritance
+            $testSid = if ([Security.Principal.WindowsIdentity]::GetCurrent().User.Value -eq 'S-1-5-18') { 'S-1-5-11' } else { 'S-1-5-18' }
+            & icacls $dir /remove ("*" + $testSid) | Out-Null
+            @(Get-AclNormalizedRules -Path $dir -Sid $testSid).Count | Should Be 0
+            $verification = Test-AclGrantsFullControl -Path $dir -Sid $testSid -RequireInheritance
             $verification.Granted | Should Be $false
             ($verification.Reason -match "没有任何 ACE") | Should Be $true
         }

@@ -1,6 +1,6 @@
 ---
 name: matlab-codegen-deploy
-description: MATLAB R2026a code generation and deployment workflow for MATLAB Coder, Simulink Coder, Embedded Coder, GPU Coder, HDL Coder, fixed-point conversion, MEX validation, and embedded deployment readiness. Use whenever the user asks to generate C/C++/CUDA/HDL/code, deploy algorithms, or validate generated code.
+description: MATLAB code generation and deployment workflow for MATLAB Coder, Simulink Coder, Embedded Coder, GPU Coder, HDL Coder, fixed-point conversion, MEX validation, and embedded deployment readiness. Use whenever the user asks to generate C/C++/CUDA/HDL/code, deploy algorithms, or validate generated code.
 ---
 
 # MATLAB Codegen Deploy
@@ -92,3 +92,27 @@ If `slbuild` hangs around "Generating code from STM32CubeMX project" or "Startin
 ## Output
 
 Report target, generated artifact path, report path, golden comparison result, and limitations.
+
+## Bundled Verification Tools
+
+These scripts live in `scripts/` and are covered by `tests/test_codegen.m` (11 assertions):
+
+- `mas_codegen_ready(fileOrFcn)` — static readiness audit before a build cycle.
+  Reports blockers (eval/input/clear/load/containers, array growth inside a loop)
+  separately from warnings (table/datetime/graphics/heterogeneous cells). Array
+  growth is a blocker *only inside a loop*; the same `x(end+1)=v` outside a loop
+  is a warning, so it is a scan, not a regex grep.
+- `mas_codegen_verify(fcn, args)` — the self-compile step, made honest. It
+  actually runs `codegen`, builds the MEX, runs both MATLAB and the MEX, and
+  compares, reporting which stage failed (`probe|codegen|build|run|compare`).
+  Returns `SKIP` (not PASS) when no compiler is configured. `goldenFcn` option
+  substitutes a different golden so a mismatch can be exercised on purpose — a
+  harness that can only ever agree has not been shown to detect anything.
+- `mas_fixpt_range(fcn, stimuli)` — observe output ranges under test stimuli,
+  then measure the cost of a fixed-point representation (fraction length, SQNR,
+  overflow fraction). Ranges are *observed, not proven*; the stimuli are part of
+  the result. Without Fixed-Point Designer it returns `SKIP` rather than
+  emulating `fi` badly with doubles.
+
+Run everything with `matlab -batch "test_codegen(true)"` from `tests/`.
+

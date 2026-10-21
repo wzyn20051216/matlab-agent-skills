@@ -53,6 +53,12 @@ function Start-McpStdioServer {
     $psi.RedirectStandardInput = $true
     $psi.RedirectStandardOutput = $true
     $psi.RedirectStandardError = $true
+    # MCP 是 UTF-8 JSON-RPC。不显式设置时，StandardInput 的 StreamWriter 用进程默认
+    # 编码（Windows 上是 OEM 代码页），发送含非 ASCII 的 MATLAB 代码会被转码损坏
+    # （实测：中文变成 U+FFFD 写进产物）。这里把三个流都钉死为 UTF-8。
+    $psi.StandardInputEncoding = New-Object System.Text.UTF8Encoding($false)
+    $psi.StandardOutputEncoding = New-Object System.Text.UTF8Encoding($false)
+    $psi.StandardErrorEncoding = New-Object System.Text.UTF8Encoding($false)
     $psi.CreateNoWindow = $true
     $psi.WorkingDirectory = $WorkingDirectory
 

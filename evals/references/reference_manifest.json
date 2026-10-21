@@ -1,0 +1,778 @@
+{
+  "schema": "mas-reference/1",
+  "frozenAt": "2026-10-19 19:15:02",
+  "matlabVersion": "26.1.0.3276743 (R2026a) Update 3",
+  "hashAlgo": "sha256",
+  "canonicalForm": "sorted field names, sprintf(\"%.17g\") for each numeric value",
+  "entries": {
+    "D1": {
+      "title": "D1",
+      "values": {
+        "x": [
+          1,
+          -2,
+          3
+        ],
+        "I_quad": 3.1415926535897931,
+        "I_trapz": 3.1415926535897931,
+        "residual": 0
+      },
+      "methods": [
+        "construction",
+        "gauss_legendre_64"
+      ],
+      "kinds": [
+        "construction",
+        "independent_numeric"
+      ],
+      "agreement": 4.2407395752846889E-16,
+      "spread": {
+        "x1": 0,
+        "x2": 0,
+        "x3": 0,
+        "I": 4.2407395752846889E-16,
+        "b1": 0,
+        "b2": 0,
+        "b3": 0
+      },
+      "spreadFactor": 0.1,
+      "checks": [
+        {
+          "field": "x",
+          "ref": [
+            1,
+            -2,
+            3
+          ],
+          "op": "maxabsdiff",
+          "tol": 1E-8,
+          "why": "exact integer solution"
+        },
+        {
+          "field": "I_quad",
+          "ref": 3.1415926535897931,
+          "op": "absdiff",
+          "tol": 1E-6,
+          "why": "integral of 4/(1+t^2) on [0,1] = pi"
+        },
+        {
+          "field": "I_trapz",
+          "ref": 3.1415926535897931,
+          "op": "absdiff",
+          "tol": 0.001,
+          "why": "trapezoid, looser by design"
+        },
+        {
+          "field": "residual",
+          "ref": 0,
+          "op": "absdiff",
+          "tol": 1E-10,
+          "why": "A*x-b must vanish"
+        }
+      ],
+      "hash": "8ab81eead7f16cc5f92d2ac6b5b52a676b22eac76a1aac2c91a63c8a09b12ca5",
+      "frozenWith": "26.1.0.3276743 (R2026a) Update 3"
+    },
+    "D2": {
+      "title": "D2",
+      "values": {
+        "a": 2.5,
+        "b": -0.7,
+        "nMissing": 3
+      },
+      "methods": [
+        "construction",
+        "noiseless_recovery"
+      ],
+      "kinds": [
+        "construction",
+        "invariant"
+      ],
+      "agreement": 1.1102230246251565E-16,
+      "spread": {
+        "a": 0,
+        "b": 1.1102230246251565E-16,
+        "nMissing": 0
+      },
+      "spreadFactor": 0.1,
+      "checks": [
+        {
+          "field": "aHat",
+          "ref": 2.5,
+          "op": "reldiff",
+          "tol": 0.03,
+          "why": "recover the generating amplitude"
+        },
+        {
+          "field": "bHat",
+          "ref": -0.7,
+          "op": "reldiff",
+          "tol": 0.03,
+          "why": "recover the generating rate"
+        },
+        {
+          "field": "nMissing",
+          "ref": 3,
+          "op": "absdiff",
+          "tol": 0,
+          "why": "the 3 injected NaNs must be counted"
+        }
+      ],
+      "hash": "c1aab3fbeefc0811b6b6c330568b9ef4fe71ac4bace321e7289f7c945015dd8d",
+      "frozenWith": "26.1.0.3276743 (R2026a) Update 3"
+    },
+    "D3": {
+      "title": "D3",
+      "values": {
+        "magAtFc": -3.0102999566398121,
+        "magAt2Fc": -27.9657433321043,
+        "dcGain": 1,
+        "stable": 1
+      },
+      "methods": [
+        "analytic_bilinear",
+        "impulse_response_dft",
+        "sine_steady_state"
+      ],
+      "kinds": [
+        "analytic",
+        "independent_numeric",
+        "independent_numeric"
+      ],
+      "agreement": 1.5047370712939975E-14,
+      "spread": {
+        "magAtFc": 1.5047370712939975E-14,
+        "magAt2Fc": 1.6514947332505348E-15,
+        "dcGain": 0,
+        "stable": 0
+      },
+      "spreadFactor": 0.1,
+      "checks": [
+        {
+          "field": "magAtFc",
+          "ref": -3.010299956639813,
+          "op": "absdiff",
+          "tol": 0.05,
+          "why": "any Butterworth is -3.01 dB at fc"
+        },
+        {
+          "field": "magAt2Fc",
+          "ref": -27.9657,
+          "op": "absdiff",
+          "tol": 0.1,
+          "why": "prewarped: -27.97 dB, analog formula says -24.10"
+        },
+        {
+          "field": "stable",
+          "ref": 1,
+          "op": "true",
+          "tol": 0,
+          "why": "poles inside the unit circle"
+        },
+        {
+          "field": "dcGain",
+          "ref": 1,
+          "op": "reldiff",
+          "tol": 1E-9,
+          "why": "lowpass DC gain is 1, not 0.707"
+        }
+      ],
+      "hash": "fc49eafd94235f567e19979f15229990f666b713d840ccc956d9c8f699a1b6d4",
+      "frozenWith": "26.1.0.3276743 (R2026a) Update 3"
+    },
+    "D4": {
+      "title": "D4",
+      "values": {
+        "areas": [
+          592,
+          100
+        ],
+        "centroidBig": [
+          35.554054054054056,
+          20.567567567567568
+        ]
+      },
+      "methods": [
+        "construction",
+        "direct_pixel_moments"
+      ],
+      "kinds": [
+        "construction",
+        "independent_numeric"
+      ],
+      "agreement": 0,
+      "spread": {
+        "areaBig": 0,
+        "areaSmall": 0,
+        "nObjects": 0,
+        "bigCol": 0,
+        "bigRow": 0
+      },
+      "spreadFactor": 0.1,
+      "checks": [
+        {
+          "field": "areas",
+          "ref": [
+            592,
+            100
+          ],
+          "op": "maxabsdiff",
+          "tol": 1,
+          "why": "painted rectangles minus the 8-pixel dropout"
+        },
+        {
+          "field": "centroidBig",
+          "ref": [
+            35.5541,
+            20.5676
+          ],
+          "op": "maxabsdiff",
+          "tol": 1.5,
+          "why": "[col row], not [row col]"
+        }
+      ],
+      "hash": "bc57bb04ebc76aad18a4ff610f9b87edfa2c63d16f8473a0ccbfb0fc69087e1d",
+      "frozenWith": "26.1.0.3276743 (R2026a) Update 3"
+    },
+    "D5": {
+      "title": "D5",
+      "values": {
+        "overshoot": 16.303353482158045,
+        "peakTime": 1.8137993642342178,
+        "settlingTime": 4,
+        "poleReal": -1,
+        "poleImag": 1.7320508075688772
+      },
+      "methods": [
+        "analytic_second_order",
+        "time_domain_simulation"
+      ],
+      "kinds": [
+        "analytic",
+        "independent_numeric"
+      ],
+      "agreement": 0.0095250000000000057,
+      "spread": {
+        "overshoot": 8.0562459035801249E-13,
+        "peakTime": 3.5051604647045549E-7,
+        "settlingTime": 0.0095250000000000057,
+        "poleReal": 0,
+        "poleImag": 0
+      },
+      "spreadFactor": 0.1,
+      "checks": [
+        {
+          "field": "overshoot",
+          "ref": 16.3034,
+          "op": "absdiff",
+          "tol": 0.25,
+          "why": "exp(-pi*zeta/sqrt(1-zeta^2))"
+        },
+        {
+          "field": "peakTime",
+          "ref": 1.8138,
+          "op": "absdiff",
+          "tol": 0.02,
+          "why": "pi/(wn*sqrt(1-zeta^2))"
+        },
+        {
+          "field": "settlingTime",
+          "ref": 4,
+          "op": "absdiff",
+          "tol": 0.2,
+          "why": "4/(zeta*wn)"
+        },
+        {
+          "field": "stable",
+          "ref": 1,
+          "op": "true",
+          "tol": 0,
+          "why": "both poles in the LHP"
+        }
+      ],
+      "hash": "008f790406eb7492b674dbb58c9d387e2b9a69b12214b0275585701ee2eb0aca",
+      "frozenWith": "26.1.0.3276743 (R2026a) Update 3"
+    },
+    "D6": {
+      "title": "D6",
+      "values": {
+        "x_at_1": 0.8646647167633873,
+        "x_at_2": 0.98168436111126578,
+        "x_inf": 1
+      },
+      "methods": [
+        "closed_form",
+        "rk4",
+        "matrix_exponential"
+      ],
+      "kinds": [
+        "analytic",
+        "independent_numeric",
+        "independent_numeric"
+      ],
+      "agreement": 2.3314683517128287E-15,
+      "spread": {
+        "x_at_1": 1.4432899320127035E-15,
+        "x_at_2": 2.3314683517128287E-15,
+        "x_inf": 0
+      },
+      "spreadFactor": 0.1,
+      "checks": [
+        {
+          "field": "x_at_1",
+          "ref": 0.864665,
+          "op": "absdiff",
+          "tol": 0.002,
+          "why": "1-exp(-2)"
+        },
+        {
+          "field": "x_at_2",
+          "ref": 0.981684,
+          "op": "absdiff",
+          "tol": 0.002,
+          "why": "1-exp(-4)"
+        }
+      ],
+      "hash": "0b4b2612734b37ea93449914648225057892a9bcca52ce71368c0920f307c1cf",
+      "frozenWith": "26.1.0.3276743 (R2026a) Update 3"
+    },
+    "D7": {
+      "title": "D7",
+      "values": {
+        "vOutTarget": 48,
+        "duty": 0.59475190486041574,
+        "iL": 4.9352483675737382
+      },
+      "methods": [
+        "requirement",
+        "steady_state_invariant"
+      ],
+      "kinds": [
+        "requirement",
+        "invariant"
+      ],
+      "agreement": 1.4802973661668753E-16,
+      "spread": {
+        "vOutTarget": 1.4802973661668753E-16,
+        "duty": 0,
+        "iL": 0
+      },
+      "spreadFactor": 0.1,
+      "checks": [
+        {
+          "field": "ssErrPct",
+          "ref": 0,
+          "op": "absdiff",
+          "tol": 0.5,
+          "why": "the 48 V requirement, not what the model produced"
+        },
+        {
+          "field": "iLrippleMeas",
+          "ref": 1,
+          "op": "reldiff",
+          "tol": 0.1,
+          "why": "measured ripple vs analytic triangle: ratio 1"
+        }
+      ],
+      "hash": "6223210197c022d4daa8847b1917b0fab3b78ef13536bbc07cca28c1d0f037fd",
+      "frozenWith": "26.1.0.3276743 (R2026a) Update 3"
+    },
+    "D8": {
+      "title": "D8",
+      "values": {
+        "x": 0.86602540378443871,
+        "y": 1.3
+      },
+      "methods": [
+        "geometric",
+        "homogeneous_transform"
+      ],
+      "kinds": [
+        "analytic",
+        "independent_numeric"
+      ],
+      "agreement": 1.1102230246251565E-16,
+      "spread": {
+        "x": 1.1102230246251565E-16,
+        "y": 0
+      },
+      "spreadFactor": 0.1,
+      "checks": [
+        {
+          "field": "x",
+          "ref": 0.8660254037844386,
+          "op": "absdiff",
+          "tol": 1E-9,
+          "why": "sqrt(3)/2 by geometry"
+        },
+        {
+          "field": "y",
+          "ref": 1.3,
+          "op": "absdiff",
+          "tol": 1E-9,
+          "why": "0.5 + L2, the second link is vertical"
+        }
+      ],
+      "hash": "45e192f9b09c605757419f8a578c5129d56fc01ce676c9a442aa1795fc25fb2a",
+      "frozenWith": "26.1.0.3276743 (R2026a) Update 3"
+    },
+    "C1": {
+      "title": "C1",
+      "values": {
+        "fcHz": 1.583571689298549,
+        "pmDeg": 95.739170477266782,
+        "gmDb": null,
+        "nCross": 1,
+        "closedLoopStable": 1
+      },
+      "methods": [
+        "analytic_first_order",
+        "numeric_frequency_sweep"
+      ],
+      "kinds": [
+        "analytic",
+        "independent_numeric"
+      ],
+      "agreement": 8.8774823781099624E-12,
+      "spread": {
+        "fcHz": 2.9817270387186111E-12,
+        "pmDeg": 8.8774823781099624E-12,
+        "gmDb": 0,
+        "nCross": 0,
+        "closedLoopStable": 0
+      },
+      "spreadFactor": 0.1,
+      "checks": [
+        {
+          "field": "fcHz",
+          "ref": 1.58357,
+          "op": "absdiff",
+          "tol": 0.001,
+          "why": "sqrt(K^2-a^2)/2pi for L=10/(s+1)"
+        },
+        {
+          "field": "pmDeg",
+          "ref": 95.7392,
+          "op": "absdiff",
+          "tol": 0.05,
+          "why": "180 - atan(wc/a)"
+        },
+        {
+          "field": "nCross",
+          "ref": 1,
+          "op": "absdiff",
+          "tol": 0,
+          "why": "single well-behaved crossing"
+        },
+        {
+          "field": "closedLoopStable",
+          "ref": 1,
+          "op": "true",
+          "tol": 0,
+          "why": "reported stable"
+        }
+      ],
+      "hash": "a4b6f537ef17b8306aa1f94fec386339488a5d9b263fd1d1f0342a1e6a4fa803",
+      "frozenWith": "26.1.0.3276743 (R2026a) Update 3"
+    },
+    "C2": {
+      "title": "C2",
+      "values": {
+        "nRhpPoles": 1,
+        "maxRealPole": 1
+      },
+      "methods": [
+        "poles_analytic",
+        "routh_hurwitz"
+      ],
+      "kinds": [
+        "analytic",
+        "invariant"
+      ],
+      "agreement": 0,
+      "spread": {
+        "nRhpPoles": 0,
+        "maxRealPole": 0
+      },
+      "spreadFactor": 0.1,
+      "checks": [
+        {
+          "field": "nRhpPoles",
+          "ref": 1,
+          "op": "absdiff",
+          "tol": 0,
+          "why": "1/(s^2+s-2) has one pole at +1"
+        },
+        {
+          "field": "maxRealPole",
+          "ref": 1,
+          "op": "absdiff",
+          "tol": 1E-9,
+          "why": "that pole is +1, not -1"
+        },
+        {
+          "field": "loopStable",
+          "ref": 0,
+          "op": "false",
+          "tol": 0,
+          "why": "must NOT be reported stable"
+        }
+      ],
+      "hash": "f2ba7747be4deb9c61b2f02031e8a653acb26b837e705fa43eb782c43d171a4a",
+      "frozenWith": "26.1.0.3276743 (R2026a) Update 3"
+    },
+    "C3": {
+      "title": "C3",
+      "values": {
+        "nCross": 2,
+        "f1": 0.012664277723923777,
+        "f2": 0.16177904265324311,
+        "pmWorst": -95.412434847962516
+      },
+      "methods": [
+        "frequency_sweep",
+        "refined_sweep"
+      ],
+      "kinds": [
+        "independent_numeric",
+        "independent_numeric"
+      ],
+      "agreement": 6.7171959569124718E-5,
+      "spread": {
+        "nCross": 0,
+        "f1": 1.9620577731971345E-11,
+        "f2": 2.8479158095673363E-7,
+        "pmWorst": 6.7171959569124718E-5
+      },
+      "spreadFactor": 0.1,
+      "checks": [
+        {
+          "field": "nCross",
+          "ref": 2,
+          "op": "absdiff",
+          "tol": 0,
+          "why": "two downward 0 dB crossings"
+        },
+        {
+          "field": "pmWorst",
+          "ref": -95.4124,
+          "op": "absdiff",
+          "tol": 1,
+          "why": "the WORST crossing, not the first"
+        },
+        {
+          "field": "loopStable",
+          "ref": 0,
+          "op": "false",
+          "tol": 0,
+          "why": "a negative margin at any crossing is unstable"
+        }
+      ],
+      "hash": "4420b23b11ddf5966fa3a05c39662d17a042a3f9541660caf15932e672bbce70",
+      "frozenWith": "26.1.0.3276743 (R2026a) Update 3"
+    },
+    "T1": {
+      "title": "T1",
+      "values": {
+        "nRowsIn": 40,
+        "nRowsOut": 33,
+        "nMissing": 3,
+        "nDuplicate": 2,
+        "nOutlier": 2
+      },
+      "methods": [
+        "construction",
+        "row_accounting"
+      ],
+      "kinds": [
+        "construction",
+        "invariant"
+      ],
+      "agreement": 0,
+      "spread": {
+        "nRowsIn": 0,
+        "nRowsOut": 0,
+        "nMissing": 0,
+        "nDuplicate": 0,
+        "nOutlier": 0
+      },
+      "spreadFactor": 0.1,
+      "checks": [
+        {
+          "field": "nRowsIn",
+          "ref": 40,
+          "op": "absdiff",
+          "tol": 0,
+          "why": "input rows"
+        },
+        {
+          "field": "nRowsOut",
+          "ref": 33,
+          "op": "absdiff",
+          "tol": 0,
+          "why": "40 - 3 NaN - 2 dup - 2 outlier = 33"
+        },
+        {
+          "field": "nMissing",
+          "ref": 3,
+          "op": "absdiff",
+          "tol": 0,
+          "why": "NaNs counted, not silently dropped"
+        },
+        {
+          "field": "nDuplicate",
+          "ref": 2,
+          "op": "absdiff",
+          "tol": 0,
+          "why": "duplicates counted"
+        },
+        {
+          "field": "nOutlier",
+          "ref": 2,
+          "op": "absdiff",
+          "tol": 0,
+          "why": "outliers counted"
+        }
+      ],
+      "hash": "6a6ec4187caaae335572e03b36bf43ffd78bf0f7d0cacd0d68e0fdb43bc5d93e",
+      "frozenWith": "26.1.0.3276743 (R2026a) Update 3"
+    },
+    "S1": {
+      "title": "S1",
+      "values": {
+        "ber0": 0.078649603525142567,
+        "ber4": 0.012500818040737556,
+        "ber8": 0.00019090777407599314
+      },
+      "methods": [
+        "theory_erfc",
+        "simulation"
+      ],
+      "kinds": [
+        "analytic",
+        "independent_numeric"
+      ],
+      "agreement": 0.00033789647485743535,
+      "spread": {
+        "ber0": 0.00033789647485743535,
+        "ber4": 0.0001766819592624435,
+        "ber8": 9.0777407599313352E-7
+      },
+      "spreadFactor": 0.5,
+      "checks": [
+        {
+          "field": "ber0",
+          "ref": 0.0786496,
+          "op": "reldiff",
+          "tol": 0.2,
+          "why": "QPSK at 0 dB: 0.5*erfc(1)"
+        },
+        {
+          "field": "ber4",
+          "ref": 0.0125008,
+          "op": "reldiff",
+          "tol": 0.2,
+          "why": "QPSK at 4 dB"
+        },
+        {
+          "field": "ber8",
+          "ref": 0.0001909,
+          "op": "reldiff",
+          "tol": 0.2,
+          "why": "QPSK at 8 dB (Monte-Carlo limited)"
+        }
+      ],
+      "hash": "13515453f6e5f87ec029706e9714e64392bff34c8d3e5cb04976a7a1a3a9ee8f",
+      "frozenWith": "26.1.0.3276743 (R2026a) Update 3"
+    },
+    "R1": {
+      "title": "R1",
+      "values": {
+        "x": 0.88016106421235252,
+        "y": 1.2709127250152679,
+        "q1deg": 35,
+        "q2deg": 50
+      },
+      "methods": [
+        "fk_then_ik",
+        "geometric_inverse"
+      ],
+      "kinds": [
+        "independent_numeric",
+        "analytic"
+      ],
+      "agreement": 2.8421709430404008E-16,
+      "spread": {
+        "x": 0,
+        "y": 0,
+        "q1deg": 0,
+        "q2deg": 2.8421709430404008E-16
+      },
+      "spreadFactor": 0.1,
+      "checks": [
+        {
+          "field": "q1deg",
+          "ref": 35,
+          "op": "absdiff",
+          "tol": 1E-6,
+          "why": "IK must return the joint angles that generated the pose"
+        },
+        {
+          "field": "q2deg",
+          "ref": 50,
+          "op": "absdiff",
+          "tol": 1E-6,
+          "why": "same for the second joint"
+        },
+        {
+          "field": "fkErr",
+          "ref": 0,
+          "op": "absdiff",
+          "tol": 1E-9,
+          "why": "FK(IK(pose)) must reproduce the pose"
+        }
+      ],
+      "hash": "7093b07d29d73c39cfb196975e49eb846b599877df526fbadcbe10bfd3d04a1a",
+      "frozenWith": "26.1.0.3276743 (R2026a) Update 3"
+    },
+    "G1": {
+      "title": "G1",
+      "values": {
+        "y": 192.5,
+        "n": 10
+      },
+      "methods": [
+        "matlab_reference",
+        "closed_form"
+      ],
+      "kinds": [
+        "independent_numeric",
+        "analytic"
+      ],
+      "agreement": 0,
+      "spread": {
+        "y": 0,
+        "n": 0
+      },
+      "spreadFactor": 0.1,
+      "checks": [
+        {
+          "field": "y",
+          "ref": 192.5,
+          "op": "absdiff",
+          "tol": 0,
+          "why": "generated code must reproduce MATLAB exactly"
+        },
+        {
+          "field": "n",
+          "ref": 10,
+          "op": "absdiff",
+          "tol": 0,
+          "why": "loop trip count"
+        }
+      ],
+      "hash": "5bdb35bdb03323d59feb047b743cb3b005d537d594c19be19119cc1c65430ffb",
+      "frozenWith": "26.1.0.3276743 (R2026a) Update 3"
+    }
+  }
+}
