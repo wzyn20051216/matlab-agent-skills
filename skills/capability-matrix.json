@@ -1,7 +1,7 @@
 {
  "version": "2.0",
- "phase": "4.2 (Task 0-7 complete)",
- "date": "2026-10-19",
+ "phase": "4.5 (autonomous execution verification + Windows beta prep)",
+ "date": "2026-10-21",
  "legend": {
   "VERIFIED": "exercised by a run in this repository, with an independent reference or a test that can fail",
   "PARTIAL": "some sub-capability exercised, others not",
@@ -233,6 +233,40 @@
    }
   }
  },
+ "autonomousExecution": {
+  "scope": "workflow-level evidence only; it does not upgrade any mas_* tool claim, which stays governed by the per-entry evidence",
+  "tasks": {
+   "A_data_fitting": {
+    "status": "VERIFIED",
+    "workflow": "matlab-data-analysis + matlab-runner",
+    "artifact": "artifacts/validation/phase45/agent/taskA",
+    "independentVerifier": "20/20 checks (independent numpy refit, not MATLAB)",
+    "selfRecoveredErrors": 1
+   },
+   "B_filter_design": {
+    "status": "VERIFIED",
+    "workflow": "matlab-signal-vision-ai + matlab-runner",
+    "artifact": "artifacts/validation/phase45/agent/taskB",
+    "independentVerifier": "22/22 checks (numpy DTFT from exported coefficients, not freqz)",
+    "selfRecoveredErrors": 2
+   },
+   "C_simulink_model": {
+    "status": "VERIFIED",
+    "workflow": "matlab-simulink-modeling + matlab-runner",
+    "artifact": "artifacts/validation/phase45/agent/taskC",
+    "independentVerifier": "21/21 checks (analytic solution re-implemented in Python)",
+    "selfRecoveredErrors": 2
+   }
+  },
+  "executionClient": {
+   "status": "PARTIAL",
+   "reason": "the three tasks ran in the harness-native agent of this session, not in Codex CLI or Desktop; both Codex clients were BLOCKED by the network condition below, and the Desktop UI is not programmatically drivable"
+  },
+  "r1r2r3Gain": {
+   "status": "UNKNOWN",
+   "reason": "agent backend unreachable from this host (chatgpt.com and api.openai.com TCP timeouts while a github.com control probe succeeds); the frozen spec, reference answers and runner exist under artifacts/validation/phase45/benchmark, and all 9 arm x task pairs report BLOCKED. No skill-gain claim is made in either direction"
+  }
+ },
  "summary": {
   "capability_counts": {
    "VERIFIED": 34,
@@ -243,7 +277,7 @@
    "VERIFIED": 32
   },
   "verified_capabilities": 34,
-  "note": "Counts are COMPUTED from the entries above, not typed in -- mas_capability_check.m fails if they drift. Keys carry no spaces because jsonencode strips them. R1/R2/R3 benchmark ran for real on 2026-10-20 (docs/PHASE4_3_VERIFICATION_ZH.md); the official MATLAB MCP server is reachable over stdio. PARTIAL on the benchmark entry is deliberate: the task scripts are fixed, so it does not yet measure an agents own skill selection or recovery."
+  "note": "Counts are COMPUTED from the entries above, not typed in -- mas_capability_check.m fails if they drift. Keys carry no spaces because jsonencode strips them. R1/R2/R3 benchmark ran for real on 2026-10-20 (docs/PHASE4_3_VERIFICATION_ZH.md); the official MATLAB MCP server is reachable over stdio. PARTIAL on the benchmark entry is deliberate: the task scripts are fixed, so it does not yet measure an agents own skill selection or recovery. Phase 4.5 changed no mas_* tool status, so these counts are unchanged; it added the autonomousExecution block (agent workflow evidence for three natural-language tasks) and recorded the R1/R2/R3 comparison as UNKNOWN/BLOCKED instead of measured."
  },
  "tools": {
   "mas_codegen_ready": {
