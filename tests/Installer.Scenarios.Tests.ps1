@@ -17,6 +17,7 @@
 所有路径都在临时目录，脚本以 -SkipBaseSetup / -McpDataDir / -StartupDirectory 隔离。
 #>
 
+. (Join-Path $PSScriptRoot "helpers\Assertions.ps1")
 $script:RepoRoot = Split-Path -Parent $PSScriptRoot
 $script:InstallScript = Join-Path $script:RepoRoot "scripts\Install-MatlabMcpClients.ps1"
 $script:SetupScript = Join-Path $script:RepoRoot "scripts\Setup-MatlabMcpExistingSession.ps1"
@@ -247,8 +248,8 @@ Describe "Install-MatlabMcpClients：首次安装与安全合并" {
             Write-Utf8NoBom -Path $configPath -Text $broken
             $before = [System.IO.File]::ReadAllBytes($configPath)
 
-            { & $script:InstallScript -ServerExePath $sandbox.FakeServer -MatlabRoot $sandbox.MatlabRoot `
-                    -Clients generic -ProjectPath $sandbox.Work -SkipBaseSetup -BackupRoot $sandbox.Backup } | Should Throw
+            (Test-Throws { & $script:InstallScript -ServerExePath $sandbox.FakeServer -MatlabRoot $sandbox.MatlabRoot `
+                    -Clients generic -ProjectPath $sandbox.Work -SkipBaseSetup -BackupRoot $sandbox.Backup }) | Should Be $true
 
             ([System.IO.File]::ReadAllBytes($configPath) -join ",") | Should Be ($before -join ",")
         }
@@ -295,8 +296,8 @@ Describe "Install-MatlabMcpClients：客户端解耦（P0-2）" {
             New-ClientStub -StubDir $sandbox.StubDir -Name "claude" | Out-Null
             Use-StubsOnly $sandbox
 
-            { & $script:InstallScript -ServerExePath $sandbox.FakeServer -MatlabRoot $sandbox.MatlabRoot `
-                    -Clients codex -SkipBaseSetup -BackupRoot $sandbox.Backup } | Should Throw
+            (Test-Throws { & $script:InstallScript -ServerExePath $sandbox.FakeServer -MatlabRoot $sandbox.MatlabRoot `
+                    -Clients codex -SkipBaseSetup -BackupRoot $sandbox.Backup }) | Should Be $true
         }
         finally { Remove-Sandbox $sandbox }
     }
@@ -363,8 +364,8 @@ Describe "Install-MatlabMcpClients：客户端解耦（P0-2）" {
             Write-Utf8NoBom -Path $stub.StateFile -Text $previous
             Write-Utf8NoBom -Path $stub.FailFlag -Text "fail once"
 
-            { & $script:InstallScript -ServerExePath $sandbox.FakeServer -MatlabRoot $sandbox.MatlabRoot `
-                    -Clients codex -SkipBaseSetup -BackupRoot $sandbox.Backup } | Should Throw
+            (Test-Throws { & $script:InstallScript -ServerExePath $sandbox.FakeServer -MatlabRoot $sandbox.MatlabRoot `
+                    -Clients codex -SkipBaseSetup -BackupRoot $sandbox.Backup }) | Should Be $true
 
             $restored = Get-Content -Raw -LiteralPath $stub.StateFile
             $restored | Should Match "C:\\old\\srv.exe"
@@ -383,10 +384,10 @@ Describe "Setup-MatlabMcpExistingSession：失败回滚（P0-6）" {
             $original = "disp('original user startup');"
             Write-Utf8NoBom -Path $startupPath -Text $original
 
-            { & $script:SetupScript -ServerExePath $sandbox.FakeServer -MatlabRoot $sandbox.MatlabRoot `
+            (Test-Throws { & $script:SetupScript -ServerExePath $sandbox.FakeServer -MatlabRoot $sandbox.MatlabRoot `
                     -McpDataDir $sandbox.DataDir -StartupDirectory $sandbox.StartupDir `
                     -SessionMode auto -SkipClientRegistration -SkipAclFix `
-                    -FailAfterStep startup -BackupRoot $sandbox.Backup } | Should Throw
+                    -FailAfterStep startup -BackupRoot $sandbox.Backup }) | Should Be $true
 
             $after = [System.IO.File]::ReadAllText($startupPath)
             $after | Should Match "original user startup"
@@ -411,16 +412,58 @@ Describe "Setup-MatlabMcpExistingSession：失败回滚（P0-6）" {
         finally { Remove-Sandbox $sandbox }
     }
 
+    It "知名 SID 在 SDDL 里显示为别名时不会被误判为授权失败" {
+        # 真实缺陷（只在 GitHub runner 上暴露）：
+        # Get-Acl 生成的 SDDL 会把 S-1-5-21-xxx-500 渲染成别名 LA、S-1-5-18 渲染成 SY。
+        # 旧实现用 "SDDL 里是否包含 SID 字面量" 判断授权是否生效，于是给内置管理员
+        # （RID 500）授权时必然误判失败并回滚；普通用户 RID 不是 500，本机不会暴露。
+        if (-not (Get-Command icacls -ErrorAction SilentlyContinue)) { return }
+
+        $sandbox = New-Sandbox
+        try {
+            # 用 LocalSystem（S-1-5-18，SDDL 别名 SY）做一次真实授权。
+            $sid = "S-1-5-18"
+            & icacls $sandbox.DataDir /grant:r ("*" + $sid + ":(OI)(CI)R") | Out-Null
+            if ($LASTEXITCODE -ne 0) { return }
+
+            $sddl = (Get-Acl -LiteralPath $sandbox.DataDir).Sddl
+            # 前提成立：SDDL 用的是别名，字面量搜索必然落空。
+            ($sddl -match [regex]::Escape($sid)) | Should Be $false
+            # 语义比较必须能正确识别。
+            (Test-AclContainsSid -Path $sandbox.DataDir -Sid $sid) | Should Be $true
+
+            # 不存在的 SID 不能误报为存在。
+            (Test-AclContainsSid -Path $sandbox.DataDir -Sid "S-1-5-21-9999999999-9999999999-9999999999-9999") | Should Be $false
+        }
+        finally { Remove-Sandbox $sandbox }
+    }
+
     It "ACL 授权是追加式且可还原（P0-6）" {
         if (-not (Get-Command icacls -ErrorAction SilentlyContinue)) { return }
         $sandbox = New-Sandbox
         try {
             $beforeSddl = (Get-Acl -LiteralPath $sandbox.DataDir).Sddl
             $session = New-BackupSession -Root $sandbox.Backup -Reason "acl-test"
-            $grant = Set-DirectoryAclGrant -Path $sandbox.DataDir -Session $session
+            try {
+                $grant = Set-DirectoryAclGrant -Path $sandbox.DataDir -Session $session
+            }
+            catch {
+                # 失败时把环境事实打全：这条用例在 GitHub runner 上曾经失败过，
+                # 只有拿到 SID / SDDL 才能判断是代码问题还是运行面限制。
+                $identity = [System.Security.Principal.WindowsIdentity]::GetCurrent()
+                Write-Host "ACL 诊断："
+                Write-Host "  路径      = $($sandbox.DataDir)"
+                Write-Host "  身份      = $($identity.Name)"
+                Write-Host "  用户 SID  = $($identity.User.Value)"
+                Write-Host "  之前 SDDL = $beforeSddl"
+                Write-Host "  之后 SDDL = $((Get-Acl -LiteralPath $sandbox.DataDir).Sddl)"
+                throw
+            }
             $grant.Applied | Should Be $true
             $grant.RestrictedInheritance | Should Be $false
-            (Get-Acl -LiteralPath $sandbox.DataDir).Sddl | Should Match ([regex]::Escape($grant.UserSid))
+            # 用 SID 语义比较，不在 SDDL 文本里搜字面量：
+            # RID 500 这类知名 SID 在 SDDL 里会显示成别名 LA，字面量搜索会误判失败。
+            (Test-AclContainsSid -Path $sandbox.DataDir -Sid $grant.UserSid) | Should Be $true
 
             Invoke-BackupRollback -Session $session | Out-Null
             $afterSddl = (Get-Acl -LiteralPath $sandbox.DataDir).Sddl
