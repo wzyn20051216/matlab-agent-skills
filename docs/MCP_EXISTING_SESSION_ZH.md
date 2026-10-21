@@ -103,7 +103,7 @@ powershell -ExecutionPolicy Bypass -File .\scripts\Install-MatlabMcpClients.ps1 
 
 ## 会话验证
 
-打开 MATLAB 之后，执行：
+打开 MATLAB，执行一次 `shareMATLABSession()`，然后运行分阶段探测：
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File .\scripts\Test-MatlabMcpExistingSession.ps1
@@ -113,23 +113,50 @@ powershell -ExecutionPolicy Bypass -File .\scripts\Test-MatlabMcpExistingSession
 
 ```text
 artifacts/validation/matlab_mcp_existing_session_probe.json
+artifacts/validation/acceptance/mcp_probe.json
 ```
 
-如果 `ready = true`，说明当前桌面 MATLAB 会话已可供官方 MCP 接管。  
-如果 `autoModeReady = true`，说明就算当前没有共享会话，Codex 也已经具备自动启动 MATLAB 的配置条件。
+### 为什么不再有 ready / autoModeReady
 
-如果 `ready = false`，但你明明已经打开了 MATLAB，最常见原因是：
+旧版本输出的 `ready` 与 `autoModeReady` 是靠 `sessionDetails.json` 里的 `pid` 和配置字符串推断出来的，**没有真的连过 MCP server**。这两个字段已经删除，因为它们给出的是"配置看起来对"，而不是"现在能用"。
 
-- `sessionDetails.json` 里记录的是旧 `pid`
-- 当前桌面 MATLAB 还没有重新共享
+现在改成五个阶段，每段单独判定，任何一段失败都不会让后面的阶段假装成功：
 
-这时直接在 MATLAB 命令行执行一次：
+| 检查项 | 等级 | 判定依据 |
+| --- | --- | --- |
+| `mcp.matlab-install` | L1 | 能解析到 MATLAB 可执行文件并读到 `VersionInfo.xml` |
+| `mcp.matlab-license` | L1 | 默认 SKIP；只有 `-VerifyLicense` 或阶段 4 真实执行成功才升级为 PASS |
+| `mcp.session-config` | L1 | `sessionDetails.json` 可解析、证书文件存在、端口合法 |
+| `mcp.client-registration` | L2 | 客户端注册参数不含 `display-mode`，`command` 真实存在 |
+| `mcp.protocol-handshake` | L2 | TCP 可连且 `initialize` 返回合法 `result` |
+| `mcp.readonly-exec` | L3 | 通过 `tools/call` 真实执行只读命令，输出匹配版本号 |
+| `mcp.file-io` | L4 | 在隔离目录写入令牌再读回，内容一致 |
+
+只看最后一行即可：
+
+```text
+==> overall=SKIP achievedLevel=L0 pass=1 fail=0 skip=6
+```
+
+`overall=PASS` 才是真的可用。`overall=SKIP` 表示有检查项没执行（缺许可证、缺会话、缺工具），`overall=FAIL` 表示执行了但结果不对。退出码分别是 `0` / `3` / `1`。
+
+### 常见失败与对应原因
+
+`mcp.session-config` 报"会话证书不可读"：
+
+```text
+会话证书不可读（...\cert.pem）：通常意味着会话已失效，需要重新 shareMATLABSession()
+```
+
+这是最常见的情况：`sessionDetails.json` 是上一次会话留下的，证书文件早已不在，`pid` 也不指向活着的进程。旧版本会把这种状态报成 `ready = true`。修复方式是在 MATLAB 命令行再执行一次：
 
 ```matlab
 shareMATLABSession()
 ```
 
-然后重新运行验证脚本即可。
+`mcp.protocol-handshake` 报 `HTTP 401`：密钥不匹配。`reason` 会同时给出状态码和 JSON-RPC 错误体，便于区分"服务没起"（TCP 连不上）和"密钥错"（401）。
+
+`mcp.readonly-exec` 为 SKIP 且 `metrics.tools` 里没有执行类工具：服务端只暴露了工作区检查之类的工具，握手成功并不代表能执行 MATLAB 代码。
 
 ## Skills 默认策略
 
