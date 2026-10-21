@@ -19,17 +19,16 @@
 
 前置：Windows 10/11；已安装 MATLAB R2026a（建议；更早版本未验证）；已安装 Codex CLI 或 Codex Desktop。
 
-> **版本入口（必读）**：`main` 目前仍是早期快照——有 9 个技能，但是旧版内容，
-> 且**没有**桌面启动器、MCP 代码执行器、卸载器和本批发布文档。
-> 直接 `git clone`（默认主分支）装到的是**旧技能**，不是本文档描述的版本。
-> 在审查通过并合并进 `main` 之前，请使用下面的**固定版本入口**。
+> **版本入口（已同步，2026-10-21）**：`main` **就是**通过验收的技术预览版本，
+> 默认克隆即可，不再需要切换分支。已验证提交：`44052fd9db887a3cd9650b2c5fd7a05697fa3b3f`。
+> 固定不变入口（可选）：tag `v0.6.0-preview.1`（`100e6d4`），内容与 `main` **完全一致**，
+> 不是 GitHub Release，也不会被移动。
 
 ```powershell
-# 1) 取仓库并固定到已验证的预览标签
-git clone --branch v0.6.0-preview.1 --depth 1 https://github.com/wzyn20051216/matlab-agent-skills.git
+# 1) 取仓库（默认分支 = 已验证版本）
+git clone https://github.com/wzyn20051216/matlab-agent-skills.git
 cd matlab-agent-skills
-git rev-parse HEAD
-git rev-parse 'v0.6.0-preview.1^{commit}'   # 两个值必须一致
+git rev-parse HEAD    # 44052fd9db887a3cd9650b2c5fd7a05697fa3b3f
 
 # 2) 安装 9 个 Skills（默认装到当前用户 %USERPROFILE%\.agents\skills，无需 -SkillRoot）
 powershell -ExecutionPolicy Bypass -File .\scripts\Sync-Skills.ps1
@@ -38,9 +37,8 @@ powershell -ExecutionPolicy Bypass -File .\scripts\Sync-Skills.ps1
 powershell -ExecutionPolicy Bypass -File .\scripts\Install-MatlabMcpClients.ps1 -McpServerName matlab-official
 ```
 
-`release/windows-preview` 是同一内容的分支形式（可变，预览重切时指向新提交）；
-两者都不是 GitHub Release。合并进 `main` 之后，默认 `git clone` 才会指向同一版本，
-届时本文档的版本提示会被移除。
+如需不可变入口，把第 1 步换成
+`git clone --branch v0.6.0-preview.1 --depth 1 <repo>`（内容与 main 相同）。
 
 重启（或新开）Codex 会话后用一句话自检：
 
@@ -138,7 +136,7 @@ powershell -ExecutionPolicy Bypass -File .\tests\Invoke-Tests.ps1 -Layer free
 
 | 项 | 结论 | 证据 |
 |---|---|---|
-| 免费层测试 | **270/270**，Windows PowerShell 5.1 与 PowerShell 7 各一遍，exit 0 | `free_tests_final_ps51.json` / `free_tests_final_ps7.json` |
+| 免费层测试 | **306/306**，Windows PowerShell 5.1 与 PowerShell 7 各一遍，exit 0 | `free_tests_final_ps51.json` / `free_tests_final_ps7.json` |
 | 默认安装 | 不带 `-SkillRoot` 装到 `%USERPROFILE%\.agents\skills`；9/9 目录、62/62 文件、树哈希与仓库一致 | `artifacts/validation/phase45/install/windows_install_acceptance.md`（76/76 断言 ×2 宿主） |
 | 升级 / 幂等 | 旧版→新版 `updated=9`；连续两次 `updated=0`、不再新增备份目录 | 同上 |
 | 用户文件保护 | 升级后用户新增文件保留且哈希不变；JSON 报 `preservedUserFiles` | 同上 |
@@ -203,7 +201,7 @@ powershell -ExecutionPolicy Bypass -File .\scripts\Remove-Skills.ps1
 
 ## 11. 发布前 checklist
 
-- [x] 免费层 270/270（PS 5.1 + PS 7）
+- [x] 免费层 306/306（PS 5.1 + PS 7）
 - [x] 安装验收 76/76 ×2 宿主，0 FAIL
 - [x] 两端客户端 9/9 发现（引擎级）
 - [x] 已去掉报告中的本机用户名路径

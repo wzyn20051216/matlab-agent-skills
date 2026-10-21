@@ -1,18 +1,13 @@
-# 故障排查（Windows 技术预览）
+﻿# 故障排查（Windows 技术预览）
 
 本文只写**已实测**的失败模式与处理办法；没验证过的不写"应该能行"。
 
 ## 安装类
 
-**装到了旧版技能 / 9 个技能内容很旧**
-`main` 目前仍是早期快照，默认 `git clone` 装到的是旧技能。请用固定版本入口：
-
-```powershell
-git clone --branch v0.6.0-preview.1 --depth 1 https://github.com/wzyn20051216/matlab-agent-skills.git
-cd matlab-agent-skills
-git rev-parse HEAD
-git rev-parse 'v0.6.0-preview.1^{commit}'   # 两个必须一致
-```
+**本地是旧副本 / 9 个技能内容很旧**
+`main` 自 2026-10-21 起就是通过验收的版本（`44052fd`），默认克隆即为最新。
+如果你是更早克隆的旧副本：`git pull` 后用会话内 `git rev-parse HEAD` 确认，
+再重跑 `scripts\Sync-Skills.ps1`（会以"更新 + 备份"的方式升级，不会覆盖你本地改过的文件）。
 
 **装到了别的目录**
 不带 `-SkillRoot` 时应为 `%USERPROFILE%\.agents\skills`。先 `-DryRun` 看解析结果：

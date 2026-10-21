@@ -18,7 +18,7 @@ Full capability statement: this repository is open source, but its full workflow
 - Official MATLAB MCP guide: `docs/MCP_EXISTING_SESSION_ZH.md`
 - CLI / Desktop 共享安装与卸载：[安装说明](docs/SKILL_INSTALLATION_ZH.md)
 - 双端独立验收与可见桌面启动：[验收记录](docs/PHASE4_4_DUAL_CLIENT_ZH.md)、[启动说明](docs/MATLAB_DESKTOP_STARTUP_ZH.md)
-- 安装与执行基础设施可靠性收尾（缺陷逐项结论、免费层 270/270、平台范围）：[Phase 4.4.1 记录](docs/PHASE4_4_1_RELIABILITY_ZH.md)
+- 安装与执行基础设施可靠性收尾（缺陷逐项结论、免费层 306/306（Phase 4.7 后）、平台范围）：[Phase 4.4.1 记录](docs/PHASE4_4_1_RELIABILITY_ZH.md)
 - Windows 测试版说明、验证边界与卸载回滚：[WINDOWS_BETA_ZH](docs/WINDOWS_BETA_ZH.md)
 - 故障排查：[TROUBLESHOOTING_ZH](docs/TROUBLESHOOTING_ZH.md)
 - 支持环境矩阵（哪些实测、哪些没测）：[SUPPORT_MATRIX_ZH](docs/SUPPORT_MATRIX_ZH.md)
@@ -50,28 +50,16 @@ This repository provides that workflow layer:
 
 ## Installation
 
-> **Version note (read this first).** `main` currently predates the validated Windows release:
-> it ships the nine skills but in their **older, pre-Phase-4 form**, and it does not contain the
-> desktop launcher, the MCP code runner, the uninstaller or the release docs. A plain
-> `git clone` of `main` therefore installs the **old** skills, not the ones this README documents.
-> Until the reviewed merge into `main` lands, install the **pinned preview version** below.
+`main` **is** the validated Windows technical preview: a default clone gives exactly the version
+that was verified and merged on 2026-10-21 (commit `44052fd`, tree `a0f6540`). No branch switch,
+no pinned branch, no extra flag.
 
-### Windows technical preview — pinned version
+### Default (recommended)
 
 ```powershell
-# pinned, reproducible: tag v0.6.0-preview.1
-git clone --branch v0.6.0-preview.1 --depth 1 https://github.com/wzyn20051216/matlab-agent-skills.git
+git clone https://github.com/wzyn20051216/matlab-agent-skills.git
 cd matlab-agent-skills
-git rev-parse HEAD
-git rev-parse 'v0.6.0-preview.1^{commit}'   # the two values must match
-```
-
-`release/windows-preview` is the same content as a mutable branch, if you prefer a branch name.
-Neither is a GitHub Release; both are technical-preview entry points and can be re-cut.
-
-Deploy the skills into your local Codex skill directory:
-
-```powershell
+git rev-parse HEAD                      # validated release: 44052fd9db887a3cd9650b2c5fd7a05697fa3b3f
 powershell -ExecutionPolicy Bypass -File .\scripts\Sync-Skills.ps1
 ```
 
@@ -79,20 +67,27 @@ powershell -ExecutionPolicy Bypass -File .\scripts\Sync-Skills.ps1
 WSL 使用自己的 Linux 用户目录。实际发现、正文加载与 MCP 执行分别验收，详见
 [共享安装说明](docs/SKILL_INSTALLATION_ZH.md)。
 
-### After `main` is updated
+### Pinned alternative (reproducible)
 
-Only once the audited merge lands does the default clone give the validated version:
+If you need an immutable entry point, tag `v0.6.0-preview.1` pins the pre-merge candidate
+(`100e6d4`). **Its content is identical to `main`** (same tree), so both routes install the same
+nine skills; the tag is not a GitHub Release and is not moved.
 
 ```powershell
-git clone https://github.com/wzyn20051216/matlab-agent-skills.git
+git clone --branch v0.6.0-preview.1 --depth 1 https://github.com/wzyn20051216/matlab-agent-skills.git
 cd matlab-agent-skills
-git rev-parse HEAD   # should then match the released tag
+git rev-parse HEAD
+git rev-parse 'v0.6.0-preview.1^{commit}'   # the two values must match
 ```
 
-There is intentionally **no** `irm … | iex` one-liner in this preview: the only one available
-today reads the moving `main` branch, which is still the old code, and piping a moving branch
-into `iex` is exactly the supply-chain pattern this release is trying to remove. Use the pinned
-clone above; a pinned one-liner can be added once `main` is updated to the released tag.
+`release/windows-preview` points at the same commit as the tag.
+
+### No `irm … | iex` one-liner
+
+There is intentionally no one-liner that pipes a moving branch into `iex`: that pattern executes
+whatever the branch contains at that moment and cannot be reviewed. Clone and run the script from
+the checked-out tree instead. (The MCP server binary itself is pinned and hash-verified — see
+[WINDOWS_BETA_ZH](docs/WINDOWS_BETA_ZH.md) §4.1.)
 
 ## Windows beta status (technical preview)
 
@@ -101,7 +96,7 @@ running these skills requires your own valid MathWorks licence and the relevant 
 
 Verified on the reference machine (details and evidence paths in [WINDOWS_BETA_ZH](docs/WINDOWS_BETA_ZH.md)):
 
-- free test layer **270/270** on Windows PowerShell 5.1 and PowerShell 7;
+- free test layer **306/306** on Windows PowerShell 5.1 and PowerShell 7;
 - default install to `%USERPROFILE%\.agents\skills`: 9 skills, 62 files, tree hashes identical to `skills/`;
 - upgrade, idempotent re-sync, user-file preservation, failure rollback, and scoped uninstall;
 - **Codex CLI 0.147.0** and **Codex Desktop engine 0.163.0-alpha.10.2** both discover 9/9 skills with `discoveryErrors=[]`;
