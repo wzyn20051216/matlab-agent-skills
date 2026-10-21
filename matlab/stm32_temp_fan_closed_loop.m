@@ -21,9 +21,9 @@ fprintf("STM32_TEMP_FAN_WORKFLOW_START=%s\n", string(datetime("now", "Format", "
 env = probeEnvironment();
 env.keilExe = getenv("KEIL_EXE");
 if strlength(env.keilExe) == 0
-    env.keilExe = "E:\keil5\UV4\UV4.exe";
+    env.keilExe = findKeilExecutable();
 end
-env.keilAvailable = isfile(env.keilExe);
+env.keilAvailable = strlength(env.keilExe) > 0 && isfile(env.keilExe);
 
 params = defaultPlantParams();
 assignParamsToBase(params, struct("Kp", 1.0, "Ki", 0.006, "Kd", 0.0));
@@ -909,6 +909,39 @@ function writeJson(path, value)
 fid = fopen(path, "w");
 cleanup = onCleanup(@() fclose(fid));
 fprintf(fid, "%s", jsonencode(value, "PrettyPrint", true));
+end
+
+function exePath = findKeilExecutable()
+% @brief 在常见安装位置查找 Keil UV4.exe，找不到返回空字符串。
+%        优先读 KEIL_EXE 环境变量（调用方已处理），这里只做可移植的兜底探测。
+exePath = "";
+roots = [ ...
+    string(getenv("ProgramFiles(x86"))), ...
+    string(getenv("ProgramFiles")), ...
+    string(getenv("ProgramW6432")), ...
+    "C:\Keil_v5", ...
+    "C:\Keil" ...
+];
+for idx = 1:numel(roots)
+    root = roots(idx);
+    if strlength(root) == 0
+        continue;
+    end
+    candidate = fullfile(root, "Keil_v5", "UV4", "UV4.exe");
+    if isfile(candidate)
+        exePath = candidate;
+        return;
+    end
+    candidate = fullfile(root, "UV4", "UV4.exe");
+    if isfile(candidate)
+        exePath = candidate;
+        return;
+    end
+end
+if strlength(exePath) == 0
+    warning("MATLAB:STM32:KeilNotFound", ...
+        "未找到 Keil UV4.exe。请设置环境变量 KEIL_EXE，或在参数里直接指定 env.keilExe。");
+end
 end
 
 function writeLines(path, lines)

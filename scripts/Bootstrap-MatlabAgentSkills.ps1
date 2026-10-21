@@ -1,6 +1,16 @@
-<#
+﻿<#
 .SYNOPSIS
 一键下载并安装 matlab-agent-skills 与 MATLAB MCP 客户端接入。
+
+.DESCRIPTION
+安全策略（第一阶段 P0 重构后）：
+- 仓库获取失败时不再静默覆盖：git pull 失败只告警并继续使用现有检出。
+- ZIP 分支解压到唯一临时目录，避免误删他人共用的临时目录。
+- MCP server 二进制默认复用已存在文件（幂等），下载要求 HTTPS 且可选 SHA256 校验。
+- 支持 -DryRun 预演；下游脚本共享同一备份根目录。
+
+.PARAMETER Force
+强制重新下载二进制 / 强制覆盖技能目录中的外来内容。
 #>
 [CmdletBinding()]
 param(
@@ -12,8 +22,17 @@ param(
     [ValidateSet("auto", "existing", "new")]
     [string]$SessionMode = "auto",
     [bool]$InitializeMatlabOnStartup = $true,
+    [ValidateSet("desktop", "nodesktop")]
+    [string]$DisplayMode = "desktop",
     [string[]]$Clients = @("auto"),
-    [string]$MatlabRoot = ""
+    [string]$MatlabRoot = "",
+    [string]$ExpectedServerSha256 = "",
+    [string]$BackupRoot = "",
+    [switch]$SkipBaseSetup,
+    [switch]$SkipSkillsSync,
+    [switch]$NoDownload,
+    [switch]$Force,
+    [switch]$DryRun
 )
 
 $ErrorActionPreference = "Stop"
@@ -23,48 +42,14 @@ function Write-Step {
     Write-Host "==> $Message" -ForegroundColor Cyan
 }
 
+function Write-Info {
+    param([string]$Message)
+    Write-Host "    $Message" -ForegroundColor DarkGray
+}
+
 function Test-CommandExists {
     param([string]$Name)
     return [bool](Get-Command $Name -ErrorAction SilentlyContinue)
-}
-
-function Resolve-MatlabRoot {
-    param([string]$Hint)
-
-    if ($Hint -and (Test-Path -LiteralPath $Hint)) {
-        return $Hint
-    }
-
-    if ($env:MATLAB_ROOT -and (Test-Path -LiteralPath $env:MATLAB_ROOT)) {
-        return $env:MATLAB_ROOT
-    }
-
-    $matlabCmd = Get-Command matlab -ErrorAction SilentlyContinue
-    if ($matlabCmd) {
-        $binDir = Split-Path -Parent $matlabCmd.Source
-        return Split-Path -Parent $binDir
-    }
-
-    $roots = @()
-    $roots += Get-PSDrive -PSProvider FileSystem | ForEach-Object { $_.Root }
-    foreach ($root in ($roots | Select-Object -Unique)) {
-        $programFilesMatlab = Join-Path $root "Program Files\MATLAB"
-        if (Test-Path -LiteralPath $programFilesMatlab) {
-            $release = Get-ChildItem -LiteralPath $programFilesMatlab -Directory -ErrorAction SilentlyContinue |
-                Sort-Object Name -Descending |
-                Select-Object -First 1
-            if ($release) {
-                return $release.FullName
-            }
-        }
-
-        $flatMatlab = Join-Path $root "MATLAB"
-        if (Test-Path -LiteralPath $flatMatlab) {
-            return $flatMatlab
-        }
-    }
-
-    throw "未能自动发现 MATLAB 安装目录。请使用 -MatlabRoot 显式指定。"
 }
 
 function Ensure-Repo {
@@ -76,7 +61,21 @@ function Ensure-Repo {
 
     if (Test-Path -LiteralPath (Join-Path $TargetDir ".git")) {
         Write-Step "更新已有仓库"
-        git -C $TargetDir pull --ff-only | Out-Null
+        if ($DryRun) {
+            Write-Info "[DryRun] git -C $TargetDir pull --ff-only"
+            return $TargetDir
+        }
+        try {
+            git -C $TargetDir pull --ff-only | Out-Null
+        }
+        catch {
+            Write-Warning "git pull 失败（可能有本地修改），继续使用现有检出: $($_.Exception.Message)"
+        }
+        return $TargetDir
+    }
+
+    if ($DryRun) {
+        Write-Info "[DryRun] 将把仓库获取到 $TargetDir"
         return $TargetDir
     }
 
@@ -91,56 +90,113 @@ function Ensure-Repo {
     }
 
     Write-Step "下载仓库 ZIP"
-    $zipPath = Join-Path ([System.IO.Path]::GetTempPath()) "matlab-agent-skills-main.zip"
-    Invoke-WebRequest -Uri $ZipUrl -OutFile $zipPath
-    $extractDir = Join-Path ([System.IO.Path]::GetTempPath()) "matlab-agent-skills-main"
-    if (Test-Path -LiteralPath $extractDir) {
-        Remove-Item -Recurse -Force -LiteralPath $extractDir
+    $tempRoot = Join-Path ([System.IO.Path]::GetTempPath()) ("matlab-agent-skills-" + [guid]::NewGuid().ToString('N'))
+    New-Item -ItemType Directory -Force -Path $tempRoot | Out-Null
+    try {
+        $zipPath = Join-Path $tempRoot "repo.zip"
+        Invoke-WebRequest -Uri $ZipUrl -OutFile $zipPath -UseBasicParsing
+        Expand-Archive -Path $zipPath -DestinationPath $tempRoot -Force
+
+        $extracted = Get-ChildItem -LiteralPath $tempRoot -Directory | Select-Object -First 1
+        if (-not $extracted) { throw "ZIP 解压后没有找到仓库目录" }
+
+        Copy-Item -Path (Join-Path $extracted.FullName "*") -Destination $TargetDir -Recurse -Force
+        return $TargetDir
     }
-    Expand-Archive -Path $zipPath -DestinationPath ([System.IO.Path]::GetTempPath()) -Force
-    Copy-Item -Recurse -Force -Path (Join-Path $extractDir "*") -Destination $TargetDir
-    return $TargetDir
-}
-
-function Ensure-McpBinary {
-    param(
-        [string]$RepoDir,
-        [string]$DownloadUrl
-    )
-
-    $binDir = Join-Path $RepoDir "bin"
-    if (-not (Test-Path -LiteralPath $binDir)) {
-        New-Item -ItemType Directory -Force -Path $binDir | Out-Null
+    finally {
+        if (Test-Path -LiteralPath $tempRoot) {
+            Remove-Item -LiteralPath $tempRoot -Recurse -Force -ErrorAction SilentlyContinue
+        }
     }
-
-    $exePath = Join-Path $binDir "matlab-mcp-server-windows-x64.exe"
-    Write-Step "下载 MATLAB MCP Server"
-    Invoke-WebRequest -Uri $DownloadUrl -OutFile $exePath
-    return $exePath
 }
 
 $repoDir = Ensure-Repo -TargetDir $InstallDir -GitUrl $RepoUrl -ZipUrl $RepoZipUrl
-$resolvedMatlabRoot = Resolve-MatlabRoot -Hint $MatlabRoot
-$serverExePath = Ensure-McpBinary -RepoDir $repoDir -DownloadUrl $McpServerDownloadUrl
 
-Write-Step "同步 Skills"
-& (Join-Path $repoDir "scripts\Sync-Skills.ps1")
+$corePath = Join-Path (Join-Path $repoDir "scripts") "MatlabAgentSkills.Core.psm1"
+if (-not (Test-Path -LiteralPath $corePath)) {
+    throw "仓库不完整，缺少核心模块: $corePath"
+}
+Import-Module -Name $corePath -Force -DisableNameChecking
+
+if (-not $BackupRoot) {
+    $BackupRoot = Join-Path (Join-Path $repoDir "artifacts") "backups"
+}
+
+Write-Step "解析 MATLAB 安装目录"
+$resolvedMatlabRoot = Resolve-MatlabRoot -Hint $MatlabRoot
+Write-Info "matlabRoot: $resolvedMatlabRoot"
+
+Write-Step "准备 MATLAB MCP Server 二进制"
+$binPath = Join-Path (Join-Path $repoDir "bin") "matlab-mcp-server-windows-x64.exe"
+$serverExePath = $null
+$serverSha = $null
+$serverVerified = $false
+
+if ((Test-Path -LiteralPath $binPath) -and -not $Force) {
+    $serverExePath = $binPath
+    $serverSha = Get-FileSha256 -Path $binPath
+    $serverVerified = Test-HashMatch -Expected $ExpectedServerSha256 -Actual $serverSha
+    Write-Info "复用已有二进制（幂等，未重复下载）: $binPath"
+}
+else {
+    if ($NoDownload) {
+        throw "本地没有 $binPath，且指定了 -NoDownload。"
+    }
+    $download = Save-VerifiedDownload -Uri $McpServerDownloadUrl -Destination $binPath `
+        -ExpectedSha256 $ExpectedServerSha256 -DryRun:$DryRun
+    $serverExePath = $binPath
+    $serverSha = $download.Sha256
+    $serverVerified = [bool]$download.Verified
+}
+
+if (-not $SkipSkillsSync) {
+    Write-Step "同步 Skills"
+    $syncScript = Join-Path (Join-Path $repoDir "scripts") "Sync-Skills.ps1"
+    if (-not (Test-Path -LiteralPath $syncScript)) { throw "缺少脚本: $syncScript" }
+    & $syncScript -RepositoryRoot $repoDir -BackupRoot $BackupRoot -Force:$Force -DryRun:$DryRun | Out-Null
+}
 
 Write-Step "安装 MCP 客户端接入"
-& (Join-Path $repoDir "scripts\Install-MatlabMcpClients.ps1") `
-    -ServerExePath $serverExePath `
-    -MatlabRoot $resolvedMatlabRoot `
-    -ServerName $ServerName `
-    -SessionMode $SessionMode `
-    -InitializeMatlabOnStartup:$InitializeMatlabOnStartup `
-    -Clients $Clients `
-    -ProjectPath $repoDir
+$installScript = Join-Path (Join-Path $repoDir "scripts") "Install-MatlabMcpClients.ps1"
+if (-not (Test-Path -LiteralPath $installScript)) { throw "缺少脚本: $installScript" }
+
+$installParams = @{
+    MatlabRoot                = $resolvedMatlabRoot
+    ServerName                = $ServerName
+    SessionMode               = $SessionMode
+    InitializeMatlabOnStartup = $InitializeMatlabOnStartup
+    DisplayMode               = $DisplayMode
+    Clients                   = $Clients
+    ProjectPath               = $repoDir
+    BackupRoot                = $BackupRoot
+    DryRun                    = $DryRun
+    Force                     = $Force
+    ExpectedServerSha256      = $ExpectedServerSha256
+}
+# 只有二进制真实存在时才把路径传下去；DryRun 且尚未下载时让下游自己预演下载。
+if ($serverExePath -and (Test-Path -LiteralPath $serverExePath)) {
+    $installParams["ServerExePath"] = $serverExePath
+    $installParams["NoDownload"] = $true
+}
+elseif (-not $DryRun) {
+    throw "MCP 二进制准备失败: $serverExePath"
+}
+if ($SkipBaseSetup) { $installParams["SkipBaseSetup"] = $true }
+
+$installOutput = & $installScript @installParams
+$installSummary = if ($installOutput) { $installOutput | ConvertFrom-Json } else { $null }
 
 [pscustomobject]@{
-    installTime = (Get-Date).ToString("yyyy-MM-dd HH:mm:ss")
-    repoDir = $repoDir
-    matlabRoot = $resolvedMatlabRoot
-    serverExePath = $serverExePath
-    serverName = $ServerName
-    clients = $Clients
-} | ConvertTo-Json -Depth 4
+    installTime       = (Get-Date).ToString("yyyy-MM-dd HH:mm:ss")
+    dryRun            = [bool]$DryRun
+    repoDir           = $repoDir
+    matlabRoot        = $resolvedMatlabRoot
+    serverExePath     = $serverExePath
+    serverExeSha256   = $serverSha
+    serverExeVerified = $serverVerified
+    serverName        = $ServerName
+    sessionMode       = $SessionMode
+    clients           = $Clients
+    backupRoot        = $BackupRoot
+    install           = $installSummary
+} | ConvertTo-Json -Depth 8

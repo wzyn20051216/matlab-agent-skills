@@ -54,8 +54,14 @@ end
 feature.agentic = struct();
 feature.agentic.claim = "Agentic Toolkit / Embedded AI skill style workflow";
 feature.agentic.localSkillRepo = isfolder(fullfile(repoRoot, "skills", "matlab-orchestrator"));
-feature.agentic.localEmbeddedSkill = isfolder("E:\desktop\CAD\.agents\skills\matlab-orchestrator");
-feature.agentic.hasLocalAutomation = feature.agentic.localSkillRepo && feature.agentic.localEmbeddedSkill;
+% 外部技能目录通过环境变量注入，不再硬编码任何机器专属路径。
+embeddedSkillRoot = string(getenv("MATLAB_AGENT_SKILLS_EMBEDDED_ROOT"));
+feature.agentic.embeddedSkillRoot = embeddedSkillRoot;
+feature.agentic.localEmbeddedSkill = false;
+if strlength(embeddedSkillRoot) > 0
+    feature.agentic.localEmbeddedSkill = isfolder(fullfile(embeddedSkillRoot, "matlab-orchestrator"));
+end
+feature.agentic.hasLocalAutomation = feature.agentic.localSkillRepo || feature.agentic.localEmbeddedSkill;
 feature.agentic.status = "local_skill_available";
 
 addonsInfo = struct();

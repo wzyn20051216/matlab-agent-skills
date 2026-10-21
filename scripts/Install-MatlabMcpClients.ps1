@@ -1,11 +1,18 @@
-<#
+﻿<#
 .SYNOPSIS
 一键把 MATLAB MCP 接入多个 AI 客户端。
 
 .DESCRIPTION
-默认接入 Codex 和 Claude Code。会先调用仓库内的
-Setup-MatlabMcpExistingSession.ps1 完成 MATLAB MCP 基础配置，
-然后把 MCP server 注册到选定客户端。
+先完成 MATLAB MCP 基础配置（安装 Toolbox、ACL、startup.m），再把 MCP server
+注册到选定客户端。基础配置与客户端注册已解耦：
+- 基础配置不再隐式注册 Codex；
+- 没有安装 Codex 也能只用 `-Clients claude` 配好 Claude Code。
+
+安全策略（第一阶段 P0 重构后）：
+1. existing 模式下不再传 --matlab-display-mode / --matlab-root / -initialize-matlab-on-startup。
+2. .mcp.json / .vscode/mcp.json 走安全合并：保留用户其它 server 与其它键，解析失败直接中止。
+3. Codex / Claude 注册幂等：参数一致则不动；需要变更时先留快照，失败自动还原。
+4. -DryRun 预演全部动作；真实写入登记备份，失败逆序回滚。
 #>
 [CmdletBinding()]
 param(
@@ -16,283 +23,218 @@ param(
     [ValidateSet("auto", "existing", "new")]
     [string]$SessionMode = "auto",
     [bool]$InitializeMatlabOnStartup = $true,
+    [ValidateSet("desktop", "nodesktop")]
+    [string]$DisplayMode = "desktop",
     [string[]]$Clients = @("auto"),
     [string]$ProjectPath = "",
-    [switch]$SkipBaseSetup
+    [switch]$SkipBaseSetup,
+
+    [switch]$NoGeneric,
+    [switch]$SkipAclFix,
+    [string]$ExpectedServerSha256 = "",
+    [switch]$NoDownload,
+    [switch]$ForceDownload,
+
+    [string]$BackupRoot = "",
+    [switch]$DryRun,
+    [switch]$Force
 )
 
 $ErrorActionPreference = "Stop"
 
-function Write-Step {
-    param([string]$Message)
-    Write-Host "==> $Message" -ForegroundColor Cyan
+$corePath = Join-Path $PSScriptRoot "MatlabAgentSkills.Core.psm1"
+if (-not (Test-Path -LiteralPath $corePath)) {
+    throw "缺少核心模块: $corePath"
+}
+Import-Module -Name $corePath -Force -DisableNameChecking
+
+$repoRoot = Split-Path -Parent $PSScriptRoot
+if (-not $BackupRoot) {
+    $BackupRoot = Join-Path $repoRoot "artifacts\backups"
 }
 
-function Get-ServerArgs {
-    param(
-        [string]$ExePath,
-        [string]$RootPath,
-        [string]$Mode,
-        [bool]$InitializeMatlab
-    )
+#region 参数构造与自检（P0-1）
 
-    $args = @($ExePath, "--matlab-session-mode=$Mode", "--matlab-display-mode=desktop")
-    if ($InitializeMatlab) {
-        $args += "--initialize-matlab-on-startup=true"
-    }
-    if ($Mode -ne "existing" -and $RootPath) {
-        $args += "--matlab-root=$RootPath"
-    }
-    return $args
+$argBuild = New-MatlabMcpServerArgs -SessionMode $SessionMode -MatlabRoot $MatlabRoot `
+    -InitializeMatlabOnStartup $InitializeMatlabOnStartup -DisplayMode $DisplayMode
+$serverArgs = [string[]]$argBuild.Arguments
+
+$violations = Test-McpServerArgsCompatible -Arguments $serverArgs
+if ($violations.Count -gt 0) {
+    throw "内部错误：构造出的 MCP 参数会被官方 server 拒绝 -> $($violations -join "; ")"
 }
 
-function Test-CommandExists {
-    param([string]$Name)
-    return [bool](Get-Command $Name -ErrorAction SilentlyContinue)
-}
+foreach ($warning in $argBuild.Warnings) { Write-Warning $warning }
 
-function Resolve-MatlabRoot {
-    param([string]$Hint)
-
-    if ($Hint -and (Test-Path -LiteralPath $Hint)) {
-        return $Hint
-    }
-
-    if ($env:MATLAB_ROOT -and (Test-Path -LiteralPath $env:MATLAB_ROOT)) {
-        return $env:MATLAB_ROOT
-    }
-
-    $matlabCmd = Get-Command matlab -ErrorAction SilentlyContinue
-    if ($matlabCmd) {
-        $binDir = Split-Path -Parent $matlabCmd.Source
-        return Split-Path -Parent $binDir
-    }
-
-    $roots = @()
-    $roots += Get-PSDrive -PSProvider FileSystem | ForEach-Object { $_.Root }
-    foreach ($root in ($roots | Select-Object -Unique)) {
-        $programFilesMatlab = Join-Path $root "Program Files\MATLAB"
-        if (Test-Path -LiteralPath $programFilesMatlab) {
-            $release = Get-ChildItem -LiteralPath $programFilesMatlab -Directory -ErrorAction SilentlyContinue |
-                Sort-Object Name -Descending |
-                Select-Object -First 1
-            if ($release) {
-                return $release.FullName
-            }
-        }
-
-        $flatMatlab = Join-Path $root "MATLAB"
-        if (Test-Path -LiteralPath $flatMatlab) {
-            return $flatMatlab
-        }
-    }
-
-    throw "Unable to auto-detect MATLAB root. Pass -MatlabRoot explicitly."
-}
-
-function Resolve-ServerExePath {
-    param(
-        [string]$Hint,
-        [string]$DownloadUrl
-    )
-
-    if ($Hint -and (Test-Path -LiteralPath $Hint)) {
-        return (Resolve-Path -LiteralPath $Hint).Path
-    }
-
-    $candidates = @(
-        (Join-Path $PSScriptRoot "..\bin\matlab-mcp-server-windows-x64.exe"),
-        (Join-Path (Get-Location).Path "matlab-mcp-server-windows-x64.exe"),
-        (Join-Path $HOME "Downloads\matlab-mcp-server-windows-x64.exe"),
-        (Join-Path $HOME "download\matlab-mcp-server-windows-x64.exe")
-    )
-
-    foreach ($candidate in $candidates) {
-        if (Test-Path -LiteralPath $candidate) {
-            return (Resolve-Path -LiteralPath $candidate).Path
-        }
-    }
-
-    $binDir = Join-Path $PSScriptRoot "..\bin"
-    if (-not (Test-Path -LiteralPath $binDir)) {
-        New-Item -ItemType Directory -Force -Path $binDir | Out-Null
-    }
-    $downloadPath = Join-Path $binDir "matlab-mcp-server-windows-x64.exe"
-    Invoke-WebRequest -Uri $DownloadUrl -OutFile $downloadPath
-    return (Resolve-Path -LiteralPath $downloadPath).Path
-}
+#endregion
 
 function Resolve-Clients {
     param([string[]]$RequestedClients)
 
-    $resolved = [System.Collections.Generic.List[string]]::new()
+    $resolved = New-Object System.Collections.Generic.List[string]
     foreach ($client in $RequestedClients) {
         switch ($client.ToLowerInvariant()) {
             "auto" {
                 if (Test-CommandExists "codex") { $resolved.Add("codex") }
                 if (Test-CommandExists "claude") { $resolved.Add("claude") }
-                $resolved.Add("generic")
+                if (-not $NoGeneric) { $resolved.Add("generic") }
             }
-            default {
-                $resolved.Add($client.ToLowerInvariant())
-            }
+            default { $resolved.Add($client.ToLowerInvariant()) }
         }
     }
-
     return @($resolved | Select-Object -Unique)
 }
 
-function Install-CodexMcp {
+function New-McpClientEntry {
     param(
-        [string]$Name,
-        [string[]]$ServerArgs
+        [string]$ExePath,
+        [string[]]$Arguments,
+        [switch]$IncludeType
     )
 
-    $existing = & codex mcp list 2>$null
-    if ($existing -match "(?m)^$([regex]::Escape($Name))\s") {
-        & codex mcp remove $Name | Out-Null
-    }
-
-    $commandArgs = @("mcp", "add", $Name, "--") + $ServerArgs
-    & codex @commandArgs | Out-Null
-    return (& codex mcp get $Name) -join [Environment]::NewLine
-}
-
-function Install-ClaudeMcp {
-    param(
-        [string]$Name,
-        [string[]]$ServerArgs
-    )
-
-    $existing = & claude mcp list 2>$null
-    if ($existing -match [regex]::Escape($Name)) {
-        & claude mcp remove $Name | Out-Null
-    }
-
-    $commandArgs = @("mcp", "add", $Name, "--") + $ServerArgs
-    & claude @commandArgs | Out-Null
-    return (& claude mcp get $Name) -join [Environment]::NewLine
-}
-
-function Install-VsCodeMcp {
-    param(
-        [string]$Name,
-        [string[]]$ServerArgs,
-        [string]$TargetProjectPath
-    )
-
-    if (-not $TargetProjectPath) {
-        throw "VS Code 模式需要传入 -ProjectPath"
-    }
-
-    $vscodeDir = Join-Path $TargetProjectPath ".vscode"
-    if (-not (Test-Path -LiteralPath $vscodeDir)) {
-        New-Item -ItemType Directory -Force -Path $vscodeDir | Out-Null
-    }
-
-    $configPath = Join-Path $vscodeDir "mcp.json"
-    $command = $ServerArgs[0]
-    $argList = @()
-    if ($ServerArgs.Length -gt 1) {
-        $argList = $ServerArgs[1..($ServerArgs.Length - 1)]
-    }
-
-    $json = [ordered]@{
-        servers = [ordered]@{
-            $Name = [ordered]@{
-                type = "stdio"
-                command = $command
-                args = $argList
-            }
+    if ($IncludeType) {
+        return [ordered]@{
+            type    = "stdio"
+            command = $ExePath
+            args    = @($Arguments)
         }
     }
-
-    $json | ConvertTo-Json -Depth 6 | Set-Content -LiteralPath $configPath -Encoding UTF8
-    return $configPath
+    return [ordered]@{
+        command = $ExePath
+        args    = @($Arguments)
+    }
 }
 
-function Install-GenericMcp {
-    param(
-        [string]$Name,
-        [string[]]$ServerArgs,
-        [string]$TargetProjectPath
-    )
+Write-Step "解析 MATLAB MCP Server 可执行文件"
+$server = Resolve-McpServerExecutable -Hint $ServerExePath -DownloadUrl $McpServerDownloadUrl `
+    -ScriptRoot $PSScriptRoot -ExpectedSha256 $ExpectedServerSha256 `
+    -NoDownload:$NoDownload -ForceDownload:$ForceDownload -DryRun:$DryRun
+Write-Info "server: $($server.Path) (source=$($server.Source))"
 
-    $root = $TargetProjectPath
-    if (-not $root) {
-        $root = (Get-Location).Path
-    }
-
-    $configPath = Join-Path $root ".mcp.json"
-    $command = $ServerArgs[0]
-    $argList = @()
-    if ($ServerArgs.Length -gt 1) {
-        $argList = $ServerArgs[1..($ServerArgs.Length - 1)]
-    }
-
-    $json = [ordered]@{
-        mcpServers = [ordered]@{
-            $Name = [ordered]@{
-                command = $command
-                args = $argList
-            }
-        }
-    }
-
-    $json | ConvertTo-Json -Depth 6 | Set-Content -LiteralPath $configPath -Encoding UTF8
-    return $configPath
+if (-not $DryRun -and -not (Test-Path -LiteralPath $server.Path)) {
+    throw "MATLAB MCP Server 可执行文件不存在: $($server.Path)"
 }
 
-$repoRoot = Split-Path -Parent $PSScriptRoot
-$setupScript = Join-Path $PSScriptRoot "Setup-MatlabMcpExistingSession.ps1"
-$ServerExePath = Resolve-ServerExePath -Hint $ServerExePath -DownloadUrl $McpServerDownloadUrl
-$MatlabRoot = Resolve-MatlabRoot -Hint $MatlabRoot
-
-if (-not $SkipBaseSetup) {
-    Write-Step "运行 MATLAB MCP 基础配置"
-    & $setupScript `
-        -ServerExePath $ServerExePath `
-        -MatlabRoot $MatlabRoot `
-        -McpServerName $ServerName `
-        -McpServerDownloadUrl $McpServerDownloadUrl `
-        -SessionMode $SessionMode `
-        -InitializeMatlabOnStartup:$InitializeMatlabOnStartup `
-        -WriteStartupShare:$true | Out-Null
-}
-
-$serverArgs = Get-ServerArgs -ExePath $ServerExePath -RootPath $MatlabRoot -Mode $SessionMode -InitializeMatlab $InitializeMatlabOnStartup
 $resolvedClients = Resolve-Clients -RequestedClients $Clients
-$results = [ordered]@{}
-
-foreach ($client in $resolvedClients) {
-    switch ($client.ToLowerInvariant()) {
-        "codex" {
-            Write-Step "接入 Codex"
-            $results["codex"] = Install-CodexMcp -Name $ServerName -ServerArgs $serverArgs
-        }
-        "claude" {
-            Write-Step "接入 Claude Code"
-            $results["claude"] = Install-ClaudeMcp -Name $ServerName -ServerArgs $serverArgs
-        }
-        "vscode" {
-            Write-Step "写入 VS Code MCP 配置"
-            $results["vscode"] = Install-VsCodeMcp -Name $ServerName -ServerArgs $serverArgs -TargetProjectPath $ProjectPath
-        }
-        "generic" {
-            Write-Step "写入通用 .mcp.json"
-            $results["generic"] = Install-GenericMcp -Name $ServerName -ServerArgs $serverArgs -TargetProjectPath $ProjectPath
-        }
-        default {
-            throw "不支持的客户端: $client"
-        }
-    }
+if ($resolvedClients.Count -eq 0) {
+    throw "没有可接入的客户端：未检测到 codex / claude，且指定了 -NoGeneric。"
 }
 
-[pscustomobject]@{
-    installTime = (Get-Date).ToString("yyyy-MM-dd HH:mm:ss")
-    serverName = $ServerName
-    sessionMode = $SessionMode
-    initializeMatlabOnStartup = $InitializeMatlabOnStartup
-    clients = $resolvedClients
-    results = $results
-} | ConvertTo-Json -Depth 6
+$session = $null
+if (-not $DryRun) {
+    $session = New-BackupSession -Root $BackupRoot -Reason "install-clients"
+    Write-Info "备份目录（仅在发生变更时创建）: $($session.Directory)"
+}
+
+$summary = [ordered]@{
+    ok                = $false
+    dryRun            = [bool]$DryRun
+    installTime       = (Get-Date).ToString("yyyy-MM-dd HH:mm:ss")
+    serverName        = $ServerName
+    sessionMode       = $SessionMode
+    displayMode       = if ($SessionMode -eq "existing") { $null } else { $DisplayMode }
+    initializeMatlabOnStartup = ($SessionMode -ne "existing") -and $InitializeMatlabOnStartup
+    serverExePath     = $server.Path
+    serverExeSha256   = $server.Sha256
+    serverExeVerified = [bool]$server.Verified
+    serverArgs        = $serverArgs
+    droppedArguments  = [string[]]$argBuild.DroppedArguments
+    clients           = [string[]]$resolvedClients
+    baseSetup         = $null
+    results           = [ordered]@{}
+    backupDirectory   = if ($session) { $session.Directory } else { $null }
+    rollback          = $null
+}
+
+try {
+    if (-not $SkipBaseSetup) {
+        Write-Step "运行 MATLAB MCP 基础配置（不注册客户端）"
+        $setupScript = Join-Path $PSScriptRoot "Setup-MatlabMcpExistingSession.ps1"
+        if (-not (Test-Path -LiteralPath $setupScript)) {
+            throw "缺少基础配置脚本: $setupScript"
+        }
+
+        $setupParams = @{
+            ServerExePath             = $server.Path
+            MatlabRoot                = $MatlabRoot
+            McpServerName             = $ServerName
+            McpServerDownloadUrl      = $McpServerDownloadUrl
+            SessionMode               = $SessionMode
+            InitializeMatlabOnStartup = $InitializeMatlabOnStartup
+            DisplayMode               = $DisplayMode
+            WriteStartupShare         = $true
+            SkipClientRegistration    = $true
+            BackupRoot                = $BackupRoot
+            DryRun                    = $DryRun
+            Force                     = $Force
+            ExpectedServerSha256      = $ExpectedServerSha256
+            NoDownload                = $NoDownload
+        }
+        if ($SkipAclFix) { $setupParams["SkipAclFix"] = $true }
+
+        $setupOutput = & $setupScript @setupParams
+        $summary.baseSetup = if ($setupOutput) { $setupOutput | ConvertFrom-Json } else { $null }
+    }
+    else {
+        Write-Step "跳过基础配置（-SkipBaseSetup）"
+    }
+
+    foreach ($client in $resolvedClients) {
+        switch ($client.ToLowerInvariant()) {
+            "codex" {
+                Write-Step "接入 Codex"
+                if (-not (Test-CommandExists "codex")) {
+                    throw "没有检测到 codex 命令，无法接入 Codex。请先安装 Codex CLI，或用 -Clients claude 单独接入 Claude Code。"
+                }
+                $summary.results["codex"] = Register-ClientMcpServer -ClientName "codex" -Name $ServerName `
+                    -ServerArgs $serverArgs -ExecutablePath $server.Path -Session $session -DryRun:$DryRun
+            }
+            "claude" {
+                Write-Step "接入 Claude Code"
+                if (-not (Test-CommandExists "claude")) {
+                    throw "没有检测到 claude 命令，无法接入 Claude Code。请先安装 Claude Code，或用 -Clients codex 单独接入 Codex。"
+                }
+                $summary.results["claude"] = Register-ClientMcpServer -ClientName "claude" -Name $ServerName `
+                    -ServerArgs $serverArgs -ExecutablePath $server.Path -Session $session -DryRun:$DryRun
+            }
+            "vscode" {
+                Write-Step "写入 VS Code MCP 配置（安全合并）"
+                if (-not $ProjectPath) { throw "VS Code 模式需要传入 -ProjectPath" }
+                $configPath = Join-Path (Join-Path $ProjectPath ".vscode") "mcp.json"
+                $entry = New-McpClientEntry -ExePath $server.Path -Arguments $serverArgs -IncludeType
+                $summary.results["vscode"] = Merge-McpServerConfig -Path $configPath -RootProperty "servers" `
+                    -ServerName $ServerName -Entry $entry -BackupRoot $BackupRoot -BackupLabel "vscode-mcp" -DryRun:$DryRun
+            }
+            "generic" {
+                Write-Step "写入通用 .mcp.json（安全合并）"
+                $root = if ($ProjectPath) { $ProjectPath } else { (Get-Location).Path }
+                $configPath = Join-Path $root ".mcp.json"
+                $entry = New-McpClientEntry -ExePath $server.Path -Arguments $serverArgs
+                $summary.results["generic"] = Merge-McpServerConfig -Path $configPath -RootProperty "mcpServers" `
+                    -ServerName $ServerName -Entry $entry -BackupRoot $BackupRoot -BackupLabel "generic-mcp" -DryRun:$DryRun
+            }
+            default {
+                throw "不支持的客户端: $client"
+            }
+        }
+    }
+
+    if ($session) { Save-BackupManifest -Session $session }
+    $summary.ok = $true
+}
+catch {
+    $failure = $_
+    if ($session -and -not $DryRun) {
+        Write-Warning "安装失败，开始回滚: $($failure.Exception.Message)"
+        $rollback = Invoke-BackupRollback -Session $session
+        $rollback.Actions | ForEach-Object { Write-Info $_ }
+        Save-BackupManifest -Session $session
+        $summary.rollback = $rollback
+        $summary.error = $failure.Exception.Message
+        $summary | ConvertTo-Json -Depth 10 | Write-Output
+        throw
+    }
+    throw
+}
+
+$summary | ConvertTo-Json -Depth 10
