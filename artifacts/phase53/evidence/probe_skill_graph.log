@@ -1,0 +1,5 @@
+PROBLEMS | 3/4 graph checks passed over 9 skill(s), 9 edge(s) | 3/4
+cycles | pass=1 | no cycle among 9 edge(s) over 9 skill(s)
+dangling | pass=1 | all 8 routed skill(s) exist on disk
+duplication | pass=0 | matlab-runner is referenced 2 times (matlab-orchestrator, matlab-simulink-modeling): loading it that often duplicates context and makes ownership ambiguous
+coverage | pass=1 | all 8 non-router skill(s) are routable

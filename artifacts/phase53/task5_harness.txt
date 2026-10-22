@@ -1,0 +1,59 @@
+=== Phase 5.3 isolated benchmark harness ===
+frozen 3 tasks
+  tasks  D:\Temp\tpc4402b51_6077_404b_8a60_f24989e7d547\holdout\tasks.json
+  sha256 a13d8c97fec0bcba4819e6069c59eec60e94778a4343aa55996ea7aea7bdf3bb
+  answers sha256 5ccd6fbe91db7dcacd5132fefcf08187ec97bb9622c92a96ae1e6a738de6b04b
+  manifest D:\Temp\tpc4402b51_6077_404b_8a60_f24989e7d547\holdout\manifest.json
+task       domain   kind      expected     actual       pass    criteria
+dev-sig-normal signal   normal    PASS         PASS         1       all criteria met
+dev-data-normal data     normal    PASS         PASS         1       all criteria met
+dev-rob-normal robotics normal    PASS         PASS         1       all criteria met
+
+3/3 tasks | route 3/3 | tool 3/3 | verdict 3/3 | false accepts 0
+baseline: tool-level scripted policy (NOT an Agent benchmark)
+agent level: NOT TESTED (no independent agent episode was executed; the runner is a deterministic policy, so only tool-level evidence is reported)
+grade written to D:\Temp\tpc4402b51_6077_404b_8a60_f24989e7d547\results\grade.json
+task       domain   kind      expected     actual       pass    criteria
+dev-sig-normal signal   normal    PASS         PASS         1       all criteria met
+dev-data-normal data     normal    PASS         MISSING      0       result file missing
+dev-rob-normal robotics normal    PASS         PASS         1       all criteria met
+
+2/3 tasks | route 2/3 | tool 2/3 | verdict 2/3 | false accepts 0
+baseline: tool-level scripted policy (NOT an Agent benchmark)
+agent level: NOT TESTED (no independent agent episode was executed; the runner is a deterministic policy, so only tool-level evidence is reported)
+grade written to D:\Temp\tpc4402b51_6077_404b_8a60_f24989e7d547\results2\grade.json
+task       domain   kind      expected     actual       pass    criteria
+dev-sig-normal signal   normal    PASS         FAIL         0       failed: verdict
+dev-data-normal data     normal    PASS         PASS         1       all criteria met
+dev-rob-normal robotics normal    PASS         PASS         1       all criteria met
+
+2/3 tasks | route 3/3 | tool 3/3 | verdict 2/3 | false accepts 0
+baseline: tool-level scripted policy (NOT an Agent benchmark)
+agent level: NOT TESTED (no independent agent episode was executed; the runner is a deterministic policy, so only tool-level evidence is reported)
+grade written to D:\Temp\tpc4402b51_6077_404b_8a60_f24989e7d547\results3\grade.json
+task       domain   kind      expected     actual       pass    criteria
+dev-sig-normal signal   normal    PASS         PASS         1       all criteria met
+dev-data-normal data     normal    PASS         PASS         1       all criteria met
+dev-rob-normal robotics normal    PASS         PASS         0       failed: fields
+
+2/3 tasks | route 3/3 | tool 3/3 | verdict 3/3 | false accepts 0
+baseline: tool-level scripted policy (NOT an Agent benchmark)
+agent level: NOT TESTED (no independent agent episode was executed; the runner is a deterministic policy, so only tool-level evidence is reported)
+grade written to D:\Temp\tpc4402b51_6077_404b_8a60_f24989e7d547\results4\grade.json
+=== benchmark harness tests ===
+  [PASS] freeze hashes                -> both hashes recorded
+  [PASS] audit catches copy           -> answers copy inside repo flagged
+  [PASS] audit catches hidden copy    -> answers copy under artifacts/phase53 flagged
+  [PASS] audit passes clean           -> 7 checks, all pass
+  [PASS] grade 3/3                    -> 3/3
+  [PASS] labels tool-level            -> tool-level scripted policy (NOT an Agent benchmark)
+  [PASS] tampered tasks refused       -> grader throws on hash mismatch
+  [PASS] missing result fails         -> result file missing
+  [PASS] missing counted              -> 2/3
+  [PASS] wrong verdict fails          -> failed: verdict
+  [PASS] out-of-tolerance field fails -> failed: fields
+
+---- 11 / 11 benchmark-harness cases passed ----
+
+HARNESS SUMMARY: 11 / 11 passed, suite pass = 1
+MATLAB 26.1.0.3276743 (R2026a) Update 3

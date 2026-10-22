@@ -1,70 +1,138 @@
 ---
 name: matlab-data-analysis
-description: MATLAB data analysis workflow for tables, timetables, statistics, fitting, optimization-assisted analysis, visualization, report artifacts, and reproducible paper figures. Use whenever the user asks MATLAB to analyze data, plot results, fit models, process CSV/Excel/MAT files, or reproduce figures.
+description: MATLAB data analysis workflow for tables, timetables, numerical verification, statistics, fitting, uncertainty, error propagation, and reproducible experiments. Use whenever the user asks MATLAB to analyze data, integrate or differentiate numerically, solve or check linear systems, assess convergence and conditioning, clean tables with missing/outlier accounting, fit models, test significance, propagate uncertainty, or reproduce figures and numbers.
 ---
 
 # MATLAB Data Analysis
 
-Use this skill for MATLAB analysis pipelines that start with data and end with validated numbers, figures, or reports.
+Use this skill when the deliverable is a validated number: an integral, a solution vector,
+a fit, a p-value, an uncertainty, or a figure whose axis is backed by arithmetic. The
+plot is never the evidence.
 
 ## Workflow
 
-1. Inventory input files and schemas before coding.
-2. Load data with typed APIs: `readtable`, `readtimetable`, `matfile`, `datastore`, or toolbox importers.
-3. Normalize units, time zones, missing values, categorical fields, and outliers explicitly.
-4. Build analysis as functions plus a thin runner script.
-5. Save clean data, figures, and summary metrics under `artifacts/`.
-6. Validate with shape checks, range checks, and at least one numerical assertion.
+1. 任务识别 — State the quantity, its units, the tolerance that makes it acceptable, and
+   what independent source could contradict it. A claim without a tolerance has no PASS.
+2. 能力选择 — `r = mas_route(prompt)`; confirm this skill is primary, then read the
+   matching tool contract below instead of the whole toolbox.
+3. 环境检查 — `mas_precheck` before toolbox-only APIs (`fitlm`, Statistics Toolbox).
+   Missing toolbox degrades the method explicitly; it never silently swaps the method.
+4. MATLAB 执行 — build a small reproducible subset first; save intermediate arrays so a
+   failing check can be inspected rather than guessed.
+5. 独立验收 — grade with the tools below. Every accepted number needs a second route:
+   closed form, hand algebra, a different factorization, resampling, or Monte Carlo.
+6. 错误恢复 — a `fail`/`UNDETERMINED` is fixed for the named reason (add tolerance,
+   improve the reference, raise precision, extend the record) and re-run; it is never
+   skipped or relabelled.
+7. 结果交付 — report value, tolerance, condition/uncertainty, and verdict. SKIP/BLOCKED
+   stays SKIP/BLOCKED.
 
-## API Preferences
-
-- Tables and timetables for labeled data.
-- `groupsummary`, `rowfun`, `varfun`, `synchronize`, and `retime` for structured transformations.
-- `fitlm`, `fitnlm`, `fitrgp`, `fitcsvm`, or `fitcensemble` only after checking toolbox availability.
-- `optimproblem` or solver APIs for constrained fitting when simple regression is not enough.
-- Export figures with explicit size, resolution, and format.
-
-## Reproducible Figures
-
-Every reproduced paper figure should include:
-
-- Source data provenance.
-- Script name and command used.
-- Random seed if applicable.
-- Axis labels, units, legend, and saved image path.
-- A simple metric comparing reproduced result with reference when possible.
-
-## Validation
-
-Use checks such as:
+## Verification tools
 
 ```matlab
-assert(height(T) > 0)
-assert(all(isfinite(metrics.rmse)))
-assert(isfile(fullfile(outDir, "figure_1.png")))
+q = mas_quad_check(@(x) 4./(1+x.^2), 0, 1, struct('value',pi,'tolRel',1e-8, ...
+        'method','simpson','n',32,'derivAt',0.5,'derivValue',-2.56));
+q.verdict  q.valueErr  q.orders  q.refGap  q.floorI
+
+L = mas_linsolve_check(A, x, b, struct('tolRel',1e-10));
+L.verdict  L.backwardError  L.errorBound  L.cond  L.rank  L.routeDiff
+
+c = mas_converge_check(hist, struct('tolFinal',1e-10,'order',2,'rate',0.5));
+c.verdict  c.observed.order  c.observed.rate  c.observed.final
+
+r = mas_fit_check(X, y, beta, struct('tolRel',1e-8,'r2',0.98, ...
+        'se',se,'holdout',struct('X',Xh,'y',yh)));
+r.verdict  r.r2  r.rmse  r.ci  r.betaRef  r.condX
+
+s = mas_stat_check(x, struct('mu0',5,'alpha',0.05,'tail','two-sided'));
+s = mas_stat_check(x1, x2, struct('claimDiff',0));          % Welch
+s.verdict  s.p  s.ci  s.decision  s.pResample  s.methodAgreement
+
+u = mas_uncert_check(@(p) p(1).*p(2).^2, [2;3], [0.02;0.03], ...
+        struct('value',18,'sigma',0.36,'sigmaTolRel',0.05));
+u.verdict  u.sigmaLin  u.sigmaMC  u.mcSE  u.sensitivity  u.jacobianMethod
+
+p = mas_repro_check(@() myExperiment(), struct('seed',20261021,'tol',0));
+p.verdict  p.sameSeed  p.seedEffect  p.digest  p.diffSameSeed
 ```
 
-Do not accept a plot as "done" unless the underlying numerical summary also looks sane.
+Every tool returns `verdict` (PASS | FAIL | UNDETERMINED) and per-check status
+(`pass | fail | na | undetermined`). `na` = the contract does not apply and does not drag
+the verdict; `undetermined` = missing evidence or missing criterion and forces
+UNDETERMINED. **No acceptance criterion, no PASS.**
 
-## Cleaning That Accounts For Every Row
+## Boundary rules these tools encode
+
+- A claimed integral tolerance below the double-precision floor of the quadrature is
+  `undetermined`, not a lucky PASS; two reference routes must agree before the reference
+  is used at all.
+- Measured order comes from halving `n`, not from the method's name: Simpson on a kink
+  measures order 0 and FAILS, while a smooth integrand may measure above nominal because
+  the leading error term cancels — the check is one-sided on purpose.
+- Backward error (`||b-Ax||/(||A|| ||x||+||b||)`) and forward error (`kappa*eta`) are
+  different claims. `hilb(12)` has a residual at the roundoff floor and no certifiable
+  digits; the tool says UNDETERMINED.
+- Once an iteration reaches `100*eps*max(1,e1)`, order estimates are noise. Fewer than
+  three clean estimates give UNDETERMINED, not a fabricated order.
+- A row that qualifies for two cleaning rules is counted once, by the first rule; the
+  ledger must satisfy `nRowsIn == nRowsOut + nDropped`, or the audit is wrong even when
+  the totals look plausible.
+- `n <= p` means no residual degrees of freedom: `sigma`, standard errors and CIs are
+  `undetermined`, not zero. Rank deficiency means the parameters are not identifiable.
+- At `kappa^2*eps >= 1` the QR and normal-equation coefficient routes can differ by more
+  than 100 %, so their agreement proves nothing — UNDETERMINED, not a clamped PASS.
+- A t-test and its resampling counterpart must agree on the decision before significance
+  is claimed; a skewed sample where they disagree is UNDETERMINED by design.
+- Complex-step differentiation is verified against central differences; analytical
+  functions use complex step, `abs`-like functions fall back and say so. Linear
+  propagation that disagrees with Monte Carlo beyond `sigmaTolRel` FAILS.
+- Same-seed runs must agree bitwise; an asserted seed dependence that does not appear is
+  a FAIL, and the caller's RNG stream must be restored.
+- Non-numeric table columns are preserved and reported, never silently converted.
+
+Full formulas, worked numbers and negative controls:
+`references/data-verification-contract.md`.
+
+## Cleaning that accounts for every row — `mas_table_audit`
 
 ```matlab
 r = mas_table_audit(T, struct('missing','drop','duplicates','drop', ...
     'outliers', struct('method','iqr','factor',1.5,'action','remove')));
-r.balanced    % nRowsIn == nRowsOut + nDropped, and every dropped row has a reason
+r.balanced    % nRowsIn == nRowsOut + nDropped, each row judged exactly once
 r.audit       % per rule: before, after, dropped, filled
-r.dropped     % the removed rows WITH the rule that removed each one
+r.dropped     % removed rows WITH the rule that removed each one
 ```
 
-The failure this prevents is not a crash, it is arithmetic that does not add up: three
-rules that each drop their own rows will double-count a row that qualifies for two,
-and "40 in, 30 out, dropped 3+4+4" reads fine and is wrong by one.
+Rule order is part of the contract (missing -> duplicates -> outliers) and is printed,
+because changing it changes the counts. Fill must drop nothing and report `nFilled`;
+an empty table is balanced at zero and a non-table is an error. Tests:
+`tests/test_table_audit.m` (11/11).
 
-So every row gets exactly ONE verdict, from the first rule that matches, and the
-balance identity is checked. Rule order (missing -> duplicates -> outliers) is part of
-the contract and is printed, because changing it changes the counts.
+## Legacy toolbox APIs
 
-Non-numeric columns are reported in `typeWarnings` and preserved; they are never
-silently converted or dropped. `tests/test_table_audit.m` covers the nominal fixture,
-a row that qualifies for two rules, fill-vs-drop, mixed types, an empty table and a
-non-table input.
+- Tables: `readtable`, `readtimetable`, `groupsummary`, `rowfun`, `varfun`,
+  `synchronize`, `retime`.
+- Fits: `fitlm`, `fitnlm`, `fitrgp`, `fitcsvm` only after `mas_precheck`.
+- Constrained fitting: `optimproblem` / solver APIs when regression is not enough.
+- Export figures with explicit size, resolution and format.
+
+## Reproducible experiments
+
+Record the seed, the split policy, the data provenance (file hash or URL), the MATLAB
+version, and the tolerance used for acceptance. `mas_repro_check` produces the digest and
+the same-seed/other-seed differences; cite them in the delivery instead of saying
+"results are reproducible".
+
+## Validation outside the tools
+
+```matlab
+assert(height(T) > 0)
+assert(all(isfinite(metrics.rmse)))
+assert(abs(integralValue - pi) < 1e-8)
+```
+
+These are smoke checks. They complement the contract tools; they do not replace them.
+
+Tests: `tests/test_data_contract.m` (118/118) and `tests/test_table_audit.m` (11/11).
+Every expected value comes from hand algebra, a closed form, a second numerical route, or
+MATLAB's independent implementation — never from the code under test.

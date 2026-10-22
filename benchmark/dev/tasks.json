@@ -1,0 +1,37 @@
+{
+  "schema": "mas-benchmark-tasks/1",
+  "description": "Public development set. These tasks and their answers are deliberately visible to developers; they are NOT the formal held-out set. Holding out the holdout is the point: dev answers may be changed, the sealed answers may not.",
+  "tasks": [
+    {
+      "id": "dev-sig-normal",
+      "domain": "signal",
+      "kind": "normal",
+      "prompt": "一段 1000 Hz 采样的单音信号，请验证主频 80 Hz 的测量结论。",
+      "skill": "matlab-signal-vision-ai",
+      "tool": "mas_measure_contract",
+      "fixture": "dev_sig",
+      "seed": 53,
+      "report": ["verdict", "freqHz"]
+    },
+    {
+      "id": "dev-data-normal",
+      "domain": "data",
+      "kind": "normal",
+      "prompt": "求解这个 3x3 线性方程组，并验证解在 1e-10 相对精度下是否可认证。",
+      "skill": "matlab-data-analysis",
+      "tool": "mas_linsolve_check",
+      "fixture": "dev_data",
+      "report": ["verdict", "backwardError", "cond"]
+    },
+    {
+      "id": "dev-rob-normal",
+      "domain": "robotics",
+      "kind": "normal",
+      "prompt": "检查这个刚体变换矩阵的正交性、行列式和齐次结构。",
+      "skill": "matlab-robotics-autonomy",
+      "tool": "mas_frame_check",
+      "fixture": "dev_rob",
+      "report": ["verdict", "orthErr", "detR"]
+    }
+  ]
+}

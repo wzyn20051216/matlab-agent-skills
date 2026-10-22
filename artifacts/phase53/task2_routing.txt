@@ -1,0 +1,9 @@
+Task 2 routing probe
+对实验数据做误差传播分析             -> matlab-data-analysis       ROUTE
+假设检验和置信区间怎么算             -> matlab-data-analysis       ROUTE
+数值微分与条件数分析               -> matlab-data-analysis       ROUTE
+迭代收敛阶怎么测                 -> matlab-data-analysis       ROUTE
+用 fsolve 解方程             -> matlab-data-analysis       ROUTE
+fitlm 回归拟合               -> matlab-data-analysis       ROUTE
+用 fmincon 求带约束的最优控制      -> matlab-control-optimization ROUTE
+PID 调参和相位裕度              -> matlab-control-optimization ROUTE

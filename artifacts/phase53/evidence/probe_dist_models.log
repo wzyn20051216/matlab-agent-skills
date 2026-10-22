@@ -1,0 +1,4 @@
+DIST_MODELS 3/3
+  [PASS] M1                                 -> PASS          ev=VERIFIED delta=-0.8 
+  [PASS] M2                                 -> PASS          ev=VERIFIED delta=2.5 
+  [PASS] M3                                 -> PASS          ev=VERIFIED delta=0 

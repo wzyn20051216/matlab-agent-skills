@@ -1,7 +1,7 @@
 {
  "version": "2.0",
- "phase": "4.5 (autonomous execution verification + Windows beta prep)",
- "date": "2026-10-21",
+ "phase": "5.3 (complete; signal, data-analysis and robotics verification contracts plus an isolated benchmark harness, 2026-10-22)",
+ "date": "2026-10-22",
  "legend": {
   "VERIFIED": "exercised by a run in this repository, with an independent reference or a test that can fail",
   "PARTIAL": "some sub-capability exercised, others not",
@@ -165,6 +165,22 @@
     "status": "VERIFIED",
     "evidence": "test_signal_vision.m; stratification must actually work on imbalanced data (negative control)"
    },
+   "measurement_contract_verdict": {
+    "status": "VERIFIED",
+    "evidence": "test_signal_contract.m 42/42; peak/RMS inequality, 10-vs-20log10 power trap, windowed power identity, Nyquist fold, steady/transient screen, block t-intervals -- a negative control for every dimension, and a missing tolerance returns UNDETERMINED, not PASS"
+   },
+   "filter_design_verification": {
+    "status": "VERIFIED",
+    "evidence": "test_signal_contract.m; dual route freqz vs direct z-expansion agrees to 1e-9; worst-over-band stopband fails the comb-null (11.30 dB) that an edge-only rule would pass (61.79 dB); IIR phase is na, not fail, when the spec never asked"
+   },
+   "sampling_chain_integrity": {
+    "status": "VERIFIED",
+    "evidence": "test_signal_contract.m; Nyquist fold printed, measured peak vs claimed band, bandlimited reconstruction against an analytic truth with a record-must-match-truth gate -- no truth, no pass"
+   },
+   "ber_counting_statistics": {
+    "status": "VERIFIED",
+    "evidence": "test_signal_contract.m; z-test vs counting noise, Wilson interval, Poisson zero-error upper bound, Eb/Es convention trap (3.01 dB at k=2), resolution gate returns UNDETERMINED"
+   },
    "deep_learning_training": {
     "status": "NOT TESTED",
     "evidence": "Deep Learning Toolbox is licensed; no training loop was run and no pretrained model was exercised"
@@ -177,15 +193,43 @@
    },
    "regression_and_missing_data": {
     "status": "VERIFIED",
-    "evidence": "cross-domain D2 (aHat 2.5, bHat -0.7, nMissing 3) against a frozen reference"
+    "evidence": "cross-domain D2 (aHat 2.5, bHat -0.7, nMissing 3) against a frozen reference; test_data_contract.m fit block"
    },
    "numerical_integration": {
     "status": "VERIFIED",
-    "evidence": "cross-domain D1: integral of 4/(1+t^2) on [0,1] = pi, Gauss-Legendre-64 vs trapezoid"
+    "evidence": "test_data_contract.m 118/118 (quad block); two independent reference routes with an agreement gate, tolerance below the roundoff floor -> UNDETERMINED, order measured from n/2n/4n (Simpson-on-kink FAILS); cross-domain D1 still passes"
    },
    "large_scale_dataframes": {
     "status": "NOT TESTED",
     "evidence": "nothing in this repo reads a real multi-GB dataset"
+   },
+   "numerical_differentiation": {
+    "status": "VERIFIED",
+    "evidence": "test_data_contract.m 118/118; central-difference derivative vs a claimed analytic value, observed difference order reported"
+   },
+   "linear_systems_and_conditioning": {
+    "status": "VERIFIED",
+    "evidence": "test_data_contract.m 118/118; backward error graded at 10*n*eps, forward bound kappa*eta, QR cross-route, hilb(12) kappa=1.63e16 -> UNDETERMINED, rank-deficient design -> UNDETERMINED"
+   },
+   "iterative_convergence_diagnostics": {
+    "status": "VERIFIED",
+    "evidence": "test_data_contract.m 118/118; Newton order 1.9998 with tail [2.258 1.984 2.000], bisection rate 0.5, divergence and stagnation FAIL, floor-limited order -> UNDETERMINED"
+   },
+   "regression_diagnostics_and_holdout": {
+    "status": "VERIFIED",
+    "evidence": "test_data_contract.m 118/118; t quantile from betaincinv matches 2.30600413520417, SE/CI hand route, R2/RMSE recomputed, zero dof and kappa^2*eps>=1 -> UNDETERMINED, holdout RMSE rejects a perturbed beta"
+   },
+   "significance_and_confidence_intervals": {
+    "status": "VERIFIED",
+    "evidence": "test_data_contract.m 118/118; p via betainc, Welch df 13.8367, exact sign-flip and label-permutation routes, disagreement -> UNDETERMINED (do not claim significance), NaN sample FAILS"
+   },
+   "uncertainty_propagation": {
+    "status": "VERIFIED",
+    "evidence": "test_data_contract.m 118/118; complex-step vs central differences, linearized claim FAILS on a nonlinear model at sigmaTolRel 5%, Monte Carlo 2% case passes, noisy MC -> UNDETERMINED"
+   },
+   "reproducible_experiments": {
+    "status": "VERIFIED",
+    "evidence": "test_data_contract.m 118/118; same seed bitwise equal, seed change 0.4224, 64-hex SHA-256 digest, RNG stream restored, non-reproducible function FAILS"
    }
   },
   "matlab-codegen-deploy": {
@@ -225,7 +269,23 @@
    },
    "state_estimator_consistency_nees_nis": {
     "status": "VERIFIED",
-    "evidence": "test_robotics.m; ANEES 1.92 PASS, R/100 -> 107 FAIL, R*100 -> 0.81 FAIL (two-sided by design)"
+    "evidence": "test_robotics.m; ANEES 1.92 PASS, R/100 -> 107 FAIL, R*100 -> 0.81 FAIL (two-sided by design); test_robotics_contract.m adds recorded-run NEES with separate mean and per-step bands"
+   },
+   "quaternion_algebra_and_slerp_contract": {
+    "status": "VERIFIED",
+    "evidence": "test_robotics_contract.m 162/162 (quat block): composition vs matrix product, non-unit vs normalised q, double cover, 180-deg axis convention, shortest-arc SLERP vs closed form; MathWorks cross-check where licensed"
+   },
+   "trajectory_waypoint_limit_and_derivative_contract": {
+    "status": "VERIFIED",
+    "evidence": "test_robotics_contract.m 162/162 (traj block): 0.1 waypoint miss caught, sampled vs certified limits, analytic derivative vs 5-point interior stencil, non-uniform/short records UNDETERMINED"
+   },
+   "rigid_body_dynamics_contract": {
+    "status": "VERIFIED",
+    "evidence": "test_robotics_contract.m 162/162 (dyn block): M via kinetic energy, C via Lagrange identity and skew symmetry, g via potential gradient, RK4 energy drift 6.5e-12; a wrong-sign C model leaks 0.32"
+   },
+   "recorded_state_estimate_consistency": {
+    "status": "VERIFIED",
+    "evidence": "test_robotics_contract.m 162/162 (est block): 100 runs x 50 steps, mean and per-step chi-square bands, covariance symmetry/PD, bias, family-wise innovation whiteness; 5-run and 4-step records UNDETERMINED"
    },
    "frame_transform_hygiene": {
     "status": "VERIFIED",
@@ -277,19 +337,27 @@
   "r1r2r3Gain": {
    "status": "UNKNOWN",
    "reason": "agent backend unreachable from this host (chatgpt.com and api.openai.com TCP timeouts while a github.com control probe succeeds); the frozen spec, reference answers and runner exist under artifacts/validation/phase45/benchmark, and all 9 arm x task pairs report BLOCKED. No skill-gain claim is made in either direction"
+  },
+  "isolatedBenchmark": {
+   "status": "VERIFIED",
+   "scope": "tool-level baseline only; NOT an Agent benchmark",
+   "artifact": "artifacts/phase53/benchmark/task5_summary.json",
+   "evidence": "benchmark_audit 7/7 (holdout outside repo, frozen hashes, no byte-identical answer copy including artifacts/phase53, disjoint dev/holdout, complete set); formal v2 holdout 9/9 route/tool/verdict/fields, 0 false accepts; dev 3/3; harness tests 11/11; a v1 pilot's two spec errors are retained as evidence",
+   "agentLevel": "NOT TESTED",
+   "reason": "the runner is a deterministic scripted policy and no independent agent episode was executed; held-out per-task results live on the evaluation side, outside the agent-visible workspace"
   }
  },
  "summary": {
   "capability_counts": {
-   "VERIFIED": 37,
+   "VERIFIED": 52,
    "NOTTESTED": 14,
    "PARTIAL": 3
   },
   "tool_counts": {
-   "VERIFIED": 34
+   "VERIFIED": 49
   },
-  "verified_capabilities": 37,
-  "note": "Counts are COMPUTED from the entries above, not typed in -- mas_capability_check.m fails if they drift. Keys carry no spaces because jsonencode strips them. R1/R2/R3 benchmark ran for real on 2026-10-20 (docs/PHASE4_3_VERIFICATION_ZH.md); the official MATLAB MCP server is reachable over stdio. PARTIAL on the benchmark entry is deliberate: the task scripts are fixed, so it does not yet measure an agents own skill selection or recovery. Phase 4.5 changed no mas_* tool status, so these counts are unchanged; it added the autonomousExecution block (agent workflow evidence for three natural-language tasks) and recorded the R1/R2/R3 comparison as UNKNOWN/BLOCKED instead of measured."
+  "verified_capabilities": 52,
+  "note": "Counts are COMPUTED from the entries above, not typed in -- mas_capability_check.m fails if they drift. Keys carry no spaces because jsonencode strips them. R1/R2/R3 benchmark ran for real on 2026-10-20 (docs/PHASE4_3_VERIFICATION_ZH.md); the official MATLAB MCP server is reachable over stdio. PARTIAL on the benchmark entry is deliberate: the task scripts are fixed, so it does not yet measure an agent's own skill selection or recovery. Phase 4.5 changed no mas_* tool status, so those counts were unchanged; it added the autonomousExecution block and recorded R1/R2/R3 as UNKNOWN/BLOCKED instead of measured. Phase 5.3 added the four matlab-signal-vision-ai measurement tools verified by test_signal_contract.m 42/42, the seven matlab-data-analysis verification tools verified by test_data_contract.m 118/118, and the four robotics contract tools verified by test_robotics_contract.m 162/162 alongside test_robotics.m 31/31. The Phase 5.3 full regression was 644/644 skill tests over 22 suites, 15/15 references, 15/15 cross-domain tasks and 15/15 pipeline tasks with 0 errored suites; it also ran the isolated benchmark harness 11/11 and a tool-level held-out baseline 9/9. No agent-level benchmark was run."
  },
  "tools": {
   "mas_codegen_ready": {
@@ -370,6 +438,30 @@
    "tests": "test_robotics.m",
    "what": "DLS + step clamp + joint limits; reports raw and clamped step"
   },
+  "mas_quat_check": {
+   "skill": "matlab-robotics-autonomy",
+   "status": "VERIFIED",
+   "tests": "test_robotics_contract.m 162/162 (quat block)",
+   "what": "unit norm, double cover, axis/angle canonicalisation, composition vs matrix product, shortest-arc SLERP vs closed form; toolbox cross-check is na, never faked"
+  },
+  "mas_traj_check": {
+   "skill": "matlab-robotics-autonomy",
+   "status": "VERIFIED",
+   "tests": "test_robotics_contract.m 162/162 (traj block)",
+   "what": "waypoints, sampled vs certified velocity/acceleration limits, analytic derivative vs 5-point interior stencil, time base; non-uniform/too-short records UNDETERMINED"
+  },
+  "mas_dyn_check": {
+   "skill": "matlab-robotics-autonomy",
+   "status": "VERIFIED",
+   "tests": "test_robotics_contract.m 162/162 (dyn block)",
+   "what": "M symmetric/PD and rebuilt from kinetic energy, C via Lagrange identity and skew symmetry, g via potential gradient, RK4 energy conservation of the graded model"
+  },
+  "mas_estimate_check": {
+   "skill": "matlab-robotics-autonomy",
+   "status": "VERIFIED",
+   "tests": "test_robotics_contract.m 162/162 (est block)",
+   "what": "recorded truth/est/P consistency: mean and per-step NEES bands, run/step gates, covariance hygiene, bias, family-wise innovation whiteness"
+  },
   "mas_dep_probe": {
    "skill": "matlab-runner",
    "status": "VERIFIED",
@@ -417,6 +509,30 @@
    "status": "VERIFIED",
    "tests": "test_signal_vision.m",
    "what": "reproducible stratified split with leak assertions"
+  },
+  "mas_measure_contract": {
+   "skill": "matlab-signal-vision-ai",
+   "status": "VERIFIED",
+   "tests": "test_signal_contract.m 42/42 (13 cases)",
+   "what": "grades claimed freq/power/peak/rms against the record they came from; four-state checks (pass|fail|na|undetermined), units checked both ways, missing criterion -> UNDETERMINED"
+  },
+  "mas_filter_check": {
+   "skill": "matlab-signal-vision-ai",
+   "status": "VERIFIED",
+   "tests": "test_signal_contract.m 42/42 (12 cases)",
+   "what": "dual-route response (freqz vs direct z-expansion), pole stability, worst-over-band stopband, ripple, FIR linear-phase group delay; IIR phase is na, not fail"
+  },
+  "mas_sample_check": {
+   "skill": "matlab-signal-vision-ai",
+   "status": "VERIFIED",
+   "tests": "test_signal_contract.m 42/42 (8 cases)",
+   "what": "Nyquist margin with printed fold, peak vs claimed band, bandlimited reconstruction vs analytic truth; no truth -> no pass"
+  },
+  "mas_ber_check": {
+   "skill": "matlab-signal-vision-ai",
+   "status": "VERIFIED",
+   "tests": "test_signal_contract.m 42/42 (9 cases)",
+   "what": "Eb/Es convention (3.01 dB trap), z-test vs theory, Wilson interval, Poisson zero-error bound, resolution gate -> UNDETERMINED"
   },
   "mas_model_check": {
    "skill": "matlab-simulink-modeling",
@@ -495,6 +611,48 @@
    "status": "VERIFIED",
    "tests": "test_dist_enter.m 19/19",
    "what": "walks change -> plant receipt -> output/state effect -> timing -> independent prediction; insensitive outputs require internal-state evidence"
+  },
+  "mas_quad_check": {
+   "skill": "matlab-data-analysis",
+   "status": "VERIFIED",
+   "tests": "test_data_contract.m 118/118 (quad block)",
+   "what": "two independent reference routes with an agreement gate; claimed tolerance below the roundoff floor -> UNDETERMINED; order measured from n/2n/4n (Simpson-on-kink FAILS); derivative vs central differences"
+  },
+  "mas_linsolve_check": {
+   "skill": "matlab-data-analysis",
+   "status": "VERIFIED",
+   "tests": "test_data_contract.m 118/118 (linsolve block)",
+   "what": "backward error vs 10*n*eps, forward bound kappa*eta, QR cross-route, rank and conditioning gates"
+  },
+  "mas_converge_check": {
+   "skill": "matlab-data-analysis",
+   "status": "VERIFIED",
+   "tests": "test_data_contract.m 118/118 (converge block)",
+   "what": "order and rate measured above the roundoff floor; fewer than three clean estimates -> UNDETERMINED; divergence and stagnation FAIL"
+  },
+  "mas_fit_check": {
+   "skill": "matlab-data-analysis",
+   "status": "VERIFIED",
+   "tests": "test_data_contract.m 118/118 (fit block)",
+   "what": "coefficients vs QR, R2/RMSE/SE/CI recomputed, t quantile from betainc (no toolbox), zero-dof and conditioning gates, holdout RMSE"
+  },
+  "mas_stat_check": {
+   "skill": "matlab-data-analysis",
+   "status": "VERIFIED",
+   "tests": "test_data_contract.m 118/118 (stat block)",
+   "what": "t p-value via betainc, Welch two-sample, CI, exact sign-flip / label-permutation agreement gate"
+  },
+  "mas_uncert_check": {
+   "skill": "matlab-data-analysis",
+   "status": "VERIFIED",
+   "tests": "test_data_contract.m 118/118 (uncert block)",
+   "what": "complex-step Jacobian verified against central differences, linear vs Monte Carlo, MC precision gate, sensitivity table"
+  },
+  "mas_repro_check": {
+   "skill": "matlab-data-analysis",
+   "status": "VERIFIED",
+   "tests": "test_data_contract.m 118/118 (repro block)",
+   "what": "same-seed bitwise equality, other-seed difference, SHA-256 digest, caller RNG restored"
   }
  },
  "toolsNote": "Generated from the files under skills/*/scripts. mas_capability_check.m fails when this drifts from disk, because a matrix that silently rots is worse than no matrix."

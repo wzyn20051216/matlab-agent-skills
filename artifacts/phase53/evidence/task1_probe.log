@@ -1,0 +1,75 @@
+== probe_task1_tools | 2026-10-21 21:17:03 | MATLAB 26.1.0.3276743 (R2026a) Update 3 ==
+===== mas_measure_contract =====
+clean: verdict=PASS ok=1
+  [pass] freqUnits          50 Hz == 314.159 rad/s (w = 2 pi f)
+  [pass] freqNyquist        50 Hz is 0.100 of Nyquist (500 Hz)
+  [pass] freqVsData         measured peak 50 Hz vs claimed 50 Hz (dev 2.91e-13 Hz, tol 1.95 Hz)
+  [pass] powerUnits         0.5 linear == -3.0103 dB (10 log10; a 20 log10 value would be -6.0206 dB)
+  [pass] powerVsData        matches the window-weighted power (0.5) to 3.76e-11 [hann]
+  [pass] peakRms            rms 0.707107 <= peak 1, ratio 1.4142 -- consistent with a sinusoid (sqrt 2)
+  [pass] peakVsRecord       claimed peak 1 covers the record maximum 1
+  [pass] rmsVsData          claimed rms 0.707107 matches the record (dev 1.88e-11 windowed / 0.00e+00 plain)
+  [pass] stationarity       steady-state claim holds: halves differ by 0.00 sigma (limit 2.57)
+  [pass] expectedVsMeasured power: theoretical 0.5 vs measured 0.5 (rel 3.763e-11, tol 5.000e-02)
+  [pass] interval           power 0.5001 +/- 0.008482 (95% block t-interval, 12 blocks); freq interval not resolvable at this block size
+  detail: PASS: 11 pass, 0 fail, 0 undetermined, 0 na
+  ci.power mean=0.50007 hw=0.00848209 | ci.freq mean=NaN hw=NaN
+rad/s claim: verdict=PASS freqHz=50.000000 freqRad=314.159265
+dB ok: verdict=PASS powerLinear=0.500000
+dB20 trap: verdict=FAIL powerLinear=0.250000
+  FAIL powerVsData: claimed 0.25 does not match the record: window-weighted 0.5 (dev 5.00e-01) or plain 0.5 (dev 5.00e-01); tolerance 1.0e-03
+unit-mix: verdict=FAIL
+  FAIL freqVsData: measured peak 50 Hz vs claimed 628.318 Hz (dev 578 Hz, tol 6.28 Hz)
+rms>peak: verdict=FAIL (checks: peakRms rmsVsData )
+drift: verdict=FAIL
+  [fail] stationarity: steady-state claimed but the record drifts: first-half block power 0.9668 vs second-half 2.278, 5.45 sigma (limit 2.57 at 95%). Do not read steady metrics from this record, or re-label it transient.
+transient: verdict=PASS stationarity status=na
+no-tol expected: verdict=UNDETERMINED (undet ids: expectedVsMeasured )
+short record: verdict=UNDETERMINED interval status=undetermined
+
+===== mas_filter_check =====
+kaiserord: order=37 beta=5.6533
+FIR lp: verdict=PASS stopbandDb=60.10 rippleDb=0.0163
+buttord: order=7 Wn=0.4449
+IIR lp: verdict=PASS stopbandDb=30.00 maxPole=0.800263 | phase status=na ripple status=na
+moving avg: hand ripple=0.4359 dB, hand atten@450=16.1134 dB
+moving avg: verdict=FAIL rippleDb=0.4359 stopbandDb=16.1239
+  FAIL passbandRipple: passband 0-100 Hz ripple 0.4359 dB (limit 0.1000 dB), deviation from unity 4.89e-02
+unstable: verdict=FAIL stability status=fail maxPole=1.0247
+asym required: verdict=FAIL phase status=fail
+
+===== mas_sample_check =====
+clean: verdict=PASS reconErr=4.509e-14
+  [pass] nyquist        200 Hz band vs Nyquist 500 Hz: margin 30.0% of fs
+  [pass] peakVsClaim    measured peak 150 Hz lies inside the claimed band 200 Hz
+  [pass] truthMatches   record equals samples of the supplied truth to 0.0e+00
+  [pass] reconstruction bandlimited interpolation vs truth on the interior 80%: relative RMS error 4.509e-14 (tol 1.000e-02). consistent with a strictly below-Nyquist signal
+aliased: verdict=FAIL aliasFold=200 reconErr=1.414e+00
+  [fail] nyquist: claimed band extends to 300 Hz with fs = 500 Hz: above Nyquist 250 Hz, so the component at 300 Hz appears in the samples at 200 Hz, where it is indistinguishable from a real signal there
+  [fail] reconstruction: bandlimited interpolation vs truth on the interior 80%: relative RMS error 1.414e+00 (tol 1.000e-02). either the signal is not bandlimited below Nyquist, or the record is not its samples
+peak-above: verdict=FAIL peak status=fail
+wrong truth: verdict=FAIL truthMatches=fail
+no truth: verdict=UNDETERMINED recon status=undetermined
+
+===== mas_ber_check =====
+QPSK 6dB: theory=0.00238829 nErr=626 nBits=262144
+ok: verdict=PASS z=-0.00 ci=[0.00221, 0.00258]
+  [pass] convention     Eb/N0 6 dB taken as given (k = 2, Es/N0 would be 9.01 dB)
+  [pass] measuredRange  626 errors in 262144 bits -> BER 0.002388 (0.2388% of bits counted)
+  [pass] resolution     interval [0.00221, 0.00258] resolves the theory 0.00239 (width/tau = 0.16)
+  [pass] vsTheory       measured 0.00239 vs theory 0.00239: z = -0.00 (limit +/-3) -- within counting noise
+lowBits: verdict=UNDETERMINED resolution=undetermined width=0.01089
+convention: verdict=FAIL
+es-only: verdict=PASS ebn0dB=6.0000
+zero: verdict=FAIL z=-48.93 poisson=3e-06
+label-shift: verdict=FAIL z=+106.07
+qam16: verdict=PASS theory=0.00175415 exact=0 z=+0.01
+
+===== extra spot checks =====
+no-fMax-no-truth: verdict=UNDETERMINED (statuses: undetermined undetermined undetermined )
+IIR required linear: verdict=FAIL phase status=fail
+IIR default: verdict=PASS phase status=na
+kaiserord hp: order=26 ftype=high
+FIR hp: verdict=PASS stopbandDb=59.40 gd=13.0000
+short input: ERR (expected)
+theory override: verdict=PASS exact=1

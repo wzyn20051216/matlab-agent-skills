@@ -1,0 +1,6 @@
+CONSISTENT | 5/5 consistency checks passed | 5/5
+tools | pass=1 | 34 tool(s) on disk, 34 listed
+skillOwners | pass=1 | every tool is listed under its real skill
+summary | pass=1 | counts match the entries
+evidence | pass=1 | every VERIFIED claim cites a test file that exists
+references | pass=1 | all 13 reference pointer(s) resolve to a real file

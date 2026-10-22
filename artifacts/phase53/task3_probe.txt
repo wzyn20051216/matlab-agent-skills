@@ -1,0 +1,251 @@
+===== QUAT =====
+Q1 full                  PASS  : |q| 1, angle 0.600000 rad, 15/15 checks -- PASS
+    unitNorm                     pass          |q| = 1
+    doubleCover                  pass          q and -q give the same R to 0.0e+00; compare orientations, not components
+    inverse                      pass          q (x) conj(q) = [1 0.0e+00 0.0e+00 0.0e+00]
+    matrixVsClaim                pass          max|R - claimed| = 1.110e-16
+    angleVsClaim                 pass          angle 0.6 vs claimed 0.6, |diff| 1.110e-16
+    axisVsClaim                  pass          axis [0          0          1] vs claimed [0          0          1], deviation 0.000e+00
+    rotvecVsClaim                pass          rotvec [0          0        0.6] vs claimed [0          0        0.6], deviation 1.110e-16
+    composeUnitNorm              pass          second quaternion has |q| = 1: the product as given is not a rotation
+    composeVsMatrix              pass          |R(q1*q2) - R(q1)R(q2)| = 0.000e+00 -- the matrix route shares no code with the quaternion product
+    composeVsToolbox             pass          vs quatmultiply, deviation 0.000e+00 (sign-insensitive)
+    slerpEndpoints               pass          endpoint deviations 0.000e+00 / 0.000e+00
+    slerpGeodesic                pass          angle along the arc deviates from t*0.970796 by 9.437e-16
+    slerpVsClaim                 pass          max quaternion distance to the claimed samples = 1.110e-16
+    matrixVsToolbox              pass          vs quat2rotm, deviation 0.000e+00
+    roundTripVsToolbox           pass          rotm2quat(quat2rotm(q)) returns q up to sign, deviation 1.110e-16
+Q2 non-unit              FAIL  : |q| 2, angle 0.600000 rad, 4/5 checks -- FAIL
+    unitNorm                     fail          |q| = 2, off unit by 1.000e+00: every derived rotation is scaled by |q|^2. The checks below use the NORMALISED q, but the input as given is not a rotation quaternion.
+    doubleCover                  pass          q and -q give the same R to 0.0e+00; compare orientations, not components
+    inverse                      pass          q (x) conj(q) = [1 0.0e+00 0.0e+00 0.0e+00]
+    matrixVsToolbox              pass          vs quat2rotm, deviation 0.000e+00
+    roundTripVsToolbox           pass          rotm2quat(quat2rotm(q)) returns q up to sign, deviation 1.110e-16
+Q3 wrong R               FAIL  : |q| 1, angle 0.600000 rad, 5/6 checks -- FAIL
+    unitNorm                     pass          |q| = 1
+    doubleCover                  pass          q and -q give the same R to 0.0e+00; compare orientations, not components
+    inverse                      pass          q (x) conj(q) = [1 0.0e+00 0.0e+00 0.0e+00]
+    matrixVsClaim                fail          max|R - claimed| = 7.958e-02
+    matrixVsToolbox              pass          vs quat2rotm, deviation 0.000e+00
+    roundTripVsToolbox           pass          rotm2quat(quat2rotm(q)) returns q up to sign, deviation 1.110e-16
+Q4 wrong angle/axis      FAIL  : |q| 1, angle 0.600000 rad, 5/8 checks -- FAIL
+    unitNorm                     pass          |q| = 1
+    doubleCover                  pass          q and -q give the same R to 0.0e+00; compare orientations, not components
+    inverse                      pass          q (x) conj(q) = [1 0.0e+00 0.0e+00 0.0e+00]
+    angleVsClaim                 fail          angle 0.6 vs claimed 0.7, |diff| 1.000e-01
+    axisVsClaim                  fail          axis [0          0          1] vs claimed [1          0          0], deviation 1.414e+00
+    rotvecVsClaim                fail          rotvec [0          0        0.6] vs claimed [0          0        0.7], deviation 1.000e-01
+    matrixVsToolbox              pass          vs quat2rotm, deviation 0.000e+00
+    roundTripVsToolbox           pass          rotm2quat(quat2rotm(q)) returns q up to sign, deviation 1.110e-16
+Q5 wrong slerp           FAIL  : |q| 1, angle 0.600000 rad, 7/8 checks -- FAIL
+    unitNorm                     pass          |q| = 1
+    doubleCover                  pass          q and -q give the same R to 0.0e+00; compare orientations, not components
+    inverse                      pass          q (x) conj(q) = [1 0.0e+00 0.0e+00 0.0e+00]
+    slerpEndpoints               pass          endpoint deviations 0.000e+00 / 0.000e+00
+    slerpGeodesic                pass          angle along the arc deviates from t*0.970796 by 9.437e-16
+    slerpVsClaim                 fail          max quaternion distance to the claimed samples = 1.349e-01
+    matrixVsToolbox              pass          vs quat2rotm, deviation 0.000e+00
+    roundTripVsToolbox           pass          rotm2quat(quat2rotm(q)) returns q up to sign, deviation 1.110e-16
+Q6 identity axis         UNDET : |q| 1, angle 0.000000 rad, 5/6 checks -- UNDETERMINED
+    unitNorm                     pass          |q| = 1
+    doubleCover                  pass          q and -q give the same R to 0.0e+00; compare orientations, not components
+    inverse                      pass          q (x) conj(q) = [1 0.0e+00 0.0e+00 0.0e+00]
+    axisVsClaim                  undetermined  rotation is the identity: the axis is undefined, so it cannot be graded
+    matrixVsToolbox              pass          vs quat2rotm, deviation 0.000e+00
+    roundTripVsToolbox           pass          rotm2quat(quat2rotm(q)) returns q up to sign, deviation 0.000e+00
+Q7 -q                    PASS  : |q| 1, angle 0.600000 rad, 5/5 checks -- PASS
+    unitNorm                     pass          |q| = 1
+    doubleCover                  pass          q and -q give the same R to 0.0e+00; compare orientations, not components
+    inverse                      pass          q (x) conj(q) = [1 0.0e+00 0.0e+00 0.0e+00]
+    matrixVsToolbox              pass          vs quat2rotm, deviation 0.000e+00
+    roundTripVsToolbox           pass          rotm2quat(quat2rotm(q)) returns q up to sign, deviation 1.110e-16
+Q8 180 axis sign         PASS  : |q| 1, angle 3.141593 rad, 8/8 checks -- PASS
+    unitNorm                     pass          |q| = 1
+    doubleCover                  pass          q and -q give the same R to 0.0e+00; compare orientations, not components
+    inverse                      pass          q (x) conj(q) = [1 0.0e+00 0.0e+00 0.0e+00]
+    angleVsClaim                 pass          angle 3.14159265359 vs claimed 3.14159265359, |diff| 0.000e+00
+    axisVsClaim                  pass          axis [1          0          0] vs claimed [-1          0          0], deviation 0.000e+00
+    rotvecVsClaim                pass          rotvec [3.142          0          0] vs claimed [3.142          0          0], deviation 0.000e+00
+    matrixVsToolbox              pass          vs quat2rotm, deviation 0.000e+00
+    roundTripVsToolbox           pass          rotm2quat(quat2rotm(q)) returns q up to sign, deviation 0.000e+00
+Q9 zero -> ERR
+Q10 non-unit compose     FAIL  : |q| 1, angle 0.600000 rad, 7/8 checks -- FAIL
+    unitNorm                     pass          |q| = 1
+    doubleCover                  pass          q and -q give the same R to 0.0e+00; compare orientations, not components
+    inverse                      pass          q (x) conj(q) = [1 0.0e+00 0.0e+00 0.0e+00]
+    composeUnitNorm              fail          second quaternion has |q| = 2: the product as given is not a rotation
+    composeVsMatrix              pass          |R(q1*q2) - R(q1)R(q2)| = 0.000e+00 -- the matrix route shares no code with the quaternion product
+    composeVsToolbox             pass          vs quatmultiply, deviation 0.000e+00 (sign-insensitive)
+    matrixVsToolbox              pass          vs quat2rotm, deviation 0.000e+00
+    roundTripVsToolbox           pass          rotm2quat(quat2rotm(q)) returns q up to sign, deviation 1.110e-16
+===== TRAJ =====
+T1 good                  PASS  : 101 samples, 2 joints, vMax [3.142 3.142], aMax [9.87 9.87], certified 1 -- PASS
+    timeMonotonic                pass          101 samples over [0, 1] s, dt 0.01..0.01 s
+    waypointsHit                 pass          3 waypoint(s), max deviation 0.000e+00 (tol 1.0e-06)
+    velocityDerivativeAgrees     pass          analytic vs 5-point interior stencil: relative deviation 3.247e-08 (tol 1.0e-06)
+    accelerationDerivativeAgrees pass          analytic vs 5-point interior stencil: relative deviation 1.082e-08 (tol 1.0e-06)
+    velocityLimit                pass          max |v| [3.142 3.142] vs limit [4 4] (analytic, certified)
+    accelerationLimit            pass          max |a| [9.87 9.87] vs limit [12 12] (analytic, certified)
+    positionMin                  pass          min q [0 -1] vs lower limit [-2 -2]
+    positionMax                  pass          max q [1 1] vs upper limit [2 2]
+T2 v limit               FAIL  : 101 samples, 2 joints, vMax [3.142 3.142], aMax [9.87 9.87], certified 1 -- FAIL
+    timeMonotonic                pass          101 samples over [0, 1] s, dt 0.01..0.01 s
+    waypointsHit                 pass          3 waypoint(s), max deviation 0.000e+00 (tol 1.0e-06)
+    velocityDerivativeAgrees     pass          analytic vs 5-point interior stencil: relative deviation 3.247e-08 (tol 1.0e-06)
+    accelerationDerivativeAgrees pass          analytic vs 5-point interior stencil: relative deviation 1.082e-08 (tol 1.0e-06)
+    velocityLimit                fail          max |v| [3.142 3.142] vs limit [2 2] (analytic, certified)
+T3 miss wp               FAIL  : 101 samples, 2 joints, vMax [3.142 3.142], aMax [9.87 9.87], certified 1 -- FAIL
+    timeMonotonic                pass          101 samples over [0, 1] s, dt 0.01..0.01 s
+    waypointsHit                 fail          3 waypoint(s), max deviation 1.000e-01 (tol 1.0e-06)
+    velocityDerivativeAgrees     fail          analytic vs 5-point interior stencil: relative deviation 2.122e+00 (tol 1.0e-06)
+    accelerationDerivativeAgrees fail          analytic vs 5-point interior stencil: relative deviation 2.533e+02 (tol 1.0e-06)
+T4 backwards time        FAIL  : 101 samples, time base invalid -- FAIL
+    timeMonotonic                fail          t is not strictly increasing at sample 30 (dt = 0): the trajectory runs backwards or repeats a timestamp
+T5 wrong analytic vel    FAIL  : 101 samples, 2 joints, vMax [6.283 6.283], aMax [9.87 9.87], certified 1 -- FAIL
+    timeMonotonic                pass          101 samples over [0, 1] s, dt 0.01..0.01 s
+    velocityDerivativeAgrees     fail          analytic vs 5-point interior stencil: relative deviation 5.000e-01 (tol 1.0e-06)
+    accelerationDerivativeAgrees pass          analytic vs 5-point interior stencil: relative deviation 1.082e-08 (tol 1.0e-06)
+T6 sampled only          PASS  : 101 samples, 2 joints, vMax [3.141 3.141], aMax [9.866 9.847], certified 0 -- PASS
+    timeMonotonic                pass          101 samples over [0, 1] s, dt 0.01..0.01 s
+    velocityLimit                pass          max |v| [3.141 3.141] vs limit [4 4] (sampled only)
+    accelerationLimit            pass          max |a| [9.866 9.847] vs limit [12 12] (sampled only)
+    positionMin                  pass          min q [0 -1] vs lower limit [-2 -2]
+    positionMax                  pass          max q [1 1] vs upper limit [2 2]
+T7 position limit        FAIL  : 101 samples, 2 joints, vMax [3.141 3.141], aMax [9.866 9.847], certified 0 -- FAIL
+    timeMonotonic                pass          101 samples over [0, 1] s, dt 0.01..0.01 s
+    positionMin                  fail          min q [0 -1] vs lower limit [0.5 0.5]
+T8 no claims -> ERR
+T9 one sample -> ERR
+===== DYN =====
+D1 reference             PASS  : M eig [0.01851 0.4892], skew 4.083e-11, coriolis 7.055e-12, gravity 2.417e-11, energy drift 6.457e-12 -- PASS
+    massSymmetry                 pass          max|M - M'| = 0.000e+00 (scale 1)
+    massPositiveDefinite         pass          eigenvalues [0.01851 0.4892]
+    massVsEnergyRoute            pass          closed form vs kinetic-energy route: 5.551e-17
+    coriolisSkew                 pass          max|Mdot-2C + (Mdot-2C)'| / scale = 4.083e-11 -- passivity
+    coriolisIdentity             pass          |C*qd - (Mdot*qd - dT/dq)| / scale = 7.055e-12
+    gravityGradient              pass          |g - dV/dq| / scale = 2.417e-11 (central difference of V)
+    energyConservation           pass          RK4 2000 steps, tau=0, reference model: |dE|/max(|E0|,1) = 6.457e-12 (E0 2.22584 -> E1 2.22584, tol 1.0e-06)
+D2 wrong M               FAIL  : M eig [-0.03967 0.5474], skew 4.083e-11, coriolis 7.055e-12, gravity 2.417e-11, energy drift 6.457e-12 -- FAIL
+    massSymmetry                 pass          max|M - M'| = 0.000e+00 (scale 1)
+    massPositiveDefinite         fail          eigenvalues [-0.03967 0.5474]
+    massVsReference              fail          claimed M vs closed form: relative deviation 1.000e-01
+    massVsEnergyRoute            fail          claimed M vs kinetic-energy route: 1.000e-01
+    coriolisSkew                 pass          max|Mdot-2C + (Mdot-2C)'| / scale = 4.083e-11 -- passivity
+    coriolisIdentity             pass          |C*qd - (Mdot*qd - dT/dq)| / scale = 7.055e-12
+    gravityGradient              pass          |g - dV/dq| / scale = 2.417e-11 (central difference of V)
+    energyConservation           pass          RK4 2000 steps, tau=0, reference model: |dE|/max(|E0|,1) = 6.457e-12 (E0 2.22584 -> E1 2.22584, tol 1.0e-06)
+D3 wrong C               FAIL  : M eig [0.01851 0.4892], skew 8.246e-02, coriolis 1.241e-02, gravity 2.417e-11, energy drift 6.457e-12 -- FAIL
+    massSymmetry                 pass          max|M - M'| = 0.000e+00 (scale 1)
+    massPositiveDefinite         pass          eigenvalues [0.01851 0.4892]
+    massVsEnergyRoute            pass          closed form vs kinetic-energy route: 5.551e-17
+    coriolisSkew                 fail          max|Mdot-2C + (Mdot-2C)'| / scale = 8.246e-02 -- passivity
+    coriolisIdentity             fail          |C*qd - (Mdot*qd - dT/dq)| / scale = 1.241e-02
+    coriolisVsReference          fail          claimed C vs closed form: relative deviation 3.092e-02
+    gravityGradient              pass          |g - dV/dq| / scale = 2.417e-11 (central difference of V)
+    energyConservation           pass          RK4 2000 steps, tau=0, reference model: |dE|/max(|E0|,1) = 6.457e-12 (E0 2.22584 -> E1 2.22584, tol 1.0e-06)
+D4 wrong g               FAIL  : M eig [0.01851 0.4892], skew 4.083e-11, coriolis 7.055e-12, gravity 2.036e+00, energy drift 6.457e-12 -- FAIL
+    massSymmetry                 pass          max|M - M'| = 0.000e+00 (scale 1)
+    massPositiveDefinite         pass          eigenvalues [0.01851 0.4892]
+    massVsEnergyRoute            pass          closed form vs kinetic-energy route: 5.551e-17
+    coriolisSkew                 pass          max|Mdot-2C + (Mdot-2C)'| / scale = 4.083e-11 -- passivity
+    coriolisIdentity             pass          |C*qd - (Mdot*qd - dT/dq)| / scale = 7.055e-12
+    gravityGradient              fail          |g - dV/dq| / scale = 2.036e+00 (central difference of V)
+    gravityVsReference           fail          claimed g vs closed form: relative deviation 2.036e+00
+    energyConservation           pass          RK4 2000 steps, tau=0, reference model: |dE|/max(|E0|,1) = 6.457e-12 (E0 2.22584 -> E1 2.22584, tol 1.0e-06)
+D5 asym M                FAIL  : M eig [0.01829 0.4894], skew 4.083e-11, coriolis 7.055e-12, gravity 2.417e-11, energy drift 6.457e-12 -- FAIL
+    massSymmetry                 fail          max|M - M'| = 1.000e-03 (scale 1)
+    massPositiveDefinite         pass          eigenvalues [0.01829 0.4894]
+    massVsReference              fail          claimed M vs closed form: relative deviation 1.000e-03
+    massVsEnergyRoute            fail          claimed M vs kinetic-energy route: 1.000e-03
+    coriolisSkew                 pass          max|Mdot-2C + (Mdot-2C)'| / scale = 4.083e-11 -- passivity
+    coriolisIdentity             pass          |C*qd - (Mdot*qd - dT/dq)| / scale = 7.055e-12
+    gravityGradient              pass          |g - dV/dq| / scale = 2.417e-11 (central difference of V)
+    energyConservation           pass          RK4 2000 steps, tau=0, reference model: |dE|/max(|E0|,1) = 6.457e-12 (E0 2.22584 -> E1 2.22584, tol 1.0e-06)
+D6 non-PD M              FAIL  : M eig [-1 3], skew 4.083e-11, coriolis 7.055e-12, gravity 2.417e-11, energy drift 6.457e-12 -- FAIL
+    massSymmetry                 pass          max|M - M'| = 0.000e+00 (scale 2)
+    massPositiveDefinite         fail          eigenvalues [-1 3]
+    massVsReference              fail          claimed M vs closed form: relative deviation 9.481e-01
+    massVsEnergyRoute            fail          claimed M vs kinetic-energy route: 9.481e-01
+    coriolisSkew                 pass          max|Mdot-2C + (Mdot-2C)'| / scale = 4.083e-11 -- passivity
+    coriolisIdentity             pass          |C*qd - (Mdot*qd - dT/dq)| / scale = 7.055e-12
+    gravityGradient              pass          |g - dV/dq| / scale = 2.417e-11 (central difference of V)
+    energyConservation           pass          RK4 2000 steps, tau=0, reference model: |dE|/max(|E0|,1) = 6.457e-12 (E0 2.22584 -> E1 2.22584, tol 1.0e-06)
+D7 exact claims          PASS  : M eig [0.01851 0.4892], skew 4.083e-11, coriolis 7.055e-12, gravity 2.417e-11, energy drift 6.457e-12 -- PASS
+    massSymmetry                 pass          max|M - M'| = 0.000e+00 (scale 1)
+    massPositiveDefinite         pass          eigenvalues [0.01851 0.4892]
+    massVsReference              pass          claimed M vs closed form: relative deviation 0.000e+00
+    massVsEnergyRoute            pass          claimed M vs kinetic-energy route: 5.551e-17
+    coriolisSkew                 pass          max|Mdot-2C + (Mdot-2C)'| / scale = 4.083e-11 -- passivity
+    coriolisIdentity             pass          |C*qd - (Mdot*qd - dT/dq)| / scale = 7.055e-12
+    coriolisVsReference          pass          claimed C vs closed form: relative deviation 0.000e+00
+    gravityGradient              pass          |g - dV/dq| / scale = 2.417e-11 (central difference of V)
+    gravityVsReference           pass          claimed g vs closed form: relative deviation 0.000e+00
+    energyConservation           pass          RK4 2000 steps, tau=0, reference model: |dE|/max(|E0|,1) = 6.457e-12 (E0 2.22584 -> E1 2.22584, tol 1.0e-06)
+D10 wrong C model        FAIL  : M eig [0.01851 0.4892], skew 4.083e-11, coriolis 7.055e-12, gravity 2.417e-11, energy drift 3.235e-01 -- FAIL
+    massSymmetry                 pass          max|M - M'| = 0.000e+00 (scale 1)
+    massPositiveDefinite         pass          eigenvalues [0.01851 0.4892]
+    massVsEnergyRoute            pass          closed form vs kinetic-energy route: 5.551e-17
+    coriolisSkew                 pass          max|Mdot-2C + (Mdot-2C)'| / scale = 4.083e-11 -- passivity
+    coriolisIdentity             pass          |C*qd - (Mdot*qd - dT/dq)| / scale = 7.055e-12
+    gravityGradient              pass          |g - dV/dq| / scale = 2.417e-11 (central difference of V)
+    energyConservation           fail          RK4 2000 steps, tau=0, claimed model: |dE|/max(|E0|,1) = 3.235e-01 (E0 2.22584 -> E1 1.50582, tol 1.0e-06)
+D8 missing param -> ERR
+D9 negative mass -> ERR
+D1 vals: M11 0.465041 M12 0.103854 M22 0.042667 | C11 -0.010307 C12 0.005154 C21 -0.015461 | g 7.824422 1.499496
+===== EST =====
+E1 correct               PASS  : 100 run(s) x 50 step(s), n=2, 4/4 checks -- PASS
+    finiteInputs                 pass          truth, est and P are finite
+    covSymmetry                  pass          max relative |P-P'| = 2.776e-17
+    covPositiveDefinite          pass          smallest eigenvalue over all steps/runs = 1.831e-02 (must be > 0)
+    nees                         pass          ANEES 2.037 vs mean band 1.928..2.074 (chi2, 99%), per-step in-band 100% (band 1.522..2.553) -- mean and per-step coverage agree
+E2 overconfident         FAIL  : 100 run(s) x 50 step(s), n=2, 3/4 checks -- FAIL
+    finiteInputs                 pass          truth, est and P are finite
+    covSymmetry                  pass          max relative |P-P'| = 4.337e-19
+    covPositiveDefinite          pass          smallest eigenvalue over all steps/runs = 1.831e-04 (must be > 0)
+    nees                         fail          ANEES 203.662 vs mean band 1.928..2.074 (chi2, 99%), per-step in-band 0% (band 1.522..2.553) -- OVER-CONFIDENT: P is too small, so the filter trusts itself too much
+E3 underconfident        FAIL  : 100 run(s) x 50 step(s), n=2, 3/4 checks -- FAIL
+    finiteInputs                 pass          truth, est and P are finite
+    covSymmetry                  pass          max relative |P-P'| = 2.148e-16
+    covPositiveDefinite          pass          smallest eigenvalue over all steps/runs = 1.831e+00 (must be > 0)
+    nees                         fail          ANEES 0.020 vs mean band 1.928..2.074 (chi2, 99%), per-step in-band 0% (band 1.522..2.553) -- UNDER-CONFIDENT: P is too large, so the filter discards information
+E4 non-PD                FAIL  : 100 run(s) x 50 step(s), n=2, 3/4 checks -- FAIL
+    finiteInputs                 pass          truth, est and P are finite
+    covSymmetry                  pass          max relative |P-P'| = 2.776e-17
+    covPositiveDefinite          fail          smallest eigenvalue over all steps/runs = -1.000e+00 (must be > 0)
+    nees                         pass          ANEES 2.036 vs mean band 1.928..2.074 (chi2, 99%), per-step in-band 100% (band 1.522..2.553) -- mean and per-step coverage agree
+E5 asym                  FAIL  : 100 run(s) x 50 step(s), n=2, 3/4 checks -- FAIL
+    finiteInputs                 pass          truth, est and P are finite
+    covSymmetry                  fail          max relative |P-P'| = 1.000e-02
+    covPositiveDefinite          pass          smallest eigenvalue over all steps/runs = 1.434e-02 (must be > 0)
+    nees                         pass          ANEES 2.037 vs mean band 1.928..2.074 (chi2, 99%), per-step in-band 100% (band 1.522..2.553) -- mean and per-step coverage agree
+E6 biased                FAIL  : 100 run(s) x 50 step(s), n=2, 3/5 checks -- FAIL
+    finiteInputs                 pass          truth, est and P are finite
+    covSymmetry                  pass          max relative |P-P'| = 2.776e-17
+    covPositiveDefinite          pass          smallest eigenvalue over all steps/runs = 1.831e-02 (must be > 0)
+    nees                         fail          ANEES 6.144 vs mean band 1.928..2.074 (chi2, 99%), per-step in-band 0% (band 1.522..2.553) -- OVER-CONFIDENT: P is too small, so the filter trusts itself too much
+    bias                         fail          ||mean error|| = 6.990e-01 vs maxBias 1.000e-01
+E7 too few runs          UNDET : 5 run(s) x 50 step(s), n=2, 3/4 checks -- UNDETERMINED
+    finiteInputs                 pass          truth, est and P are finite
+    covSymmetry                  pass          max relative |P-P'| = 2.776e-17
+    covPositiveDefinite          pass          smallest eigenvalue over all steps/runs = 1.831e-02 (must be > 0)
+    nees                         undetermined  5 run(s), minimum 20: the chi-square band would be too wide to reject a bad filter, so NEES is reported but not graded
+E8 burnIn                UNDET : 100 run(s) x 50 step(s), n=2, 3/4 checks -- UNDETERMINED
+    finiteInputs                 pass          truth, est and P are finite
+    covSymmetry                  pass          max relative |P-P'| = 0.000e+00
+    covPositiveDefinite          pass          smallest eigenvalue over all steps/runs = 1.831e-02 (must be > 0)
+    nees                         undetermined  only 4 accepted step(s): too few for a chi-square band (need >= 5)
+E9 correlated nu         FAIL  : 100 run(s) x 50 step(s), n=2, 4/5 checks -- FAIL
+    finiteInputs                 pass          truth, est and P are finite
+    covSymmetry                  pass          max relative |P-P'| = 2.776e-17
+    covPositiveDefinite          pass          smallest eigenvalue over all steps/runs = 1.831e-02 (must be > 0)
+    nees                         pass          ANEES 2.037 vs mean band 1.928..2.074 (chi2, 99%), per-step in-band 100% (band 1.522..2.553) -- mean and per-step coverage agree
+    whiteness                    fail          max |autocorrelation| 2.1554 over lags [1 2 3 4 5 6 7 8 9 10] vs family-wise 95% threshold 0.0444
+E10 white nu             PASS  : 100 run(s) x 50 step(s), n=2, 5/5 checks -- PASS
+    finiteInputs                 pass          truth, est and P are finite
+    covSymmetry                  pass          max relative |P-P'| = 2.776e-17
+    covPositiveDefinite          pass          smallest eigenvalue over all steps/runs = 1.831e-02 (must be > 0)
+    nees                         pass          ANEES 2.037 vs mean band 1.928..2.074 (chi2, 99%), per-step in-band 100% (band 1.522..2.553) -- mean and per-step coverage agree
+    whiteness                    pass          max |autocorrelation| 0.0269 over lags [1 2 3 4 5 6 7 8 9 10] vs family-wise 95% threshold 0.0444
+E1 anees 2.0366 meanBand [1.9279 2.0736] stepBand [1.5224 2.5526] inFrac 1.00 neesN 5000
+E1 bias norm 0.0222, E10 maxAc 0.0269 thr 0.0444, E9 maxAc 2.1554
+E4 minEig -1.000, E2 anees 203.7, E3 anees 0.0204

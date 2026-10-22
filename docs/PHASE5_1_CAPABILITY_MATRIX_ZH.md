@@ -3,6 +3,11 @@
 日期：2026-10-21 · 基线 `v0.6.0-preview.2`（`0c5fa84`）· 分支 `phase5.1-audit`
 证据：`artifacts/phase51/`（自测结果、脚本探测、路由探测、环境与许可清单）
 
+> 本文是 Phase 5.1 的历史快照，其中的工具计数（34）与领域缺口保持当时状态，不再改写。
+> Phase 5.3 的三域增强、Benchmark 与全量回归后的当前计数见
+> [`PHASE5_3_PROFESSIONAL_DEPTH_ZH.md`](PHASE5_3_PROFESSIONAL_DEPTH_ZH.md) 与机器可读的
+> `skills/capability-matrix.json`（52 VERIFIED / 14 NOT TESTED / 3 PARTIAL，49 tools）。
+
 ## 判据（不看关键词，只看证据）
 
 | 状态 | 含义 |
