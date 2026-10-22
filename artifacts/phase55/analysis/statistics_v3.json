@@ -1,0 +1,562 @@
+{
+ "schema": "mas-phase55-statistics/1",
+ "batch": "v3",
+ "generatedAt": "2026-10-22",
+ "sampleSizeNote": "R1 and R2 were staged and run for one task each (H-SIG-F); R3 ran the full 12-task set. n=1 per baseline arm is not enough for any rate comparison.",
+ "arms": {
+  "R1": {
+   "nPlanned": 1,
+   "nExecuted": 1,
+   "nMissing": 0,
+   "nPass": 1,
+   "passRateExecuted": 1.0,
+   "firstTask": "H-SIG-F",
+   "firstTaskPass": true,
+   "falseAccepts": 0,
+   "falseRejects": 0,
+   "undeterminedExpected": 0,
+   "undeterminedDetected": 0,
+   "fieldsPass": 1,
+   "fieldsTotal": 1,
+   "clientSkillToolCalls": 0,
+   "workspaceSkillDiscoveryEpisodes": 0,
+   "correctSkillEpisodes": 0,
+   "masExecutedEpisodes": 0,
+   "elapsedMeanSec": 77.4,
+   "elapsedMedianSec": 77.4,
+   "mcpCallsMean": 3,
+   "mcpCallsMax": 3,
+   "timeBudgetViolations": 0,
+   "mcpBudgetViolations": 0,
+   "episodesWithErrorSignals": 0,
+   "errorSignalsTotal": 0,
+   "errorSignalsMatlab": 0,
+   "errorSignalsTooling": 0,
+   "episodesWithErrorAndGradedPass": 0,
+   "perEpisode": [
+    {
+     "task": "H-SIG-F",
+     "model": "qmodel_38max",
+     "elapsedSec": 77.4,
+     "mcpCalls": 3,
+     "expectedVerdict": "FAIL",
+     "actualVerdict": "FAIL",
+     "taskPass": true,
+     "fieldsPass": 1,
+     "fieldsTotal": 1,
+     "clientSkillToolCalls": 0,
+     "skillsRead": [],
+     "masExecuted": [],
+     "errorSignals": 0,
+     "errorSignalsMatlab": 0,
+     "errorSignalsTooling": 0,
+     "patternHitsNotErrors": 0,
+     "budgetExceededTime": false,
+     "budgetExceededMcp": false
+    }
+   ]
+  },
+  "R2": {
+   "nPlanned": 1,
+   "nExecuted": 1,
+   "nMissing": 0,
+   "nPass": 1,
+   "passRateExecuted": 1.0,
+   "firstTask": "H-SIG-F",
+   "firstTaskPass": true,
+   "falseAccepts": 0,
+   "falseRejects": 0,
+   "undeterminedExpected": 0,
+   "undeterminedDetected": 0,
+   "fieldsPass": 1,
+   "fieldsTotal": 1,
+   "clientSkillToolCalls": 0,
+   "workspaceSkillDiscoveryEpisodes": 0,
+   "correctSkillEpisodes": 0,
+   "masExecutedEpisodes": 0,
+   "elapsedMeanSec": 59.7,
+   "elapsedMedianSec": 59.7,
+   "mcpCallsMean": 2,
+   "mcpCallsMax": 2,
+   "timeBudgetViolations": 0,
+   "mcpBudgetViolations": 0,
+   "episodesWithErrorSignals": 0,
+   "errorSignalsTotal": 0,
+   "errorSignalsMatlab": 0,
+   "errorSignalsTooling": 0,
+   "episodesWithErrorAndGradedPass": 0,
+   "perEpisode": [
+    {
+     "task": "H-SIG-F",
+     "model": "qmodel_38max",
+     "elapsedSec": 59.7,
+     "mcpCalls": 2,
+     "expectedVerdict": "FAIL",
+     "actualVerdict": "FAIL",
+     "taskPass": true,
+     "fieldsPass": 1,
+     "fieldsTotal": 1,
+     "clientSkillToolCalls": 0,
+     "skillsRead": [],
+     "masExecuted": [],
+     "errorSignals": 0,
+     "errorSignalsMatlab": 0,
+     "errorSignalsTooling": 0,
+     "patternHitsNotErrors": 0,
+     "budgetExceededTime": false,
+     "budgetExceededMcp": false
+    }
+   ]
+  },
+  "R3": {
+   "nPlanned": 12,
+   "nExecuted": 12,
+   "nMissing": 0,
+   "nPass": 10,
+   "passRateExecuted": 0.8333333333333334,
+   "firstTask": "H-SIG-F",
+   "firstTaskPass": true,
+   "falseAccepts": 0,
+   "falseRejects": 0,
+   "undeterminedExpected": 5,
+   "undeterminedDetected": 4,
+   "fieldsPass": 11,
+   "fieldsTotal": 12,
+   "clientSkillToolCalls": 0,
+   "workspaceSkillDiscoveryEpisodes": 9,
+   "correctSkillEpisodes": 9,
+   "masExecutedEpisodes": 9,
+   "elapsedMeanSec": 268.2,
+   "elapsedMedianSec": 203.0,
+   "mcpCallsMean": 8.8,
+   "mcpCallsMax": 22,
+   "timeBudgetViolations": 1,
+   "mcpBudgetViolations": 0,
+   "episodesWithErrorSignals": 9,
+   "errorSignalsTotal": 23,
+   "errorSignalsMatlab": 16,
+   "errorSignalsTooling": 7,
+   "episodesWithErrorAndGradedPass": 8,
+   "perEpisode": [
+    {
+     "task": "H-SIG-F",
+     "model": "qmodel_38max",
+     "elapsedSec": 83.3,
+     "mcpCalls": 2,
+     "expectedVerdict": "FAIL",
+     "actualVerdict": "FAIL",
+     "taskPass": true,
+     "fieldsPass": 1,
+     "fieldsTotal": 1,
+     "clientSkillToolCalls": 0,
+     "skillsRead": [],
+     "masExecuted": [],
+     "errorSignals": 0,
+     "errorSignalsMatlab": 0,
+     "errorSignalsTooling": 0,
+     "patternHitsNotErrors": 0,
+     "budgetExceededTime": false,
+     "budgetExceededMcp": false
+    },
+    {
+     "task": "H-DATA-B",
+     "model": "qmodel_38max",
+     "elapsedSec": 289.3,
+     "mcpCalls": 2,
+     "expectedVerdict": "UNDETERMINED",
+     "actualVerdict": "UNDETERMINED",
+     "taskPass": true,
+     "fieldsPass": 1,
+     "fieldsTotal": 1,
+     "clientSkillToolCalls": 0,
+     "skillsRead": [
+      "matlab-data-analysis"
+     ],
+     "masExecuted": [],
+     "errorSignals": 1,
+     "errorSignalsMatlab": 0,
+     "errorSignalsTooling": 1,
+     "patternHitsNotErrors": 1,
+     "budgetExceededTime": false,
+     "budgetExceededMcp": false
+    },
+    {
+     "task": "H54-ODE-N",
+     "model": "qmodel_38max",
+     "elapsedSec": 320.5,
+     "mcpCalls": 7,
+     "expectedVerdict": "PASS",
+     "actualVerdict": "PASS",
+     "taskPass": false,
+     "fieldsPass": 2,
+     "fieldsTotal": 3,
+     "clientSkillToolCalls": 0,
+     "skillsRead": [
+      "matlab-data-analysis"
+     ],
+     "masExecuted": [
+      "mas_ode_check"
+     ],
+     "errorSignals": 1,
+     "errorSignalsMatlab": 1,
+     "errorSignalsTooling": 0,
+     "patternHitsNotErrors": 1,
+     "budgetExceededTime": false,
+     "budgetExceededMcp": false
+    },
+    {
+     "task": "H-SIG-B",
+     "model": "qmodel_38max",
+     "elapsedSec": 205.9,
+     "mcpCalls": 2,
+     "expectedVerdict": "UNDETERMINED",
+     "actualVerdict": "FAIL",
+     "taskPass": false,
+     "fieldsPass": 0,
+     "fieldsTotal": 0,
+     "clientSkillToolCalls": 0,
+     "skillsRead": [],
+     "masExecuted": [],
+     "errorSignals": 0,
+     "errorSignalsMatlab": 0,
+     "errorSignalsTooling": 0,
+     "patternHitsNotErrors": 0,
+     "budgetExceededTime": false,
+     "budgetExceededMcp": false
+    },
+    {
+     "task": "H54-VIS-F",
+     "model": "qfmodel",
+     "elapsedSec": 75.0,
+     "mcpCalls": 6,
+     "expectedVerdict": "FAIL",
+     "actualVerdict": "FAIL",
+     "taskPass": true,
+     "fieldsPass": 3,
+     "fieldsTotal": 3,
+     "clientSkillToolCalls": 0,
+     "skillsRead": [],
+     "masExecuted": [
+      "mas_seg_check"
+     ],
+     "errorSignals": 1,
+     "errorSignalsMatlab": 1,
+     "errorSignalsTooling": 0,
+     "patternHitsNotErrors": 1,
+     "budgetExceededTime": false,
+     "budgetExceededMcp": false
+    },
+    {
+     "task": "H-DATA-F",
+     "model": "qfmodel",
+     "elapsedSec": 136.8,
+     "mcpCalls": 13,
+     "expectedVerdict": "FAIL",
+     "actualVerdict": "FAIL",
+     "taskPass": true,
+     "fieldsPass": 0,
+     "fieldsTotal": 0,
+     "clientSkillToolCalls": 0,
+     "skillsRead": [
+      "matlab-data-analysis"
+     ],
+     "masExecuted": [
+      "mas_linsolve_check"
+     ],
+     "errorSignals": 6,
+     "errorSignalsMatlab": 5,
+     "errorSignalsTooling": 1,
+     "patternHitsNotErrors": 0,
+     "budgetExceededTime": false,
+     "budgetExceededMcp": false
+    },
+    {
+     "task": "H54-ODE-B",
+     "model": "qfmodel",
+     "elapsedSec": 96.6,
+     "mcpCalls": 5,
+     "expectedVerdict": "UNDETERMINED",
+     "actualVerdict": "UNDETERMINED",
+     "taskPass": true,
+     "fieldsPass": 0,
+     "fieldsTotal": 0,
+     "clientSkillToolCalls": 0,
+     "skillsRead": [
+      "matlab-data-analysis"
+     ],
+     "masExecuted": [
+      "mas_ode_check"
+     ],
+     "errorSignals": 1,
+     "errorSignalsMatlab": 1,
+     "errorSignalsTooling": 0,
+     "patternHitsNotErrors": 0,
+     "budgetExceededTime": false,
+     "budgetExceededMcp": false
+    },
+    {
+     "task": "H-ROB-B",
+     "model": "qfmodel",
+     "elapsedSec": 252.3,
+     "mcpCalls": 16,
+     "expectedVerdict": "UNDETERMINED",
+     "actualVerdict": "UNDETERMINED",
+     "taskPass": true,
+     "fieldsPass": 0,
+     "fieldsTotal": 0,
+     "clientSkillToolCalls": 0,
+     "skillsRead": [
+      "matlab-robotics-autonomy"
+     ],
+     "masExecuted": [
+      "mas_quat_check"
+     ],
+     "errorSignals": 5,
+     "errorSignalsMatlab": 1,
+     "errorSignalsTooling": 4,
+     "patternHitsNotErrors": 0,
+     "budgetExceededTime": false,
+     "budgetExceededMcp": false
+    },
+    {
+     "task": "H54-VIS-N",
+     "model": "qfmodel",
+     "elapsedSec": 112.2,
+     "mcpCalls": 6,
+     "expectedVerdict": "PASS",
+     "actualVerdict": "PASS",
+     "taskPass": true,
+     "fieldsPass": 2,
+     "fieldsTotal": 2,
+     "clientSkillToolCalls": 0,
+     "skillsRead": [
+      "matlab-signal-vision-ai"
+     ],
+     "masExecuted": [
+      "mas_seg_check"
+     ],
+     "errorSignals": 1,
+     "errorSignalsMatlab": 1,
+     "errorSignalsTooling": 0,
+     "patternHitsNotErrors": 0,
+     "budgetExceededTime": false,
+     "budgetExceededMcp": false
+    },
+    {
+     "task": "H54-ODE-F",
+     "model": "qfmodel",
+     "elapsedSec": 1001.4,
+     "mcpCalls": 22,
+     "expectedVerdict": "FAIL",
+     "actualVerdict": "FAIL",
+     "taskPass": true,
+     "fieldsPass": 1,
+     "fieldsTotal": 1,
+     "clientSkillToolCalls": 0,
+     "skillsRead": [
+      "matlab-data-analysis"
+     ],
+     "masExecuted": [
+      "mas_ode_check"
+     ],
+     "errorSignals": 4,
+     "errorSignalsMatlab": 3,
+     "errorSignalsTooling": 1,
+     "patternHitsNotErrors": 1,
+     "budgetExceededTime": true,
+     "budgetExceededMcp": false
+    },
+    {
+     "task": "H-ROB-F",
+     "model": "qfmodel",
+     "elapsedSec": 444.9,
+     "mcpCalls": 12,
+     "expectedVerdict": "FAIL",
+     "actualVerdict": "FAIL",
+     "taskPass": true,
+     "fieldsPass": 1,
+     "fieldsTotal": 1,
+     "clientSkillToolCalls": 0,
+     "skillsRead": [
+      "matlab-robotics-autonomy"
+     ],
+     "masExecuted": [
+      "mas_dyn_check"
+     ],
+     "errorSignals": 3,
+     "errorSignalsMatlab": 3,
+     "errorSignalsTooling": 0,
+     "patternHitsNotErrors": 1,
+     "budgetExceededTime": false,
+     "budgetExceededMcp": false
+    },
+    {
+     "task": "H54-VIS-B",
+     "model": "qfmodel",
+     "elapsedSec": 200.1,
+     "mcpCalls": 13,
+     "expectedVerdict": "UNDETERMINED",
+     "actualVerdict": "UNDETERMINED",
+     "taskPass": true,
+     "fieldsPass": 0,
+     "fieldsTotal": 0,
+     "clientSkillToolCalls": 0,
+     "skillsRead": [
+      "matlab-signal-vision-ai"
+     ],
+     "masExecuted": [
+      "mas_seg_check"
+     ],
+     "errorSignals": 0,
+     "errorSignalsMatlab": 0,
+     "errorSignalsTooling": 0,
+     "patternHitsNotErrors": 0,
+     "budgetExceededTime": false,
+     "budgetExceededMcp": false
+    }
+   ]
+  }
+ },
+ "autoTriggering": {
+  "episodesTotal": 14,
+  "clientSkillToolCalls": 0,
+  "classification": "UNKNOWN->EXPLICITLY_SELECTED not observed; AUTO_SELECTED (client Skill tool) = 0 of 14",
+  "note": "Zero episodes contain a client-native Skill tool_use. R3 episodes that opened skills/ in their own workspace are workspace auto-discovery, which is NOT the same claim. Prose mentions of a skill name are never counted as triggering."
+ },
+ "recovery": {
+  "errorSignalsTotal": 23,
+  "episodesWithErrorSignals": 9,
+  "episodesTotal": 14,
+  "byClass": {
+   "matlab": 16,
+   "tooling": 7,
+   "patternHitsNotErrors": 5
+  },
+  "episodesWithErrorAndGradedPass": 8,
+  "perEpisode": [
+   {
+    "arm": "R3",
+    "task": "H-DATA-B",
+    "errorSignals": 1,
+    "matlab": 0,
+    "tooling": 1,
+    "patternHitsNotErrors": 1,
+    "completed": true,
+    "gradedPass": true
+   },
+   {
+    "arm": "R3",
+    "task": "H54-ODE-N",
+    "errorSignals": 1,
+    "matlab": 1,
+    "tooling": 0,
+    "patternHitsNotErrors": 1,
+    "completed": true,
+    "gradedPass": false
+   },
+   {
+    "arm": "R3",
+    "task": "H54-VIS-F",
+    "errorSignals": 1,
+    "matlab": 1,
+    "tooling": 0,
+    "patternHitsNotErrors": 1,
+    "completed": true,
+    "gradedPass": true
+   },
+   {
+    "arm": "R3",
+    "task": "H-DATA-F",
+    "errorSignals": 6,
+    "matlab": 5,
+    "tooling": 1,
+    "patternHitsNotErrors": 0,
+    "completed": true,
+    "gradedPass": true
+   },
+   {
+    "arm": "R3",
+    "task": "H54-ODE-B",
+    "errorSignals": 1,
+    "matlab": 1,
+    "tooling": 0,
+    "patternHitsNotErrors": 0,
+    "completed": true,
+    "gradedPass": true
+   },
+   {
+    "arm": "R3",
+    "task": "H-ROB-B",
+    "errorSignals": 5,
+    "matlab": 1,
+    "tooling": 4,
+    "patternHitsNotErrors": 0,
+    "completed": true,
+    "gradedPass": true
+   },
+   {
+    "arm": "R3",
+    "task": "H54-VIS-N",
+    "errorSignals": 1,
+    "matlab": 1,
+    "tooling": 0,
+    "patternHitsNotErrors": 0,
+    "completed": true,
+    "gradedPass": true
+   },
+   {
+    "arm": "R3",
+    "task": "H54-ODE-F",
+    "errorSignals": 4,
+    "matlab": 3,
+    "tooling": 1,
+    "patternHitsNotErrors": 1,
+    "completed": true,
+    "gradedPass": true
+   },
+   {
+    "arm": "R3",
+    "task": "H-ROB-F",
+    "errorSignals": 3,
+    "matlab": 3,
+    "tooling": 0,
+    "patternHitsNotErrors": 1,
+    "completed": true,
+    "gradedPass": true
+   }
+  ],
+  "measure": "An episode is counted as a recovered error only when a tool_result in its own transcript carried an error marker AND the episode still produced a graded result.json. Every episode with error signals completed. Signals whose text only matched the error pattern without being a failure (healthy contract output listing \"0 fail\", file contents containing the word \"error\") are counted separately as patternHitsNotErrors and excluded here.",
+  "limitation": "First-attempt verdict per step was not recorded by the client, so recovery is reported as a completed-after-error proxy, not as a precise success rate. The one hard failure this batch saw was outside any episode: a client credit-limit abort on R3 H54-VIS-F, recorded as ERROR_CREDIT_LIMIT and re-run (retrySeq 7)."
+ },
+ "tokens": {
+  "status": "NOT_OBSERVABLE",
+  "reason": "Transcript message.usage exists but reports input_tokens=0 and output_tokens=0 on every message in this client build, so token cost cannot be compared across arms."
+ },
+ "modelControl": {
+  "resolvedModels": [
+   "qfmodel",
+   "qmodel_38max"
+  ],
+  "minimalTriple": "R1/R2/R3 on H-SIG-F all ran on qmodel_38max",
+  "extensionCaveat": "The 11 R3 extension episodes span two client-resolved models because the client switched model mid-batch (a credit-limit abort preceded the switch). The R3 arm is therefore a heterogeneous sample and cannot be compared to any single-model baseline.",
+  "pilotBatch": "The v2 pilot triple mixed dfmodel (R1, R2) with qmodel_38max (R3) and is retained as a pilot only; it is excluded from the fair-comparison claim."
+ },
+ "gainVerdict": {
+  "status": "UNKNOWN",
+  "comparableCells": [
+   {
+    "task": "H-SIG-F",
+    "arms": [
+     "R1",
+     "R2",
+     "R3"
+    ],
+    "eachN": 1,
+    "result": "all three reached the correct FAIL verdict with measured fPeak 50.0 Hz"
+   }
+  ],
+  "statement": "On the single task run in all three arms, the Skill arm showed no accuracy advantage; it was the slowest of the three in v3 (83.3 s vs 77.4 s and 59.7 s) and did not open a skill document at all. At n=1 per arm this is not evidence of absence either, so no gain or loss percentage is constructed.",
+  "whatIsProvable": "R3 alone shows that a full-skill workspace can be autonomously discovered and used (9 of 12 episodes opened the matching skill directory and 9 of 12 executed a mas_* contract tool), and that the professional verdicts hold without any route hint.",
+  "whatIsNotProvable": "Any Skills-vs-no-Skills accuracy, speed or cost improvement; client-native Skill auto-triggering; a precise error-recovery rate (the client logs no per-attempt verdict, only that every episode carrying error signals still completed)."
+ }
+}

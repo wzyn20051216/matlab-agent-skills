@@ -1,0 +1,18 @@
+{
+  "schema": "mas-phase55-score-spec/1",
+  "note": "Agent-level scoring uses the verdict plus observable fields only. Internal conclusion fields that merely restate the verdict (levels.conclusion, levels.errorTol, objectThreshold) are excluded. Tolerances are read from the sealed answers and are not relaxed.",
+  "tasks": [
+    { "id": "H-SIG-B", "fields": [] },
+    { "id": "H-SIG-F", "fields": ["measured.fPeak"] },
+    { "id": "H-DATA-B", "fields": ["cond"] },
+    { "id": "H-DATA-F", "fields": [] },
+    { "id": "H-ROB-B", "fields": [] },
+    { "id": "H-ROB-F", "fields": ["skewErr"] },
+    { "id": "H54-ODE-N", "fields": ["error.maxScaled", "invariant.maxRelDrift", "stiffness.classified"] },
+    { "id": "H54-ODE-B", "fields": [] },
+    { "id": "H54-ODE-F", "fields": ["error.maxScaled"] },
+    { "id": "H54-VIS-N", "fields": ["metrics.f1", "objectMetrics.objectIouMean"] },
+    { "id": "H54-VIS-B", "fields": [] },
+    { "id": "H54-VIS-F", "fields": ["metrics.f1", "metrics.accuracy", "objectMetrics.objectIouMean"] }
+  ]
+}

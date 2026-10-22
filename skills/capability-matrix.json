@@ -1,6 +1,6 @@
 {
  "version": "2.0",
- "phase": "5.4 (complete; real Agent episode on holdout tasks, concurrency isolation, ODE and vision verification contracts, tool-level benchmark for the new domains, 2026-10-22)",
+ "phase": "5.5 (partial; real three-arm agent benchmark started, R3 holdout complete at 12/12 executed, client-native Skill auto-triggering still unproven, 2026-10-22)",
  "date": "2026-10-22",
  "legend": {
   "VERIFIED": "exercised by a run in this repository, with an independent reference or a test that can fail",
@@ -361,6 +361,45 @@
    "evidence": "benchmark_audit 7/7 (holdout outside repo, frozen hashes, no byte-identical answer copy including artifacts/phase53, disjoint dev/holdout, complete set); formal v2 holdout 9/9 route/tool/verdict/fields, 0 false accepts; dev 3/3; harness tests 11/11; a v1 pilot's two spec errors are retained as evidence",
    "agentLevel": "TESTED (partial holdout)",
    "reason": "Phase 5.4 ran independent agent episodes on 3 of the 9 Phase 5.3 holdout tasks (H-SIG-N, H-DATA-N, H-ROB-N): natural-language prompts, Skill routing, MATLAB MCP execution and evaluation-side grading, 3/3 PASS. The other 6 Phase 5.3 tasks were not attempted, so no full-holdout agent success rate is claimed; the tool-level 9/9 record above still comes from the deterministic scripted runner"
+  },
+  "phase55AgentBenchmark": {
+   "status": "PARTIAL",
+   "date": "2026-10-22",
+   "batch": "v3",
+   "workspace": "E:/desktop/MATLAB-bench-phase55-v3 -- outside the repo, one isolated directory per arm and task",
+   "arms": {
+    "R1": "Agent + official MATLAB MCP only. Workspace exposes input.mat and prompt.md (2 files). n=1 episode.",
+    "R2": "R1 plus the nine SKILL.md, their references and capability-matrix.json, and zero .m files (no mas_* tool exposed). n=1 episode.",
+    "R3": "R2 plus the full nine skill directories: 76 .m files including every mas_* tool. n=12 episodes, 12/12 executed."
+   },
+   "fairness": {
+    "identicalPrompt": "prompt.md is byte-identical across arms for a task (sha256 ab458fe7319d94bd...); staged inputs verified data-identical in artifacts/phase55/stage_v3_equivalence.log",
+    "identicalBudget": "25 MATLAB MCP calls and 15 minutes, written into every prompt",
+    "modelControl": "The H-SIG-F triple all ran on the client-resolved model qmodel_38max. The 11 R3 extension episodes span qmodel_38max and qfmodel because the client switched model after a credit-limit abort, so R3 is a heterogeneous sample.",
+    "serialEpisodes": "One shared long-lived MATLAB MCP session forces serial episodes; the orchestrator removed project paths, cleared variables, reset rng and cd-ed per episode, and verified which(mas_*) was empty before each start.",
+    "noBackfill": "No arm was filled with historical tool-level or script results. Only episodes with a client transcript and a result.json are counted."
+   },
+   "results": {
+    "minimalTripleH_SIG_F": "R1 1/1, R2 1/1, R3 1/1 pass. No measurable accuracy gain at n=1, and R3 was the slowest (83.3 s vs 77.4 s and 59.7 s).",
+    "r3Holdout": "12/12 executed, 10/12 graded pass, 0 false accept, 0 false reject, UNDETERMINED detected 4/5, observable fields 11/12.",
+    "r3Misses": "H-SIG-B answered FAIL where the sealed verdict is UNDETERMINED (a 0/128-bit sample was treated as refuting rather than as inconclusive). H54-ODE-N gave the right verdict but reported error.maxScaled 2.66 from its own scaling grid instead of the frozen contract definition.",
+    "recovery": "9 of 14 episodes hit real errors (16 MATLAB exceptions, 7 tooling/transport failures); all 9 completed and 8 were graded pass. The client logs no per-attempt verdict, so this is a completed-after-error proxy, not a recovery rate.",
+    "evidence": "artifacts/phase55/grades/agent_grade_v3.json, artifacts/phase55/analysis/statistics_v3.json, artifacts/phase55/episodes/episodes_v3.json"
+   },
+   "autoTriggering": {
+    "clientNativeSkillToolCalls": 0,
+    "episodesAudited": 14,
+    "workspaceSkillDiscovery": "9 of 12 R3 episodes opened the matching skill directory inside their own workspace, and 9 of 12 executed a mas_* contract tool.",
+    "claimLimit": "AUTO_SELECTED is 0 of 14: no episode contains a client Skill tool_use, so automatic client-level triggering stays UNPROVEN. What is proven is workspace-level autonomous discovery, correct-skill selection and contract execution without any route hint."
+   },
+   "isolation": {
+    "automatedAudit": "artifacts/phase55/audit/isolation_audit.json: 20 audited episodes, 0 violations, 0 INVALID, no answer or repo access.",
+    "enforcement": "PROVEN NOT ENFORCED. An adversarial probe subagent read the sealed answers file (3039 bytes), listed the user-level skill directory and ran local matlab -batch with no prompt and no denial.",
+    "residual": "The nine matlab-* skills remain installed user-level, so R1 means not-exposed-in-workspace, not not-installed."
+   },
+   "gainClaim": "UNKNOWN. No Skills-gain or Skills-loss percentage is constructed in either direction.",
+   "blocked": "R1 and R2 for the other 11 tasks were never staged or run, so everything beyond the H-SIG-F cell is BLOCKED, not negative.",
+   "coderDiagnosis": "artifacts/phase55/coder_session/coder_diagnosis.json: the Phase 5.4 codegen failure is the MATLAB MCP evaluate channel, not session age -- a freshly restarted MCP session fails identically while matlab -batch passes."
   }
  },
  "summary": {
@@ -373,7 +412,7 @@
    "VERIFIED": 53
   },
   "verified_capabilities": 56,
-  "note": "Counts are COMPUTED from the entries above, not typed in -- mas_capability_check.m fails if they drift. Keys carry no spaces because jsonencode strips them. R1/R2/R3 benchmark ran for real on 2026-10-20 (docs/PHASE4_3_VERIFICATION_ZH.md); the official MATLAB MCP server is reachable over stdio. PARTIAL on the benchmark entry is deliberate: the task scripts are fixed, so it does not yet measure an agent's own skill selection or recovery. Phase 4.5 changed no mas_* tool status, so those counts were unchanged; it added the autonomousExecution block and recorded R1/R2/R3 as UNKNOWN/BLOCKED instead of measured. Phase 5.3 added the four matlab-signal-vision-ai measurement tools verified by test_signal_contract.m 42/42, the seven matlab-data-analysis verification tools verified by test_data_contract.m 118/118, and the four robotics contract tools verified by test_robotics_contract.m 162/162 alongside test_robotics.m 31/31. The Phase 5.3 full regression was 644/644 skill tests over 22 suites, 15/15 references, 15/15 cross-domain tasks and 15/15 pipeline tasks with 0 errored suites; it also ran the isolated benchmark harness 11/11 and a tool-level held-out baseline 9/9. Phase 5.4 added mas_ode_check verified by test_ode_contract.m 56/56 and mas_seg_check/mas_detect_check/mas_image_contract verified by test_vision_contract.m 103/103; the isolated benchmark gained six tool-level ODE/vision tasks (2 normal, 2 boundary, 2 fault) graded 6/6 with 0 false accepts and 0 false rejects, and a real agent episode ran 3/3 normal holdout tasks through the MATLAB MCP with grading on the evaluation side. Tool-level results are not agent-level results, and 6/6 new-domain tasks are not a full-domain success rate."
+  "note": "Counts are COMPUTED from the entries above, not typed in -- mas_capability_check.m fails if they drift. Keys carry no spaces because jsonencode strips them. R1/R2/R3 benchmark ran for real on 2026-10-20 (docs/PHASE4_3_VERIFICATION_ZH.md); the official MATLAB MCP server is reachable over stdio. PARTIAL on the benchmark entry is deliberate: the task scripts are fixed, so it does not yet measure an agent's own skill selection or recovery. Phase 4.5 changed no mas_* tool status, so those counts were unchanged; it added the autonomousExecution block and recorded R1/R2/R3 as UNKNOWN/BLOCKED instead of measured. Phase 5.3 added the four matlab-signal-vision-ai measurement tools verified by test_signal_contract.m 42/42, the seven matlab-data-analysis verification tools verified by test_data_contract.m 118/118, and the four robotics contract tools verified by test_robotics_contract.m 162/162 alongside test_robotics.m 31/31. The Phase 5.3 full regression was 644/644 skill tests over 22 suites, 15/15 references, 15/15 cross-domain tasks and 15/15 pipeline tasks with 0 errored suites; it also ran the isolated benchmark harness 11/11 and a tool-level held-out baseline 9/9. Phase 5.4 added mas_ode_check verified by test_ode_contract.m 56/56 and mas_seg_check/mas_detect_check/mas_image_contract verified by test_vision_contract.m 103/103; the isolated benchmark gained six tool-level ODE/vision tasks (2 normal, 2 boundary, 2 fault) graded 6/6 with 0 false accepts and 0 false rejects, and a real agent episode ran 3/3 normal holdout tasks through the MATLAB MCP with grading on the evaluation side. Tool-level results are not agent-level results, and 6/6 new-domain tasks are not a full-domain success rate. Phase 5.5 ran the first genuinely executed R1/R2/R3 comparison on an identical prompt and budget: all three arms passed the one task run in every arm, so no gain was measured. The R3 full-skill arm then executed all 12 holdout tasks with 10 graded passes, 0 false accepts, 0 false rejects and 4 of 5 UNDETERMINED expectations detected. Client-native Skill triggering appeared in 0 of 14 audited episodes, while workspace-level autonomous discovery of the matching skill happened in 9 of 12 R3 episodes and 9 of 12 executed a mas_* contract tool. An adversarial probe proved that grader isolation is not enforced by the client, so the benchmark stays procedural plus post-hoc transcript audited."
  },
  "tools": {
   "mas_codegen_ready": {

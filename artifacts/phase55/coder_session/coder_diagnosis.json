@@ -1,0 +1,100 @@
+{
+  "schema": "mas-phase55-coder-session-diagnosis/1",
+  "date": "2026-10-22",
+  "task": "Phase 5.5 Task 7 - limited diagnosis of the Phase 5.4 codegen failure record",
+  "phase54Record": {
+    "quote": "长驻 MCP 会话内 codegen 10/12，任意函数报 emlc:compilationError（空消息），只产出 html/interface",
+    "classification": "环境/测试会话状态，不是产品缺陷",
+    "source": "docs/PHASE5_4_REAL_EXECUTION_ZH.md line 316"
+  },
+  "environment": {
+    "matlab": "26.1.0.3276743 (R2026a) Update 3",
+    "platform": "PCWIN64, Windows 10.0.26100",
+    "mcpServer": "official MATLAB MCP server, serverId a68c155e-a7ce-4df2-bc95-5bd356bcc563",
+    "compilerDetectedInsideFailingContext": "Microsoft Visual C++ 2022 (C)",
+    "codegenCallFormUnderTest": "codegen('-config', coder.config('mex'), 'codegen_target', '-args', {1:10}, '-d', buildDir)  # the exact form mas_codegen_verify uses via evalc"
+  },
+  "experiments": [
+    {
+      "id": "E1",
+      "context": "long-lived MATLAB MCP session (14 benchmark episodes already run in it)",
+      "action": "test_codegen()",
+      "result": "10/12 - reproduces the Phase 5.4 number exactly",
+      "failingCases": ["verify: PASS on a real function", "verify: FAIL via goldenFcn mismatch"]
+    },
+    {
+      "id": "E2",
+      "context": "same long-lived MCP session",
+      "action": "mas_codegen_verify('codegen_target', {1:10})",
+      "result": "verdict=FAIL stage=codegen detail='FAIL at codegen: ' (empty message); log shows the compiler IS detected",
+      "artifactsProduced": ["html", "interface"]
+    },
+    {
+      "id": "E3",
+      "context": "same long-lived MCP session, direct call, no evalc",
+      "action": "codegen('-config', cfg, 'codegen_target', '-args', {1:10})",
+      "result": "error id=emlc:compilationError, message empty",
+      "diagnosticPrintedByMatlab": "代码生成不支持函数 'codegen_target' / msginfo_Coder_builtins_FunctionNotSupportedForCodeGeneration",
+      "stack": "codegen.p line 0 <- LiveEditorEvaluationHelperEmatlab_mcp_server.m <- matlab_mcp/mcpEval.m line 48 <- connector.internal.fevalMatlab <- connector.internal.fevalJSON"
+    },
+    {
+      "id": "E4",
+      "context": "same long-lived MCP session, attempted recoveries",
+      "action": "rehash; clear functions; call with a function handle instead of a name; cd into the fixture directory",
+      "result": "all four still ERR emlc:compilationError - no recovery",
+      "recovered": false
+    },
+    {
+      "id": "E5",
+      "context": "same long-lived MCP session, fixture that existed before the session started",
+      "action": "addpath E:\\desktop\\MATLAB\\matlab\\validation\\crossdomain\\tasks (file dated 2026-10-21) then codegen",
+      "result": "ERR emlc:compilationError - so 'created during the session' is not the trigger",
+      "controlsOut": ["path cache", "file freshness"]
+    },
+    {
+      "id": "E6",
+      "context": "fresh MATLAB process launched by matlab -batch, same install, same addpath, same call form",
+      "action": "codegen(...) then mas_codegen_verify(...)",
+      "result": "OK - verdict=PASS stage=compare, maxAbs 0.000e+00, codegen_target_mex.mexw64 and 25 other artifacts built",
+      "recovered": true
+    },
+    {
+      "id": "E7",
+      "context": "MATLAB MCP server restarted (manage_mcp retry) - brand new MATLAB process driven through the MCP eval path",
+      "action": "codegen(...) and mas_codegen_verify(...)",
+      "result": "ERR emlc:compilationError again, identical diagnostic and identical html/interface-only artifacts",
+      "recovered": false,
+      "significance": "falsifies the 'accumulated long-lived session state' explanation"
+    },
+    {
+      "id": "E8",
+      "context": "same long-lived MCP session (before restart), full regression suite in a fresh process",
+      "action": "matlab -batch run_all_suites (Task 0 / Task 8 gate)",
+      "result": "803/803 skill tests, codegen suite 12/12, 0 errored suites",
+      "evidence": "artifacts/phase55/regression/gate_console.log"
+    }
+  ],
+  "conclusion": {
+    "mechanism": "MATLAB Coder cannot resolve the entry-point function when the call chain originates in the MCP server's dynamic-eval helper (connector.internal.fevalJSON -> matlab_mcp.mcpEval -> LiveEditorEvaluationHelperE*). Coder classifies the named function as 'not supported for code generation' and raises emlc:compilationError with an empty message, emitting only html/interface.",
+    "classification": "Environment / execution-channel limitation of the MATLAB MCP evaluate path. Not a mas_* product defect, not a MATLAB Coder defect on this install, and not Agent-algorithm state pollution.",
+    "correctionToPhase54Record": "Phase 5.4 attributed the failure to a long-lived test session. Phase 5.5 E7 shows a brand-new MCP session fails identically, so the discriminator is the MCP eval channel, not session age. The Phase 5.4 record is left unedited; this file is the erratum.",
+    "notTested": ["Simulink Coder / coder.compileC, mexCinterface through the MCP path", "the MATLAB MCP run_matlab_file tool as an alternative channel", "MathWorks support ticket follow-up"]
+  },
+  "recommendedHandling": {
+    "designReportOnly": true,
+    "rules": [
+      "Run every codegen-family assertion (mas_codegen_verify, mas_codegen_ready build steps, test_codegen) in a real MATLAB process (matlab -batch), never through MCP evaluate, and say which channel produced the number.",
+      "An Agent episode that ends with a codegen PASS reported from MCP evaluate must be treated as unverified unless a real MATLAB process reproduces it.",
+      "mas_codegen_verify should record the execution channel and, on an empty-message emlc:compilationError, surface 'entry point not resolvable from a dynamic-eval context' instead of a blank detail.",
+      "Do not attempt to fix this by clearing MATLAB state; E4/E7 show state-clearing has no effect."
+    ]
+  },
+  "sessionIncidentsSameDay": [
+    {
+      "event": "restoredefaultpath destroyed the MCP server's +matlab_mcp package (errors matlab_mcp.getOrStashExceptions / mcpEval not found); eval could no longer be used to repair itself",
+      "recovery": "manage_mcp action=retry on serverId a68c155e-a7ce-4df2-bc95-5bd356bcc563 (no expectedSourceRevision); verified version and pwd afterwards",
+      "lesson": "never use restoredefaultpath in a session hosting the MATLAB MCP server; use targeted rmpath of project paths instead",
+      "consequence": "the Phase 5.4 long-lived session was lost, so Phase 5.5 could not inspect that original session directly"
+    }
+  ]
+}

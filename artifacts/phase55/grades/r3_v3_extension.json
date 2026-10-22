@@ -1,0 +1,139 @@
+{
+  "schema": "mas-phase55-agent-grade/1",
+  "gradedAt": "2026-10-22 16:39:41",
+  "resultsRoot": "E:\\desktop\\MATLAB-bench-phase55-v3",
+  "scoring": "verdict + observable fields from score_spec.json; tolerances from frozen answers; route/tool recorded but not required",
+  "taskFilter": [
+    "H-SIG-F",
+    "H-SIG-B",
+    "H-DATA-B",
+    "H54-ODE-N"
+  ],
+  "arms": {
+    "arm": "R3",
+    "nPlanned": 4,
+    "nExecuted": 4,
+    "nMissing": 0,
+    "nPass": 2,
+    "nFail": 2,
+    "passRateExecuted": 0.5,
+    "falseAccepts": 0,
+    "falseRejects": 0,
+    "undetExpected": 2,
+    "undetDetected": 1,
+    "fieldsPass": 4,
+    "fieldsTotal": 5,
+    "verdictConfusion": {
+      "PASS_to_PASS": 1,
+      "PASS_to_FAIL": 0,
+      "PASS_to_UNDETERMINED": 0,
+      "PASS_to_MISSING": 0,
+      "FAIL_to_PASS": 0,
+      "FAIL_to_FAIL": 1,
+      "FAIL_to_UNDETERMINED": 0,
+      "FAIL_to_MISSING": 0,
+      "UNDETERMINED_to_PASS": 0,
+      "UNDETERMINED_to_FAIL": 1,
+      "UNDETERMINED_to_UNDETERMINED": 1,
+      "UNDETERMINED_to_MISSING": 0,
+      "MISSING_to_PASS": 0,
+      "MISSING_to_FAIL": 0,
+      "MISSING_to_UNDETERMINED": 0,
+      "MISSING_to_MISSING": 0
+    },
+    "rows": [
+      {
+        "taskId": "H-SIG-B",
+        "expectedVerdict": "UNDETERMINED",
+        "actualVerdict": "FAIL",
+        "verdictOk": false,
+        "fieldsPass": 0,
+        "fieldsTotal": 0,
+        "pass": false,
+        "falseAccept": false,
+        "falseReject": false,
+        "routePrimary": "",
+        "tool": "",
+        "notes": "",
+        "resultSha256": "7e7d5b5a6cd78fbea51ebefd81f479e5b3c829b020b6902f9b4360d784bb67f0",
+        "resultFile": "E:\\desktop\\MATLAB-bench-phase55-v3\\R3\\H-SIG-B\\result.json",
+        "fieldDetail": []
+      },
+      {
+        "taskId": "H-SIG-F",
+        "expectedVerdict": "FAIL",
+        "actualVerdict": "FAIL",
+        "verdictOk": true,
+        "fieldsPass": 1,
+        "fieldsTotal": 1,
+        "pass": true,
+        "falseAccept": false,
+        "falseReject": false,
+        "routePrimary": "",
+        "tool": "",
+        "notes": "",
+        "resultSha256": "f777e84e237cf0679f3bcb2c9e8578e67fdcf0cd71d40b4f4fad29a3bb290a36",
+        "resultFile": "E:\\desktop\\MATLAB-bench-phase55-v3\\R3\\H-SIG-F\\result.json",
+        "fieldDetail": {
+          "name": "measured.fPeak",
+          "ok": true,
+          "detail": "abs err 0.000e+00 <= 5.000e-01"
+        }
+      },
+      {
+        "taskId": "H-DATA-B",
+        "expectedVerdict": "UNDETERMINED",
+        "actualVerdict": "UNDETERMINED",
+        "verdictOk": true,
+        "fieldsPass": 1,
+        "fieldsTotal": 1,
+        "pass": true,
+        "falseAccept": false,
+        "falseReject": false,
+        "routePrimary": "",
+        "tool": "",
+        "notes": "",
+        "resultSha256": "e1a4c252abd893679c5da77f7c1ec776cbcbbf46c629aacb852ff49172bf8c33",
+        "resultFile": "E:\\desktop\\MATLAB-bench-phase55-v3\\R3\\H-DATA-B\\result.json",
+        "fieldDetail": {
+          "name": "cond",
+          "ok": true,
+          "detail": "abs err 4.946e+12 <= 1.634e+13 (rel 0.001)"
+        }
+      },
+      {
+        "taskId": "H54-ODE-N",
+        "expectedVerdict": "PASS",
+        "actualVerdict": "PASS",
+        "verdictOk": true,
+        "fieldsPass": 2,
+        "fieldsTotal": 3,
+        "pass": false,
+        "falseAccept": false,
+        "falseReject": false,
+        "routePrimary": "",
+        "tool": "",
+        "notes": "",
+        "resultSha256": "9c74d0fecd7673cb8f7dac63517b59f0ba3bdeb06a39db698cee7f401ed53dc2",
+        "resultFile": "E:\\desktop\\MATLAB-bench-phase55-v3\\R3\\H54-ODE-N\\result.json",
+        "fieldDetail": [
+          {
+            "name": "error.maxScaled",
+            "ok": false,
+            "detail": "2.66239 <= 1e-08 + 0"
+          },
+          {
+            "name": "invariant.maxRelDrift",
+            "ok": true,
+            "detail": "6.55017e-10 <= 1e-08 + 0"
+          },
+          {
+            "name": "stiffness.classified",
+            "ok": true,
+            "detail": "\"nonstiff\" vs \"nonstiff\""
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,88 @@
+{
+  "schema": "mas-phase55-audit/1",
+  "arm": "R3",
+  "task": "H-ROB-B",
+  "workspace": "E:/desktop/MATLAB-bench-phase55-v3/R3/H-ROB-B",
+  "transcript": "C:/Users/23201/.qoder-cn/projects/E--desktop-MATLAB/d0c0bf5d-79a5-43e1-b507-1b8abfae4bbc/subagents/agent-ageneral-purpose-a467bd9f9fa885f9.jsonl",
+  "transcriptSha256": "798382dda63408770f06b08e011481e58de439b39f9c32c3ae89ef08bc82214b",
+  "model": "qfmodel",
+  "firstTimestamp": "2026-10-22T08:46:32.492Z",
+  "lastTimestamp": "2026-10-22T08:50:44.815Z",
+  "elapsedS": 252.3,
+  "toolCounts": {
+    "Read": 4,
+    "Bash": 3,
+    "mcp_list": 1,
+    "mcp_call": 16,
+    "mcp_get": 1
+  },
+  "mcpCalls": 16,
+  "mcpTools": [
+    "",
+    "mcp__matlab_official__evaluate_matlab_code"
+  ],
+  "mcpCode": [
+    "cd('E:/desktop/MATLAB-bench-phase55-v3/R3/H-ROB-B'); S = whos('input.mat'); disp({S.name}); D = load('input.mat'); disp(fieldnames(D)); disp(class(D.q)); disp(size(D.q)); fprintf('%0.17g ', D.q); fprintf('\\n'); disp(class(D.claims)); disp(size(D.claims)); disp(fieldnames(D.claims)); disp(D.claims)",
+    "D = load('input.mat'); ax = D.claims.axis; fprintf('claimed axis: %.17g %.17g %.17g\\n', ax); fprintf('norm = %.17g\\n', norm(ax)); r = mas_quat_check(D.q, D.claims); disp(r.verdict); disp(r.angle); disp(r.axis'); disp(r.qUnit'); fprintf('nChecks %d nPass %d nFail %d nUndetermined %d nNa %d\\n', r.nChecks, r.nPass, r.nFail, r.nUndetermined, r.nNa); for k=1:numel(r.checks), fprintf('  %-22s %-13s %s\\n', r.checks(k).id, r.checks(k).status, r.checks(k).detail); end",
+    "D = load('input.mat'); ax = D.claims.axis; fprintf('claimed axis: %.17g %.17g %.17g\\n', ax(1), ax(2), ax(3)); fprintf('norm = %.17g\\n', norm(ax)); r = mas_quat_check(D.q, D.claims); fprintf('verdict=%s angle=%.17g\\n', r.verdict, r.angle); fprintf('axis=[%g %g %g]\\n', r.axis(1), r.axis(2), r.axis(3)); fprintf('nChecks %d nPass %d nFail %d nUnd %d nNa %d\\n', r.nChecks, r.nPass, r.nFail, r.nUndetermined, r.nNa); for k=1:numel(r.checks), fprintf('  %-22s %-13s %s\\n', r.checks(k).id, r.checks(k).status, r.checks(k).detail); end",
+    "addpath('E:/desktop/MATLAB-bench-phase55-v3/R3/H-ROB-B/skills/matlab-robotics-autonomy/scripts'); D = load('E:/desktop/MATLAB-bench-phase55-v3/R3/H-ROB-B/input.mat'); r = mas_quat_check(D.q, D.claims); fprintf('verdict=%s angle=%.17g\\n', r.verdict, r.angle); fprintf('axis=[%g %g %g]\\n', r.axis(1), r.axis(2), r.axis(3)); fprintf('nChecks %d nPass %d nFail %d nUnd %d nNa %d\\n', r.nChecks, r.nPass, r.nFail, r.nUndetermined, r.nNa); for k=1:numel(r.checks), fprintf('  %-22s %-13s %s\\n', r.checks(k).id, r.checks(k).status, r.checks(k).detail); end",
+    "D = load('E:/desktop/MATLAB-bench-phase55-v3/R3/H-ROB-B/input.mat'); q = D.q(:); ax = D.claims.axis(:); fprintf('norm(q)=%.17g  norm(axis)=%.17g\\n', norm(q), norm(ax)); w=q(1); v=q(2:4); sv=norm(v); fprintf('w=%.17g |v|=%.17g -> angle=2*atan2(|v|,|w|)=%.17g\\n', w, sv, 2*atan2(sv,abs(w))); % independent route: rotation matrix from q\nx=q(2);y=q(3);z=q(4); R=[1-2*(y*y+z*z) 2*(x*y-w*z) 2*(x*z+w*y);2*(x*y+w*z) 1-2*(x*x+z*z) 2*(y*z-w*x);2*(x*z-w*y) 2*(y*z+w*x) 1-2*(x*x+y*y)]; fprintf('max|R-I|=%.3e  det(R)=%.17g  orthErr=%.3e\\n', max(abs(R(:)-eye(3))), det(R), max(abs(R'*R-eye(3)))); eigR=eig(R); fprintf('eig(R)=[%g %g %g]\\n',eigR(1),eigR(2),eigR(3)); % trace-based angle independent of axis\nfprintf('angle from trace = %.17g\\n', acos(min(max((trace(R)-1)/2,-1),1))); % axis from (R-R')/2 route\nsvec = [R(3,2)-R(2,3); R(1,3)-R(3,1); R(2,1)-R(1,2)]/2; fprintf('skew-route axis norm = %.3e (zero => axis unrecoverable)\\n', norm(svec)); % non-uniqueness: build q from claimed axis at angle 0 and from 3 other random axes\nrng(1); qs=@(a,th) [cos(th/2); sin(th/2)*a(:)/norm(a)]; errs=[]; cand={ax,[1;0;0],[0;1;0],[1;1;1]/sqrt(3),randn(3,1)}; for k=1:numel(cand), qq=qs(cand{k},0); errs(end+1)=norm(qq-q)",
+    "D = load('E:/desktop/MATLAB-bench-phase55-v3/R3/H-ROB-B/input.mat');\nq = D.q(:); ax = D.claims.axis(:);\nfprintf('norm(q)=%.17g  norm(axis)=%.17g\\n', norm(q), norm(ax));\nw=q(1); v=q(2:4); sv=norm(v);\nfprintf('w=%.17g |v|=%.17g angle=%.17g\\n', w, sv, 2*atan2(sv,abs(w)));\nx=q(2);y=q(3);z=q(4);\nR=[1-2*(y*y+z*z) 2*(x*y-w*z) 2*(x*z+w*y);2*(x*y+w*z) 1-2*(x*x+z*z) 2*(y*z-w*x);2*(x*z-w*y) 2*(y*z+w*x) 1-2*(x*x+y*y)];\nfprintf('max|R-I|=%.3e det(R)=%.17g orthErr=%.3e\\n', max(abs(R(:)-eye(3))), det(R), max(abs(R\\'*R-eye(3))));\neigR=eig(R); fprintf('eig(R)=[%g %g %g]\\n',eigR(1),eigR(2),eigR(3));\nfprintf('angle_from_trace=%.17g\\n', acos(min(max((trace(R)-1)/2,-1),1)));\nsvec = [R(3,2)-R(2,3); R(1,3)-R(3,1); R(2,1)-R(1,2)]/2;\nfprintf('skew_route_axis_norm=%.3e\\n', norm(svec));\nqs = @(a,th) [cos(th/2); sin(th/2)*(a(:)/norm(a))];\ncands = {ax,[1;0;0],[0;1;0],[1;1;1]/sqrt(3)};\nerrs = zeros(1,numel(cands));\nfor k=1:numel(cands), errs(k) = norm(qs(cands{k},0) - q); end\nfprintf('reconstruction_errs=%s\\n', mat2str(errs, 6));\nrv = 0*ax;\nfprintf('claimed rotvec norm=%.17g reproduces q to %.17g\\n', norm(rv), norm(qs(ax,0)-q));",
+    "",
+    "D = load('E:/desktop/MATLAB-bench-phase55-v3/R3/H-ROB-B/input.mat');\nq = D.q(:); ax = D.claims.axis(:);\nfprintf('norm(q)=%.17g  norm(axis)=%.17g\\n', norm(q), norm(ax));\nw=q(1); v=q(2:4); sv=norm(v);\nfprintf('w=%.17g  |v|=%.17g  angle=%.17g\\n', w, sv, 2*atan2(sv,abs(w)));\nx=q(2); y=q(3); z=q(4);\nR=[1-2*(y*y+z*z) 2*(x*y-w*z) 2*(x*z+w*y); 2*(x*y+w*z) 1-2*(x*x+z*z) 2*(y*z-w*x); 2*(x*z-w*y) 2*(y*z+w*x) 1-2*(x*x+y*y)];\nE = R*R-transpose(R)*transpose(R) + transpose(R)*R - eye(3);\nfprintf('max|R-I|=%.3e  det(R)=%.17g  orthErr=%.3e\\n', max(abs(R(:)-eye(3))), det(R), max(abs(E(:))));\neigR = eig(R); fprintf('eig(R)=[%g %g %g]\\n', eigR(1), eigR(2), eigR(3));\nfprintf('angle_from_trace=%.17g\\n', acos(min(max((trace(R)-1)/2,-1),1)));\nsvec = [R(3,2)-R(2,3); R(1,3)-R(3,1); R(2,1)-R(1,2)]/2;\nfprintf('skew_route_axis_norm=%.3e\\n', norm(svec));\nqs = @(a,th) [cos(th/2); sin(th/2)*(a(:)/norm(a))];\ncands = {ax,[1;0;0],[0;1;0],[1;1;1]/sqrt(3)};\nerrs = zeros(1,numel(cands));\nfor k = 1:numel(cands), errs(k) = norm(qs(cands{k},0) - q); end\nfprintf('reconstruction_errs=%s\\n', mat2str(errs, 6));",
+    "",
+    "D = load('E:/desktop/MATLAB-bench-phase55-v3/R3/H-ROB-B/input.mat');\nq = D.q(:); ax = D.claims.axis(:);\nfprintf('norm_q=%.17g  norm_axis=%.17g\\n', norm(q), norm(ax));\nw=q(1); v=q(2:4); sv=norm(v);\nfprintf('w=%.17g  vec_norm=%.17g  angle=%.17g\\n', w, sv, 2*atan2(sv,abs(w)));\nx=q(2); y=q(3); z=q(4);\nR=[1-2*(y*y+z*z) 2*(x*y-w*z) 2*(x*z+w*y); 2*(x*y+w*z) 1-2*(x*x+z*z) 2*(y*z-w*x); 2*(x*z-w*y) 2*(y*z+w*x) 1-2*(x*x+y*y)];\nRtR = transpose(R)*R;\nfprintf('max_absR_minus_I=%.3e  detR=%.17g  orthErr=%.3e\\n', max(abs(R(:)-eye(3))), det(R), max(abs(RtR(:)-eye(3))));\neigR = eig(R); fprintf('eigR=[%g %g %g]\\n', eigR(1), eigR(2), eigR(3));\nfprintf('angle_from_trace=%.17g\\n', acos(min(max((trace(R)-1)/2,-1),1)));\nsvec = [R(3,2)-R(2,3); R(1,3)-R(3,1); R(2,1)-R(1,2)]/2;\nfprintf('skew_route_axis_norm=%.3e\\n', norm(svec));\nqs = @(a,th) [cos(th/2); sin(th/2)*(a(:)/norm(a))];\ncands = {ax,[1;0;0],[0;1;0],[1;1;1]/sqrt(3)};\nerrs = zeros(1,numel(cands));\nfor k = 1:numel(cands), errs(k) = norm(qs(cands{k},0) - q); end\nfprintf('reconstruction_errs=%s\\n', mat2str(errs, 6));",
+    "D = load('E:/desktop/MATLAB-bench-phase55-v3/R3/H-ROB-B/input.mat');\nq = D.q(:); ax = D.claims.axis(:);\nw=q(1); x=q(2); y=q(3); z=q(4); v=q(2:4); sv=norm(v);\nR=[1-2*(y*y+z*z) 2*(x*y-w*z) 2*(x*z+w*y); 2*(x*y+w*z) 1-2*(x*x+z*z) 2*(y*z-w*x); 2*(x*z-w*y) 2*(y*z+w*x) 1-2*(x*x+y*y)];\nI3=eye(3); RtR=transpose(R)*R;\nfprintf('max_absR_minus_I=%.3e  detR=%.17g  orthErr=%.3e\\n', max(abs(R(:)-I3(:))), det(R), max(abs(RtR(:)-I3(:))));\neigR = eig(R); fprintf('eigR=[%g %g %g]\\n', eigR(1), eigR(2), eigR(3));\nfprintf('angle_from_trace=%.17g\\n', acos(min(max((trace(R)-1)/2,-1),1)));\nsvec = [R(3,2)-R(2,3); R(1,3)-R(3,1); R(2,1)-R(1,2)]/2;\nfprintf('vec_norm=%.17g  skew_route_axis_norm=%.3e\\n', sv, norm(svec));\nqs = @(a,th) [cos(th/2); sin(th/2)*(a(:)/norm(a))];\ncands = {ax,[1;0;0],[0;1;0],[1;1;1]/sqrt(3),[0.1;0.7;-0.2]};\nerrs = zeros(1,numel(cands));\nfor k = 1:numel(cands), errs(k) = norm(qs(cands{k},0) - q); end\nfprintf('reconstruction_errs=%s\\n', mat2str(errs, 6));\nRz = @(a) [cos(norm(a)) ... ] ; clear Rz;",
+    "D = load('E:/desktop/MATLAB-bench-phase55-v3/R3/H-ROB-B/input.mat');\nq = D.q(:); ax = D.claims.axis(:);\nw=q(1); x=q(2); y=q(3); z=q(4); v=q(2:4); sv=norm(v);\nR=[1-2*(y*y+z*z) 2*(x*y-w*z) 2*(x*z+w*y); 2*(x*y+w*z) 1-2*(x*x+z*z) 2*(y*z-w*x); 2*(x*z-w*y) 2*(y*z+w*x) 1-2*(x*x+y*y)];\nI3=eye(3); RtR=transpose(R)*R;\nfprintf('max_absR_minus_I=%.3e  detR=%.17g  orthErr=%.3e\\n', max(abs(R(:)-I3(:))), det(R), max(abs(RtR(:)-I3(:))));\neigR = eig(R); fprintf('eigR=[%g %g %g]\\n', eigR(1), eigR(2), eigR(3));\nfprintf('angle_from_trace=%.17g\\n', acos(min(max((trace(R)-1)/2,-1),1)));\nsvec = [R(3,2)-R(2,3); R(1,3)-R(3,1); R(2,1)-R(1,2)]/2;\nfprintf('vec_norm=%.17g  skew_route_axis_norm=%.3e\\n', sv, norm(svec));\nqs = @(a,th) [cos(th/2); sin(th/2)*(a(:)/norm(a))];\ncands = {ax,[1;0;0],[0;1;0],[1;1;1]/sqrt(3),[0.1;0.7;-0.2]};\nerrs = zeros(1,numel(cands));\nfor k = 1:numel(cands), errs(k) = norm(qs(cands{k},0) - q); end\nfprintf('reconstruction_errs=%s\\n', mat2str(errs, 6));\nrvt = rotvec(q.');\nfprintf('rotvec=[%g %g %g] norm=%.3e\\n', rvt(1), rvt(2), rvt(3), norm(rvt));",
+    "D = load('E:/desktop/MATLAB-bench-phase55-v3/R3/H-ROB-B/input.mat');\nif exist('quat2axangle','file')==2\n  [a2,x2] = quat2axangle(D.q.');\n  fprintf('quat2axangle: angle=%.17g axis=[%g %g %g] axis_norm=%.3e\\n', a2, x2(1), x2(2), x2(3), norm(x2));\nelse\n  disp('quat2axangle not available');\nend\nqc = [cos(0.3); 0; 0; sin(0.3)];\nr1 = mas_quat_check(qc, struct('axis',[0;0;1]));\nfprintf('non-identity control verdict=%s\\n', r1.verdict);\nfor k=1:numel(r1.checks), if strcmp(r1.checks(k).id,'axisVsClaim'), fprintf('  %s: %s -- %s\\n', r1.checks(k).id, r1.checks(k).status, r1.checks(k).detail); end; end\nr2 = mas_quat_check(qc, struct('axis',[0;0;-1]));\nfprintf('non-identity wrong-sign axis verdict=%s\\n', r2.verdict);\nr3 = mas_quat_check([1;0;0;0], struct('axis',[1;0;0]));\nfprintf('identity with different claimed axis verdict=%s\\n', r3.verdict);\nfor eps_=[1e-6 1e-9 1e-12 1e-15 0]\n  qq=[cos(eps_/2); 0; 0; sin(eps_/2)]; qq=qq/norm(qq);\n  rr=mas_quat_check(qq, struct('axis',[0;0;1]));\n  fprintf('vec_norm=%.3e -> verdict=%s\\n', norm(qq(2:4)), rr.verdict);\nend",
+    "D = load('E:/desktop/MATLAB-bench-phase55-v3/R3/H-ROB-B/input.mat');\nif exist('quat2axangle','file')==2\n  [aa, xx] = quat2axangle(D.q.');\n  fprintf('quat2axangle: angle=%.17g axis=[%g %g %g] axis_norm=%.3e\\n', aa, xx(1), xx(2), xx(3), norm(xx));\nelse\n  disp('quat2axangle not available');\nend\nqc = [cos(0.3); 0; 0; sin(0.3)];\nr1 = mas_quat_check(qc, struct('axis',[0;0;1]));\nfprintf('control_nonidentity_correct_axis verdict=%s\\n', r1.verdict);\nr2 = mas_quat_check(qc, struct('axis',[0;0;-1]));\nfprintf('control_nonidentity_reversed_axis verdict=%s\\n', r2.verdict);\nr3 = mas_quat_check([1;0;0;0], struct('axis',[1;0;0]));\nfprintf('identity_other_claimed_axis verdict=%s\\n', r3.verdict);\nfor ev=[1e-6 1e-9 1e-12 1e-15 0]\n  qq=[cos(ev/2); 0; 0; sin(ev/2)]; qq=qq/norm(qq);\n  rr=mas_quat_check(qq, struct('axis',[0;0;1]));\n  fprintf('angle=%.3e vec_norm=%.3e verdict=%s\\n', ev, norm(qq(2:4)), rr.verdict);\nend",
+    "D = load('E:/desktop/MATLAB-bench-phase55-v3/R3/H-ROB-B/input.mat');\nq=D.q(:); w=q(1); x=q(2); y=q(3); z=q(4);\nR=[1-2*(y*y+z*z) 2*(x*y-w*z) 2*(x*z+w*y); 2*(x*y+w*z) 1-2*(x*x+z*z) 2*(y*z-w*x); 2*(x*z-w*y) 2*(y*z+w*x) 1-2*(x*x+y*y)];\nN=nullspace(R-eye(3));\nfprintf('nullity(R-I)=%d nullspace_cols=%d rank(R-I)=%d\\n', 3-rank(R-eye(3)), size(N,2), rank(R-eye(3)));\nqc=[cos(0.3);0;0;sin(0.3)]; wc=qc(1);xc=qc(2);yc=qc(3);zc=qc(4);\nRc=[1-2*(yc*yc+zc*zc) 2*(xc*yc-wc*zc) 2*(xc*zc+wc*yc); 2*(xc*yc+wc*zc) 1-2*(xc*xc+zc*zc) 2*(yc*zc-wc*xc); 2*(xc*zc-wc*yc) 2*(yc*zc+wc*xc) 1-2*(xc*xc+yc*yc)];\nfprintf('control nullity(R-I)=%d\\n', 3-rank(Rc-eye(3)));\nr = mas_quat_check(q, D.claims);\nout = struct();\nout.verdict = 'UNDETERMINED';\nout.fields = struct('angle', 0, 'vectorPartNorm', norm(q(2:4)), 'axisDefined', false, 'claimedAxis', D.claims.axis.', 'toolVerdict', r.verdict, 'axisVsClaim', 'undetermined');\nout.notes = 'q=[1;0;0;0] 为单位四元数，标量部 w=1、向量部模长精确为 0，angle=2*atan2(|v|,|w|)=0；R 恰为单位阵（max|R-I|=0，det=1，rank(R-I)=0 故 null(R-I) 维数为 3），任何单位向量都是本征向量，(R-R.\\')/2 亦为零向量。判定口径：先看 |vec(q)|（等价于旋转角）是否低于阈值，此处为 0，旋转轴 0/0 未定义，声明 axis=[0 0 1] 既不能被数据支持也不能被否定——把该轴与其他 4 个不同轴以 angle=0 回乘均精确重构 q（误差全为 0），可见轴不唯一。故为 UNDETERMIN",
+    "D = load('E:/desktop/MATLAB-bench-phase55-v3/R3/H-ROB-B/input.mat');\nq=D.q(:); w=q(1); x=q(2); y=q(3); z=q(4);\nR=[1-2*(y*y+z*z) 2*(x*y-w*z) 2*(x*z+w*y); 2*(x*y+w*z) 1-2*(x*x+z*z) 2*(y*z-w*x); 2*(x*z-w*y) 2*(y*z+w*x) 1-2*(x*x+y*y)];\nfprintf('nullity(R-I)=%d rank(R-I)=%d\\n', 3-rank(R-eye(3)), rank(R-eye(3)));\nqc=[cos(0.3);0;0;sin(0.3)]; wc=qc(1);xc=qc(2);yc=qc(3);zc=qc(4);\nRc=[1-2*(yc*yc+zc*zc) 2*(xc*yc-wc*zc) 2*(xc*zc+wc*yc); 2*(xc*yc+wc*zc) 1-2*(xc*xc+zc*zc) 2*(yc*zc-wc*xc); 2*(xc*zc-wc*yc) 2*(yc*zc+wc*xc) 1-2*(xc*xc+yc*yc)];\nfprintf('control_nullity(R-I)=%d\\n', 3-rank(Rc-eye(3)));\nr = mas_quat_check(q, D.claims);\nout = struct();\nout.verdict = 'UNDETERMINED';\nout.fields = struct('angle', 0, 'vectorPartNorm', norm(q(2:4)), 'axisDefined', false, 'claimedAxis', D.claims.axis.', 'toolVerdict', r.verdict, 'axisVsClaim', 'undetermined', 'nPass', r.nPass, 'nFail', r.nFail, 'nUndetermined', r.nUndetermined);\nout.notes = 'q=[1;0;0;0] 为单位四元数，标量部 w=1、向量部模长精确为 0，angle=2*atan2(|v|,|w|)=0。R 恰为单位阵：max|R-I|=0、det(R)=1、rank(R-I)=0 因而 null(R-I) 维数为 3，任何单位向量都是本征向量；由 (R-R 转置)/2 取轴的路径也给出零向量。判定口径：先检查 |vec(q)|（等价于旋转角）是否落在可判定范围，本题为 0，轴 0/0 未定义。声明 axis=[0 0 1] 既得不到数据支持也不被否定：把该轴与 x、y、[1 1 1]/sqrt(3)、随机轴共 5 "
+  ],
+  "skillToolCalls": [],
+  "skillNameMentions": [],
+  "readPaths": [
+    "E:\\desktop\\MATLAB-bench-phase55-v3\\R3\\H-ROB-B\\prompt.md",
+    "E:\\desktop\\MATLAB-bench-phase55-v3\\R3\\H-ROB-B\\skills\\matlab-robotics-autonomy\\scripts\\mas_quat_check.m",
+    "E:\\desktop\\MATLAB-bench-phase55-v3\\R3\\H-ROB-B\\skills\\matlab-robotics-autonomy\\references\\robotics-verification-contract.md",
+    "E:\\desktop\\MATLAB-bench-phase55-v3\\R3\\H-ROB-B\\result.json"
+  ],
+  "writePaths": [],
+  "bashCommands": [
+    "ls -la \"E:/desktop/MATLAB-bench-phase55-v3/R3/H-ROB-B\"",
+    "find \"E:/desktop/MATLAB-bench-phase55-v3/R3/H-ROB-B/skills\" -type f | head -50",
+    "cd \"E:/desktop/MATLAB-bench-phase55-v3/R3/H-ROB-B\" && ls -la && md5sum input.mat"
+  ],
+  "globPatterns": [],
+  "grepPaths": [],
+  "errorSignals": [
+    "Error: MCP Call tool parameter validation failed: params must NOT have additional properties",
+    " 意外的 'fprintf'。请检查缺失的乘法运算符、缺失或不对称的分隔符或者其他语法错误。要构造矩阵，请使用方括号而不是圆括号。",
+    "Error: JSON_PARSE: Tool arguments are not valid JSON. Submit a complete JSON object.",
+    "Error: JSON_PARSE: Tool arguments are not valid JSON. Submit a complete JSON object.",
+    "Error: MCP Call tool parameter validation failed: params must NOT have additional properties"
+  ],
+  "violations": [],
+  "invalid": false,
+  "resultFile": "E:/desktop/MATLAB-bench-phase55-v3/R3/H-ROB-B\\result.json",
+  "result": {
+    "verdict": "UNDETERMINED",
+    "fields": {
+      "angle": 0,
+      "vectorPartNorm": 0,
+      "axisDefined": false,
+      "claimedAxis": [
+        0,
+        0,
+        1
+      ],
+      "toolVerdict": "UNDETERMINED",
+      "axisVsClaim": "undetermined",
+      "nPass": 5,
+      "nFail": 0,
+      "nUndetermined": 1
+    },
+    "notes": "q=[1;0;0;0] 为单位四元数，标量部 w=1、向量部模长精确为 0，angle=2*atan2(|v|,|w|)=0。R 恰为单位阵：max|R-I|=0、det(R)=1、rank(R-I)=0 因而 null(R-I) 维数为 3，任何单位向量都是本征向量；由 (R-R 转置)/2 取轴的路径也给出零向量。判定口径：先检查 |vec(q)|（等价于旋转角）是否落在可判定范围，本题为 0，轴 0/0 未定义。声明 axis=[0 0 1] 既得不到数据支持也不被否定：把该轴与 x、y、[1 1 1]/sqrt(3)、随机轴共 5 个不同轴按 angle=0 回乘，均精确重构 q（误差全为 0），证明轴不唯一，因此只能 UNDETERMINED，不得记 PASS。对照证明判据非空转：0.6 rad 绕 z 的四元数配 axis=[0;0;1] 得 PASS，配反向轴 [0;0;-1] 得 FAIL；identity 配任意其它轴同样 UNDETERMINED；|v|=5e-10 时可判定，|v|<=5e-13 时未判定；identity 情形 nullity=3 而对照情形 nullity=1。mas_quat_check 共 6 项：5 pass、0 fail、1 undetermined(axisVsClaim)，工具总判 UNDETERMINED。"
+  },
+  "resultSha256": "39fe994cc7f5dbfbcb72614fd3196e54f3f523244cded4aa96a60dcc9bb19ac0"
+}
