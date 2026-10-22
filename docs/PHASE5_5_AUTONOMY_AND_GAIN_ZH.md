@@ -211,7 +211,7 @@ benchmarkHarness 11/11 ... 24 suites, 0 errored
 
 Codegen 并发回归（本轮重跑，`artifacts/phase55/regression/concurrency_runs/20261022_174913`）：3 轮 × 2 进程，6 个独立 `matlab -batch` 进程全部 `test_codegen: 12/12 passed`、exit 0；每个进程的唯一夹具子目录用后自删，`D:/Temp/mas_codegen_tests` 留空目录；未删除任何非本轮拥有的文件（10-17 遗留的 `mas-test-*` 等目录原样保留）。
 
-Git Diff（本轮相对 `4f4ceb5` 的仓库内改动）：**九个 Skill 的任何 `.m` 工具、测试与 references 零改动**。产品侧唯一改动是 `skills/capability-matrix.json`（+40 / −2）：`phase` 更新为 5.5 部分完成、新增 `autonomousExecution.phase55AgentBenchmark` 块、`summary.note` 追加一句。其余为本报告与 `artifacts/phase55/**` 证据（评分器、stager、审计脚本、统计脚本、episode 台账、审计 JSON、门禁与并发日志、探针脚本）。格式上刻意用 `indent=1` + ASCII 转义重生矩阵，使 diff 保持 40/2 而非整文件重写。
+Git Diff（本轮相对 `4f4ceb5` 的仓库内改动，提交 `c052ecd`，77 files changed / 7042 insertions / 2 deletions）：**九个 Skill 的任何 `.m` 工具、测试与 references 零改动**。产品侧唯一改动是 `skills/capability-matrix.json`（+41 / −2）：`phase` 更新为 5.5 部分完成、新增 `autonomousExecution.phase55AgentBenchmark` 块、`summary.note` 追加一句。其余为本报告与 `artifacts/phase55/**` 证据（评分器、stager、审计脚本、统计脚本、episode 台账、审计 JSON、门禁与并发日志、探针脚本）。格式上刻意用 `indent=1` + ASCII 转义重生矩阵，使 diff 保持单块新增而非整文件重写。
 
 ## 10. Capability Matrix 更新（交付物 10）
 
