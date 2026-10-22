@@ -1,6 +1,6 @@
 {
  "version": "2.0",
- "phase": "5.3 (complete; signal, data-analysis and robotics verification contracts plus an isolated benchmark harness, 2026-10-22)",
+ "phase": "5.4 (complete; real Agent episode on holdout tasks, concurrency isolation, ODE and vision verification contracts, tool-level benchmark for the new domains, 2026-10-22)",
  "date": "2026-10-22",
  "legend": {
   "VERIFIED": "exercised by a run in this repository, with an independent reference or a test that can fail",
@@ -181,6 +181,18 @@
     "status": "VERIFIED",
     "evidence": "test_signal_contract.m; z-test vs counting noise, Wilson interval, Poisson zero-error upper bound, Eb/Es convention trap (3.01 dB at k=2), resolution gate returns UNDETERMINED"
    },
+   "vision_segmentation_contract": {
+    "status": "VERIFIED",
+    "evidence": "test_vision_contract.m 103/103 (seg block); pixel contingency recounted by a second route, per-class IoU/P/R/F1, 4-connected object matching at an explicit IoU (right-area/wrong-place -> object IoU 0, duplicate piece -> false positive), empty conventions, imbalance disclosure, threshold provenance and sweep"
+   },
+   "detection_matching_and_ap": {
+    "status": "VERIFIED",
+    "evidence": "test_vision_contract.m 103/103 (det block); score-ordered one-to-one matching (two identical boxes -> precision 0.5), all-point AP hand-computed 0.8333, mAP over classes with GT, box-bounds check, label-alignment warning, score-threshold provenance"
+   },
+   "image_coordinate_and_transform_contract": {
+    "status": "VERIFIED",
+    "evidence": "test_vision_contract.m 103/103 (img block); size/class/range/channels, label alignment, normalization round-trip, affine invertibility/points/bounds, edge and feature F1 against an independent truth with a stated pixel tolerance, split leakage by index AND content hash AND group, tuning on test FAILS"
+   },
    "deep_learning_training": {
     "status": "NOT TESTED",
     "evidence": "Deep Learning Toolbox is licensed; no training loop was run and no pretrained model was exercised"
@@ -230,6 +242,10 @@
    "reproducible_experiments": {
     "status": "VERIFIED",
     "evidence": "test_data_contract.m 118/118; same seed bitwise equal, seed change 0.4224, 64-hex SHA-256 digest, RNG stream restored, non-reproducible function FAILS"
+   },
+   "ode_solution_verification": {
+    "status": "VERIFIED",
+    "evidence": "test_ode_contract.m 56/56; five separate levels (solverExit/converged/errorTol/physicalInvariant/conclusion); an ode45 exit with no acceptance criterion is UNDETERMINED; coarse-step Euler rel err 0.538 FAILS; loose RelTol 1e-3 FAILS at errorTol while exit and convergence pass; stiffness ratio ~1000 from the Jacobian, oscillator not stiff; a false analytic reference is UNDETERMINED"
    }
   },
   "matlab-codegen-deploy": {
@@ -343,21 +359,21 @@
    "scope": "tool-level baseline only; NOT an Agent benchmark",
    "artifact": "artifacts/phase53/benchmark/task5_summary.json",
    "evidence": "benchmark_audit 7/7 (holdout outside repo, frozen hashes, no byte-identical answer copy including artifacts/phase53, disjoint dev/holdout, complete set); formal v2 holdout 9/9 route/tool/verdict/fields, 0 false accepts; dev 3/3; harness tests 11/11; a v1 pilot's two spec errors are retained as evidence",
-   "agentLevel": "NOT TESTED",
-   "reason": "the runner is a deterministic scripted policy and no independent agent episode was executed; held-out per-task results live on the evaluation side, outside the agent-visible workspace"
+   "agentLevel": "TESTED (partial holdout)",
+   "reason": "Phase 5.4 ran independent agent episodes on 3 of the 9 Phase 5.3 holdout tasks (H-SIG-N, H-DATA-N, H-ROB-N): natural-language prompts, Skill routing, MATLAB MCP execution and evaluation-side grading, 3/3 PASS. The other 6 Phase 5.3 tasks were not attempted, so no full-holdout agent success rate is claimed; the tool-level 9/9 record above still comes from the deterministic scripted runner"
   }
  },
  "summary": {
   "capability_counts": {
-   "VERIFIED": 52,
+   "VERIFIED": 56,
    "NOTTESTED": 14,
    "PARTIAL": 3
   },
   "tool_counts": {
-   "VERIFIED": 49
+   "VERIFIED": 53
   },
-  "verified_capabilities": 52,
-  "note": "Counts are COMPUTED from the entries above, not typed in -- mas_capability_check.m fails if they drift. Keys carry no spaces because jsonencode strips them. R1/R2/R3 benchmark ran for real on 2026-10-20 (docs/PHASE4_3_VERIFICATION_ZH.md); the official MATLAB MCP server is reachable over stdio. PARTIAL on the benchmark entry is deliberate: the task scripts are fixed, so it does not yet measure an agent's own skill selection or recovery. Phase 4.5 changed no mas_* tool status, so those counts were unchanged; it added the autonomousExecution block and recorded R1/R2/R3 as UNKNOWN/BLOCKED instead of measured. Phase 5.3 added the four matlab-signal-vision-ai measurement tools verified by test_signal_contract.m 42/42, the seven matlab-data-analysis verification tools verified by test_data_contract.m 118/118, and the four robotics contract tools verified by test_robotics_contract.m 162/162 alongside test_robotics.m 31/31. The Phase 5.3 full regression was 644/644 skill tests over 22 suites, 15/15 references, 15/15 cross-domain tasks and 15/15 pipeline tasks with 0 errored suites; it also ran the isolated benchmark harness 11/11 and a tool-level held-out baseline 9/9. No agent-level benchmark was run."
+  "verified_capabilities": 56,
+  "note": "Counts are COMPUTED from the entries above, not typed in -- mas_capability_check.m fails if they drift. Keys carry no spaces because jsonencode strips them. R1/R2/R3 benchmark ran for real on 2026-10-20 (docs/PHASE4_3_VERIFICATION_ZH.md); the official MATLAB MCP server is reachable over stdio. PARTIAL on the benchmark entry is deliberate: the task scripts are fixed, so it does not yet measure an agent's own skill selection or recovery. Phase 4.5 changed no mas_* tool status, so those counts were unchanged; it added the autonomousExecution block and recorded R1/R2/R3 as UNKNOWN/BLOCKED instead of measured. Phase 5.3 added the four matlab-signal-vision-ai measurement tools verified by test_signal_contract.m 42/42, the seven matlab-data-analysis verification tools verified by test_data_contract.m 118/118, and the four robotics contract tools verified by test_robotics_contract.m 162/162 alongside test_robotics.m 31/31. The Phase 5.3 full regression was 644/644 skill tests over 22 suites, 15/15 references, 15/15 cross-domain tasks and 15/15 pipeline tasks with 0 errored suites; it also ran the isolated benchmark harness 11/11 and a tool-level held-out baseline 9/9. Phase 5.4 added mas_ode_check verified by test_ode_contract.m 56/56 and mas_seg_check/mas_detect_check/mas_image_contract verified by test_vision_contract.m 103/103; the isolated benchmark gained six tool-level ODE/vision tasks (2 normal, 2 boundary, 2 fault) graded 6/6 with 0 false accepts and 0 false rejects, and a real agent episode ran 3/3 normal holdout tasks through the MATLAB MCP with grading on the evaluation side. Tool-level results are not agent-level results, and 6/6 new-domain tasks are not a full-domain success rate."
  },
  "tools": {
   "mas_codegen_ready": {
@@ -534,6 +550,24 @@
    "tests": "test_signal_contract.m 42/42 (9 cases)",
    "what": "Eb/Es convention (3.01 dB trap), z-test vs theory, Wilson interval, Poisson zero-error bound, resolution gate -> UNDETERMINED"
   },
+  "mas_seg_check": {
+   "skill": "matlab-signal-vision-ai",
+   "status": "VERIFIED",
+   "tests": "test_vision_contract.m 103/103 (seg block)",
+   "what": "pixel contingency with an independent recount; per-class IoU/P/R/F1 and macro with support; 4-connected object matching at an explicit IoU, duplicates as false positives; empty conventions; imbalance disclosure; threshold provenance and sweep"
+  },
+  "mas_detect_check": {
+   "skill": "matlab-signal-vision-ai",
+   "status": "VERIFIED",
+   "tests": "test_vision_contract.m 103/103 (det block)",
+   "what": "score-ordered one-to-one matching at a required IoU threshold, duplicate boxes are FP, all-point AP and mAP over classes with GT, box bounds, label-alignment warning, threshold provenance, score sweep"
+  },
+  "mas_image_contract": {
+   "skill": "matlab-signal-vision-ai",
+   "status": "VERIFIED",
+   "tests": "test_vision_contract.m 103/103 (img block)",
+   "what": "size/class/range/channels, label alignment, invertible normalization, affine invertibility and point/bounds agreement, edge/feature F1 vs independent truth, split leakage by index+hash+group, tuning/threshold leaks"
+  },
   "mas_model_check": {
    "skill": "matlab-simulink-modeling",
    "status": "VERIFIED",
@@ -653,6 +687,12 @@
    "status": "VERIFIED",
    "tests": "test_data_contract.m 118/118 (repro block)",
    "what": "same-seed bitwise equality, other-seed difference, SHA-256 digest, caller RNG restored"
+  },
+  "mas_ode_check": {
+   "skill": "matlab-data-analysis",
+   "status": "VERIFIED",
+   "tests": "test_ode_contract.m 56/56",
+   "what": "five ODE levels graded separately (solverExit/converged/errorTol/physicalInvariant/conclusion); analytic reference cross-checked against tight ode15s; invariant evaluated row by row; stiffness from the Jacobian eigenvalue ratio; a clean solver exit alone can never PASS"
   }
  },
  "toolsNote": "Generated from the files under skills/*/scripts. mas_capability_check.m fails when this drifts from disk, because a matrix that silently rots is worse than no matrix."

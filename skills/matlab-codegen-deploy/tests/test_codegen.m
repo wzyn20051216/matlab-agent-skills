@@ -11,9 +11,19 @@ function add(name, fn)
 end
 
 % ---- codegen_ready: fixtures --------------------------------------------
-fixt = fileparts(mfilename('fullpath'));
-fixDir = fullfile(fixt, 'fixtures_codegen');
-if ~exist(fixDir, 'dir'), mkdir(fixDir); end
+% A per-run directory. Two MATLAB processes used to share
+% tests/fixtures_codegen and one run's cleanup deleted the other's files
+% mid-test (10/12 and 11/12 under concurrency); the marker proves ownership
+% before anything is removed.
+runRoot = fullfile(tempdir, 'mas_codegen_tests');
+if ~exist(runRoot, 'dir'), mkdir(runRoot); end
+fixDir = tempname(runRoot);
+mkdir(fixDir);
+ownerFile = fullfile(fixDir, '.mas_run_owner');
+fid = fopen(ownerFile, 'w');
+fprintf(fid, '%s', fixDir);
+fclose(fid);
+cleanup = onCleanup(@() cleanup_run_dir(fixDir, ownerFile));
 
 cleanFn  = fullfile(fixDir, 'clean_fn.m');
 growFn   = fullfile(fixDir, 'grow_in_loop.m');
@@ -21,7 +31,6 @@ growOut  = fullfile(fixDir, 'grow_outside.m');
 evalFn   = fullfile(fixDir, 'has_eval.m');
 tgtFn    = fullfile(fixDir, 'codegen_target.m');
 tgtWrong = fullfile(fixDir, 'codegen_target_wrong.m');
-cleanup = onCleanup(@() rmdir(fixDir, 's'));
 
 write_fixtures(cleanFn, growFn, growOut, evalFn, tgtFn, tgtWrong);
 addpath(fixDir);
@@ -224,6 +233,31 @@ v = ~isempty(r.warnings) && ~r.ok;
 end
 
 % ===========================================================================
+function cleanup_run_dir(d, ownerFile)
+% Remove only this run's directory, and only when the marker says so. A
+% cleanup that blindly rmdir's a well-known path is what caused the race.
+try
+    if ~exist(d, 'dir'), return; end
+    owned = false;
+    if exist(ownerFile, 'file')
+        fid = fopen(ownerFile, 'r');
+        if fid >= 0
+            txt = fread(fid, Inf, '*char')';
+            fclose(fid);
+            owned = strcmp(txt, d);
+        end
+    end
+    if ~owned
+        warning('test_codegen:ownerMismatch', 'not removing %s: ownership marker does not match', d);
+        return;
+    end
+    try, rmpath(d); catch, end
+    rmdir(d, 's');
+catch ME
+    warning('test_codegen:cleanupFailed', 'cleanup of %s failed: %s', d, ME.message);
+end
+end
+
 function s = tern(c, a, b)
 if c, s = a; else, s = b; end
 end

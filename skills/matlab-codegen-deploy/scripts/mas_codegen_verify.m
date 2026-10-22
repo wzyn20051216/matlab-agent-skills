@@ -77,10 +77,18 @@ if ~ccOk
 end
 log{end+1} = sprintf('compiler: %s', ccName);
 
+% `codegen -d` also drops a MEX copy into the CURRENT directory. Two
+% concurrent verifications in one cwd therefore overwrite and delete each
+% other's binary. Run in a private cwd and restore the caller's folder.
+oldDir = pwd;
 buildDir = opts.outDir;
 if isempty(buildDir), buildDir = tempname; end
+if ~is_abs_path(buildDir), buildDir = fullfile(oldDir, buildDir); end
 if ~exist(buildDir, 'dir'), mkdir(buildDir); end
-cleanupObj = onCleanup(@() cleanup(buildDir, fcn));
+workDir = tempname;
+mkdir(workDir);
+cleanupObj = onCleanup(@() cleanup(buildDir, workDir, fcn, oldDir));
+cd(workDir);
 
 % ---------------- stage: codegen ------------------------------------------
 try
@@ -191,24 +199,32 @@ end
 end
 
 % ===========================================================================
-function cleanup(buildDir, fcn)
-try
-    if ~isempty(buildDir) && exist(buildDir, 'dir')
-        rmdir(buildDir, 's');
-    end
-catch
-end
+function cleanup(buildDir, workDir, fcn, oldDir)
 try
     clear([fcn '_mex']);
 catch
 end
-% `codegen -d buildDir` still drops the MEX binary into the current working
-% directory; leaving it there pollutes the caller's tree and lets a stale binary
-% mask a later rebuild. Remove it explicitly.
-mexFiles = {[fcn '_mex.' mexext]};
-for k = 1:numel(mexFiles)
-    if exist(mexFiles{k}, 'file'), delete(mexFiles{k}); end
+try
+    if ~strcmp(pwd, oldDir), cd(oldDir); end
+catch
 end
+try
+    if exist(workDir, 'dir'), rmdir(workDir, 's'); end
+catch
+end
+try
+    % Never delete the caller's folder or an output path that aliases it.
+    if ~isempty(buildDir) && exist(buildDir, 'dir') && ...
+            ~strcmp(buildDir, oldDir) && ~strcmp(buildDir, workDir)
+        rmdir(buildDir, 's');
+    end
+catch
+end
+end
+
+function tf = is_abs_path(p)
+tf = ~isempty(p) && (p(1) == filesep || ...
+    (ispc && numel(p) > 1 && p(2) == ':'));
 end
 
 function n = just_name(p)

@@ -1,0 +1,35 @@
+
+	Sponsored License -- for use in support of a program or activity sponsored by MathWorks.
+	Not for government, commercial or other non-sponsored organizational use.
+
+cwd=E:\desktop\MATLAB\artifacts\phase54
+out=D:\Temp\cg_location_out_54
+mex in out: 2 | mex in cwd: 3
+which: E:\desktop\MATLAB\artifacts\phase54\locprobe_fn_mex.mexw64
+out listing:
+  .
+  ..
+  SetEnv.bat
+  _clang-format
+  build
+  build.ninja
+  buildInfo.mat
+  compile_commands.json
+  html
+  interface
+  locprobe_fn.c
+  locprobe_fn.h
+  locprobe_fn_data.c
+  locprobe_fn_data.h
+  locprobe_fn_initialize.c
+  locprobe_fn_initialize.h
+  locprobe_fn_mex.bat
+  locprobe_fn_mex.exp
+  locprobe_fn_mex.lib
+  locprobe_fn_mex.mexw64
+  locprobe_fn_terminate.c
+  locprobe_fn_terminate.h
+  locprobe_fn_types.h
+  rt_nonfinite.c
+  rt_nonfinite.h
+  rtwtypes.h

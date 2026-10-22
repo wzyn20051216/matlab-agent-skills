@@ -106,6 +106,86 @@ switch id
             'defect', 'C sign flipped');
         inputs = struct('p', p, 'q', q, 'qd', qd, 'claims', claims);
 
+    case 'ode_normal'
+        % Harmonic oscillator: analytic truth, conserved energy, exact final state.
+        f = @(t,y) [y(2); -y(1)];
+        ref = @(t) [cos(t); -sin(t)];
+        invf = @(t,y) y(1)^2 + y(2)^2;
+        claims = struct('relTol', 1e-9, 'absTol', 1e-11, ...
+            'reference', ref, 'refTolRel', 1e-8, ...
+            'invariant', invf, 'invTolRel', 1e-8, ...
+            'finalValue', [1; 0], 'finalTolRel', 1e-8);
+        args = {f, [0 2*pi], [1; 0], claims};
+        spec = struct('fixture', id, 'ode', 'y''=[y2;-y1]', ...
+            'tspan', [0 2*pi], 'y0', [1;0], ...
+            'reference', '[cos(t);-sin(t)]', 'invariant', 'y1^2+y2^2', ...
+            'finalValue', [1;0], 'relTol', 1e-9, 'refTolRel', 1e-8, ...
+            'invTolRel', 1e-8);
+        inputs = struct('odefun', f, 'tspan', [0 2*pi], 'y0', [1;0], 'claims', claims);
+
+    case 'ode_boundary'
+        % Solver exits successfully but no acceptance criterion is stated.
+        f = @(t,y) -y;
+        claims = struct('method', 'ode45');
+        args = {f, [0 2], 1, claims};
+        spec = struct('fixture', id, 'ode', 'y''=-y', 'tspan', [0 2], 'y0', 1, ...
+            'claims', 'solver configuration only; no reference, final value, invariant or event');
+        inputs = struct('odefun', f, 'tspan', [0 2], 'y0', 1, 'claims', claims);
+
+    case 'ode_fault'
+        % Stiff decay integrated with a coarse explicit step: finite output, wrong
+        % trajectory. The final value is correct; its consistency with the
+        % candidate and the reference error are not.
+        f = @(t,y) -1000*y;
+        claims = struct('method', 'ode45', 'relTol', 1e-3, 'absTol', 1e-5, ...
+            'maxStep', 0.02, 'finalValue', exp(-20), 'finalTolRel', 1e-8);
+        args = {f, [0 0.02], 1, claims};
+        spec = struct('fixture', id, 'ode', 'y''=-1000y', 'tspan', [0 0.02], ...
+            'y0', 1, 'method', 'ode45', 'relTol', 1e-3, 'maxStep', 0.02, ...
+            'finalValue', exp(-20), 'finalTolRel', 1e-8, ...
+            'defect', 'explicit solver with a step far larger than the 1e-3 time scale');
+        inputs = struct('odefun', f, 'tspan', [0 0.02], 'y0', 1, 'claims', claims);
+
+    case 'vis_normal'
+        % One foreground pixel removed from a square: f1 = 30/31, object IoU 15/16.
+        T = zeros(8, 8); T(2:5, 2:5) = 1;
+        P = T; P(5, 5) = 0;
+        claims = struct('iouThreshold', 0.5, 'metrics', struct( ...
+            'name', {'f1', 'objectIouMean'}, ...
+            'value', {30/31, 15/16}, 'tolRel', {1e-9, 1e-9}));
+        args = {P, T, claims};
+        spec = struct('fixture', id, 'size', [8 8], ...
+            'truth', 'rows 2:5, cols 2:5', 'defect', 'pixel (5,5) removed', ...
+            'iouThreshold', 0.5, 'claims', 'f1=30/31, objectIouMean=15/16');
+        inputs = struct('pred', P, 'truth', T, 'claims', claims);
+
+    case 'vis_boundary'
+        % An object metric is claimed without an explicit IoU threshold: the
+        % number matches at the default, but matching is not a stated criterion.
+        T = zeros(8, 8); T(2:5, 2:5) = 1;
+        P = T; P(5, 5) = 0;
+        claims = struct('metrics', struct('name', 'objectIouMean', ...
+            'value', 15/16, 'tolRel', 1e-9));
+        args = {P, T, claims};
+        spec = struct('fixture', id, 'size', [8 8], ...
+            'truth', 'rows 2:5, cols 2:5', 'defect', 'pixel (5,5) removed', ...
+            'claims', 'objectIouMean=15/16 without an iouThreshold');
+        inputs = struct('pred', P, 'truth', T, 'claims', claims);
+
+    case 'vis_fault'
+        % The mask is shifted one column: pixel accuracy 0.875 hides f1 = 0.75,
+        % yet the claim states 0.9.
+        T = zeros(8, 8); T(2:5, 2:5) = 1;
+        P = zeros(8, 8); P(2:5, 3:6) = 1;
+        claims = struct('iouThreshold', 0.5, 'metrics', struct( ...
+            'name', 'f1', 'value', 0.9, 'tolRel', 1e-9));
+        args = {P, T, claims};
+        spec = struct('fixture', id, 'size', [8 8], ...
+            'truth', 'rows 2:5, cols 2:5', ...
+            'defect', 'prediction shifted one column; f1 is 0.75, claimed 0.9', ...
+            'iouThreshold', 0.5);
+        inputs = struct('pred', P, 'truth', T, 'claims', claims);
+
     case 'dev_sig'
         fs = 1000; N = 4000; t = (0:N-1).' / fs;
         x = sin(2*pi*80*t);

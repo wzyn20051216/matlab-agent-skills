@@ -272,6 +272,98 @@ r = mas_repro_check(@() myExperiment(), struct('seed', 20261021, 'tol', 0));
 The RNG restoration is itself tested: after the tool returns, a stream initialized with
 `rng(5)` must produce the same values as before the call.
 
+## 9. ODE solutions — `mas_ode_check`
+
+```matlab
+r = mas_ode_check(@(t,y) [y(2);-y(1)], [0 2*pi], [1;0], struct( ...
+        'reference', @(t) [cos(t);-sin(t)], 'refTolRel', 1e-8, ...
+        'invariant', @(t,y) y(1)^2+y(2)^2, 'invTolRel', 1e-8, ...
+        'finalValue', [1;0], 'finalTolRel', 1e-8));
+```
+
+Five levels, reported separately in `r.levels`:
+
+| level | question it answers | what it does NOT mean |
+|---|---|---|
+| `solverExit` | did the candidate run and return finite numbers? | anything about accuracy |
+| `converged` | do successive RelTol refinements approach a stable limit? | that the limit is the right solution |
+| `errorTol` | does the solution (and any stated claim) agree with an independent truth? | anything about physics |
+| `physicalInvariant` | is a stated conserved quantity conserved? | that a non-conserved quantity is fine |
+| `conclusion` | do all applicable levels agree, with no missing criterion? | an automatic PASS from a clean exit |
+
+`r.verdict` is FAIL if any level fails, else UNDETERMINED if any level is
+undetermined, else PASS. **A zero exit flag can never produce PASS on its own.** A run
+with no reference, final value, invariant, event or stiffness claim is UNDETERMINED with
+`conclusion` naming the missing evidence.
+
+### Reference policy
+
+- An analytic `reference` is truth, but it is cross-checked at the endpoints against a
+  tight `ode15s` solve (`RelTol 1e-11`, `AbsTol 1e-13`). A mistyped formula (e.g.
+  `exp(t)` for `y'=-y`) fails the cross-check and the tool refuses to grade — the result
+  is UNDETERMINED, not a FAIL of the candidate.
+- With no analytic reference, tight `ode15s` and `ode45` are compared over the candidate
+  times plus `tspan(end)`. Agreement below 1e-6 establishes the reference; disagreement
+  means no reference is established and accuracy claims become UNDETERMINED.
+- Accuracy is graded only when the caller states `refTolRel` or a `finalValue`. With a
+  reference but no tolerance the measured error is reported and `errorTol` is `na`;
+  grading against an unstated default would fail a requirement nobody made.
+- Error is normalised by the solution magnitude (`max|y_ref|`), not element-wise:
+  element-wise relative error diverges at a zero crossing and would fail an accurate
+  oscillator. The element-wise maximum is still reported for diagnosis.
+
+### Step size and solver settings are candidate properties
+
+- A fixed-step Euler candidate with `h = 0.5` over `[0,2]` gives
+  `(1-0.5)^4 = 0.0625` against `exp(-2) = 0.1353`: relative error ~0.538, FAIL at
+  `errorTol` even though every number is finite and `solverExit` passes.
+- `RelTol = 1e-3, AbsTol = 1e-3` with a 1e-6 accuracy claim FAILS at `errorTol` while
+  exit and convergence still pass. Convergence is a property of the numerical family,
+  not evidence that the family is accurate enough.
+- A caller-supplied candidate has no solver flag; `solverExit` certifies only finite
+  output, and `converged` is UNDETERMINED because there is no declared method to refine.
+- A candidate that stops before `tspan(end)` can still be graded against a reference for
+  a final-value claim, but `claimVsCandidate` is UNDETERMINED: the state at the claimed
+  time was never sampled.
+
+### Invariants
+
+- The invariant is evaluated **row by row**, never on the whole state matrix. A
+  vectorised invariant `0.5*(y(:,1).^2+y(:,2).^2)` handed the full matrix silently
+  returns a constant and would fabricate zero drift.
+- Drift is `max|inv - invRef| / max(|invRef|,1)` with `invRef` defaulting to
+  `invariant(t0,y0)`. An impossible tolerance (1e-9 for an ode45 energy over `[0,10]`)
+  FAILS at `physicalInvariant` while accuracy passes — the two are different claims.
+
+### Stiffness classification
+
+- The primary signal is the Jacobian eigenvalue ratio `max|Re λ| / min|Re λ|` sampled at
+  several states along a tight trajectory; purely imaginary/zero modes are excluded.
+  Ratio >= 100 classifies stiff. The ode45/ode15s step ratio is corroborating evidence,
+  not the decision (`stepRatio >= 10` can classify when the Jacobian is unavailable).
+- A linear system with modes -1000 and -1 measures `lambdaRatio ~1000` and is stiff; the
+  harmonic oscillator measures ratio 1 and is **not** stiff even though its eigenvalues
+  are imaginary. Labeling it stiff because "the solver took many steps" is exactly the
+  defect `expectedStiff` catches.
+- `expectedStiff` is an optional claim. Silence leaves `stiffnessMatch` as `na`; the
+  classification is still reported.
+
+### Events
+
+`eventFun` is integrated with `RelTol 1e-9`; a claimed `eventTime` is graded within
+`eventTol` (default 1e-4). A claimed event that never occurs in `tspan` FAILS. When no
+time is claimed the detected events are reported and the level is `na`.
+
+### Symbolic Math Toolbox
+
+The suite probes `license('test','Symbolic_Toolbox')` and records it in
+`r.symbolicToolbox`, but the contract never uses it: references are analytic functions
+and tight numerical cross-solves. If Symbolic is unavailable the checks are unchanged.
+
+Tests: `tests/test_ode_contract.m` (56/56). Expected values are recomputed from the raw
+data (hand formulas, the exact solution, `e^2` for the unstable case, energy from the
+returned states) — never taken from the tool's own report.
+
 ## Cross-tool rules
 
 - Every tool accepts a struct of claims; an empty/absent claim is `na` or an error, never

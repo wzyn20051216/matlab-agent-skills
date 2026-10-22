@@ -1,6 +1,6 @@
 ---
 name: matlab-signal-vision-ai
-description: MATLAB workflow for signal processing, DSP, image processing, computer vision, lidar, medical imaging, deep learning, and AI-assisted reproducible experiments. Use for filters, spectrograms, wavelets, object detection, segmentation, classification, training, inference, generated figures, and for verifying signal measurements — units, windows, Nyquist, filter response, BER/SNR.
+description: MATLAB workflow for signal processing, DSP, image processing, computer vision, lidar, medical imaging, deep learning, and AI-assisted reproducible experiments. Use for filters, spectrograms, wavelets, object detection, segmentation, classification, training, inference, generated figures, and for verifying signal or vision results — units, windows, Nyquist, filter response, BER/SNR, masks and boxes, IoU/precision/recall/F1, label alignment, transform invertibility, and split leakage.
 ---
 
 # MATLAB Signal Vision AI
@@ -56,6 +56,50 @@ Boundary rules these tools encode (each one a paid-for defect):
 
 Full contract, worked examples, negative controls: `references/signal-measurement-contract.md`.
 
+## Vision verification tools
+
+```matlab
+s = mas_seg_check(predMask, trueMask, struct('iouThreshold',0.5, ...
+        'thresholdSource','validation', ...
+        'metrics', struct('name','f1','value',0.82,'tolRel',1e-3)));
+s.verdict  s.metrics.f1  s.perClass  s.objects  s.objectMetrics  s.thresholdSweep
+
+d = mas_detect_check(gtBox, gtLab, predBox, predLab, scores, struct( ...
+        'iouThreshold',0.5,'imageSize',[480 640], ...
+        'scoreThreshold',0.3,'scoreThresholdSource','validation', ...
+        'metrics', struct('name','f1','value',0.75,'tolRel',1e-3)));
+d.verdict  d.metrics  d.perClass  d.matches  d.scoreSweep
+
+v = mas_image_contract(I, struct('expectedSize',[256 256 3], ...
+        'expectedClass','uint8','expectedRange',[0 255],'labels',L, ...
+        'normalization', struct('original',I0,'inverse',@inv), ...
+        'transform',T,'points',P,'pointsTransformed',Q, ...
+        'edgeMap',E,'edgeTruth',E0,'edgeF1Min',0.9, ...
+        'split', struct('trainIdx',tr,'valIdx',va,'sampleHash',h)));
+v.verdict  v.image  v.labels  v.normalization  v.transform  v.edge  v.split
+```
+
+- Pixel accuracy is not segmentation quality: 95 % background scores 95 % accuracy while
+  finding nothing. Per-class values are always reported, and an accuracy-only claim on
+  imbalanced data is UNDETERMINED.
+- Pixel IoU is not object IoU. Objects are matched one-to-one at an EXPLICIT IoU
+  threshold; a second prediction on one object is a false positive, and an object-metric
+  claim without a stated threshold is UNDETERMINED.
+- Empty conventions are stated, never 0/0-as-good: empty prediction vs empty truth is a
+  perfect match by convention; empty truth with predictions is IoU 0.
+- A score/binarization threshold tuned on the set being reported is a leak (`test` fails,
+  no stated source is UNDETERMINED). A metric without a tolerance is not a criterion.
+- Detection AP is all-point interpolated per class; mAP averages only classes with GT. A
+  predicted label missing from the GT set raises a label-alignment warning, because a
+  name-mapping bug looks exactly like an invented class.
+- Image checks are numeric: size/dtype/range, label alignment, normalization round-trip,
+  invertible affine geometry, edge/feature agreement with an independent truth within a
+  pixel tolerance, and split leakage by index AND content hash AND group.
+- "The picture looks right" is never a criterion; a missing truth or criterion is
+  UNDETERMINED.
+
+Full contract: `references/vision-verification-contract.md`.
+
 ## Legacy metrics tools
 
 ```matlab
@@ -88,4 +132,7 @@ Choose relevant checks beyond the tools:
 
 Record random seed, split policy, pretrained model version, GPU availability, and dataset hash or URL.
 
-Tests: `tests/test_signal_vision.m` and `tests/test_signal_contract.m` (42/42) — every metric carries a negative control, and expected values come from hand algebra, closed forms or MATLAB design generators, never from the code under test.
+Tests: `tests/test_signal_vision.m`, `tests/test_signal_contract.m` (42/42) and
+`tests/test_vision_contract.m` (103/103) — every metric carries a negative control, and
+expected values come from hand algebra, closed forms or MATLAB design generators, never
+from the code under test.

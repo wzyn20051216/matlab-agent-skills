@@ -1,6 +1,6 @@
 ---
 name: matlab-data-analysis
-description: MATLAB data analysis workflow for tables, timetables, numerical verification, statistics, fitting, uncertainty, error propagation, and reproducible experiments. Use whenever the user asks MATLAB to analyze data, integrate or differentiate numerically, solve or check linear systems, assess convergence and conditioning, clean tables with missing/outlier accounting, fit models, test significance, propagate uncertainty, or reproduce figures and numbers.
+description: MATLAB data analysis workflow for tables, timetables, numerical verification, ODE solving, statistics, fitting, uncertainty, error propagation, and reproducible experiments. Use whenever the user asks MATLAB to analyze data, integrate or differentiate numerically, solve or verify ODE solutions, solve or check linear systems, assess convergence and conditioning, clean tables with missing/outlier accounting, fit models, test significance, propagate uncertainty, or reproduce figures and numbers.
 ---
 
 # MATLAB Data Analysis
@@ -54,6 +54,12 @@ u.verdict  u.sigmaLin  u.sigmaMC  u.mcSE  u.sensitivity  u.jacobianMethod
 
 p = mas_repro_check(@() myExperiment(), struct('seed',20261021,'tol',0));
 p.verdict  p.sameSeed  p.seedEffect  p.digest  p.diffSameSeed
+
+o = mas_ode_check(@(t,y) [y(2);-y(1)], [0 2*pi], [1;0], struct( ...
+        'reference', @(t) [cos(t);-sin(t)], 'refTolRel', 1e-8, ...
+        'invariant', @(t,y) y(1)^2+y(2)^2, 'invTolRel', 1e-8, ...
+        'finalValue', [1;0], 'finalTolRel', 1e-8));
+o.verdict  o.levels  o.error.maxScaled  o.invariant.maxRelDrift  o.stiffness.classified
 ```
 
 Every tool returns `verdict` (PASS | FAIL | UNDETERMINED) and per-check status
@@ -88,6 +94,15 @@ UNDETERMINED. **No acceptance criterion, no PASS.**
   propagation that disagrees with Monte Carlo beyond `sigmaTolRel` FAILS.
 - Same-seed runs must agree bitwise; an asserted seed dependence that does not appear is
   a FAIL, and the caller's RNG stream must be restored.
+- `ode45` exit flag 0 is one level (`solverExit`), never a PASS. A solution is graded on
+  separate levels — convergence under refinement, error to an independent reference,
+  conserved quantity, stated final state/event — and a run with no acceptance criterion
+  is UNDETERMINED even when the solver is happy.
+- Stiffness comes from the Jacobian eigenvalue ratio (step ratio only corroborates), not
+  from the solver's name. A coarse explicit step over a fast decay exits successfully
+  with finite, wrong numbers; errorTol catches it at 1e-4.
+- An analytic reference is cross-checked against a tight `ode15s` solve before it is
+  used; if the two disagree the tool refuses to grade instead of picking a number.
 - Non-numeric table columns are preserved and reported, never silently converted.
 
 Full formulas, worked numbers and negative controls:
@@ -133,6 +148,7 @@ assert(abs(integralValue - pi) < 1e-8)
 
 These are smoke checks. They complement the contract tools; they do not replace them.
 
-Tests: `tests/test_data_contract.m` (118/118) and `tests/test_table_audit.m` (11/11).
+Tests: `tests/test_data_contract.m` (118/118), `tests/test_ode_contract.m` (56/56) and
+`tests/test_table_audit.m` (11/11).
 Every expected value comes from hand algebra, a closed form, a second numerical route, or
 MATLAB's independent implementation — never from the code under test.

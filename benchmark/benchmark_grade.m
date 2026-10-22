@@ -1,19 +1,30 @@
-function G = benchmark_grade(resultsDir, tasksFile, answersFile, manifestFile, outFile)
+function G = benchmark_grade(resultsDir, tasksFile, answersFile, manifestFile, outFile, varargin)
 %BENCHMARK_GRADE  Grade benchmark results against the sealed answer file.
 %
 %   G = benchmark_grade(resultsDir, tasksFile, answersFile, manifestFile)
+%   G = benchmark_grade(..., outFile, 'agentRuns', n)
 %
 % Runs on the isolated evaluation side. Refuses to grade if the tasks or answers
 % do not hash to the values frozen in the manifest. The grader never executes
 % the task; it reads the result JSONs the runner produced and compares them with
 % the sealed expectations (route, tool, verdict, declared numeric fields).
 %
-% The summary is explicit about what was measured:
-%   G.baseline = 'tool-level scripted policy (NOT an Agent benchmark)'
-%   G.agentRuns = 0 -> agent-level competence is NOT TESTED, not PASS.
+% The summary is explicit about what was measured. A tool-level run (the
+% default) is never presented as an Agent benchmark; an actual agent episode
+% must be declared by the caller via 'agentRuns'. Unexecuted tasks are reported
+% as missing and are never counted as false rejects or extrapolated into a
+% success rate.
 
 if nargin < 5 || isempty(outFile)
     outFile = fullfile(resultsDir, 'grade.json');
+end
+agentRuns = 0;
+for k = 1:2:numel(varargin)
+    if strcmpi(varargin{k}, 'agentRuns')
+        agentRuns = varargin{k+1};
+    else
+        error('benchmark_grade:option', 'unknown option "%s"', varargin{k});
+    end
 end
 M = jsondecode(fileread(manifestFile));
 if ~strcmp(char(M.tasksSha256), sha256_file(tasksFile))
@@ -42,19 +53,31 @@ G.schema = 'mas-benchmark-grade/1';
 G.gradedAt = datestr(now, 31);
 G.resultsDir = resultsDir;
 G.manifestSha256 = sha256_file(manifestFile);
-G.baseline = 'tool-level scripted policy (NOT an Agent benchmark)';
-G.agentRuns = 0;
-G.agentLevel = 'NOT TESTED';
-G.agentLevelReason = ['no independent agent episode was executed; the runner is a ' ...
-    'deterministic policy, so only tool-level evidence is reported'];
+G.agentRuns = agentRuns;
+if agentRuns > 0
+    G.baseline = 'independent agent episode (natural-language prompt, Skill loading, MATLAB MCP)';
+    G.agentLevel = 'TESTED (partial holdout)';
+    G.agentLevelReason = sprintf(['%d independent agent episode(s) executed; only the ' ...
+        'executed tasks are graded and no success rate is extrapolated to the full holdout'], ...
+        agentRuns);
+else
+    G.baseline = 'tool-level scripted policy (NOT an Agent benchmark)';
+    G.agentLevel = 'NOT TESTED';
+    G.agentLevelReason = ['no independent agent episode was executed; the runner is a ' ...
+        'deterministic policy, so only tool-level evidence is reported'];
+end
 G.nTasks = numel(R);
+G.nExecuted = nnz(~strcmp({R.actualVerdict}, 'MISSING'));
+G.nMissing = G.nTasks - G.nExecuted;
 G.nPass = nnz([R.pass]);
 G.nFail = numel(R) - G.nPass;
+G.nExecutedPass = nnz([R.pass] & ~strcmp({R.actualVerdict}, 'MISSING'));
 G.routePass = nnz([R.routeOk]);
 G.toolPass = nnz([R.toolOk]);
 G.verdictPass = nnz([R.verdictOk]);
 G.falseAccepts = nnz([R.falseAccept]);
-G.falseRejects = nnz(strcmp({R.expectedVerdict}, 'PASS') & ~strcmp({R.actualVerdict}, 'PASS'));
+G.falseRejects = nnz(strcmp({R.expectedVerdict}, 'PASS') & ...
+    ~strcmp({R.actualVerdict}, 'PASS') & ~strcmp({R.actualVerdict}, 'MISSING'));
 G.rows = R;
 G.perDomain = group_counts(R, 'domain');
 G.perKind = group_counts(R, 'kind');
@@ -70,9 +93,10 @@ for k = 1:numel(R)
     fprintf('%-10s %-8s %-9s %-12s %-12s %-7d %s\n', R(k).taskId, R(k).domain, ...
         R(k).kind, R(k).expectedVerdict, R(k).actualVerdict, R(k).pass, R(k).note);
 end
-fprintf('\n%d/%d tasks | route %d/%d | tool %d/%d | verdict %d/%d | false accepts %d\n', ...
-    G.nPass, G.nTasks, G.routePass, G.nTasks, G.toolPass, G.nTasks, ...
-    G.verdictPass, G.nTasks, G.falseAccepts);
+fprintf('\n%d/%d tasks | executed %d/%d (pass %d) | route %d/%d | tool %d/%d | verdict %d/%d | false accepts %d | false rejects %d\n', ...
+    G.nPass, G.nTasks, G.nExecuted, G.nTasks, G.nExecutedPass, ...
+    G.routePass, G.nTasks, G.toolPass, G.nTasks, ...
+    G.verdictPass, G.nTasks, G.falseAccepts, G.falseRejects);
 fprintf('baseline: %s\nagent level: %s (%s)\n', G.baseline, G.agentLevel, G.agentLevelReason);
 fprintf('grade written to %s\n', outFile);
 end
