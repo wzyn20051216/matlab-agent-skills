@@ -1,0 +1,57 @@
+{
+ "schema": "mas-benchmark-tasks/2",
+ "suite": "phase56-gain",
+ "frozen": true,
+ "note": "Three pre-frozen tasks. Prompts name no Skill, no mas_* tool and no route, and the route expectations (skill/tool) live only in the answer generator, so reading this file tells an arm nothing about what the grader expects it to use. Expected verdicts are NOT here either: answers are generated at grade time by benchmark_seal.m from a reference implementation that was committed by hash before any episode ran.",
+ "tasks": [
+  {
+   "id": "P56-SIG-B",
+   "domain": "signal",
+   "kind": "boundary",
+   "prompt": "A coherent QPSK link was measured at Eb/N0 = 8.8 dB. Over 26624 delivered bits the receiver counted 0 bit errors. Management states that the link meets a BER target of 1e-4. Using a 95% confidence level, decide whether this measurement supports the target, refutes it, or can do neither, and say why in one sentence. Do not assume the theoretical curve is the truth: it is a prediction to be compared against.",
+   "fixture": "p56_sig_boundary",
+   "seed": 56,
+   "report": [
+    "verdict",
+    "state",
+    "ciWilsonUpper95",
+    "theoryExpectedEvents",
+    "nBits"
+   ]
+  },
+  {
+   "id": "P56-ODE-N",
+   "domain": "ode",
+   "kind": "normal",
+   "prompt": "Integrate y' = [y2; -y1] with y0 = [1; 0] over t = 0 to 2*pi using ode45 at RelTol 1e-8 and AbsTol 1e-10. Compare against the analytic solution [cos t; -sin t], check that y1^2 + y2^2 is conserved, and decide whether the trajectory is accurate to 1e-6. Report the absolute error, the error normalised by the solution magnitude, and the error measured in units of the solver's own tolerance, each with the formula that produced it. Classify stiffness.",
+   "fixture": "p56_ode_normal",
+   "seed": 56,
+   "report": [
+    "verdict",
+    "errorMaxAbs",
+    "errorMaxScaled",
+    "errorSolverMaxScaled",
+    "errorDenominatorRule",
+    "invariantMaxRelDrift",
+    "stiffnessClassified"
+   ]
+  },
+  {
+   "id": "P56-SIG-F",
+   "domain": "signal",
+   "kind": "fault",
+   "prompt": "A QPSK radio reports 550 bit errors in 1000000 delivered bits at Eb/N0 = 8.8 dB. The design review claims the measurement agrees with the theoretical bit-error rate. At 95% confidence, decide whether the data support that claim, refute it, or are inconclusive, and give the test statistic you used.",
+   "fixture": "p56_sig_fault",
+   "seed": 56,
+   "report": [
+    "verdict",
+    "state",
+    "z",
+    "theoryExpectedEvents",
+    "ciWilsonLower95",
+    "ciWilsonUpper95"
+   ]
+  }
+ ],
+ "routeExpectationsIn": "benchmark/reference_p56.m (hash-committed at publish, materialised at seal)"
+}

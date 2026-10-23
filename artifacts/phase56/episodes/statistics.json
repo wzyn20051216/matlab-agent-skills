@@ -1,0 +1,196 @@
+{
+ "schema": "mas-phase56-statistics/1",
+ "planned": {
+  "tasks": 3,
+  "arms": 3,
+  "repeats": 3,
+  "episodes": 27
+ },
+ "executed": {
+  "pass1Episodes": 9,
+  "repeatsCompleted": 1,
+  "exploratoryEpisodesExcluded": 3,
+  "gap": "9 of 27 episodes. The target was NOT met and is reported as a shortfall; no success rate is extrapolated from it."
+ },
+ "sealedEpisodesFileSha256": "3ce6964391565f9f5aae8b6adc87fa0876a78da60a0603f791bb9c0ffbe7bc8f",
+ "rederivedEpisodesFileSha256": "1b36717060676027f019a34c37ec6a1f39c4eeca16bf85f66a0f8182e06b5ed8",
+ "identityMatch": true,
+ "identityNote": "the sealed file holds only task/arm/repeat/finishedAt/model; the re-derived copy adds error and field counts from the same transcripts",
+ "modelAliasSet": [
+  "qfmodel"
+ ],
+ "budgetToolCalls": 25,
+ "perArm": {
+  "R1": {
+   "nEpisodes": 3,
+   "correctnessPass": 0,
+   "withinBudget": 3,
+   "taskCompleted": 3,
+   "deliveryValid": 3,
+   "invalidForComparison": 0,
+   "verdictPass": 3,
+   "falseAccept": 0,
+   "falseReject": 0,
+   "undeterminedExpected": 1,
+   "undeterminedDetected": 1,
+   "toolCallsTotal": 29,
+   "toolCallsMean": 9.67,
+   "matlabCallsTotal": 13,
+   "matlabErrors": 1,
+   "errorsRecovered": 0,
+   "wallSecondsTotal": 524.7,
+   "wallSecondsMean": 174.9,
+   "nativeSkillInvocations": 0
+  },
+  "R2": {
+   "nEpisodes": 3,
+   "correctnessPass": 2,
+   "withinBudget": 3,
+   "taskCompleted": 3,
+   "deliveryValid": 3,
+   "invalidForComparison": 0,
+   "verdictPass": 3,
+   "falseAccept": 0,
+   "falseReject": 0,
+   "undeterminedExpected": 1,
+   "undeterminedDetected": 1,
+   "toolCallsTotal": 47,
+   "toolCallsMean": 15.67,
+   "matlabCallsTotal": 21,
+   "matlabErrors": 0,
+   "errorsRecovered": 0,
+   "wallSecondsTotal": 734.5,
+   "wallSecondsMean": 244.8,
+   "nativeSkillInvocations": 0
+  },
+  "R3": {
+   "nEpisodes": 3,
+   "correctnessPass": 3,
+   "withinBudget": 3,
+   "taskCompleted": 3,
+   "deliveryValid": 3,
+   "invalidForComparison": 0,
+   "verdictPass": 3,
+   "falseAccept": 0,
+   "falseReject": 0,
+   "undeterminedExpected": 1,
+   "undeterminedDetected": 1,
+   "toolCallsTotal": 47,
+   "toolCallsMean": 15.67,
+   "matlabCallsTotal": 17,
+   "matlabErrors": 0,
+   "errorsRecovered": 0,
+   "wallSecondsTotal": 530.7,
+   "wallSecondsMean": 176.9,
+   "nativeSkillInvocations": 0
+  }
+ },
+ "paired": [
+  {
+   "task": "P56-ODE-N",
+   "complete": true,
+   "correctness": {
+    "R1": false,
+    "R2": false,
+    "R3": true
+   },
+   "R3_minus_R1": 1,
+   "R3_minus_R2": 1,
+   "R2_minus_R1": 0,
+   "tools": {
+    "R1": 11,
+    "R2": 14,
+    "R3": 15
+   },
+   "wall": {
+    "R1": 250.4,
+    "R2": 290.0,
+    "R3": 162.8
+   },
+   "failing": {
+    "R1": [
+     "stiffnessClassified"
+    ],
+    "R2": [
+     "stiffnessClassified"
+    ],
+    "R3": []
+   }
+  },
+  {
+   "task": "P56-SIG-B",
+   "complete": true,
+   "correctness": {
+    "R1": false,
+    "R2": true,
+    "R3": true
+   },
+   "R3_minus_R1": 1,
+   "R3_minus_R2": 0,
+   "R2_minus_R1": 1,
+   "tools": {
+    "R1": 8,
+    "R2": 15,
+    "R3": 18
+   },
+   "wall": {
+    "R1": 103.4,
+    "R2": 247.6,
+    "R3": 159.0
+   },
+   "failing": {
+    "R1": [
+     "state"
+    ],
+    "R2": [],
+    "R3": []
+   }
+  },
+  {
+   "task": "P56-SIG-F",
+   "complete": true,
+   "correctness": {
+    "R1": false,
+    "R2": true,
+    "R3": true
+   },
+   "R3_minus_R1": 1,
+   "R3_minus_R2": 0,
+   "R2_minus_R1": 1,
+   "tools": {
+    "R1": 10,
+    "R2": 18,
+    "R3": 14
+   },
+   "wall": {
+    "R1": 170.9,
+    "R2": 196.9,
+    "R3": 208.9
+   },
+   "failing": {
+    "R1": [
+     "state"
+    ],
+    "R2": [],
+    "R3": []
+   }
+  }
+ ],
+ "pairedCells": 3,
+ "pairedTies": 0,
+ "pairedDifferenceDistribution": {
+  "+1": 3
+ },
+ "labelsNotCombined": [
+  "correctnessPass (sealed answers, verdict + every declared field)",
+  "withinBudget (tool calls <= 25)",
+  "taskCompleted (all published report names delivered)",
+  "deliveryValid (parseable by the grader)"
+ ],
+ "caveats": [
+  "strong isolation on this host is BLOCKED (11/11 adversarial vectors reached); the trust here comes from the two-phase seal, the commitment hash and the per-call transcript ledger, not from access control",
+  "the model is observable only as the client alias qfmodel; alias equality is not vendor-model-name equality",
+  "n=1 repeat per cell: these are observations, not a causal estimate of the Skill exposure effect",
+  "grader 'pass' additionally requires routeOk and toolOk; the published prompt is route-free by design and no arm was asked to declare a skill or a tool, so grader pass is 0/3 in every arm and is NOT the correctness label"
+ ]
+}

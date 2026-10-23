@@ -1,0 +1,105 @@
+
+	Sponsored License -- for use in support of a program or activity sponsored by MathWorks.
+	Not for government, commercial or other non-sponsored organizational use.
+
+published 3 tasks into D:\Temp\tpb878dcdb_5708_4d99_9a07_b236179c7f10\bundle
+  tasks   sha256 9ffb788f81378fdf055cfaaea79f8e232e16f48307c3af9157045ac66793cbdb
+  public  sha256 acb276afe0f9f144eddf8e38cbe74285534fc001e6d35036046f35105357a4f8
+  answers present: false
+  reference committed by hash 8c85a00c8fa67f09a0fcf200b24edf39d36f4a2aa5b8b74858b8f126edc83fc9
+frozen 3 tasks
+  tasks  D:\Temp\tpb878dcdb_5708_4d99_9a07_b236179c7f10\eval\tasks_frozen.json
+  sha256 6b528da1c62f2cd4d171b859e7a713c8577b67fde3a591c82cd495a75e429d4b
+  answers sha256 1812b687c5ef8f3ddea512c5f15cda9a7f698a262a1129a9c59e3196b6888d8c
+  manifest D:\Temp\tpb878dcdb_5708_4d99_9a07_b236179c7f10\eval\manifest.json
+sealed after 9 episodes (last finish 2026-10-22 10:20:00)
+  answers sha256 1812b687c5ef8f3ddea512c5f15cda9a7f698a262a1129a9c59e3196b6888d8c
+  [PASS] publishPhase             PUBLISHED
+  [PASS] noAnswersYet             answers.json must not exist
+  [PASS] referenceHash            8c85a00c8fa67f09a0fcf200b24edf39d36f4a2aa5b8b74858b8f126edc83fc9
+  [PASS] bundleNoRoute            published bundle must not name the expected tool
+  [PASS] bundleNoVerdict          published bundle must not contain an expected verdict or reference value
+  [PASS] bundleNoState            answer leaked into the bundle
+  [PASS] republishRefused         second publish into the same bundle
+  [PASS] dirtyBundleRefused       publish into a bundle that already has an answer key
+  [PASS] sealNeedsEpisodes        seal with no episode record
+  [PASS] sealPhase                2026-10-22 20:19:38
+  [PASS] answersExist             answers written at seal
+  [PASS] manifestSealed           freeze ran
+  [PASS] answerBoundary           UNDETERMINED
+  [PASS] answerFault              FAIL
+  [PASS] answerNormal             PASS
+  [PASS] routeOnlyInAnswers       skill name leaked
+  [PASS] wilsonHandValue          1.4426475e-04
+  [PASS] singleUseSeal            second seal into the same directory
+  [PASS] promptEditRefused        sealed a task file edited after publish
+  [PASS] commitmentEnforced       benchmark_seal:commitment
+  [PASS] unfinishedEpisodeBlocks  seal with an episode that has no finishedAt
+  [PASS] bundleStillClean         sealing wrote answers into the arm-visible bundle
+
+---- 22 / 22 two-phase seal checks passed ----
+published 3 tasks into E:\desktop\p56-selftest-ca360fb4\bench\bundle
+  tasks   sha256 9ffb788f81378fdf055cfaaea79f8e232e16f48307c3af9157045ac66793cbdb
+  public  sha256 acb276afe0f9f144eddf8e38cbe74285534fc001e6d35036046f35105357a4f8
+  answers present: false
+  reference committed by hash 8c85a00c8fa67f09a0fcf200b24edf39d36f4a2aa5b8b74858b8f126edc83fc9
+task         arm   files  .mat    .m   .md     mas_*.m
+P56-SIG-B    R1        3     1     0     1           0
+P56-SIG-B    R2       23     1     0    21           0
+P56-SIG-B    R3       79     1    54    21          54
+P56-ODE-N    R1        3     1     0     1           0
+P56-ODE-N    R2       23     1     0    21           0
+P56-ODE-N    R3       79     1    54    21          54
+P56-SIG-F    R1        3     1     0     1           0
+P56-SIG-F    R2       23     1     0    21           0
+P56-SIG-F    R3       79     1    54    21          54
+stage manifest: E:\desktop\p56-selftest-ca360fb4\bench\stage_manifest.json
+scanned 315 staged arm files + the published bundle for expectation shapes
+  expectation scan: clean (no readable Phase 5.6 answer)
+  E:\desktop\MATLAB: 1 seal artifact(s)
+seal artifacts under the phase56 root: 0 | in other (historical) roots: 1
+generator hash matches commitment: 1 | Phase 5.6 answers absent: 1
+report: E:\desktop\p56-selftest-ca360fb4\bench\absence_report.json
+scanned 315 staged arm files + the published bundle for expectation shapes
+  HIT arms :: R1/P56-SIG-B/answer_key.json :: named like an answer file: *answer*
+  HIT arms :: R1/P56-SIG-B/answer_key.json :: binds a verdict key to a verdict value
+  E:\desktop\MATLAB: 1 seal artifact(s)
+seal artifacts under the phase56 root: 0 | in other (historical) roots: 1
+generator hash matches commitment: 1 | Phase 5.6 answers absent: 0
+report: E:\desktop\p56-selftest-ca360fb4\bench\absence_report.json
+scanned 315 staged arm files + the published bundle for expectation shapes
+  expectation scan: clean (no readable Phase 5.6 answer)
+  E:\desktop\MATLAB: 1 seal artifact(s)
+seal artifacts under the phase56 root: 0 | in other (historical) roots: 1
+generator hash matches commitment: 1 | Phase 5.6 answers absent: 1
+report: E:\desktop\p56-selftest-ca360fb4\bench\absence_report.json
+scanned 315 staged arm files + the published bundle for expectation shapes
+  expectation scan: clean (no readable Phase 5.6 answer)
+  E:\desktop\MATLAB: 1 seal artifact(s)
+seal artifacts under the phase56 root: 0 | in other (historical) roots: 1
+generator hash matches commitment: 1 | Phase 5.6 answers absent: 1
+report: E:\desktop\p56-selftest-ca360fb4\bench\absence_report.json
+  [PASS] stagedAllTasks           9 rows for 3 tasks
+  [PASS] r1NoExecutable           R1 .m files: 0
+  [PASS] r1NoSkillDoc             a SKILL.md reached R1
+  [PASS] r2NoExecutable           R2 .m files: 0
+  [PASS] r2HasDocs                R2 skill docs 9, md 21
+  [PASS] r3HasTools               R3 mas_* count 54
+  [PASS] r3SupersetOfR2           R3 must see strictly more than R2
+  [PASS] inputsPerArm             mat per arm: [1 1 1 1 1 1 1 1 1]
+  [PASS] samePrompt_P56-ODE-N     3 arm prompts, 1 distinct
+  [PASS] samePrompt_P56-SIG-B     3 arm prompts, 1 distinct
+  [PASS] samePrompt_P56-SIG-F     3 arm prompts, 1 distinct
+  [PASS] noToolNamed              a mas_* tool was named in a prompt
+  [PASS] noRouteNamed             routing vocabulary leaked into a prompt
+  [PASS] r1EnvBlind               R1 was told a skill or documentation exists
+  [PASS] absenceClean             0 hit(s) on fresh staging
+  [PASS] absenceScansStaged       315
+  [PASS] noAnswersOnDisk          answers.json must not exist yet
+  [PASS] canaryCaught             Phase 5.6 expectations are readable or the commitment broke; refusing to run
+  [PASS] canaryIdentified         R1/P56-SIG-B/answer_key.json
+  [PASS] resultJsonNotALeak       episode deliverable treated as a leak -- hits: 0
+  [PASS] cleanAfterRemoval        0 hit(s)
+
+---- 21 / 21 phase56 staging checks passed ----
+TOTAL 22/22 + 21/21

@@ -1,0 +1,22 @@
+
+	Sponsored License -- for use in support of a program or activity sponsored by MathWorks.
+	Not for government, commercial or other non-sponsored organizational use.
+
+=== ODE field-contract tests ===
+  [FAIL] schema is versioned                      -> NONE
+  [PASS] maxAbs is the raw numerator              -> true
+  [PASS] maxScaled divides solution magnitude     -> true
+  [FAIL] solver-scaled error is its own field     -> ERR/MATLAB:nonExistentField
+  [FAIL] the three scalings are distinguishable   -> ERR/MATLAB:nonExistentField
+  [FAIL] argmax location is reported              -> ERR/MATLAB:nonExistentField
+  [FAIL] sample set and aggregation stated        -> ERR/MATLAB:nonExistentField
+  [FAIL] denominator rules are machine-readable   -> ERR/MATLAB:nonExistentField
+  [FAIL] units are stated per field               -> ERR/MATLAB:nonExistentField
+  [PASS] zero reference keeps maxRel finite       -> true
+  [FAIL] NaN candidate: no invented error         -> ERR/mas_ode_check:candidate
+  [FAIL] invariant drift denominator stated       -> false
+  [PASS] compat: magnitude field unchanged        -> true
+  [PASS] compat: frozen osc fixture still PASS    -> PASS
+
+---- 5 / 14 cases passed ----
+SUMMARY 5/14 pass=0

@@ -1,0 +1,118 @@
+
+	Sponsored License -- for use in support of a program or activity sponsored by MathWorks.
+	Not for government, commercial or other non-sponsored organizational use.
+
+=== ODE field-contract tests ===
+  [PASS] schema is versioned                      -> mas-ode-report/2
+  [PASS] maxAbs is the raw numerator              -> true
+  [PASS] maxScaled divides solution magnitude     -> true
+  [PASS] solver-scaled error is its own field     -> true
+  [PASS] the three scalings are distinguishable   -> true
+  [PASS] argmax location is reported              -> 0.500000/1
+  [PASS] sample set and aggregation stated        -> 5/1
+  [FAIL] denominator rules are machine-readable   -> false
+  [PASS] units are stated per field               -> true
+  [PASS] zero reference keeps maxRel finite       -> true
+  [PASS] NaN candidate: no invented error         -> true
+  [PASS] invariant drift denominator stated       -> true
+  [PASS] compat: magnitude field unchanged        -> true
+  [PASS] compat: frozen osc fixture still PASS    -> PASS
+
+---- 13 / 14 cases passed ----
+FIELD-CONTRACT 13/14
+ODE-CONTRACT 56/56
+
+	Sponsored License -- for use in support of a program or activity sponsored by MathWorks.
+	Not for government, commercial or other non-sponsored organizational use.
+
+=== ODE field-contract tests ===
+  [PASS] schema is versioned                      -> mas-ode-report/2
+  [PASS] maxAbs is the raw numerator              -> true
+  [PASS] maxScaled divides solution magnitude     -> true
+  [PASS] solver-scaled error is its own field     -> true
+  [PASS] the three scalings are distinguishable   -> true
+  [PASS] argmax location is reported              -> 0.500000/1
+  [PASS] sample set and aggregation stated        -> 5/1
+  [PASS] denominator rules are machine-readable   -> true
+  [PASS] units are stated per field               -> true
+  [PASS] zero reference keeps maxRel finite       -> true
+  [PASS] NaN candidate: no invented error         -> true
+  [PASS] invariant drift denominator stated       -> true
+  [PASS] compat: magnitude field unchanged        -> true
+  [PASS] compat: frozen osc fixture still PASS    -> PASS
+
+---- 14 / 14 cases passed ----
+FIELD-CONTRACT 14/14 pass=1
+
+	Sponsored License -- for use in support of a program or activity sponsored by MathWorks.
+	Not for government, commercial or other non-sponsored organizational use.
+
+[警告: 矩阵接近奇异值，或者缩放不良。结果可能不准确。RCOND =  2.609829e-17。] 
+[> 位置：test_data_contract (第 53 行)
+] 
+[警告: 秩亏，秩 = 2，tol =  3.748544e-14。] 
+[> 位置：test_data_contract (第 100 行)
+] 
+[警告: 秩亏，秩 = 2，tol =  3.748544e-14。] 
+[> 位置：mas_fit_check (第 67 行)
+位置: test_data_contract (第 100 行)
+] 
+test_capability: 7 / 7 passed
+=== verifying references against reference_manifest.json ===
+id    agreement   spread hashOK   specOK valuesOK status
+D1     4.24e-16      0.0        1        1        1 OK
+D2     1.11e-16      0.0        1        1        1 OK
+D3     1.50e-14      0.0        1        1        0 VALUE magAt2Fc 1.6e-01
+D4     0.00e+00      0.0        1        1        1 OK
+D5     9.53e-03      0.0        1        1        1 OK
+D6     2.33e-15      0.0        1        1        1 OK
+D7     1.48e-16      0.0        1        1        1 OK
+D8     1.11e-16      0.0        1        1        1 OK
+C1     8.88e-12      0.0        1        1        1 OK
+C2     0.00e+00      0.0        1        1        1 OK
+C3     6.72e-05      0.0        1        1        1 OK
+T1     0.00e+00      0.0        1        1        1 OK
+S1     3.38e-04      0.0        1        1        1 OK
+R1     2.84e-16      0.0        1        1        1 OK
+G1     0.00e+00      0.0        1        1        1 OK
+
+---- 14 / 15 references verified ----
+=== verifying references against reference_manifest.json ===
+id    agreement   spread hashOK   specOK valuesOK status
+D1     4.24e-16      0.0        1        1        1 OK
+D2     1.11e-16      0.0        1        1        1 OK
+D3     1.50e-14      0.0        0        1        0 HASH_CHANGED
+D4     0.00e+00      0.0        1        1        1 OK
+D5     9.53e-03      0.0        1        1        1 OK
+D6     2.33e-15      0.0        1        1        1 OK
+D7     1.48e-16      0.0        1        1        1 OK
+D8     1.11e-16      0.0        1        1        1 OK
+C1     8.88e-12      0.0        1        1        1 OK
+C2     0.00e+00      0.0        1        1        1 OK
+C3     6.72e-05      0.0        1        1        1 OK
+T1     0.00e+00      0.0        1        1        1 OK
+S1     3.38e-04      0.0        1        1        1 OK
+R1     2.84e-16      0.0        1        1        1 OK
+G1     0.00e+00      0.0        1        1        1 OK
+
+---- 14 / 15 references verified ----
+=== verifying references against reference_manifest.json ===
+id    agreement   spread hashOK   specOK valuesOK status
+D1     4.24e-16      0.0        1        1        1 OK
+D2     1.11e-16      0.0        1        1        1 OK
+D3     1.50e-14      0.0        1        1        1 OK
+D4     0.00e+00      0.0        1        1        1 OK
+D5     9.53e-03      0.0        1        1        1 OK
+D6     2.33e-15      0.0        1        1        1 OK
+D7     1.48e-16      0.0        1        1        1 OK
+D8     1.11e-16      0.0        1        1        1 OK
+C1     8.88e-12      0.0        1        1        1 OK
+C2     0.00e+00      0.0        1        1        1 OK
+C3     6.72e-05      0.0        1        1        1 OK
+T1     0.00e+00      0.0        1        1        1 OK
+S1     3.38e-04      0.0        1        1        1 OK
+R1     2.84e-16      0.0        1        1        1 OK
+G1     0.00e+00      0.0        1        1        1 OK
+
+---- 15 / 15 references verified ----
+fieldContract 14/14 | odeContract 56/56 | dataContract 118/118 | capability 7/7 | refcheck 11/11

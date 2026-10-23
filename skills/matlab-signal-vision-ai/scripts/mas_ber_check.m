@@ -12,8 +12,14 @@ function r = mas_ber_check(nErr, nBits, spec)
 %   .level    confidence level for the interval, default 0.95
 %   .zMax     |z| acceptance limit against counting noise, default 3
 %   .theory   function handle f(ebn0Lin) -> BER, overrides the built-in formula
+%   .targetBer  largest BER the claim allows. When present, the graded claim is
+%             "BER <= targetBer" and r.state comes from that claim; the theory
+%             comparison stays as its own check either way.
 %
 % r.verdict  PASS | FAIL | UNDETERMINED
+% r.state    the five-state evidence label from mas_stat_verdict:
+%            sufficient-support | sufficient-refutation | insufficient-sample |
+%            interval-straddles-target | criterion-missing
 % r.checks   id / status (pass|fail|na|undetermined) / detail
 % r.z        (p_hat - p_theory) / sqrt(p(1-p)/n); the whole test in one number
 % r.ci       Wilson score interval at the stated level, plus a Poisson upper
@@ -51,6 +57,8 @@ L = 0.95;
 if isfield(S, 'level') && isscalar(S.level), L = S.level; end
 zMax = 3;
 if isfield(S, 'zMax') && isscalar(S.zMax), zMax = S.zMax; end
+haveTargetBer = isfield(S, 'targetBer') && isscalar(S.targetBer) && ...
+    S.targetBer > 0 && S.targetBer <= 1;
 
 % ---- Eb/N0 vs Es/N0 ------------------------------------------------------
 haveEb = isfield(S, 'ebn0dB') && isscalar(S.ebn0dB);
@@ -129,7 +137,14 @@ else
 end
 
 width = ciHi - ciLo;
-if width > 0.5*p0 && width > 2*phat
+if haveTargetBer && width > 0.5*p0 && width > 2*phat
+    % The run resolves the TARGET, not the theory. With an explicit targetBer the
+    % claim is graded against that number, so the theory-resolution gate does not
+    % apply -- letting it fire would demote a genuinely certified bound.
+    C = local_check_add(C, 'resolution', 'na', sprintf(['interval width %.3g cannot separate ' ...
+        'the theory %.3g from a 2x-different one, but the graded claim is BER <= %.4g, which ' ...
+        'this interval does decide'], width, p0, S.targetBer));
+elseif width > 0.5*p0 && width > 2*phat
     C = local_check_add(C, 'resolution', NaN, sprintf( ...
         ['interval width %.3g is comparable to the theory %.3g: this run cannot ' ...
          'distinguish the claimed SNR from a 2x different one; collect more bits ' ...
@@ -146,10 +161,30 @@ C = local_check_add(C, 'vsTheory', abs(z) <= zMax, sprintf( ...
     local_tern(abs(z) <= zMax, 'within counting noise', 'BEYOND counting noise'), ...
     local_theory_side(phat, p0, z, zMax)));
 
+% ---- the five-state evidence flow ---------------------------------------
+% The counted claim itself is decided by mas_stat_verdict, so every count-based
+% measurement in this skill follows one rule: a run with no power to see the rate
+% it is grading is INCONCLUSIVE, not a refutation, and a zero count that does
+% clear a stated target is evidence, not an absence of news. The convention and
+% z checks above keep failing real defects independently of this.
+if haveTargetBer
+    svSpec = struct('criterion', 'meets-target', 'target', S.targetBer, ...
+        'level', L, 'zMax', zMax);
+    claimTxt = sprintf('BER <= %.4g', S.targetBer);
+else
+    svSpec = struct('criterion', 'matches-theory', 'theory', p0, ...
+        'level', L, 'zMax', zMax);
+    claimTxt = sprintf('BER == %.4g (theory)', p0);
+end
+sv = mas_stat_verdict(nErr, nBits, svSpec);
+C = local_check_add(C, 'evidence', local_state_status(sv.state), sprintf( ...
+    'claim %s -> %s: %s', claimTxt, sv.state, sv.detail));
+
 % ---- verdict -------------------------------------------------------------
-% Four states. 'resolution' is the one undetermined here: when the collected
-% interval cannot separate the theory from a 2x-different one, the run is not
-% evidence either way and the verdict must say so rather than guess.
+% 'resolution' and an unpowered 'evidence' state are the undetermined drivers:
+% when the collected interval cannot separate the theory from a 2x-different one,
+% the run is not evidence either way and the verdict must say so rather than
+% guess.
 st = {C.status};
 if any(strcmp(st, 'fail'))
     r.verdict = 'FAIL';
@@ -170,6 +205,8 @@ r.berTheory = p0;
 r.z = z;
 r.zMax = zMax;
 r.theoryIsExact = theoryExact;
+r.state = sv.state;
+r.evidence = sv;
 r.sigmaRel = 1/sqrt(max(nErr, 1));               % relative counting noise
 r.ci = struct('level', L, 'method', 'Wilson score', 'lo', ciLo, 'hi', ciHi, ...
     'poissonUpper', poissonUp);
@@ -242,6 +279,17 @@ end
 
 function C = local_check_empty()
 C = struct('id', {}, 'status', {}, 'detail', {});
+end
+
+function st = local_state_status(state)
+% Feed the five-state flow into the check list without letting it invent a
+% verdict: support passes, refutation fails, the three inconclusive states are
+% reported as undetermined, which the existing gate turns into UNDETERMINED.
+switch state
+    case 'sufficient-support', st = true;
+    case 'sufficient-refutation', st = false;
+    otherwise, st = NaN;
+end
 end
 
 function C = local_check_add(C, id, pass, detail)

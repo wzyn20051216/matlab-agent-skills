@@ -1,0 +1,11 @@
+{
+  "verdict": "UNDETERMINED",
+  "fields": {
+    "verdict": "UNDETERMINED",
+    "state": "insufficient-sample",
+    "ciWilsonUpper95": 1.4426474736e-04,
+    "theoryExpectedEvents": 1.3068570410,
+    "nBits": 26624
+  },
+  "why": "Zero errors over 26624 bits gives a 95% upper bound (Wilson 1.443e-4; exact zero-count 1.125e-4) that still sits above the 1e-4 target and the run expects only 2.66 errors at that rate, so it has no power to certify the target - yet the zero count is also fully consistent with the QPSK theory point at 8.8 dB Eb/N0 (predicted BER 4.909e-5, 1.31 expected errors, z = -1.14 within +/-3), so the measurement neither supports nor refutes the claim."
+}

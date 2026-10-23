@@ -1,0 +1,92 @@
+
+	Sponsored License -- for use in support of a program or activity sponsored by MathWorks.
+	Not for government, commercial or other non-sponsored organizational use.
+
+published 3 tasks into D:\Temp\tp4ab9ae9a_7d07_443a_8a50_cd2c3858bace\bundle
+  tasks   sha256 9ffb788f81378fdf055cfaaea79f8e232e16f48307c3af9157045ac66793cbdb
+  public  sha256 17ec6b1ac9707888f0c8d35ec33ee06f78b3db29b3f1417970b4c09777e7d801
+  answers present: false
+  reference committed by hash 8c85a00c8fa67f09a0fcf200b24edf39d36f4a2aa5b8b74858b8f126edc83fc9
+frozen 3 tasks
+  tasks  D:\Temp\tp4ab9ae9a_7d07_443a_8a50_cd2c3858bace\eval\tasks_frozen.json
+  sha256 6b528da1c62f2cd4d171b859e7a713c8577b67fde3a591c82cd495a75e429d4b
+  answers sha256 30b857c9e688ebb315def0c6f64ebdf5dec251604726b29d0a361d4413056a18
+  manifest D:\Temp\tp4ab9ae9a_7d07_443a_8a50_cd2c3858bace\eval\manifest.json
+sealed after 9 episodes (last finish 2026-10-22 10:20:00)
+  answers sha256 30b857c9e688ebb315def0c6f64ebdf5dec251604726b29d0a361d4413056a18
+  [PASS] publishPhase             PUBLISHED
+  [PASS] noAnswersYet             answers.json must not exist
+  [PASS] referenceHash            8c85a00c8fa67f09a0fcf200b24edf39d36f4a2aa5b8b74858b8f126edc83fc9
+  [PASS] bundleNoRoute            published bundle must not name the expected tool
+  [PASS] bundleNoVerdict          published bundle must not contain an expected verdict or reference value
+  [PASS] bundleNoState            answer leaked into the bundle
+  [PASS] republishRefused         second publish into the same bundle
+  [PASS] dirtyBundleRefused       publish into a bundle that already has an answer key
+  [PASS] sealNeedsEpisodes        seal with no episode record
+  [PASS] sealPhase                2026-10-22 19:41:13
+  [PASS] answersExist             answers written at seal
+  [PASS] manifestSealed           freeze ran
+  [PASS] answerBoundary           UNDETERMINED
+  [PASS] answerFault              FAIL
+  [PASS] answerNormal             PASS
+  [PASS] routeOnlyInAnswers       skill name leaked
+  [PASS] wilsonHandValue          1.4426475e-04
+  [PASS] singleUseSeal            second seal into the same directory
+  [PASS] promptEditRefused        sealed a task file edited after publish
+  [FAIL] commitmentEnforced       MATLAB:RMDIR:NotADirectory
+  [PASS] unfinishedEpisodeBlocks  seal with an episode that has no finishedAt
+  [PASS] bundleStillClean         sealing wrote answers into the arm-visible bundle
+
+---- 21 / 22 two-phase seal checks passed ----
+SEAL 21/22
+
+	Sponsored License -- for use in support of a program or activity sponsored by MathWorks.
+	Not for government, commercial or other non-sponsored organizational use.
+
+published 3 tasks into D:\Temp\tpd6bf5ada_dc35_407b_8470_1f6dbefe0b62\bundle
+  tasks   sha256 9ffb788f81378fdf055cfaaea79f8e232e16f48307c3af9157045ac66793cbdb
+  public  sha256 17ec6b1ac9707888f0c8d35ec33ee06f78b3db29b3f1417970b4c09777e7d801
+  answers present: false
+  reference committed by hash 8c85a00c8fa67f09a0fcf200b24edf39d36f4a2aa5b8b74858b8f126edc83fc9
+frozen 3 tasks
+  tasks  D:\Temp\tpd6bf5ada_dc35_407b_8470_1f6dbefe0b62\eval\tasks_frozen.json
+  sha256 6b528da1c62f2cd4d171b859e7a713c8577b67fde3a591c82cd495a75e429d4b
+  answers sha256 6c83b04f891ea36800999376d4262332b3a0220188d27330ee012670f335e125
+  manifest D:\Temp\tpd6bf5ada_dc35_407b_8470_1f6dbefe0b62\eval\manifest.json
+sealed after 9 episodes (last finish 2026-10-22 10:20:00)
+  answers sha256 6c83b04f891ea36800999376d4262332b3a0220188d27330ee012670f335e125
+  [PASS] publishPhase             PUBLISHED
+  [PASS] noAnswersYet             answers.json must not exist
+  [PASS] referenceHash            8c85a00c8fa67f09a0fcf200b24edf39d36f4a2aa5b8b74858b8f126edc83fc9
+  [PASS] bundleNoRoute            published bundle must not name the expected tool
+  [PASS] bundleNoVerdict          published bundle must not contain an expected verdict or reference value
+  [PASS] bundleNoState            answer leaked into the bundle
+  [PASS] republishRefused         second publish into the same bundle
+  [PASS] dirtyBundleRefused       publish into a bundle that already has an answer key
+  [PASS] sealNeedsEpisodes        seal with no episode record
+  [PASS] sealPhase                2026-10-22 19:42:12
+  [PASS] answersExist             answers written at seal
+  [PASS] manifestSealed           freeze ran
+  [PASS] answerBoundary           UNDETERMINED
+  [PASS] answerFault              FAIL
+  [PASS] answerNormal             PASS
+  [PASS] routeOnlyInAnswers       skill name leaked
+  [PASS] wilsonHandValue          1.4426475e-04
+  [PASS] singleUseSeal            second seal into the same directory
+  [PASS] promptEditRefused        sealed a task file edited after publish
+  [PASS] commitmentEnforced       benchmark_seal:commitment
+  [PASS] unfinishedEpisodeBlocks  seal with an episode that has no finishedAt
+  [PASS] bundleStillClean         sealing wrote answers into the arm-visible bundle
+
+---- 22 / 22 two-phase seal checks passed ----
+SEAL 22/22
+published 3 tasks into D:\Temp\tp8f5f6ccb_cefd_452a_a606_c8fdd40c3b69
+  tasks   sha256 9ffb788f81378fdf055cfaaea79f8e232e16f48307c3af9157045ac66793cbdb
+  public  sha256 17ec6b1ac9707888f0c8d35ec33ee06f78b3db29b3f1417970b4c09777e7d801
+  answers present: false
+  reference committed by hash 8c85a00c8fa67f09a0fcf200b24edf39d36f4a2aa5b8b74858b8f126edc83fc9
+  odefun : function_handle [1 1]
+  tspan : double [1 2]
+  y0 : double [2 1]
+  claims : struct [1 1]
+  claims.reference is function_handle: 1

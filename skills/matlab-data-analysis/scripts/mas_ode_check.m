@@ -27,10 +27,24 @@ function r = mas_ode_check(odefun, tspan, y0, claims)
 % r.verdict     PASS | FAIL | UNDETERMINED
 % r.levels      solverExit / converged / errorTol / physical / conclusion
 % r.checks      id / status (pass|fail|na|undetermined) / detail
+% r.schema      'mas-ode-report/2'
 % r.stiffness   isStiff, lambdaRatio, stepRatio, steps45, steps15, classified
 % r.convergence ladder values and gaps
 % r.event       detected event time (if eventFun given)
-% r.error       max relative / absolute difference to the reference
+% r.error       difference to the reference. THREE scalings of one numerator,
+%               each with its own name and stated rule -- they differ by orders
+%               of magnitude and are not interchangeable:
+%                 maxAbs          |y_candidate - y_reference|, raw
+%                 maxScaled       maxAbs / max(1, max|yRef|)      <- what grading
+%                                 uses and what v1 readers expect
+%                 maxSolverScaled maxAbs / (AbsTol + RelTol*|yRef|) elementwise
+%               plus maxRel (per-component, eps floor), at/component/rows/
+%               components, and numeratorRule / denominatorRule /
+%               solverScaledDenominatorRule / unit / solverScaledUnit so a value
+%               can never be quoted without the definition that produced it.
+%               Fields are emitted as NaN when no reference exists.
+% r.invariant   ref / values / maxRelDrift / tolRel plus numeratorRule,
+%               denominatorRule, unit, aggregation
 %
 % WHY FIVE LEVELS
 % A solver can exit with flag 0, produce finite numbers, and still be wrong.
@@ -64,6 +78,14 @@ tspan = tspan(:).';
 C = local_check_empty();
 notes = {};
 t0 = tspan(1); t1 = tspan(2);
+r.schema = 'mas-ode-report/2';
+
+% Tolerances are read once, before the candidate is produced, because the error
+% block reports a solver-tolerance-scaled quantity whether the candidate was
+% integrated here or supplied by the caller.
+relTol = local_field(claims, 'relTol', 1e-6);
+absTol = local_field(claims, 'absTol', 1e-8);
+refTol = local_field(claims, 'refTolRel', 1e-6);
 
 % ---- candidate -----------------------------------------------------------
 hasCandidate = isfield(claims, 'candidate') && isstruct(claims.candidate);
@@ -72,8 +94,6 @@ if hasCandidate
     method = local_field(claims, 'method', 'candidate');
 else
     method = local_field(claims, 'method', 'ode45');
-    relTol = local_field(claims, 'relTol', 1e-6);
-    absTol = local_field(claims, 'absTol', 1e-8);
     maxStep = local_field(claims, 'maxStep', []);
     opts = odeset('RelTol', relTol, 'AbsTol', absTol);
     if ~isempty(maxStep), opts = odeset(opts, 'MaxStep', maxStep); end
@@ -92,6 +112,8 @@ else
         'candidate is empty or contains NaN/Inf: no numerical solution to trust');
     r.verdict = 'FAIL'; r.levels = local_levels(C, false);
     r.checks = C; r.notes = {'candidate is not finite'};
+    r.error = local_error_block([], [], cand.t(:), refTol, relTol, absTol);
+    r.error.status = 'not computed: candidate is not finite';
     r.detail = 'FAIL at solverExit: candidate is empty or non-finite';
     return;
 end
@@ -230,22 +252,17 @@ end
 % claim; otherwise the measured error is reported for information and the level
 % is `na`. Grading against an unstated default would fail a candidate for a
 % requirement nobody made.
-refTol = local_field(claims, 'refTolRel', 1e-6);
 claimTol = local_field(claims, 'finalTolRel', 1e-6);
 hasRefTol = isfield(claims, 'refTolRel') && isscalar(claims.refTolRel);
 needErrorEvidence = false;
 if ref.ok
     yCand = cand.y;
     dAbs = abs(yCand - yRef);
-    dRel = dAbs ./ max(abs(yRef), eps);
     % Grade on the absolute error normalised by the solution magnitude. Element-
     % wise relative error diverges at a zero crossing (cos(t) near pi/2) and
     % would fail an otherwise accurate oscillator; the raw value is still
     % reported for diagnosis.
-    errScale = max(1, max(abs(yRef(:))));
-    r.error = struct('maxAbs', max(dAbs(:)), 'maxRel', max(dRel(:)), ...
-        'scale', errScale, 'maxScaled', max(dAbs(:))/errScale, ...
-        'tolRel', refTol, 'at', tq(find(max(dRel, [], 2) == max(dRel(:)), 1)));
+    r.error = local_error_block(dAbs, yRef, tq, refTol, relTol, absTol);
     if hasRefTol || hasFinal
         needErrorEvidence = true;
         if r.error.maxScaled <= refTol
@@ -263,10 +280,10 @@ if ref.ok
             r.error.maxScaled));
     end
 elseif hasFinal
-    r.error = struct('maxAbs', NaN, 'maxRel', NaN, 'tolRel', refTol);
+    r.error = local_error_block([], [], tq, refTol, relTol, absTol);
     C = local_check_add(C, 'errorTol', NaN, 'no reference: error tolerance not certifiable');
 else
-    r.error = struct('maxAbs', NaN, 'maxRel', NaN, 'tolRel', refTol);
+    r.error = local_error_block([], [], tq, refTol, relTol, absTol);
     C = local_check_add(C, 'errorTol', 'na', ...
         'no reference and no accuracy claim: error tolerance not part of this audit');
 end
@@ -322,7 +339,12 @@ if isfield(claims, 'invariant') && isa(claims.invariant, 'function_handle')
         drift = abs(invVals - invRef) ./ max(abs(invRef), 1);
         invTol = local_field(claims, 'invTolRel', 1e-8);
         r.invariant = struct('ref', invRef, 'values', invVals, ...
-            'maxRelDrift', max(drift(:)), 'tolRel', invTol);
+            'maxRelDrift', max(drift(:)), 'tolRel', invTol, ...
+            'numeratorRule', 'max |invariant(candidate) - invariantRef| per component', ...
+            'denominatorRule', 'max(|invariantRef|, 1) per component, floored at 1', ...
+            'unit', 'fraction of the reference invariant value (dimensionless)', ...
+            'aggregation', sprintf('%d samples x %d component(s), max', ...
+            size(invVals, 1), size(invVals, 2)));
         needErrorEvidence = true;
         C = local_check_add(C, 'physicalInvariant', max(drift(:)) <= invTol, sprintf( ...
             'invariant drift max %.2e (tol %.1e)', max(drift(:)), invTol));
@@ -417,6 +439,51 @@ r.detail = sprintf('%s: %d pass, %d fail, %d undetermined, %d na', ...
 if any(notOk)
     r.detail = sprintf('%s (%s)', r.detail, strjoin({C(notOk).id}, ', '));
 end
+end
+
+% ===========================================================================
+function e = local_error_block(dAbs, yRef, tq, refTol, relTol, absTol)
+%LOCAL_ERROR_BLOCK  One name per quantity, plus the rule that produced it.
+% A single `maxScaled` was ambiguous: solver work has three legitimate scalings
+% of the same numerator, and an answer key that names only the field cannot say
+% which one it meant. The v1 name keeps its v1 meaning (solution magnitude) so
+% older reports still grade unchanged, and the other two get names that cannot
+% be confused with it. Empty input means no reference existed: the field set is
+% still emitted, as NaN, so a reader never mistakes an absent field for a zero.
+numeratorRule = 'max |y_candidate - y_reference| over every state row and component';
+magnitudeRule = 'max(1, max|y_reference|): global solution magnitude, floored at 1';
+relativeRule = 'max(|y_reference| elementwise, eps): per-component, floored at eps';
+toleranceRule = 'AbsTol + RelTol*|y_reference| elementwise: the scaling the solver itself uses';
+if isempty(dAbs)
+    e = struct('maxAbs', NaN, 'maxRel', NaN, 'scale', NaN, 'maxScaled', NaN, ...
+        'maxSolverScaled', NaN, 'at', NaN, 'component', NaN, ...
+        'rows', 0, 'components', 0, 'tolRel', refTol, ...
+        'numeratorRule', numeratorRule, 'denominatorRule', magnitudeRule, ...
+        'relativeDenominatorRule', relativeRule, ...
+        'solverScaledDenominatorRule', toleranceRule, ...
+        'unit', 'fraction of solution magnitude (dimensionless)', ...
+        'solverScaledUnit', 'multiple of solver-tolerance (dimensionless)', ...
+        'status', sprintf('not computed: no reference at %d reported times', numel(tq)));
+    return;
+end
+[maxAbs, iargmax] = max(dAbs(:));
+[irow, icomp] = ind2sub(size(dAbs), iargmax);
+scale = max(1, max(abs(yRef(:))));
+e = struct( ...
+    'maxAbs', maxAbs, ...
+    'at', tq(irow), 'component', icomp, ...
+    'rows', size(dAbs, 1), 'components', size(dAbs, 2), ...
+    'scale', scale, ...
+    'maxScaled', maxAbs/scale, ...
+    'maxRel', max(dAbs(:) ./ max(abs(yRef(:)), eps)), ...
+    'maxSolverScaled', max(dAbs(:) ./ (absTol + relTol*abs(yRef(:)))), ...
+    'tolRel', refTol, ...
+    'numeratorRule', numeratorRule, 'denominatorRule', magnitudeRule, ...
+    'relativeDenominatorRule', relativeRule, ...
+    'solverScaledDenominatorRule', toleranceRule, ...
+    'unit', 'fraction of solution magnitude (dimensionless)', ...
+    'solverScaledUnit', 'multiple of solver-tolerance (dimensionless)', ...
+    'status', 'computed against the reference');
 end
 
 % ===========================================================================

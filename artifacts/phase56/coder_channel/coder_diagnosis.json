@@ -1,0 +1,472 @@
+{
+ "schema": "mas-phase56-coder-diagnosis/3",
+ "generatedFrom": [
+  "channel_A.json",
+  "channel_B.json",
+  "channel_D.json",
+  "coder_diagnosis.json",
+  "form_F.json",
+  "form_I.json",
+  "form_J.json",
+  "form_K.json",
+  "form_L.json",
+  "form_scriptlocal.json",
+  "scripttop_batch.json",
+  "scripttop_mcpfile.json",
+  "scripttop_unlabelled.json",
+  "syntax_mcpdynamiceval_20261022_214930.json",
+  "syntax_plaincaller_20261022_214900.json"
+ ],
+ "discardedRows": [
+  {
+   "tag": "scriptlocal",
+   "form": "inline",
+   "why": "broken first invocation: `for t = {...}` iterates a cell array element-wise in MATLAB, so tag and form were scrambled"
+  }
+ ],
+ "environment": {
+  "release": "26.1.0.3276743 (R2026a) Update 3",
+  "matlabroot": "E:\\matlab",
+  "coderLicenseTest": 1,
+  "codegenExists": true,
+  "coderProducts": [
+   "Embedded Coder (26.1)",
+   "GPU Coder (26.1)",
+   "HDL Coder (26.1)",
+   "MATLAB Coder (26.1)",
+   "Simulink Coder (26.1)",
+   "Simulink PLC Coder (26.1)"
+  ],
+  "entryResolvedBy": "E:/desktop/MATLAB/artifacts/phase56/coder_channel/src/p56coder_entry.m"
+ },
+ "table": [
+  {
+   "tag": "A",
+   "channel": "batch-process",
+   "form": "file",
+   "ok": true,
+   "errorIdentifier": "",
+   "errorMessage": "",
+   "artifacts": 25,
+   "elapsedSeconds": 39.7,
+   "release": "26.1.0.3276743 (R2026a) Update 3",
+   "entryResolvedBy": "E:/desktop/MATLAB/artifacts/phase56/coder_channel/src/p56coder_entry.m",
+   "channelIdentity": "no-mcp-frame",
+   "topFrames": [],
+   "source": "channel_A.json",
+   "superseded": false
+  },
+  {
+   "tag": "B",
+   "channel": "mcp-dynamic-eval",
+   "form": "file",
+   "ok": true,
+   "errorIdentifier": "",
+   "errorMessage": "",
+   "artifacts": 25,
+   "elapsedSeconds": 14.68,
+   "release": "26.1.0.3276743 (R2026a) Update 3",
+   "entryResolvedBy": "E:/desktop/MATLAB/artifacts/phase56/coder_channel/src/p56coder_entry.m",
+   "channelIdentity": "no-mcp-frame",
+   "topFrames": [],
+   "source": "channel_B.json",
+   "superseded": false
+  },
+  {
+   "tag": "D",
+   "channel": "mcp-run_matlab_file",
+   "form": "file",
+   "ok": true,
+   "errorIdentifier": "",
+   "errorMessage": "",
+   "artifacts": 25,
+   "elapsedSeconds": 8.58,
+   "release": "26.1.0.3276743 (R2026a) Update 3",
+   "entryResolvedBy": "E:/desktop/MATLAB/artifacts/phase56/coder_channel/src/p56coder_entry.m",
+   "channelIdentity": "mcp-helper-frame-present",
+   "topFrames": [
+    "E:/desktop/MATLAB/matlab/validation/phase56/p56_coder_channel_probe.m:39 in p56_coder_channel_probe",
+    "E:/desktop/MATLAB/matlab/validation/phase56/p56_coder_drive_d.m:17 in p56_coder_drive_d",
+    "D:/Temp/Editor_tfqyu/LiveEditorEvaluationHelperEmatlab_mcp_server.m:1 in LiveEditorEvaluationHelperEmatlab_mcp_server"
+   ],
+   "source": "channel_D.json",
+   "superseded": false
+  },
+  {
+   "tag": "F",
+   "channel": "plain-caller",
+   "form": "scriptlocal",
+   "ok": false,
+   "errorIdentifier": "MATLAB:err_static_workspace_violation",
+   "errorMessage": "尝试将 \"f\" 添加到静态工作区。",
+   "artifacts": 1,
+   "elapsedSeconds": 0.43,
+   "release": "26.1.0.3276743 (R2026a) Update 3",
+   "entryResolvedBy": "E:/desktop/MATLAB/artifacts/phase56/coder_channel/src/p56coder_entry.m",
+   "channelIdentity": "no-mcp-frame",
+   "topFrames": [
+    "E:/desktop/MATLAB/matlab/validation/phase56/p56_coder_entry_form_probe.m:30 in p56_coder_entry_form_probe"
+   ],
+   "source": "form_F.json",
+   "superseded": true
+  },
+  {
+   "tag": "I",
+   "channel": "plain-caller",
+   "form": "inline",
+   "ok": false,
+   "errorIdentifier": "emlc:compilationError",
+   "errorMessage": "",
+   "artifacts": null,
+   "elapsedSeconds": 6.46,
+   "release": "26.1.0.3276743 (R2026a) Update 3",
+   "entryResolvedBy": "E:/desktop/MATLAB/artifacts/phase56/coder_channel/src/p56coder_entry.m",
+   "channelIdentity": "no-mcp-frame",
+   "topFrames": [
+    "E:/desktop/MATLAB/matlab/validation/phase56/p56_coder_entry_form_probe.m:30 in p56_coder_entry_form_probe"
+   ],
+   "source": "form_I.json",
+   "superseded": false
+  },
+  {
+   "tag": "J",
+   "channel": "plain-caller",
+   "form": "file",
+   "ok": true,
+   "errorIdentifier": "",
+   "errorMessage": "",
+   "artifacts": 25,
+   "elapsedSeconds": 13.97,
+   "release": "26.1.0.3276743 (R2026a) Update 3",
+   "entryResolvedBy": "E:/desktop/MATLAB/artifacts/phase56/coder_channel/src/p56coder_entry.m",
+   "channelIdentity": "no-mcp-frame",
+   "topFrames": [
+    "E:/desktop/MATLAB/matlab/validation/phase56/p56_coder_entry_form_probe.m:30 in p56_coder_entry_form_probe"
+   ],
+   "source": "form_J.json",
+   "superseded": false
+  },
+  {
+   "tag": "K",
+   "channel": "mcp-dynamic-eval",
+   "form": "inline",
+   "ok": false,
+   "errorIdentifier": "emlc:compilationError",
+   "errorMessage": "",
+   "artifacts": null,
+   "elapsedSeconds": 1.71,
+   "release": "26.1.0.3276743 (R2026a) Update 3",
+   "entryResolvedBy": "E:/desktop/MATLAB/artifacts/phase56/coder_channel/src/p56coder_entry.m",
+   "channelIdentity": "mcp-helper-frame-present",
+   "topFrames": [
+    "E:/desktop/MATLAB/matlab/validation/phase56/p56_coder_entry_form_probe.m:30 in p56_coder_entry_form_probe",
+    "D:/Temp/Editor_tfqyu/LiveEditorEvaluationHelperEmatlab_mcp_server.m:5 in LiveEditorEvaluationHelperEmatlab_mcp_server",
+    "D:/Temp/matlab-mcp-server-2594176706/matlab-session-1084747922-2657702379/+matlab_mcp/mcpEval.m:48 in mcpEval"
+   ],
+   "source": "form_K.json",
+   "superseded": false
+  },
+  {
+   "tag": "L",
+   "channel": "mcp-dynamic-eval",
+   "form": "scriptlocal",
+   "ok": false,
+   "errorIdentifier": "MATLAB:err_static_workspace_violation",
+   "errorMessage": "尝试将 \"f\" 添加到静态工作区。",
+   "artifacts": 1,
+   "elapsedSeconds": 0.32,
+   "release": "26.1.0.3276743 (R2026a) Update 3",
+   "entryResolvedBy": "E:/desktop/MATLAB/artifacts/phase56/coder_channel/src/p56coder_entry.m",
+   "channelIdentity": "mcp-helper-frame-present",
+   "topFrames": [
+    "E:/desktop/MATLAB/matlab/validation/phase56/p56_coder_entry_form_probe.m:30 in p56_coder_entry_form_probe",
+    "D:/Temp/Editor_tfqyu/LiveEditorEvaluationHelperEmatlab_mcp_server.m:5 in LiveEditorEvaluationHelperEmatlab_mcp_server",
+    "D:/Temp/matlab-mcp-server-2594176706/matlab-session-1084747922-2657702379/+matlab_mcp/mcpEval.m:48 in mcpEval"
+   ],
+   "source": "form_L.json",
+   "superseded": true
+  },
+  {
+   "tag": "E",
+   "channel": "batch-process",
+   "form": "scriptlocal-top-level",
+   "ok": false,
+   "errorIdentifier": "emlc:compilationError",
+   "errorMessage": "",
+   "artifacts": null,
+   "elapsedSeconds": 7.75,
+   "release": "26.1.0.3276743 (R2026a) Update 3",
+   "entryResolvedBy": "E:/desktop/MATLAB/matlab/validation/phase56/p56_coder_scripttop.m",
+   "channelIdentity": "no-mcp-frame",
+   "topFrames": [
+    "E:/desktop/MATLAB/matlab/validation/phase56/p56_coder_scripttop.m:42 in p56_coder_scripttop"
+   ],
+   "source": "scripttop_batch.json",
+   "superseded": false
+  },
+  {
+   "tag": "E",
+   "channel": "mcp-run_matlab_file",
+   "form": "scriptlocal-top-level",
+   "ok": false,
+   "errorIdentifier": "emlc:compilationError",
+   "errorMessage": "",
+   "artifacts": null,
+   "elapsedSeconds": 5.49,
+   "release": "26.1.0.3276743 (R2026a) Update 3",
+   "entryResolvedBy": "E:/desktop/MATLAB/matlab/validation/phase56/p56_coder_scripttop.m",
+   "channelIdentity": "mcp-helper-frame-present",
+   "topFrames": [
+    "E:/desktop/MATLAB/matlab/validation/phase56/p56_coder_scripttop.m:42 in p56_coder_scripttop",
+    "D:/Temp/Editor_tfqyu/LiveEditorEvaluationHelperEmatlab_mcp_server.m:1 in LiveEditorEvaluationHelperEmatlab_mcp_server",
+    "D:/Temp/matlab-mcp-server-2594176706/matlab-session-1084747922-2657702379/+matlab_mcp/mcpEval.m:48 in mcpEval"
+   ],
+   "source": "scripttop_mcpfile.json",
+   "superseded": false
+  },
+  {
+   "tag": "E",
+   "channel": "batch-process (P56_LAUNCHER not set)",
+   "form": "scriptlocal-top-level",
+   "ok": false,
+   "errorIdentifier": "emlc:compilationError",
+   "errorMessage": "",
+   "artifacts": null,
+   "elapsedSeconds": 7.35,
+   "release": "26.1.0.3276743 (R2026a) Update 3",
+   "entryResolvedBy": "E:/desktop/MATLAB/matlab/validation/phase56/p56_coder_scripttop.m",
+   "channelIdentity": "no-mcp-frame",
+   "topFrames": [
+    "E:/desktop/MATLAB/matlab/validation/phase56/p56_coder_scripttop.m:42 in p56_coder_scripttop"
+   ],
+   "source": "scripttop_unlabelled.json",
+   "superseded": false
+  },
+  {
+   "tag": "O",
+   "channel": "mcp-dynamic-eval",
+   "form": "anon-handle-args",
+   "ok": false,
+   "errorIdentifier": "emlc:compilationError",
+   "errorMessage": "",
+   "artifacts": null,
+   "elapsedSeconds": null,
+   "release": null,
+   "entryResolvedBy": null,
+   "channelIdentity": "mcp-helper-frame-present",
+   "topFrames": [
+    "E:/matlab/toolbox/coder/matlabcoder/codegen.p:0 in codegen",
+    "E:/desktop/MATLAB/matlab/validation/phase56/p56_coder_syntax_probe.m:53 in p56_coder_syntax_probe",
+    "D:/Temp/Editor_tfqyu/LiveEditorEvaluationHelperEmatlab_mcp_server.m:1 in LiveEditorEvaluationHelperEmatlab_mcp_server"
+   ],
+   "source": "syntax_mcpdynamiceval_20261022_214930.json",
+   "superseded": false
+  },
+  {
+   "tag": "Q",
+   "channel": "mcp-dynamic-eval",
+   "form": "anon-handle-naive",
+   "ok": false,
+   "errorIdentifier": "emlc:compilationError",
+   "errorMessage": "",
+   "artifacts": null,
+   "elapsedSeconds": null,
+   "release": null,
+   "entryResolvedBy": null,
+   "channelIdentity": "mcp-helper-frame-present",
+   "topFrames": [
+    "E:/matlab/toolbox/coder/matlabcoder/codegen.p:0 in codegen",
+    "E:/desktop/MATLAB/matlab/validation/phase56/p56_coder_syntax_probe.m:56 in p56_coder_syntax_probe",
+    "D:/Temp/Editor_tfqyu/LiveEditorEvaluationHelperEmatlab_mcp_server.m:1 in LiveEditorEvaluationHelperEmatlab_mcp_server"
+   ],
+   "source": "syntax_mcpdynamiceval_20261022_214930.json",
+   "superseded": false
+  },
+  {
+   "tag": "P",
+   "channel": "mcp-dynamic-eval",
+   "form": "file-handle",
+   "ok": false,
+   "errorIdentifier": "emlc:compilationError",
+   "errorMessage": "",
+   "artifacts": null,
+   "elapsedSeconds": null,
+   "release": null,
+   "entryResolvedBy": null,
+   "channelIdentity": "mcp-helper-frame-present",
+   "topFrames": [
+    "E:/matlab/toolbox/coder/matlabcoder/codegen.p:0 in codegen",
+    "E:/desktop/MATLAB/matlab/validation/phase56/p56_coder_syntax_probe.m:58 in p56_coder_syntax_probe",
+    "D:/Temp/Editor_tfqyu/LiveEditorEvaluationHelperEmatlab_mcp_server.m:1 in LiveEditorEvaluationHelperEmatlab_mcp_server"
+   ],
+   "source": "syntax_mcpdynamiceval_20261022_214930.json",
+   "superseded": false
+  },
+  {
+   "tag": "O",
+   "channel": "plain-caller",
+   "form": "anon-handle-args",
+   "ok": false,
+   "errorIdentifier": "emlc:compilationError",
+   "errorMessage": "",
+   "artifacts": null,
+   "elapsedSeconds": null,
+   "release": null,
+   "entryResolvedBy": null,
+   "channelIdentity": "no-mcp-frame",
+   "topFrames": [
+    "E:/matlab/toolbox/coder/matlabcoder/codegen.p:0 in codegen",
+    "E:/desktop/MATLAB/matlab/validation/phase56/p56_coder_syntax_probe.m:53 in p56_coder_syntax_probe"
+   ],
+   "source": "syntax_plaincaller_20261022_214900.json",
+   "superseded": false
+  },
+  {
+   "tag": "Q",
+   "channel": "plain-caller",
+   "form": "anon-handle-naive",
+   "ok": false,
+   "errorIdentifier": "emlc:compilationError",
+   "errorMessage": "",
+   "artifacts": null,
+   "elapsedSeconds": null,
+   "release": null,
+   "entryResolvedBy": null,
+   "channelIdentity": "no-mcp-frame",
+   "topFrames": [
+    "E:/matlab/toolbox/coder/matlabcoder/codegen.p:0 in codegen",
+    "E:/desktop/MATLAB/matlab/validation/phase56/p56_coder_syntax_probe.m:56 in p56_coder_syntax_probe"
+   ],
+   "source": "syntax_plaincaller_20261022_214900.json",
+   "superseded": false
+  },
+  {
+   "tag": "P",
+   "channel": "plain-caller",
+   "form": "file-handle",
+   "ok": false,
+   "errorIdentifier": "emlc:compilationError",
+   "errorMessage": "",
+   "artifacts": null,
+   "elapsedSeconds": null,
+   "release": null,
+   "entryResolvedBy": null,
+   "channelIdentity": "no-mcp-frame",
+   "topFrames": [
+    "E:/matlab/toolbox/coder/matlabcoder/codegen.p:0 in codegen",
+    "E:/desktop/MATLAB/matlab/validation/phase56/p56_coder_syntax_probe.m:58 in p56_coder_syntax_probe"
+   ],
+   "source": "syntax_plaincaller_20261022_214900.json",
+   "superseded": false
+  },
+  {
+   "tag": "DIRECT",
+   "channel": "mcp-dynamic-eval",
+   "form": "file-name form typed in the payload",
+   "ok": true,
+   "errorIdentifier": "",
+   "source": "session log (manual control, no probe file)",
+   "channelIdentity": "mcp-helper-frame-present",
+   "call": "codegen('p56coder_entry','-args',{0.5}) written directly in the evaluate_matlab_code payload (no wrapper function)",
+   "meaning": "exonerates the MCP evaluation frame itself for the documented form",
+   "superseded": false
+  }
+ ],
+ "byChannelAndOutcome": {
+  "('batch-process', True)": [
+   "file"
+  ],
+  "('mcp-dynamic-eval', True)": [
+   "file",
+   "file-name form typed in the payload"
+  ],
+  "('mcp-run_matlab_file', True)": [
+   "file"
+  ],
+  "('plain-caller', False)": [
+   "scriptlocal",
+   "inline",
+   "anon-handle-args",
+   "anon-handle-naive",
+   "file-handle"
+  ],
+  "('plain-caller', True)": [
+   "file"
+  ],
+  "('mcp-dynamic-eval', False)": [
+   "inline",
+   "scriptlocal",
+   "anon-handle-args",
+   "anon-handle-naive",
+   "file-handle"
+  ],
+  "('batch-process', False)": [
+   "scriptlocal-top-level"
+  ],
+  "('mcp-run_matlab_file', False)": [
+   "scriptlocal-top-level"
+  ],
+  "('batch-process (P56_LAUNCHER not set)', False)": [
+   "scriptlocal-top-level"
+  ]
+ },
+ "entryFormByChannelMatrix": {
+  "file": {
+   "no-mcp-frame": true,
+   "mcp-helper-frame-present": true
+  },
+  "inline": {
+   "no-mcp-frame": false,
+   "mcp-helper-frame-present": false
+  },
+  "scriptlocal-top-level": {
+   "no-mcp-frame": false,
+   "mcp-helper-frame-present": false
+  },
+  "anon-handle-args": {
+   "mcp-helper-frame-present": false,
+   "no-mcp-frame": false
+  },
+  "anon-handle-naive": {
+   "mcp-helper-frame-present": false,
+   "no-mcp-frame": false
+  },
+  "file-handle": {
+   "mcp-helper-frame-present": false,
+   "no-mcp-frame": false
+  }
+ },
+ "supersededRows": {
+  "sources": [
+   "form_F.json",
+   "form_L.json",
+   "form_scriptlocal.json"
+  ],
+  "identifier": "MATLAB:err_static_workspace_violation",
+  "why": "the violation comes from the probe calling run() from inside a function, not from codegen; p56_coder_scripttop.m re-measures the same entry shape at true top level and reaches codegen in both channels"
+ },
+ "finding": [
+  "codegen succeeds in BOTH channels when the entry is given as a file name string: codegen('p56coder_entry','-args',{0.5}) built in a real process (tag A) and through mcpEval/LiveEditorEvaluationHelper (tags B and DIRECT).",
+  "codegen fails in BOTH channels with the same identifier and the same empty message, emlc:compilationError, whenever the entry is passed as a function handle -- anonymous (I/K), anonymous with the cell form (O/Q), or a handle to a function that is a resolvable file on the path (P). The console line that precedes it is '无法处理选项' (cannot process options).",
+  "the handle-to-a-script-local-function case, re-measured at TRUE top level (p56_coder_scripttop.m, the exact shape Phase 5.5 used), fails the same way in a real batch process and inside the MCP frame: emlc:compilationError, empty message, 0 artifacts, in 7.75 s and 5.49 s. So the entry shape Phase 5.5 blamed the channel for is reproducible without any channel involvement.",
+  "the earlier script-local rows (F/L) never reached Coder: they failed with MATLAB:err_static_workspace_violation, which comes from the probe calling run() from inside a function. They are kept but marked superseded, not deleted.",
+  "run_matlab_file is not a separate execution channel on this host: its recorded call stack contains the same LiveEditorEvaluationHelper + matlab_mcp/mcpEval frames as evaluate_matlab_code, so 'file vs inline' is a difference of how the code is handed over, not of which process runs it. Tag D built 25 artifacts this way, the same as tag B."
+ ],
+ "correction": {
+  "whatPhase55Said": "artifacts/phase55/coder_session/coder_diagnosis.json and docs/PHASE5_5_AUTONOMY_AND_GAIN_ZH.md section 8 concluded that the discriminating variable is the MCP dynamic-evaluation channel, because a fresh MCP session failed where matlab -batch passed.",
+  "whatWasActuallyVaried": "that experiment changed the channel and the entry shape at the same time; its failing case addressed the entry as a handle inside the evaluation frame.",
+  "whatThisRoundShows": "with the entry form held fixed, all three ways of running code behave identically: file-name entry builds in batch, in evaluate_matlab_code and in run_matlab_file; handle entry fails in all three. The channel is therefore NOT the discriminating variable; the argument form given to codegen is.",
+  "phase55FilesTouched": "none -- the Phase 5.5 record is read-only and was not edited"
+ },
+ "notClaimed": [
+  "the reason codegen rejects the handle forms on this installation is not established. Whether this is unsupported syntax, a version behaviour, or something inside MATLAB Coder's option handling cannot be separated from outside, so no MathWorks internal root cause is asserted.",
+  "no official MCP server code was modified, no product was reinstalled, and the user's MATLAB path was not persisted: addpath/rmpath were paired inside each probe and no savepath or restoredefaultpath was run.",
+  "Simulink Coder, GPU Coder, coder.compileC and mexCinterface were not probed.",
+  "the batch and MCP-file rows are single runs each; no timing claim is made from them, only the pass/fail and identifier."
+ ],
+ "ruleGoingForward": [
+  "codegen assertions run in a real process AND use the file-name entry form; an MCP-reported codegen PASS is treated as unverified until reproduced there",
+  "skills must not call codegen with a function handle entry, because on this installation that path yields an empty-message emlc:compilationError with no diagnostic to act on",
+  "a harness that wants to compare channels must hold the entry form fixed; changing channel and shape together produced the wrong conclusion in Phase 5.5"
+ ]
+}

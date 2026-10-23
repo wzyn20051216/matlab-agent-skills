@@ -1,0 +1,12 @@
+{
+  "verdict": "PASS",
+  "fields": {
+    "verdict": "PASS",
+    "errorMaxAbs": 3.6101467371096874E-9,
+    "errorMaxScaled": 3.6915732990499853E-9,
+    "errorSolverMaxScaled": 4.359443556009535,
+    "errorDenominatorRule": "max over components and t on a 200001-point dense deval grid of [0,2*pi]. errorMaxAbs = max|y_i(t)-y_ref_i(t)|. errorMaxScaled = max_t ||y(t)-y_ref(t)||_2 / ||y_ref(t)||_2 (denominator = analytic solution magnitude, identically 1 here); per-component relative error |e_i|/|y_ref_i| is deliberately NOT used because it diverges at the zero crossings (reaches 1.9e6). errorSolverMaxScaled = max_i,t |e_i(t)| / (AbsTol + RelTol*|y_ref_i(t)|) with AbsTol=1e-10 and RelTol=1e-8, i.e. the solver's own error-control envelope; the analytic magnitude substitutes for the computed magnitude (difference <4e-9).",
+    "invariantMaxRelDrift": 6.719923950626594E-9,
+    "stiffnessClassified": "non-stiff"
+  }
+}

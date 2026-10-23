@@ -1,7 +1,7 @@
 {
  "version": "2.0",
- "phase": "5.5 (partial; real three-arm agent benchmark started, R3 holdout complete at 12/12 executed, client-native Skill auto-triggering still unproven, 2026-10-22)",
- "date": "2026-10-22",
+ "phase": "5.6 (three-arm same-alias comparison run under a two-phase seal, 9 of 27 planned episodes executed and the shortfall declared; native Skill triggering still NOT EVIDENCED and strong isolation BLOCKED, 2026-10-23)",
+ "date": "2026-10-23",
  "legend": {
   "VERIFIED": "exercised by a run in this repository, with an independent reference or a test that can fail",
   "PARTIAL": "some sub-capability exercised, others not",
@@ -179,7 +179,7 @@
    },
    "ber_counting_statistics": {
     "status": "VERIFIED",
-    "evidence": "test_signal_contract.m; z-test vs counting noise, Wilson interval, Poisson zero-error upper bound, Eb/Es convention trap (3.01 dB at k=2), resolution gate returns UNDETERMINED"
+    "evidence": "test_signal_contract.m; test_stat_decision.m 19/19 -- z-test vs counting noise, Wilson interval, exact rule-of-three zero-count bound, Eb/Es convention trap (3.01 dB at k=2), and the five-state evidence flow: insufficient sample and a straddling interval return UNDETERMINED, never FAIL"
    },
    "vision_segmentation_contract": {
     "status": "VERIFIED",
@@ -245,7 +245,7 @@
    },
    "ode_solution_verification": {
     "status": "VERIFIED",
-    "evidence": "test_ode_contract.m 56/56; five separate levels (solverExit/converged/errorTol/physicalInvariant/conclusion); an ode45 exit with no acceptance criterion is UNDETERMINED; coarse-step Euler rel err 0.538 FAILS; loose RelTol 1e-3 FAILS at errorTol while exit and convergence pass; stiffness ratio ~1000 from the Jacobian, oscillator not stiff; a false analytic reference is UNDETERMINED"
+    "evidence": "test_ode_contract.m 56/56 + test_ode_field_contract.m 14/14; five separate levels (solverExit/converged/errorTol/physicalInvariant/conclusion); an ode45 exit with no acceptance criterion is UNDETERMINED; coarse-step Euler rel err 0.538 FAILS; loose RelTol 1e-3 FAILS at errorTol while exit and convergence pass; stiffness ratio ~1000 from the Jacobian, oscillator not stiff; a false analytic reference is UNDETERMINED; mas-ode-report/2 separates maxAbs / maxScaled / maxSolverScaled / maxRel and states each numerator, denominator, unit and aggregation so a scaled error cannot be quoted against the wrong convention"
    }
   },
   "matlab-codegen-deploy": {
@@ -400,6 +400,67 @@
    "gainClaim": "UNKNOWN. No Skills-gain or Skills-loss percentage is constructed in either direction.",
    "blocked": "R1 and R2 for the other 11 tasks were never staged or run, so everything beyond the H-SIG-F cell is BLOCKED, not negative.",
    "coderDiagnosis": "artifacts/phase55/coder_session/coder_diagnosis.json: the Phase 5.4 codegen failure is the MATLAB MCP evaluate channel, not session age -- a freshly restarted MCP session fails identically while matlab -batch passes."
+  },
+  "phase56ControlledComparison": {
+   "status": "EXECUTED WITH A DECLARED SHORTFALL",
+   "date": "2026-10-23",
+   "workspace": "E:/desktop/MATLAB-bench-phase56 -- arms/<arm>/<task> re-staged per pass; eval/ and the sealed answers live outside the arm roots",
+   "design": {
+    "tasks": "3 tasks frozen before the first formal episode (P56-SIG-B, P56-SIG-F, P56-ODE-N); tasks_frozen.json sha256 6b528da1c62f2cd4d171b859e7a713c8577b67fde3a591c82cd495a75e429d4b",
+    "arms": "R1 3 files, 0 .m, 0 SKILL.md | R2 23 files, 21 .md, 0 .m | R3 79 files, 54 mas_*.m. Frozen for the whole round; no arm was re-staged with different content between episodes.",
+    "promptPurity": "prompt.txt is byte-identical across arms for a task; no prompt names a mas_* tool, the word routing, or a skill; R1's ENVIRONMENT.md never says a skill or documentation exists (test_p56_stage 21/21)",
+    "repeats": "3 planned per cell, 1 executed: 9 of 27 episodes. The target was NOT met and is reported as a shortfall; no per-cell rate is extrapolated and no non-paired comparison is made.",
+    "model": "Every executed episode reports the client alias qfmodel. Alias equality is not vendor-model-name equality, so this is a same-alias comparison, not a proven same-model one."
+   },
+   "labelsKeptSeparate": {
+    "correctnessPass": "R1 0/3, R2 2/3, R3 3/3 -- sealed verdict AND every declared field, graded only after the seal",
+    "withinBudget": "3/3 in every arm -- tool calls <= 25",
+    "taskCompleted": "3/3 in every arm -- every report name the prompt asked for exists",
+    "deliveryValid": "3/3 in every arm -- result.json parses and carries the declared fields",
+    "graderPassCaveat": "benchmark_grade's own pass additionally requires routeOk and toolOk; the prompts are route-free by design and no arm was asked to name a skill or a tool, so grader pass is 0/3 in every arm. correctnessPass, not grader pass, is the accuracy label."
+   },
+   "pairedCells": {
+    "n": 3,
+    "ties": 0,
+    "R3_minus_R1": "+1/+1/+1",
+    "R3_minus_R2": "+1/0/0",
+    "R2_minus_R1": "0/+1/+1",
+    "perTask": "P56-ODE-N: R1 fail (stiffnessClassified), R2 fail (stiffnessClassified), R3 pass. P56-SIG-B: R1 fail (state), R2 pass, R3 pass. P56-SIG-F: R1 fail (state), R2 pass, R3 pass.",
+    "reading": "Documentation alone reproduces the R3 result on 2 of 3 cells; the executable tools add 1 cell over docs. All 3 cells favour R3 over R1. With one repeat per cell this is a consistent observation, not an effect size."
+   },
+   "cost": {
+    "toolCalls": "R1 29, R2 47, R3 47",
+    "matlabCalls": "R1 13, R2 21, R3 17",
+    "wallSeconds": "R1 524.7, R2 734.5, R3 530.7",
+    "errors": "R1 hit 1 tool error (a wrong MCP tool name) in an episode that still completed within budget and delivered, but whose correctnessPass is false because of the state field; R2 and R3 hit none. One event is not an error-recovery rate.",
+    "undeterminedDetection": "1 of 1 expected UNDETERMINED per arm, detected in every arm"
+   },
+   "seal": {
+    "method": "two-phase: publish the prompt bundle, commit the answer file by hash, run every episode, then seal. answers.json did not exist while any arm was running.",
+    "answersSha256": "5397be4bf001d65b5dae42d1f93665e075b023f4b5240714a909426df634fd2c",
+    "sealedAt": "2026-10-22 21:30:25, last episode finished 2026-10-22 13:22:43, 12 episode records sealed (9 formal + 3 exploratory)",
+    "tasksFrozenSha256": "6b528da1c62f2cd4d171b859e7a713c8577b67fde3a591c82cd495a75e429d4b",
+    "sealedEpisodesSha256": "3ce6964391565f9f5aae8b6adc87fa0876a78da60a0603f791bb9c0ffbe7bc8f",
+    "identityMatch": true,
+    "selfTest": "test_two_phase_seal 22/22, including promptEditRefused, commitmentEnforced, unfinishedEpisodeBlocks and bundleStillClean"
+   },
+   "isolation": {
+    "strongIsolation": "BLOCKED",
+    "probe": "artifacts/phase56/isolation/probe_report.json: 11 of 11 adversarial vectors REACHED their target (current and older sealed answers, a sibling arm's result, the user-level skill directory, a local matlab -batch). No boundary was found.",
+    "whatIsUsedInstead": "two-phase seal, absence-by-scanning (test_p56_stage proves the scan catches a planted answer key and does not flag the episode's own result.json), transcript leak scan, and p56_session_reset between episodes (test_p56_session_reset 14/14).",
+    "consequence": "Episodes on tasks whose answers exist on this host are EXPLORATORY under the Phase 5.6 rules. The pair counts above are reported as observations, not as a causal Skills effect."
+   },
+   "nativeTriggering": {
+    "L1": "NOT EVIDENCED -- no client-injected skills listing in any of the 12 audited episode contexts",
+    "L2": "EVIDENCED in R2 and R3 only -- SKILL.md / mas_*.m reads by Read: R1 0, R2 3, R3 4. File access, not a trigger.",
+    "L3": "NOT EVIDENCED -- 0 of 12 transcripts contain tool_use name=Skill",
+    "L4": "EVIDENCED in R3 only -- mas_ber_check and mas_ode_check appear in the MATLAB source actually sent to the session; 0 in the other arms",
+    "promptPurity": "0 episodes carry a skill name or a mas_ token in the prompt",
+    "claimLimit": "The client under test emitted no native Skill invocation event, so nothing here is upgraded to automatic triggering."
+   },
+   "coderChannel": "docs/PHASE5_6_CODER_CHANNEL_ZH.md and artifacts/phase56/coder_channel/coder_diagnosis.json supersede the phase55AgentBenchmark.coderDiagnosis line above: with the entry form held fixed both channels behave identically, so the channel is not the discriminating variable -- the argument form passed to codegen is (a file-name string builds; function-handle forms fail in every channel with an empty-message emlc:compilationError). The Phase 5.5 sentence is left untouched as the record of what that round concluded.",
+   "gainClaim": "UNDETERMINED. 3 paired cells, 1 repeat each, 0 ties, all favouring R3 over R1, with R2 matching R3 on 2 of 3. That is not enough to separate skills from noise, and the isolation probe above prevents calling it causal.",
+   "evidence": "artifacts/phase56/episodes/{statistics.json,trigger_evidence.json,episodes.json,episode_order.json}, artifacts/phase56/isolation/probe_report.json, artifacts/phase56/freeze/freeze_report.json, docs/PHASE5_6_BENCHMARK_ZH.md"
   }
  },
  "summary": {
@@ -412,7 +473,7 @@
    "VERIFIED": 53
   },
   "verified_capabilities": 56,
-  "note": "Counts are COMPUTED from the entries above, not typed in -- mas_capability_check.m fails if they drift. Keys carry no spaces because jsonencode strips them. R1/R2/R3 benchmark ran for real on 2026-10-20 (docs/PHASE4_3_VERIFICATION_ZH.md); the official MATLAB MCP server is reachable over stdio. PARTIAL on the benchmark entry is deliberate: the task scripts are fixed, so it does not yet measure an agent's own skill selection or recovery. Phase 4.5 changed no mas_* tool status, so those counts were unchanged; it added the autonomousExecution block and recorded R1/R2/R3 as UNKNOWN/BLOCKED instead of measured. Phase 5.3 added the four matlab-signal-vision-ai measurement tools verified by test_signal_contract.m 42/42, the seven matlab-data-analysis verification tools verified by test_data_contract.m 118/118, and the four robotics contract tools verified by test_robotics_contract.m 162/162 alongside test_robotics.m 31/31. The Phase 5.3 full regression was 644/644 skill tests over 22 suites, 15/15 references, 15/15 cross-domain tasks and 15/15 pipeline tasks with 0 errored suites; it also ran the isolated benchmark harness 11/11 and a tool-level held-out baseline 9/9. Phase 5.4 added mas_ode_check verified by test_ode_contract.m 56/56 and mas_seg_check/mas_detect_check/mas_image_contract verified by test_vision_contract.m 103/103; the isolated benchmark gained six tool-level ODE/vision tasks (2 normal, 2 boundary, 2 fault) graded 6/6 with 0 false accepts and 0 false rejects, and a real agent episode ran 3/3 normal holdout tasks through the MATLAB MCP with grading on the evaluation side. Tool-level results are not agent-level results, and 6/6 new-domain tasks are not a full-domain success rate. Phase 5.5 ran the first genuinely executed R1/R2/R3 comparison on an identical prompt and budget: all three arms passed the one task run in every arm, so no gain was measured. The R3 full-skill arm then executed all 12 holdout tasks with 10 graded passes, 0 false accepts, 0 false rejects and 4 of 5 UNDETERMINED expectations detected. Client-native Skill triggering appeared in 0 of 14 audited episodes, while workspace-level autonomous discovery of the matching skill happened in 9 of 12 R3 episodes and 9 of 12 executed a mas_* contract tool. An adversarial probe proved that grader isolation is not enforced by the client, so the benchmark stays procedural plus post-hoc transcript audited."
+  "note": "Counts are COMPUTED from the entries above, not typed in -- mas_capability_check.m fails if they drift. Keys carry no spaces because jsonencode strips them. R1/R2/R3 benchmark ran for real on 2026-10-20 (docs/PHASE4_3_VERIFICATION_ZH.md); the official MATLAB MCP server is reachable over stdio. PARTIAL on the benchmark entry is deliberate: the task scripts are fixed, so it does not yet measure an agent's own skill selection or recovery. Phase 4.5 changed no mas_* tool status, so those counts were unchanged; it added the autonomousExecution block and recorded R1/R2/R3 as UNKNOWN/BLOCKED instead of measured. Phase 5.3 added the four matlab-signal-vision-ai measurement tools verified by test_signal_contract.m 42/42, the seven matlab-data-analysis verification tools verified by test_data_contract.m 118/118, and the four robotics contract tools verified by test_robotics_contract.m 162/162 alongside test_robotics.m 31/31. The Phase 5.3 full regression was 644/644 skill tests over 22 suites, 15/15 references, 15/15 cross-domain tasks and 15/15 pipeline tasks with 0 errored suites; it also ran the isolated benchmark harness 11/11 and a tool-level held-out baseline 9/9. Phase 5.4 added mas_ode_check verified by test_ode_contract.m 56/56 and mas_seg_check/mas_detect_check/mas_image_contract verified by test_vision_contract.m 103/103; the isolated benchmark gained six tool-level ODE/vision tasks (2 normal, 2 boundary, 2 fault) graded 6/6 with 0 false accepts and 0 false rejects, and a real agent episode ran 3/3 normal holdout tasks through the MATLAB MCP with grading on the evaluation side. Tool-level results are not agent-level results, and 6/6 new-domain tasks are not a full-domain success rate. Phase 5.5 ran the first genuinely executed R1/R2/R3 comparison on an identical prompt and budget: all three arms passed the one task run in every arm, so no gain was measured. The R3 full-skill arm then executed all 12 holdout tasks with 10 graded passes, 0 false accepts, 0 false rejects and 4 of 5 UNDETERMINED expectations detected. Client-native Skill triggering appeared in 0 of 14 audited episodes, while workspace-level autonomous discovery of the matching skill happened in 9 of 12 R3 episodes and 9 of 12 executed a mas_* contract tool. An adversarial probe proved that grader isolation is not enforced by the client, so the benchmark stays procedural plus post-hoc transcript audited. Phase 5.6 sealed the answers only after every episode (two-phase publish/commit/seal, 22/22 self-test), ran 9 of 27 planned episodes of a frozen 3x3x1 design with four separately reported labels (correctnessPass R1 0/3, R2 2/3, R3 3/3; withinBudget, taskCompleted and deliveryValid 3/3 in every arm), and still found no native Skill invocation (0 of 12). Strong isolation stays BLOCKED (11 of 11 adversarial vectors reached), so the pair differences are reported as observations, not as a causal gain. Full gate 894/894 over 29 suites."
  },
  "tools": {
   "mas_codegen_ready": {
@@ -551,7 +612,7 @@
    "skill": "matlab-signal-vision-ai",
    "status": "VERIFIED",
    "tests": "test_signal_vision.m",
-   "what": "OFDM+QPSK chain vs erfc; per-point tolerance from counting noise"
+   "what": "OFDM+QPSK chain vs erfc; per-point counting-noise tolerance reported, verdict now comes from mas_stat_verdict so a zero-error point at high Eb/N0 is UNDETERMINED instead of FAIL"
   },
   "mas_spectrum_check": {
    "skill": "matlab-signal-vision-ai",
@@ -588,6 +649,12 @@
    "status": "VERIFIED",
    "tests": "test_signal_contract.m 42/42 (9 cases)",
    "what": "Eb/Es convention (3.01 dB trap), z-test vs theory, Wilson interval, Poisson zero-error bound, resolution gate -> UNDETERMINED"
+  },
+  "mas_stat_verdict": {
+   "skill": "matlab-signal-vision-ai",
+   "status": "VERIFIED",
+   "tests": "test_stat_decision.m 19/19",
+   "what": "five-state flow for counted/statistical claims (sufficient-support / sufficient-refutation / insufficient-sample / interval-straddles-target / criterion-missing); the state decides the verdict"
   },
   "mas_seg_check": {
    "skill": "matlab-signal-vision-ai",
@@ -730,8 +797,8 @@
   "mas_ode_check": {
    "skill": "matlab-data-analysis",
    "status": "VERIFIED",
-   "tests": "test_ode_contract.m 56/56",
-   "what": "five ODE levels graded separately (solverExit/converged/errorTol/physicalInvariant/conclusion); analytic reference cross-checked against tight ode15s; invariant evaluated row by row; stiffness from the Jacobian eigenvalue ratio; a clean solver exit alone can never PASS"
+   "tests": "test_ode_contract.m 56/56 + test_ode_field_contract.m 14/14",
+   "what": "five ODE levels graded separately (solverExit/converged/errorTol/physicalInvariant/conclusion); analytic reference cross-checked against tight ode15s; invariant evaluated row by row; stiffness from the Jacobian eigenvalue ratio; a clean solver exit alone can never PASS; mas-ode-report/2 gives each scaling of the error its own name (maxAbs / maxScaled / maxSolverScaled / maxRel) with numerator, denominator, unit and aggregation stated"
   }
  },
  "toolsNote": "Generated from the files under skills/*/scripts. mas_capability_check.m fails when this drifts from disk, because a matrix that silently rots is worse than no matrix."

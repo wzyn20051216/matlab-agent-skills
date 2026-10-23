@@ -131,7 +131,34 @@ PASS. `na` is only for "not asked for" -- it is never a silent pass, and
 | `mas_filter_check(b, a, spec)` | dual-route response, stability, worst-over-band stopband, ripple, linear-phase group delay |
 | `mas_sample_check(x, fs, opts)` | Nyquist margin + fold, peak vs claimed band, reconstruction vs truth |
 | `mas_ber_check(nErr, nBits, spec)` | Eb/Es convention, z-test vs theory, Wilson CI, Poisson zero-error bound, resolution |
+| `mas_stat_verdict(nErr, n, spec)` | the five evidence states of any counted claim; the state decides the verdict |
 | `mas_spectrum_check` (legacy) | leakage, concentration, window-weighted Parseval |
+
+### 9.1 The five states, and why two of them are not one
+
+`sufficient-support`, `sufficient-refutation`, `insufficient-sample`,
+`interval-straddles-target`, `criterion-missing`. The last three all print as
+UNDETERMINED but prescribe opposite actions, so collapsing them loses exactly
+the information a reader needs: `insufficient-sample` means *collect more
+trials*, `interval-straddles-target` means *the estimate sits at the threshold,
+so re-think the claim*, `criterion-missing` means *nobody stated what would
+count*. An agent handed one "inconclusive" bucket tends to pick whichever
+direction it wanted, which is the failure recorded in the Phase 5.5 H-SIG-B
+episode: it computed the right numbers (expected count 0.31, P(0 errors) = 0.74,
+exact 95 % upper bound 2.31e-2 = 9.7x the theoretical 2.39e-3, 41871 bits needed
+for ~100 expected errors) and then wrote FAIL, i.e. it read "cannot show" as
+"shows not".
+
+Two rules the flow enforces in both directions:
+
+- Zero counted events is a **bound**, not a rate: `p <= 1-(1-L)^(1/n)` exactly
+  (3/n at 95 %). If the stated target is above that bound the run certifies it
+  and says `sufficient-support`; saying UNDETERMINED there would discard the
+  only evidence a rare-event measurement can produce.
+- Zero counted events with **plenty** of expected events is a refutation
+  (0 errors in 1e6 bits at 6 dB Eb/N0 means the noise is smaller than labelled,
+  `z = -49`), so the power test must not be applied blindly: the same zero count
+  is inconclusive at n = 128 and damning at n = 1e6.
 
 ## 10. Independent cross-checks used in tests
 

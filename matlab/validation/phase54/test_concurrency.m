@@ -7,7 +7,8 @@ function R = test_concurrency(nRounds, nProcs, verbose)
 % This is a regression for the shared-fixture defect: both processes used to
 % write tests/fixtures_codegen and codegen into one cwd, so one run's cleanup
 % deleted the other's files (observed 10/12 and 11/12). Each run must now use
-% its own fixture and working directory, report 12/12, and leave no residue.
+% its own fixture and working directory, report every case it owns, and leave no
+% residue.
 %
 % The driver starts each process through a generated .bat so quoting is stable
 % on Windows, gives each a random 0-4 s head start, and waits for completion.
@@ -28,7 +29,8 @@ runRoot = fullfile(repo, 'artifacts', 'phase54', 'concurrency_runs', stamp);
 logRoot = fullfile(repo, 'artifacts', 'phase54', 'evidence', 'concurrency_regression', stamp);
 mkdir(runRoot);
 mkdir(logRoot);
-
+rootAtStart = mexInRepo(repo);
+tempAtStart = codegenTempDirs();
 rounds = struct('round', {}, 'logs', {}, 'pass', {}, 'total', {}, 'ok', {});
 for r = 1:nRounds
     order = randperm(nProcs);
@@ -78,7 +80,12 @@ for r = 1:nRounds
             end
         end
     end
-    ok = all(pass == 12 & total == 12);
+    % What is under test is that two processes running at the same time each
+    % report a COMPLETE, untruncated suite -- not the number 12. The case count
+    % moves (Phase 5.6 added the empty-message codegen error case, 12 -> 13), and
+    % a hard-coded 12 would make this regression fail on a green suite. A lower
+    % bound still catches a run that died part way through.
+    ok = all(pass == total) && all(total >= 12) && all(pass > 0);
     rounds(end+1) = struct('round', r, 'logs', {logs}, 'pass', pass, ...
         'total', total, 'ok', ok); %#ok<AGROW>
     if verbose
@@ -89,23 +96,48 @@ end
 residue = struct();
 sharedDir = fullfile(tests, 'fixtures_codegen');
 residue.sharedFixtureDir = isfolder(sharedDir);
-residue.cwdMex = ~isempty(dir(fullfile(repo, '*.mexw64')));
-cgRoot = fullfile(tempdir, 'mas_codegen_tests');
-if isfolder(cgRoot)
-    listing = dir(cgRoot);
-    residue.tempRunDirs = sum([listing.isdir]) - 2;
-else
-    residue.tempRunDirs = 0;
-end
+% A .mexw64 sitting in the repo root is not automatically this run's doing: the
+% suite ran here earlier in the day with the repository as its cwd. Flagging a
+% file that predates the run would make a clean run look dirty, so only NEW
+% repo-root output is residue; whatever was already there is listed instead.
+residue.cwdMexBefore = rootAtStart;
+residue.cwdMex = any(~ismember(mexInRepo(repo), rootAtStart));
+residue.preExistingMex = rootAtStart;
+% Same attribution rule for the build root: a directory left behind by a run
+% that was killed (a suspended session, a Ctrl-C) is not this run's leak. Only a
+% directory that appeared while this run was going counts as residue; whatever
+% was already there is named in the record instead.
+tempNow = codegenTempDirs();
+residue.tempRunDirsBefore = tempAtStart;
+residue.tempRunDirs = numel(setdiff(tempNow, tempAtStart));
+residue.tempRunDirsNow = numel(tempNow);
 R = struct('ok', all([rounds.ok]) && ~residue.sharedFixtureDir && ...
     ~residue.cwdMex && residue.tempRunDirs == 0, 'rounds', rounds, ...
     'residue', residue, 'nRounds', nRounds, 'nProcs', nProcs, ...
     'runRoot', runRoot, 'logRoot', logRoot);
-fprintf('test_concurrency: %d/%d rounds clean; residue shared=%d mex=%d tempDirs=%d\n', ...
+fprintf('test_concurrency: %d/%d rounds clean; residue shared=%d newMex=%d newTempDirs=%d (pre-existing: %d mex, %d temp)\n', ...
     sum([rounds.ok]), nRounds, residue.sharedFixtureDir, residue.cwdMex, ...
-    residue.tempRunDirs);
+    residue.tempRunDirs, numel(rootAtStart), numel(tempAtStart));
 end
 
 function p = fwd(p)
 p = strrep(p, '\', '/');
+end
+
+function names = codegenTempDirs()
+root = fullfile(tempdir, 'mas_codegen_tests');
+names = {};
+if ~isfolder(root), return; end
+d = dir(root);
+for k = 1:numel(d)
+    if d(k).isdir && ~any(strcmp(d(k).name, {'.', '..'}))
+        names{end+1} = d(k).name; %#ok<AGROW>
+    end
+end
+names = sort(names);
+end
+
+function m = mexInRepo(r)
+d = dir(fullfile(r, '*.mexw64'));
+m = cellfun(@(s) fullfile(d(s).folder, d(s).name), num2cell(1:numel(d)), 'UniformOutput', false);
 end

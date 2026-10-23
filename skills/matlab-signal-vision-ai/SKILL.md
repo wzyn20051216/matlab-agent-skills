@@ -35,8 +35,30 @@ f.verdict  f.achieved.stopbandDb  f.achieved.groupDelaySamples  f.achieved.maxPo
 s = mas_sample_check(x, fs, struct('fMax',200,'truth',struct('f',@(t) sin(2*pi*150*t))));
 s.verdict  s.measured.fPeak  s.measured.aliasFoldHz  s.measured.reconRelErr
 g = mas_ber_check(588, 262144, struct('scheme','QPSK','ebn0dB',6));
-g.verdict  g.z  g.berMeasured  g.berTheory  g.ci
+g.verdict  g.z  g.berMeasured  g.berTheory  g.ci  g.state
 ```
+
+## Insufficient evidence is not a refutation
+
+Any counted claim (BER, failure rate, error fraction) goes through
+`mas_stat_verdict(nErr, n, spec)`, which names one of five states and lets the
+state decide the verdict -- never the reverse:
+
+| state | verdict | when |
+|---|---|---|
+| `sufficient-support` | PASS | the interval excludes worse-than-claimed |
+| `sufficient-refutation` | FAIL | the interval excludes the claim |
+| `insufficient-sample` | UNDETERMINED | too few expected events to see the rate under test |
+| `interval-straddles-target` | UNDETERMINED | powered, and the threshold sits inside the interval |
+| `criterion-missing` | UNDETERMINED | nothing was claimed |
+
+0 errors in 128 bits against a theoretical 2.4e-3 is the case that gets judged
+wrong most often: the expected count is 0.31, so the run neither certifies nor
+refutes anything, and it must not be reported as a refutation. The same zero
+count against a target of 3e-2 does certify it (exact bound
+`1-(1-L)^(1/n)` = 2.31e-2), so downgrading that to inconclusive throws away the
+only evidence a rare-event test produces. State the claim as
+`struct('target', 3e-2)` or `struct('theory', 2.4e-3)` and let the tool decide.
 
 Every tool returns `verdict` (PASS | FAIL | UNDETERMINED) and per-check status
 (`pass | fail | na | undetermined`). `na` = the contract does not apply; it does

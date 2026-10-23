@@ -1,0 +1,18 @@
+P56-ODE-N    R1        3     1     0     1           0
+P56-ODE-N    R2       23     1     0    21           0
+P56-ODE-N    R3       79     1    54    21          54
+P56-SIG-F    R1        3     1     0     1           0
+P56-SIG-F    R2       23     1     0    21           0
+P56-SIG-F    R3       79     1    54    21          54
+stage manifest: E:\desktop\MATLAB-bench-phase56\stage_manifest.json
+scanned 315 staged arm files + the published bundle for expectation shapes
+  expectation scan: clean (no readable Phase 5.6 answer)
+  E:/desktop/MATLAB: 1 seal artifact(s)
+  E:\desktop\MATLAB-bench-holdout-phase53: 1 seal artifact(s)
+  E:\desktop\MATLAB-bench-holdout-phase54: 1 seal artifact(s)
+seal artifacts under the phase56 root: 0 | in other (historical) roots: 3
+generator hash matches commitment: 1 | Phase 5.6 answers absent: 1
+report: E:\desktop\MATLAB-bench-phase56\absence_report.json
+{无法识别的字段名称 "nScanned"。
+} 
+ERROR: MATLAB error Exit Status: 0x00000001

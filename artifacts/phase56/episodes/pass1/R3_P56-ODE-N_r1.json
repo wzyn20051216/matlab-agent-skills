@@ -1,0 +1,1 @@
+{"verdict":"PASS","fields":{"verdict":"PASS","errorMaxAbs":3.359961975313297E-9,"errorMaxScaled":3.359961975313297E-9,"errorSolverMaxScaled":4.359443556009535,"errorDenominatorRule":"max(1, max|y_reference|): global solution magnitude, floored at 1","invariantMaxRelDrift":6.719923950626594E-9,"stiffnessClassified":"nonstiff"}}

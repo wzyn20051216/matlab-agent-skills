@@ -1,0 +1,557 @@
+{
+ "schema": "mas-phase56-episodes/1",
+ "note": "finishedAt is UTC taken from the persisted transcript, not self-reported; correctnessPass is filled only by the grader after the seal",
+ "episodes": [
+  {
+   "task": "P56-SIG-B",
+   "arm": "R1",
+   "repeat": 0,
+   "pass": "exploratory-probe",
+   "startedAt": "2026-10-22T12:21:34.164Z",
+   "finishedAt": "2026-10-22 12:23:20",
+   "model": "qfmodel",
+   "modelObservedAs": "client businessModelKey alias only; the vendor model name is not exposed",
+   "toolCalls": 8,
+   "matlabCalls": 3,
+   "matlabErrors": 0,
+   "erroredToolCalls": [],
+   "budget": {
+    "maxToolCalls": 25,
+    "withinBudget": true
+   },
+   "wallSeconds": 105.9,
+   "resultFile": "E:\\desktop\\MATLAB\\artifacts\\phase56\\episodes\\exploratory\\R1_P56-SIG-B_result.json",
+   "transcript": "agent-ageneral-purpose-02ca3769e42b666b.jsonl",
+   "requiredFields": [
+    "verdict",
+    "state",
+    "ciWilsonUpper95",
+    "theoryExpectedEvents",
+    "nBits"
+   ],
+   "missingFields": [],
+   "taskCompleted": true,
+   "deliveryValid": true,
+   "correctnessPass": null,
+   "nativeSkillInvocation": false,
+   "leak": {
+    "answerLeak": [],
+    "crossArmRead": [],
+    "armBlindnessBroken": false,
+    "graderPathRead": [],
+    "structureObservation": [
+     "E:/desktop/MATLAB-bench-phase56/",
+     "E:/desktop/MATLAB-bench-phase56/\\",
+     "E:/desktop/MATLAB-bench-phase56/arms/R1/\\"
+    ],
+    "masSymbolsInMatlabCode": [],
+    "addpathUsed": []
+   },
+   "invalidForComparison": false
+  },
+  {
+   "task": "P56-SIG-B",
+   "arm": "R2",
+   "repeat": 0,
+   "pass": "exploratory-probe",
+   "startedAt": "2026-10-22T12:23:45.568Z",
+   "finishedAt": "2026-10-22 12:25:40",
+   "model": "qfmodel",
+   "modelObservedAs": "client businessModelKey alias only; the vendor model name is not exposed",
+   "toolCalls": 12,
+   "matlabCalls": 4,
+   "matlabErrors": 0,
+   "erroredToolCalls": [],
+   "budget": {
+    "maxToolCalls": 25,
+    "withinBudget": true
+   },
+   "wallSeconds": 114.5,
+   "resultFile": "E:\\desktop\\MATLAB\\artifacts\\phase56\\episodes\\exploratory\\R2_P56-SIG-B_result.json",
+   "transcript": "agent-ageneral-purpose-c73f1ba034776f31.jsonl",
+   "requiredFields": [
+    "verdict",
+    "state",
+    "ciWilsonUpper95",
+    "theoryExpectedEvents",
+    "nBits"
+   ],
+   "missingFields": [],
+   "taskCompleted": true,
+   "deliveryValid": true,
+   "correctnessPass": null,
+   "nativeSkillInvocation": false,
+   "leak": {
+    "answerLeak": [],
+    "crossArmRead": [],
+    "armBlindnessBroken": false,
+    "graderPathRead": [],
+    "structureObservation": [],
+    "masSymbolsInMatlabCode": [],
+    "addpathUsed": []
+   },
+   "invalidForComparison": false
+  },
+  {
+   "task": "P56-SIG-B",
+   "arm": "R3",
+   "repeat": 0,
+   "pass": "exploratory-probe",
+   "startedAt": "2026-10-22T12:25:49.009Z",
+   "finishedAt": "2026-10-22 12:28:05",
+   "model": "qfmodel",
+   "modelObservedAs": "client businessModelKey alias only; the vendor model name is not exposed",
+   "toolCalls": 13,
+   "matlabCalls": 3,
+   "matlabErrors": 0,
+   "erroredToolCalls": [],
+   "budget": {
+    "maxToolCalls": 25,
+    "withinBudget": true
+   },
+   "wallSeconds": 136.3,
+   "resultFile": "E:\\desktop\\MATLAB\\artifacts\\phase56\\episodes\\exploratory\\R3_P56-SIG-B_result.json",
+   "transcript": "agent-ageneral-purpose-5658730e6df2b769.jsonl",
+   "requiredFields": [
+    "verdict",
+    "state",
+    "ciWilsonUpper95",
+    "theoryExpectedEvents",
+    "nBits"
+   ],
+   "missingFields": [],
+   "taskCompleted": true,
+   "deliveryValid": true,
+   "correctnessPass": null,
+   "nativeSkillInvocation": false,
+   "leak": {
+    "answerLeak": [],
+    "crossArmRead": [],
+    "armBlindnessBroken": false,
+    "graderPathRead": [],
+    "structureObservation": [],
+    "masSymbolsInMatlabCode": [
+     "mas_ber_check"
+    ],
+    "addpathUsed": [
+     "toolName=mcp__matlab_official__evaluate_matlab_code"
+    ]
+   },
+   "invalidForComparison": false
+  },
+  {
+   "task": "P56-SIG-B",
+   "arm": "R2",
+   "repeat": 1,
+   "pass": "pass1",
+   "startedAt": "2026-10-22T12:50:53.665Z",
+   "finishedAt": "2026-10-22 12:55:01",
+   "model": "qfmodel",
+   "modelObservedAs": "client businessModelKey alias only; the vendor model name is not exposed",
+   "toolCalls": 15,
+   "matlabCalls": 6,
+   "matlabErrors": 0,
+   "erroredToolCalls": [],
+   "budget": {
+    "maxToolCalls": 25,
+    "withinBudget": true
+   },
+   "wallSeconds": 247.6,
+   "resultFile": "E:\\desktop\\MATLAB\\artifacts\\phase56\\episodes\\pass1\\R2_P56-SIG-B_r1.json",
+   "transcript": "agent-ageneral-purpose-71fd7e290897a622.jsonl",
+   "requiredFields": [
+    "verdict",
+    "state",
+    "ciWilsonUpper95",
+    "theoryExpectedEvents",
+    "nBits"
+   ],
+   "missingFields": [],
+   "taskCompleted": true,
+   "deliveryValid": true,
+   "correctnessPass": null,
+   "nativeSkillInvocation": false,
+   "leak": {
+    "answerLeak": [],
+    "crossArmRead": [],
+    "armBlindnessBroken": false,
+    "graderPathRead": [],
+    "structureObservation": [],
+    "masSymbolsInMatlabCode": [],
+    "addpathUsed": []
+   },
+   "invalidForComparison": false
+  },
+  {
+   "task": "P56-ODE-N",
+   "arm": "R1",
+   "repeat": 1,
+   "pass": "pass1",
+   "startedAt": "2026-10-22T12:55:20.777Z",
+   "finishedAt": "2026-10-22 12:59:31",
+   "model": "qfmodel",
+   "modelObservedAs": "client businessModelKey alias only; the vendor model name is not exposed",
+   "toolCalls": 11,
+   "matlabCalls": 5,
+   "matlabErrors": 0,
+   "erroredToolCalls": [],
+   "budget": {
+    "maxToolCalls": 25,
+    "withinBudget": true
+   },
+   "wallSeconds": 250.4,
+   "resultFile": "E:\\desktop\\MATLAB\\artifacts\\phase56\\episodes\\pass1\\R1_P56-ODE-N_r1.json",
+   "transcript": "agent-ageneral-purpose-9f9ec2d4c4c9d120.jsonl",
+   "requiredFields": [
+    "verdict",
+    "errorMaxAbs",
+    "errorMaxScaled",
+    "errorSolverMaxScaled",
+    "errorDenominatorRule",
+    "invariantMaxRelDrift",
+    "stiffnessClassified"
+   ],
+   "missingFields": [],
+   "taskCompleted": true,
+   "deliveryValid": true,
+   "correctnessPass": null,
+   "nativeSkillInvocation": false,
+   "leak": {
+    "answerLeak": [],
+    "crossArmRead": [],
+    "armBlindnessBroken": false,
+    "graderPathRead": [],
+    "structureObservation": [],
+    "masSymbolsInMatlabCode": [],
+    "addpathUsed": []
+   },
+   "invalidForComparison": false
+  },
+  {
+   "task": "P56-SIG-F",
+   "arm": "R3",
+   "repeat": 1,
+   "pass": "pass1",
+   "startedAt": "2026-10-22T12:59:45.568Z",
+   "finishedAt": "2026-10-22 13:03:14",
+   "model": "qfmodel",
+   "modelObservedAs": "client businessModelKey alias only; the vendor model name is not exposed",
+   "toolCalls": 14,
+   "matlabCalls": 5,
+   "matlabErrors": 0,
+   "erroredToolCalls": [],
+   "budget": {
+    "maxToolCalls": 25,
+    "withinBudget": true
+   },
+   "wallSeconds": 208.9,
+   "resultFile": "E:\\desktop\\MATLAB\\artifacts\\phase56\\episodes\\pass1\\R3_P56-SIG-F_r1.json",
+   "transcript": "agent-ageneral-purpose-ee2a51265ef6889e.jsonl",
+   "requiredFields": [
+    "verdict",
+    "state",
+    "z",
+    "theoryExpectedEvents",
+    "ciWilsonLower95",
+    "ciWilsonUpper95"
+   ],
+   "missingFields": [],
+   "taskCompleted": true,
+   "deliveryValid": true,
+   "correctnessPass": null,
+   "nativeSkillInvocation": false,
+   "leak": {
+    "answerLeak": [],
+    "crossArmRead": [],
+    "armBlindnessBroken": false,
+    "graderPathRead": [],
+    "structureObservation": [],
+    "masSymbolsInMatlabCode": [
+     "mas_ber_check"
+    ],
+    "addpathUsed": [
+     "toolName=mcp__matlab_official__evaluate_matlab_code"
+    ]
+   },
+   "invalidForComparison": false
+  },
+  {
+   "task": "P56-ODE-N",
+   "arm": "R3",
+   "repeat": 1,
+   "pass": "pass1",
+   "startedAt": "2026-10-22T13:03:31.165Z",
+   "finishedAt": "2026-10-22 13:06:13",
+   "model": "qfmodel",
+   "modelObservedAs": "client businessModelKey alias only; the vendor model name is not exposed",
+   "toolCalls": 15,
+   "matlabCalls": 7,
+   "matlabErrors": 0,
+   "erroredToolCalls": [],
+   "budget": {
+    "maxToolCalls": 25,
+    "withinBudget": true
+   },
+   "wallSeconds": 162.8,
+   "resultFile": "E:\\desktop\\MATLAB\\artifacts\\phase56\\episodes\\pass1\\R3_P56-ODE-N_r1.json",
+   "transcript": "agent-ageneral-purpose-0dd33d44270bc5e2.jsonl",
+   "requiredFields": [
+    "verdict",
+    "errorMaxAbs",
+    "errorMaxScaled",
+    "errorSolverMaxScaled",
+    "errorDenominatorRule",
+    "invariantMaxRelDrift",
+    "stiffnessClassified"
+   ],
+   "missingFields": [],
+   "taskCompleted": true,
+   "deliveryValid": true,
+   "correctnessPass": null,
+   "nativeSkillInvocation": false,
+   "leak": {
+    "answerLeak": [],
+    "crossArmRead": [],
+    "armBlindnessBroken": false,
+    "graderPathRead": [],
+    "structureObservation": [],
+    "masSymbolsInMatlabCode": [
+     "mas_ode_check"
+    ],
+    "addpathUsed": [
+     "toolName=mcp__matlab_official__evaluate_matlab_code",
+     "toolName=mcp__matlab_official__evaluate_matlab_code",
+     "toolName=mcp__matlab_official__evaluate_matlab_code",
+     "toolName=mcp__matlab_official__evaluate_matlab_code"
+    ]
+   },
+   "invalidForComparison": false
+  },
+  {
+   "task": "P56-SIG-B",
+   "arm": "R1",
+   "repeat": 1,
+   "pass": "pass1",
+   "startedAt": "2026-10-22T13:06:28.420Z",
+   "finishedAt": "2026-10-22 13:08:11",
+   "model": "qfmodel",
+   "modelObservedAs": "client businessModelKey alias only; the vendor model name is not exposed",
+   "toolCalls": 8,
+   "matlabCalls": 3,
+   "matlabErrors": 0,
+   "erroredToolCalls": [],
+   "budget": {
+    "maxToolCalls": 25,
+    "withinBudget": true
+   },
+   "wallSeconds": 103.4,
+   "resultFile": "E:\\desktop\\MATLAB\\artifacts\\phase56\\episodes\\pass1\\R1_P56-SIG-B_r1.json",
+   "transcript": "agent-ageneral-purpose-e51bafaa6da71954.jsonl",
+   "requiredFields": [
+    "verdict",
+    "state",
+    "ciWilsonUpper95",
+    "theoryExpectedEvents",
+    "nBits"
+   ],
+   "missingFields": [],
+   "taskCompleted": true,
+   "deliveryValid": true,
+   "correctnessPass": null,
+   "nativeSkillInvocation": false,
+   "leak": {
+    "answerLeak": [],
+    "crossArmRead": [],
+    "armBlindnessBroken": false,
+    "graderPathRead": [],
+    "structureObservation": [],
+    "masSymbolsInMatlabCode": [],
+    "addpathUsed": []
+   },
+   "invalidForComparison": false
+  },
+  {
+   "task": "P56-SIG-F",
+   "arm": "R1",
+   "repeat": 1,
+   "pass": "pass1",
+   "startedAt": "2026-10-22T13:08:24.944Z",
+   "finishedAt": "2026-10-22 13:11:15",
+   "model": "qfmodel",
+   "modelObservedAs": "client businessModelKey alias only; the vendor model name is not exposed",
+   "toolCalls": 10,
+   "matlabCalls": 5,
+   "matlabErrors": 1,
+   "erroredToolCalls": [
+    "mcp_call:mcp__matlab__evaluate_matlab_code"
+   ],
+   "budget": {
+    "maxToolCalls": 25,
+    "withinBudget": true
+   },
+   "wallSeconds": 170.9,
+   "resultFile": "E:\\desktop\\MATLAB\\artifacts\\phase56\\episodes\\pass1\\R1_P56-SIG-F_r1.json",
+   "transcript": "agent-ageneral-purpose-1195202f540e3ff6.jsonl",
+   "requiredFields": [
+    "verdict",
+    "state",
+    "z",
+    "theoryExpectedEvents",
+    "ciWilsonLower95",
+    "ciWilsonUpper95"
+   ],
+   "missingFields": [],
+   "taskCompleted": true,
+   "deliveryValid": true,
+   "correctnessPass": null,
+   "nativeSkillInvocation": false,
+   "leak": {
+    "answerLeak": [],
+    "crossArmRead": [],
+    "armBlindnessBroken": false,
+    "graderPathRead": [],
+    "structureObservation": [],
+    "masSymbolsInMatlabCode": [],
+    "addpathUsed": []
+   },
+   "invalidForComparison": false
+  },
+  {
+   "task": "P56-SIG-B",
+   "arm": "R3",
+   "repeat": 1,
+   "pass": "pass1",
+   "startedAt": "2026-10-22T13:11:28.874Z",
+   "finishedAt": "2026-10-22 13:14:07",
+   "model": "qfmodel",
+   "modelObservedAs": "client businessModelKey alias only; the vendor model name is not exposed",
+   "toolCalls": 18,
+   "matlabCalls": 5,
+   "matlabErrors": 0,
+   "erroredToolCalls": [],
+   "budget": {
+    "maxToolCalls": 25,
+    "withinBudget": true
+   },
+   "wallSeconds": 159.0,
+   "resultFile": "E:\\desktop\\MATLAB\\artifacts\\phase56\\episodes\\pass1\\R3_P56-SIG-B_r1.json",
+   "transcript": "agent-ageneral-purpose-aae801a0017232dd.jsonl",
+   "requiredFields": [
+    "verdict",
+    "state",
+    "ciWilsonUpper95",
+    "theoryExpectedEvents",
+    "nBits"
+   ],
+   "missingFields": [],
+   "taskCompleted": true,
+   "deliveryValid": true,
+   "correctnessPass": null,
+   "nativeSkillInvocation": false,
+   "leak": {
+    "answerLeak": [],
+    "crossArmRead": [],
+    "armBlindnessBroken": false,
+    "graderPathRead": [],
+    "structureObservation": [],
+    "masSymbolsInMatlabCode": [
+     "mas_ber_check"
+    ],
+    "addpathUsed": [
+     "toolName=mcp__matlab_official__evaluate_matlab_code",
+     "toolName=mcp__matlab_official__evaluate_matlab_code"
+    ]
+   },
+   "invalidForComparison": false
+  },
+  {
+   "task": "P56-SIG-F",
+   "arm": "R2",
+   "repeat": 1,
+   "pass": "pass1",
+   "startedAt": "2026-10-22T13:14:21.609Z",
+   "finishedAt": "2026-10-22 13:17:38",
+   "model": "qfmodel",
+   "modelObservedAs": "client businessModelKey alias only; the vendor model name is not exposed",
+   "toolCalls": 18,
+   "matlabCalls": 9,
+   "matlabErrors": 0,
+   "erroredToolCalls": [],
+   "budget": {
+    "maxToolCalls": 25,
+    "withinBudget": true
+   },
+   "wallSeconds": 196.9,
+   "resultFile": "E:\\desktop\\MATLAB\\artifacts\\phase56\\episodes\\pass1\\R2_P56-SIG-F_r1.json",
+   "transcript": "agent-ageneral-purpose-74ab6c3c1c3318b2.jsonl",
+   "requiredFields": [
+    "verdict",
+    "state",
+    "z",
+    "theoryExpectedEvents",
+    "ciWilsonLower95",
+    "ciWilsonUpper95"
+   ],
+   "missingFields": [],
+   "taskCompleted": true,
+   "deliveryValid": true,
+   "correctnessPass": null,
+   "nativeSkillInvocation": false,
+   "leak": {
+    "answerLeak": [],
+    "crossArmRead": [],
+    "armBlindnessBroken": false,
+    "graderPathRead": [],
+    "structureObservation": [],
+    "masSymbolsInMatlabCode": [],
+    "addpathUsed": []
+   },
+   "invalidForComparison": false
+  },
+  {
+   "task": "P56-ODE-N",
+   "arm": "R2",
+   "repeat": 1,
+   "pass": "pass1",
+   "startedAt": "2026-10-22T13:17:53.074Z",
+   "finishedAt": "2026-10-22 13:22:43",
+   "model": "qfmodel",
+   "modelObservedAs": "client businessModelKey alias only; the vendor model name is not exposed",
+   "toolCalls": 14,
+   "matlabCalls": 6,
+   "matlabErrors": 0,
+   "erroredToolCalls": [],
+   "budget": {
+    "maxToolCalls": 25,
+    "withinBudget": true
+   },
+   "wallSeconds": 290.0,
+   "resultFile": "E:\\desktop\\MATLAB\\artifacts\\phase56\\episodes\\pass1\\R2_P56-ODE-N_r1.json",
+   "transcript": "agent-ageneral-purpose-c2006bce02f6390c.jsonl",
+   "requiredFields": [
+    "verdict",
+    "errorMaxAbs",
+    "errorMaxScaled",
+    "errorSolverMaxScaled",
+    "errorDenominatorRule",
+    "invariantMaxRelDrift",
+    "stiffnessClassified"
+   ],
+   "missingFields": [],
+   "taskCompleted": true,
+   "deliveryValid": true,
+   "correctnessPass": null,
+   "nativeSkillInvocation": false,
+   "leak": {
+    "answerLeak": [],
+    "crossArmRead": [],
+    "armBlindnessBroken": false,
+    "graderPathRead": [],
+    "structureObservation": [],
+    "masSymbolsInMatlabCode": [],
+    "addpathUsed": []
+   },
+   "invalidForComparison": false
+  }
+ ]
+}

@@ -51,6 +51,12 @@ add('ready: full path resolves', @() ready_fullpath());
 add('verify: PASS on a real function', @() verify_pass());
 add('verify: FAIL via goldenFcn mismatch', @() verify_fail());
 add('verify: FAIL on bad codegen input', @() verify_badarg());
+% Passing a function HANDLE where codegen wants a file name makes Coder reject the
+% option list with emlc:compilationError and an EMPTY message, so a detail built as
+% ['FAIL at codegen: ' ME.message] degenerates to 'FAIL at codegen: ' -- a blank
+% diagnostic for the caller to act on. Same blank on both call channels.
+add('verify: empty-message codegen error still yields a usable detail', ...
+    @() verify_blank_error_detail());
 
 % ---- fixpt_range --------------------------------------------------------
 add('fixpt: SQNR matches theory within band', @() fixpt_sqnr());
@@ -165,10 +171,12 @@ function v = verify_pass()
 if exist('codegen', 'file') == 0
     r = mas_codegen_verify('codegen_target', {1:10});
     v = strcmp(r.verdict, 'SKIP');
+    say_why(v, r);
     return;
 end
 r = mas_codegen_verify('codegen_target', {1:10});
 v = strcmp(r.verdict, 'PASS') && strcmp(r.stage, 'compare');
+say_why(v, r);
 end
 
 function v = verify_fail()
@@ -180,6 +188,7 @@ if exist('codegen', 'file') == 0
 end
 r = mas_codegen_verify('codegen_target', {1:10}, struct('goldenFcn', 'codegen_target_wrong'));
 v = strcmp(r.verdict, 'FAIL') && strcmp(r.stage, 'compare');
+say_why(v, r);
 end
 
 function v = verify_badarg()
@@ -192,6 +201,31 @@ if exist('codegen', 'file') == 0
 end
 r = mas_codegen_verify('has_eval', {5});
 v = strcmp(r.verdict, 'FAIL');
+say_why(v, r);
+end
+
+function v = verify_blank_error_detail()
+% The entry is a function HANDLE, which is the shape that makes codegen throw
+% emlc:compilationError with an empty message. The verdict is not the point --
+% the point is that the caller still gets something actionable to read.
+if exist('codegen', 'file') == 0
+    v = true;
+    return;
+end
+r = mas_codegen_verify(@(x) x * 2 + sin(x), {0.5});
+if ~strcmp(r.verdict, 'FAIL') || ~strcmp(r.stage, 'codegen')
+    v = false;
+    say_why(v, r);
+    return;
+end
+d = strtrim(r.detail);
+tells = {'emlc', 'identifier', 'file name', 'function handle'};
+hit = any(cellfun(@(s) ~isempty(strfind(d, s)), tells));
+v = numel(d) > numel('FAIL at codegen:') + 20 && hit;
+if ~v
+    fprintf('       why: detail is %d chars and mentions none of emlc/identifier/file name/function handle\n', ...
+        numel(d));
+end
 end
 
 % ===========================================================================
@@ -260,4 +294,25 @@ end
 
 function s = tern(c, a, b)
 if c, s = a; else, s = b; end
+end
+
+function say_why(v, r)
+%SAY_WHY  Keep the cause of a failing case in the log.
+% A FAIL line that carries only the case name is not evidence: under load the two
+% build-dependent cases here failed (11/13) and the console could not say whether
+% it was the probe, the codegen call, the build or the comparison. The verdict,
+% the stage and the detail are what separate those, so print them on a failure.
+if v || ~isstruct(r), return; end
+fprintf('       why: verdict=%s stage=%s detail=%s\n', fld(r, 'verdict'), ...
+    fld(r, 'stage'), oneline(fld(r, 'detail')));
+end
+
+function s = fld(r, nm)
+if isfield(r, nm) && ~isempty(r.(nm)), s = strtrim(char(string(r.(nm))));
+else, s = '(absent)'; end
+end
+
+function s = oneline(s)
+s = strrep(strrep(s, newline, ' '), sprintf('\r'), ' ');
+if numel(s) > 200, s = [s(1:200) '...']; end
 end

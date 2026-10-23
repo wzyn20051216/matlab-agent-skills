@@ -3,7 +3,10 @@ function r = mas_ofdm_ber(ebn0dB, opts)
 %
 %   r = mas_ofdm_ber([0 2 4 6])
 %   r.berSim, r.berTheory, r.relErr, r.nBits
-%   r.ok, r.verdict, r.tol   -- PASS iff every |relErr| <= tol (default 0.15)
+%   r.ok, r.verdict, r.tol   -- verdict comes from mas_stat_verdict per point:
+%   PASS only where every point's count supports the closed form, FAIL where a
+%   powered point refutes it, UNDETERMINED where some point had no power to see
+%   it. r.states gives the per-point state.
 %
 % WHY AN OFDM TASK AND NOT "SIMULATE BPSK"
 % OFDM is where a plausible-looking chain usually breaks: the IFFT/FFT pair must be
@@ -95,16 +98,47 @@ r.nErrors = nErr;
 r.sigmaRel = sigmaRel;
 r.tolPerPoint = tolPt;
 
+% ---- verdict from the five-state evidence flow, not from a flat tolerance --
+% Each point is a binomial count graded against the closed form. The tolerance
+% above stays as a reported diagnostic, but it no longer decides anything,
+% because a two-state PASS/FAIL cannot express the case this ladder actually
+% hits: a short run at high Eb/N0 counts ZERO errors when theory predicts 0.06,
+% and that observation neither supports nor refutes the simulation -- it simply
+% has no power. Reporting it as FAIL was the defect.
+ev = cell(1, numel(ebn0));
+states = cell(1, numel(ebn0));
+for q = 1:numel(ebn0)
+    ev{q} = mas_stat_verdict(round(berSim(q)*nBit), nBit, struct( ...
+        'criterion', 'matches-theory', 'theory', max(berTh(q), realmin)));
+    states{q} = ev{q}.state;
+end
+if any(strcmp(states, 'sufficient-refutation'))
+    r.verdict = 'FAIL';
+    agg = states{find(strcmp(states, 'sufficient-refutation'), 1)};
+elseif any(~strcmp(states, 'sufficient-support'))
+    r.verdict = 'UNDETERMINED';
+    agg = states{find(~strcmp(states, 'sufficient-support'), 1)};
+else
+    r.verdict = 'PASS';
+    agg = 'sufficient-support';
+end
+r.states = states;
+r.state = agg;
+r.evidence = ev;
+r.nPointRefuted = nnz(strcmp(states, 'sufficient-refutation'));
+r.nPointUnpowered = nnz(strcmp(states, 'insufficient-sample') | ...
+    strcmp(states, 'interval-straddles-target'));
+
 % One-sided would be wrong here, so it is not one-sided: a BER well BELOW theory
 % means the noise variance is too small, which is the same defect as too much noise
 % and just as fatal. The pass mark is wide enough to absorb counting noise but far
 % narrower than the defect this check exists to catch -- applying the CP penalty at
 % the receiver shifts BER by ~30 %.
-r.ok = all(isfinite(relErr)) && all(abs(relErr) <= tolPt);
-r.verdict = tern(r.ok, 'PASS', 'FAIL');
-r.detail = sprintf('%d carriers, CP %d, %d bits: BER %s vs theory %s (rel %s, tol %s, %s)', ...
+r.ok = strcmp(r.verdict, 'PASS');
+r.detail = sprintf('%d carriers, CP %d, %d bits: BER %s vs theory %s (rel %s, tol %s, %d refuted / %d unpowered of %d points, %s)', ...
     opts.nSub, opts.cpLen, nBit, mat2str(berSim, 3), mat2str(berTh, 3), ...
-    mat2str(relErr, 2), mat2str(tolPt, 2), r.verdict);
+    mat2str(relErr, 2), mat2str(tolPt, 2), r.nPointRefuted, r.nPointUnpowered, ...
+    numel(ebn0), r.verdict);
 end
 
 % ---------------------------------------------------------------------------
@@ -113,7 +147,4 @@ f = fieldnames(d);
 for k = 1:numel(f)
     if ~isfield(o, f{k}), o.(f{k}) = d.(f{k}); end
 end
-end
-function s = tern(c, a, b)
-if c, s = a; else, s = b; end
 end

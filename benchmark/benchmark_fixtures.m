@@ -208,6 +208,50 @@ switch id
         spec = struct('fixture', id, 'yaw', th, 'translation', [1 2 3]);
         inputs = struct('T', T);
 
+    case 'p56_sig_boundary'
+        % Phase 5.6 causal-gain task. Zero errors over 26624 bits against a
+        % target of 1e-4: the 95% Wilson upper bound is 1.44e-4, so the run can
+        % neither certify nor refute the target. Tolerances and bit counts are
+        % deliberately unlike the frozen sig_boundary fixture -- this is a new
+        % task, not an old holdout re-labelled.
+        nErr = 0; nBits = 26624;
+        specIn = struct('scheme', 'QPSK', 'ebn0dB', 8.8, 'targetBer', 1e-4, 'level', 0.95);
+        args = {nErr, nBits, specIn};
+        spec = struct('fixture', id, 'nErr', nErr, 'nBits', nBits, 'scheme', 'QPSK', ...
+            'ebn0dB', 8.8, 'targetBer', 1e-4, 'level', 0.95);
+        inputs = struct('nErr', nErr, 'nBits', nBits, 'spec', specIn);
+
+    case 'p56_sig_fault'
+        % 550 errors in 1e6 bits where the textbook QPSK rate at 8.8 dB predicts
+        % 49: an 11x excess with both counts far above the power floor. The
+        % honest answer is a powered refutation, not a soft "not conclusive".
+        nErr = 550; nBits = 1000000;
+        specIn = struct('scheme', 'QPSK', 'ebn0dB', 8.8, 'level', 0.95);
+        args = {nErr, nBits, specIn};
+        spec = struct('fixture', id, 'nErr', nErr, 'nBits', nBits, 'scheme', 'QPSK', ...
+            'ebn0dB', 8.8, 'level', 0.95);
+        inputs = struct('nErr', nErr, 'nBits', nBits, 'spec', specIn);
+
+    case 'p56_ode_normal'
+        % Same oscillator family as ode_normal but with different tolerances and
+        % a different acceptance level, and the deliverable names the scaling
+        % convention: the graded field must be the magnitude-scaled error, not
+        % the solver-tolerance-scaled one (the Phase 5.5 H54-ODE-N defect).
+        f = @(t,y) [y(2); -y(1)];
+        ref = @(t) [cos(t); -sin(t)];
+        invf = @(t,y) y(1)^2 + y(2)^2;
+        claims = struct('relTol', 1e-8, 'absTol', 1e-10, ...
+            'reference', ref, 'refTolRel', 1e-6, ...
+            'invariant', invf, 'invTolRel', 1e-6, ...
+            'finalValue', [1; 0], 'finalTolRel', 1e-6);
+        args = {f, [0 2*pi], [1; 0], claims};
+        spec = struct('fixture', id, 'ode', 'y''=[y2;-y1]', ...
+            'tspan', [0 2*pi], 'y0', [1;0], ...
+            'reference', '[cos(t);-sin(t)]', 'invariant', 'y1^2+y2^2', ...
+            'finalValue', [1;0], 'relTol', 1e-8, 'absTol', 1e-10, ...
+            'refTolRel', 1e-6, 'invTolRel', 1e-6, 'finalTolRel', 1e-6);
+        inputs = struct('odefun', f, 'tspan', [0 2*pi], 'y0', [1;0], 'claims', claims);
+
     otherwise
         error('benchmark_fixtures:id', 'unknown fixture "%s"', id);
 end

@@ -312,6 +312,31 @@ with no reference, final value, invariant, event or stiffness claim is UNDETERMI
   element-wise relative error diverges at a zero crossing and would fail an accurate
   oscillator. The element-wise maximum is still reported for diagnosis.
 
+### Field contract: one name per quantity
+
+`r.schema` is `mas-ode-report/2`. Three legitimate scalings share one numerator, so they
+get three names and each field carries the formula that produced it
+(`numeratorRule`, `denominatorRule`, `solverScaledDenominatorRule`, `unit`,
+`relativeDenominatorRule`) plus where and over what it was aggregated
+(`at`, `component`, `rows`, `components`):
+
+| field | denominator | use it for | do not use it for |
+|---|---|---|---|
+| `maxAbs` | none | the raw error in state units | comparing against a dimensionless key |
+| `maxScaled` | `max(1, max\|y_ref\|)` | the accuracy verdict, `refTolRel` grading | describing solver quality |
+| `maxSolverScaled` | `AbsTol + RelTol*\|y_ref\|` elementwise | "is this tolerance tight enough?" | an accuracy claim; it is ~1 by construction when the solver met its own tolerance |
+| `maxRel` | `max(\|y_ref\|, eps)` elementwise | finding a bad component | an oscillator: it explodes at a zero crossing |
+
+An invariant drift is reported the same way: `maxRelDrift` over
+`max(|invariantRef|, 1)` per component, with `numeratorRule`, `denominatorRule`, `unit`
+and `aggregation`. When no reference exists the fields are emitted as `NaN` instead of
+being omitted, so "absent" and "zero" cannot be confused.
+
+Why this exists: a scaled error quoted without its denominator is not a measurement. In
+Phase 5.5 an episode reported `2.66` (solver convention) where the key expected
+`3.3e-10` (magnitude convention) for the same trajectory and was graded MISS; the
+arithmetic was right on both sides and only the field name was ambiguous.
+
 ### Step size and solver settings are candidate properties
 
 - A fixed-step Euler candidate with `h = 0.5` over `[0,2]` gives

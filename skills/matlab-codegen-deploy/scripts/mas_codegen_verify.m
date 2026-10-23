@@ -98,8 +98,18 @@ try
     log{end+1} = 'codegen: generated';
     r.codegenOutput = out;
 catch ME
-    r.verdict = 'FAIL'; r.stage = 'codegen'; r.log = [log, {ME.message}];
-    r.detail = sprintf('FAIL at codegen: %s', ME.message);
+    msg = strtrim(char(ME.message));
+    if isempty(msg)
+        % An entry given as a function handle makes codegen reject its option list
+        % with emlc:compilationError and NO message text (measured on this install in
+        % both a batch process and the MCP evaluation frame). Report the identifier
+        % and the fix rather than a detail that ends in a colon.
+        msg = sprintf(['%s with an empty message: the entry was not accepted as a ' ...
+            'file name. Pass the function NAME (mas_codegen_verify(''myAlg'', ...)), ' ...
+            'not a function handle or an anonymous function.'], char(ME.identifier));
+    end
+    r.verdict = 'FAIL'; r.stage = 'codegen'; r.log = [log, {msg}];
+    r.detail = sprintf('FAIL at codegen: %s', msg);
     return;
 end
 

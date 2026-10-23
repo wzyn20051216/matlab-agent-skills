@@ -62,6 +62,30 @@ o = mas_ode_check(@(t,y) [y(2);-y(1)], [0 2*pi], [1;0], struct( ...
 o.verdict  o.levels  o.error.maxScaled  o.invariant.maxRelDrift  o.stiffness.classified
 ```
 
+### One error, three denominators: never quote a scaled error without its rule
+
+`o.schema` is `mas-ode-report/2`. The report splits the difference to the reference
+into three quantities that differ by orders of magnitude and are **not**
+interchangeable:
+
+| field | numerator / denominator | meaning |
+|---|---|---|
+| `error.maxAbs` | max abs(y_candidate - y_reference) | raw error in state units |
+| `error.maxScaled` | maxAbs / max(1, max abs(y_reference)) | fraction of the solution magnitude; this is what `refTolRel` grades and what an answer key means by "scaled error" |
+| `error.maxSolverScaled` | maxAbs / (AbsTol + RelTol*abs(y_reference)), elementwise | how many solver tolerances the error is; a *diagnosis* of the solver settings, never an accuracy verdict |
+| `error.maxRel` | elementwise abs error / max(abs(y_reference), eps) | per-component relative error; blows up at a zero crossing of an otherwise perfect oscillator |
+
+Each carries `numeratorRule`, `denominatorRule`, `unit` and the aggregation
+(`error.at`, `error.component`, `error.rows`, `error.components`), so a number
+cannot be separated from the definition that produced it. When no reference
+exists the fields are emitted as `NaN` rather than omitted.
+
+A graded claim must name its convention. Comparing a solver-tolerance-scaled
+number against a magnitude-scaled key fails a correct answer: Phase 5.5's
+H54-ODE-N episode reported 2.66 (solver convention) against a key of 3.3e-10
+(magnitude convention) and was graded MISS although both numbers were computed
+correctly.
+
 Every tool returns `verdict` (PASS | FAIL | UNDETERMINED) and per-check status
 (`pass | fail | na | undetermined`). `na` = the contract does not apply and does not drag
 the verdict; `undetermined` = missing evidence or missing criterion and forces

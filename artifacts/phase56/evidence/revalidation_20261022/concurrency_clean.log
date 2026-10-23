@@ -1,0 +1,21 @@
+
+	Sponsored License -- for use in support of a program or activity sponsored by MathWorks.
+	Not for government, commercial or other non-sponsored organizational use.
+
+[警告: 名称不存在或不是目录: E:\desktop\MATLAB\matlab\validation\phase54\tasks] 
+[> 位置：path (第 89 行)
+位置: addpath (第 70 行)] 
+round 1: [13 13] ([13 13])
+round 2: [13 13] ([13 13])
+round 3: [13 13] ([13 13])
+{错误使用 dir
+名称 必须为文本标量。
+
+出错 test_concurrency>mexInRepo (第 127 行)
+d = dir(fullfile(r, '*.mexw64'));
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+出错 test_concurrency (第 103 行)
+residue.cwdMexBefore = mexInRepo(rootAtStart);
+                       ^^^^^^^^^^^^^^^^^^^^^^
+} 
+ERROR: MATLAB error Exit Status: 0x00000001

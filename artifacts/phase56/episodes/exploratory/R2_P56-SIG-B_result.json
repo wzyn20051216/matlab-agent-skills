@@ -1,0 +1,10 @@
+{
+  "verdict": "UNDETERMINED",
+  "fields": {
+    "verdict": "UNDETERMINED",
+    "state": "insufficient-sample",
+    "ciWilsonUpper95": 0.000144265,
+    "theoryExpectedEvents": 1.30686,
+    "nBits": 26624
+  }
+}
