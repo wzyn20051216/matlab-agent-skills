@@ -280,7 +280,11 @@ Pester free 层：313/314 通过，1 条失败即第 12 节第 1 条那个既存
 
 提交策略沿用前几阶段：`.gitignore` 忽略 `artifacts/`，本阶段用 `git add -f` 精确加入证据文件（原始事件流、`verification.json`、`skills/list` 响应、JSON 记录、控制台日志、逐文件计划 CSV），**不**加入 852 KB 的 `pid_step.mat`（原始时序，可由同目录的 `design_pid.m` 重生成）。新增 107 个文件（5 篇文档 + 9 个 phase58 脚本 + 1 个 Pester 套件 + 92 个产物）；逐文件行数以 `git show --numstat` 为准，本报告不复制一份会腐烂的总行数。
 
-### 11.3 未做的事
+### 11.3 落地提交与未做的事
+
+相对基线 `bf09e45` 的合并总量是 **110 个文件**（3 改 + 107 新），分两个提交落在 `phase5.1-audit`：
+`a68b9ed`（全部成果，含本报告）与 `3151323`（本报告把 `A_..._E` 之类缩写改成逐字 episode 目录名）。
+增删行数逐文件以 `git diff --numstat bf09e45..HEAD` 为准——本报告自身也在被统计，写死总行数会立刻腐烂。
 
 不 push、不 merge、不 rebase、不 reset、不 clean、不改 `main`、不动历史 tag、不覆盖历史 Release、不 amend `bf09e45`。
 
