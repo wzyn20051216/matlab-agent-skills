@@ -139,14 +139,14 @@ Task 0 是只读审计，结论：工作区与 Phase 5.7 报告一致，没有�
 | # | 客户端 | episode | 状态 | L1 | L2 | L3-eq | L4 | 关键 trace |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | 1 | Desktop | A_numeric_matlab | FAIL | E | E | EVIDENCED | NOT | 选中 Skill；沙箱拒绝创建进程（access denied），22 次命令 0 次 MCP |
-| 2 | Desktop | A_..._E | FAIL | E | E | EVIDENCED | NOT | 选中并读 references；同样被沙箱拒绝 |
-| 3 | Desktop | A_..._E2 | PASS | E | E | EVIDENCED | **PARTIAL** | 1 次 MCP 调用产出结果，但无独立验收覆盖该任务 |
+| 2 | Desktop | A_numeric_matlab_E | FAIL | E | E | EVIDENCED | NOT | 选中并读 references；同样被沙箱拒绝 |
+| 3 | Desktop | A_numeric_matlab_E2 | PASS | E | E | EVIDENCED | **PARTIAL** | 1 次 MCP 调用产出结果，但无独立验收覆盖该任务 |
 | 4 | Desktop | B_simulink_model_E | PASS | E | E | EVIDENCED | **PARTIAL** | 3 次 MCP，交付 `.slx`，无独立验收 |
 | 5 | Desktop | C_control_design_E | FAIL | E | E | NOT | NOT | MCP 传输中途关闭，未产生任何命令/工具调用 |
-| 6 | Desktop | C_..._E2 | FAIL | E | E | NOT | NOT | 同上 |
-| 7 | Desktop | C_..._E3 | PASS | E | E | EVIDENCED | **EVIDENCED** | 选 Skill→读 references→MCP 执行→工程检查→修复，8 次 MCP、26 次命令 |
+| 6 | Desktop | C_control_design_E2 | FAIL | E | E | NOT | NOT | 同上 |
+| 7 | Desktop | C_control_design_E3 | PASS | E | E | EVIDENCED | **EVIDENCED** | 选 Skill→读 references→MCP 执行→工程检查→修复，8 次 MCP、26 次命令 |
 | 8 | Desktop | D_nonmatlab_control | PASS | E | E | NOT | NOT | 负控：未选 Skill、未调 MCP、无交付（这正是期望） |
-| 9 | Desktop | D_..._E | PASS | E | E | NOT | NOT | 同上 |
+| 9 | Desktop | D_nonmatlab_control_E | PASS | E | E | NOT | NOT | 同上 |
 | 10 | Desktop | iso_A | FAIL | E | E | EVIDENCED | NOT | 读 Skill 与 references 后被沙箱拒绝 |
 | 11 | CLI | D_nonmatlab_control | FAIL | E | E | NOT | NOT | CLI 拒绝模型元数据，任务未开始 |
 
