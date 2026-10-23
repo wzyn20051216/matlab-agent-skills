@@ -1,0 +1,144 @@
+==> 同步 skills: E:\desktop\MATLAB\skills -> E:\WorkBuddyData\skills
+    [DryRun] 不会写入任何文件
+  update: matlab-codegen-deploy -> E:\WorkBuddyData\skills\matlab-codegen-deploy
+  update: matlab-control-optimization -> E:\WorkBuddyData\skills\matlab-control-optimization
+  update: matlab-data-analysis -> E:\WorkBuddyData\skills\matlab-data-analysis
+  update: matlab-orchestrator -> E:\WorkBuddyData\skills\matlab-orchestrator
+  update: matlab-robotics-autonomy -> E:\WorkBuddyData\skills\matlab-robotics-autonomy
+  update: matlab-runner -> E:\WorkBuddyData\skills\matlab-runner
+  update: matlab-signal-vision-ai -> E:\WorkBuddyData\skills\matlab-signal-vision-ai
+  update: matlab-simulink-modeling -> E:\WorkBuddyData\skills\matlab-simulink-modeling
+  update: matlab-testing-ci -> E:\WorkBuddyData\skills\matlab-testing-ci
+==> [DryRun] 将写入 skills manifest: E:\WorkBuddyData\skills\.matlab-agent-skills-manifest.json
+{
+    "syncTime":  "2026-10-23 13:08:33",
+    "dryRun":  true,
+    "sourceRoot":  "E:\\desktop\\MATLAB\\skills",
+    "skillRoot":  "E:\\WorkBuddyData\\skills",
+    "skillEnvironment":  {
+                             "skillRoot":  "E:\\WorkBuddyData\\skills",
+                             "userHome":  "C:\\Users\\23201",
+                             "runtime":  "Windows",
+                             "source":  "explicit",
+                             "legacySkillRoot":  "C:\\Users\\23201\\.codex\\skills"
+                         },
+    "manifestPath":  "E:\\WorkBuddyData\\skills\\.matlab-agent-skills-manifest.json",
+    "backupRoot":  null,
+    "installed":  0,
+    "updated":  9,
+    "unchanged":  0,
+    "conflicts":  [
+
+                  ],
+    "failed":  false,
+    "skills":  [
+                   {
+                       "name":  "matlab-codegen-deploy",
+                       "decision":  "update",
+                       "changed":  true,
+                       "backupPath":  null,
+                       "message":  "将update：E:\\WorkBuddyData\\skills\\matlab-codegen-deploy",
+                       "preservedUserFiles":  [
+
+                                              ],
+                       "restoredFromBackup":  false,
+                       "recreatedFiles":  0
+                   },
+                   {
+                       "name":  "matlab-control-optimization",
+                       "decision":  "update",
+                       "changed":  true,
+                       "backupPath":  null,
+                       "message":  "将update：E:\\WorkBuddyData\\skills\\matlab-control-optimization",
+                       "preservedUserFiles":  [
+
+                                              ],
+                       "restoredFromBackup":  false,
+                       "recreatedFiles":  0
+                   },
+                   {
+                       "name":  "matlab-data-analysis",
+                       "decision":  "update",
+                       "changed":  true,
+                       "backupPath":  null,
+                       "message":  "将update：E:\\WorkBuddyData\\skills\\matlab-data-analysis",
+                       "preservedUserFiles":  [
+
+                                              ],
+                       "restoredFromBackup":  false,
+                       "recreatedFiles":  0
+                   },
+                   {
+                       "name":  "matlab-orchestrator",
+                       "decision":  "update",
+                       "changed":  true,
+                       "backupPath":  null,
+                       "message":  "将update：E:\\WorkBuddyData\\skills\\matlab-orchestrator",
+                       "preservedUserFiles":  [
+
+                                              ],
+                       "restoredFromBackup":  false,
+                       "recreatedFiles":  0
+                   },
+                   {
+                       "name":  "matlab-robotics-autonomy",
+                       "decision":  "update",
+                       "changed":  true,
+                       "backupPath":  null,
+                       "message":  "将update：E:\\WorkBuddyData\\skills\\matlab-robotics-autonomy",
+                       "preservedUserFiles":  [
+
+                                              ],
+                       "restoredFromBackup":  false,
+                       "recreatedFiles":  0
+                   },
+                   {
+                       "name":  "matlab-runner",
+                       "decision":  "update",
+                       "changed":  true,
+                       "backupPath":  null,
+                       "message":  "将update：E:\\WorkBuddyData\\skills\\matlab-runner",
+                       "preservedUserFiles":  [
+
+                                              ],
+                       "restoredFromBackup":  false,
+                       "recreatedFiles":  0
+                   },
+                   {
+                       "name":  "matlab-signal-vision-ai",
+                       "decision":  "update",
+                       "changed":  true,
+                       "backupPath":  null,
+                       "message":  "将update：E:\\WorkBuddyData\\skills\\matlab-signal-vision-ai",
+                       "preservedUserFiles":  [
+
+                                              ],
+                       "restoredFromBackup":  false,
+                       "recreatedFiles":  0
+                   },
+                   {
+                       "name":  "matlab-simulink-modeling",
+                       "decision":  "update",
+                       "changed":  true,
+                       "backupPath":  null,
+                       "message":  "将update：E:\\WorkBuddyData\\skills\\matlab-simulink-modeling",
+                       "preservedUserFiles":  [
+
+                                              ],
+                       "restoredFromBackup":  false,
+                       "recreatedFiles":  0
+                   },
+                   {
+                       "name":  "matlab-testing-ci",
+                       "decision":  "update",
+                       "changed":  true,
+                       "backupPath":  null,
+                       "message":  "将update：E:\\WorkBuddyData\\skills\\matlab-testing-ci",
+                       "preservedUserFiles":  [
+
+                                              ],
+                       "restoredFromBackup":  false,
+                       "recreatedFiles":  0
+                   }
+               ]
+}

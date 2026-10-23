@@ -1,0 +1,2633 @@
+{
+  "schema": "mas-skill-install-audit/1",
+  "readOnly": true,
+  "generatedAt": "2026-10-23 13:07:58",
+  "repoRoot": "E:\\desktop\\MATLAB",
+  "rootsFile": "E:\\desktop\\MATLAB\\skills\\matlab-testing-ci\\assets\\install-roots.json",
+  "writeTarget": "E:/desktop/MATLAB/artifacts/phase58/install/install_audit.json",
+  "roots": [
+    {
+      "id": "qoder-project",
+      "client": "qoder",
+      "scope": "project",
+      "path": "E:\\desktop\\MATLAB\\.qoder\\skills",
+      "priority": 5,
+      "exists": false,
+      "evidence": "Project-level install root. Absent on this machine, so project-vs-user precedence is UNEXERCISED, not assumed."
+    },
+    {
+      "id": "qoder-user",
+      "client": "qoder",
+      "scope": "user",
+      "path": "C:\\Users\\23201\\.qoder-cn\\skills",
+      "priority": 10,
+      "exists": true,
+      "evidence": "Qoder qodercli.log 2026-10-23T11:06:29: 'Skill \"matlab-data-analysis\" from .qoder-cn\\\\skills\\\\... overrides same-source skill at .agents\\\\skills\\\\... (source: user)'."
+    },
+    {
+      "id": "agents-shared",
+      "client": "qoder+codex",
+      "scope": "user",
+      "path": "C:\\Users\\23201\\.agents\\skills",
+      "priority": 20,
+      "exists": true,
+      "evidence": "Qoder scans this root (same override log) but loses to .qoder-cn. Codex CLI/Desktop app-server skills/list returns 9/9 from it (artifacts/phase57/native/*/verification.json)."
+    },
+    {
+      "id": "workbuddy-user",
+      "client": "workbuddy",
+      "scope": "user",
+      "path": "C:\\Users\\23201\\.workbuddy\\skills",
+      "priority": 10,
+      "exists": true,
+      "evidence": ".workbuddy is a symlink to E:/WorkBuddyData; the WorkBuddy client has no skill-list probe in this repository, so this root is KNOWN but LOADING IS NOT OBSERVED."
+    },
+    {
+      "id": "codex-user",
+      "client": "codex",
+      "scope": "user",
+      "path": "C:\\Users\\23201\\.codex\\skills",
+      "priority": 30,
+      "exists": true,
+      "evidence": "Exists, but contains no matlab-* skill on this machine. Codex config.toml also carries an explicit [[skills.config]] entry under .agents/skills."
+    }
+  ],
+  "clients": [
+    {
+      "id": "qoder",
+      "display": "Qoder main session",
+      "resolutionLevel": "observed-precedence",
+      "observed": true,
+      "evidence": "qodercli.log 2026-10-23T11:06:29 records the .qoder-cn copy overriding the .agents copy for 10 skills.",
+      "roots": [
+        "qoder-project",
+        "qoder-user",
+        "agents-shared"
+      ],
+      "skills": [
+        {
+          "skill": "matlab-codegen-deploy",
+          "rootId": "qoder-user",
+          "rootPath": "C:\\Users\\23201\\.qoder-cn\\skills",
+          "status": "DRIFTED",
+          "confidence": "observed",
+          "identical": false,
+          "missingCount": 0,
+          "extraCount": 0,
+          "differingCount": 4
+        },
+        {
+          "skill": "matlab-control-optimization",
+          "rootId": "qoder-user",
+          "rootPath": "C:\\Users\\23201\\.qoder-cn\\skills",
+          "status": "DRIFTED",
+          "confidence": "observed",
+          "identical": false,
+          "missingCount": 3,
+          "extraCount": 0,
+          "differingCount": 2
+        },
+        {
+          "skill": "matlab-data-analysis",
+          "rootId": "qoder-user",
+          "rootPath": "C:\\Users\\23201\\.qoder-cn\\skills",
+          "status": "DRIFTED",
+          "confidence": "observed",
+          "identical": false,
+          "missingCount": 12,
+          "extraCount": 0,
+          "differingCount": 1
+        },
+        {
+          "skill": "matlab-orchestrator",
+          "rootId": "agents-shared",
+          "rootPath": "C:\\Users\\23201\\.agents\\skills",
+          "status": "CURRENT",
+          "confidence": "observed",
+          "identical": true,
+          "missingCount": 0,
+          "extraCount": 0,
+          "differingCount": 0
+        },
+        {
+          "skill": "matlab-robotics-autonomy",
+          "rootId": "qoder-user",
+          "rootPath": "C:\\Users\\23201\\.qoder-cn\\skills",
+          "status": "DRIFTED",
+          "confidence": "observed",
+          "identical": false,
+          "missingCount": 6,
+          "extraCount": 0,
+          "differingCount": 1
+        },
+        {
+          "skill": "matlab-runner",
+          "rootId": "qoder-user",
+          "rootPath": "C:\\Users\\23201\\.qoder-cn\\skills",
+          "status": "DRIFTED",
+          "confidence": "observed",
+          "identical": false,
+          "missingCount": 0,
+          "extraCount": 0,
+          "differingCount": 5
+        },
+        {
+          "skill": "matlab-signal-vision-ai",
+          "rootId": "qoder-user",
+          "rootPath": "C:\\Users\\23201\\.qoder-cn\\skills",
+          "status": "DRIFTED",
+          "confidence": "observed",
+          "identical": false,
+          "missingCount": 13,
+          "extraCount": 0,
+          "differingCount": 2
+        },
+        {
+          "skill": "matlab-simulink-modeling",
+          "rootId": "agents-shared",
+          "rootPath": "C:\\Users\\23201\\.agents\\skills",
+          "status": "CURRENT",
+          "confidence": "observed",
+          "identical": true,
+          "missingCount": 0,
+          "extraCount": 0,
+          "differingCount": 0
+        },
+        {
+          "skill": "matlab-testing-ci",
+          "rootId": "qoder-user",
+          "rootPath": "C:\\Users\\23201\\.qoder-cn\\skills",
+          "status": "DRIFTED",
+          "confidence": "observed",
+          "identical": false,
+          "missingCount": 8,
+          "extraCount": 0,
+          "differingCount": 6
+        }
+      ]
+    },
+    {
+      "id": "codex-cli",
+      "display": "Codex CLI 0.147.0",
+      "resolutionLevel": "observed-single-root",
+      "observed": true,
+      "evidence": "artifacts/phase57/native/codex-cli/verification.json: app-server skills/list returned 9/9 from .agents/skills.",
+      "roots": [
+        "agents-shared",
+        "codex-user"
+      ],
+      "skills": [
+        {
+          "skill": "matlab-codegen-deploy",
+          "rootId": "agents-shared",
+          "rootPath": "C:\\Users\\23201\\.agents\\skills",
+          "status": "DRIFTED",
+          "confidence": "observed",
+          "identical": false,
+          "missingCount": 0,
+          "extraCount": 0,
+          "differingCount": 2
+        },
+        {
+          "skill": "matlab-control-optimization",
+          "rootId": "agents-shared",
+          "rootPath": "C:\\Users\\23201\\.agents\\skills",
+          "status": "CURRENT",
+          "confidence": "observed",
+          "identical": true,
+          "missingCount": 0,
+          "extraCount": 0,
+          "differingCount": 0
+        },
+        {
+          "skill": "matlab-data-analysis",
+          "rootId": "agents-shared",
+          "rootPath": "C:\\Users\\23201\\.agents\\skills",
+          "status": "DRIFTED",
+          "confidence": "observed",
+          "identical": false,
+          "missingCount": 1,
+          "extraCount": 0,
+          "differingCount": 3
+        },
+        {
+          "skill": "matlab-orchestrator",
+          "rootId": "agents-shared",
+          "rootPath": "C:\\Users\\23201\\.agents\\skills",
+          "status": "CURRENT",
+          "confidence": "observed",
+          "identical": true,
+          "missingCount": 0,
+          "extraCount": 0,
+          "differingCount": 0
+        },
+        {
+          "skill": "matlab-robotics-autonomy",
+          "rootId": "agents-shared",
+          "rootPath": "C:\\Users\\23201\\.agents\\skills",
+          "status": "CURRENT",
+          "confidence": "observed",
+          "identical": true,
+          "missingCount": 0,
+          "extraCount": 0,
+          "differingCount": 0
+        },
+        {
+          "skill": "matlab-runner",
+          "rootId": "agents-shared",
+          "rootPath": "C:\\Users\\23201\\.agents\\skills",
+          "status": "CURRENT",
+          "confidence": "observed",
+          "identical": true,
+          "missingCount": 0,
+          "extraCount": 0,
+          "differingCount": 0
+        },
+        {
+          "skill": "matlab-signal-vision-ai",
+          "rootId": "agents-shared",
+          "rootPath": "C:\\Users\\23201\\.agents\\skills",
+          "status": "DRIFTED",
+          "confidence": "observed",
+          "identical": false,
+          "missingCount": 2,
+          "extraCount": 0,
+          "differingCount": 4
+        },
+        {
+          "skill": "matlab-simulink-modeling",
+          "rootId": "agents-shared",
+          "rootPath": "C:\\Users\\23201\\.agents\\skills",
+          "status": "CURRENT",
+          "confidence": "observed",
+          "identical": true,
+          "missingCount": 0,
+          "extraCount": 0,
+          "differingCount": 0
+        },
+        {
+          "skill": "matlab-testing-ci",
+          "rootId": "agents-shared",
+          "rootPath": "C:\\Users\\23201\\.agents\\skills",
+          "status": "DRIFTED",
+          "confidence": "observed",
+          "identical": false,
+          "missingCount": 5,
+          "extraCount": 0,
+          "differingCount": 2
+        }
+      ]
+    },
+    {
+      "id": "codex-desktop",
+      "display": "Codex Desktop engine 0.163.0-alpha.11.1",
+      "resolutionLevel": "observed-single-root",
+      "observed": true,
+      "evidence": "artifacts/phase57/native/codex-desktop-engine/verification.json: engine skills/list returned 9/9 from .agents/skills.",
+      "roots": [
+        "agents-shared"
+      ],
+      "skills": [
+        {
+          "skill": "matlab-codegen-deploy",
+          "rootId": "agents-shared",
+          "rootPath": "C:\\Users\\23201\\.agents\\skills",
+          "status": "DRIFTED",
+          "confidence": "observed",
+          "identical": false,
+          "missingCount": 0,
+          "extraCount": 0,
+          "differingCount": 2
+        },
+        {
+          "skill": "matlab-control-optimization",
+          "rootId": "agents-shared",
+          "rootPath": "C:\\Users\\23201\\.agents\\skills",
+          "status": "CURRENT",
+          "confidence": "observed",
+          "identical": true,
+          "missingCount": 0,
+          "extraCount": 0,
+          "differingCount": 0
+        },
+        {
+          "skill": "matlab-data-analysis",
+          "rootId": "agents-shared",
+          "rootPath": "C:\\Users\\23201\\.agents\\skills",
+          "status": "DRIFTED",
+          "confidence": "observed",
+          "identical": false,
+          "missingCount": 1,
+          "extraCount": 0,
+          "differingCount": 3
+        },
+        {
+          "skill": "matlab-orchestrator",
+          "rootId": "agents-shared",
+          "rootPath": "C:\\Users\\23201\\.agents\\skills",
+          "status": "CURRENT",
+          "confidence": "observed",
+          "identical": true,
+          "missingCount": 0,
+          "extraCount": 0,
+          "differingCount": 0
+        },
+        {
+          "skill": "matlab-robotics-autonomy",
+          "rootId": "agents-shared",
+          "rootPath": "C:\\Users\\23201\\.agents\\skills",
+          "status": "CURRENT",
+          "confidence": "observed",
+          "identical": true,
+          "missingCount": 0,
+          "extraCount": 0,
+          "differingCount": 0
+        },
+        {
+          "skill": "matlab-runner",
+          "rootId": "agents-shared",
+          "rootPath": "C:\\Users\\23201\\.agents\\skills",
+          "status": "CURRENT",
+          "confidence": "observed",
+          "identical": true,
+          "missingCount": 0,
+          "extraCount": 0,
+          "differingCount": 0
+        },
+        {
+          "skill": "matlab-signal-vision-ai",
+          "rootId": "agents-shared",
+          "rootPath": "C:\\Users\\23201\\.agents\\skills",
+          "status": "DRIFTED",
+          "confidence": "observed",
+          "identical": false,
+          "missingCount": 2,
+          "extraCount": 0,
+          "differingCount": 4
+        },
+        {
+          "skill": "matlab-simulink-modeling",
+          "rootId": "agents-shared",
+          "rootPath": "C:\\Users\\23201\\.agents\\skills",
+          "status": "CURRENT",
+          "confidence": "observed",
+          "identical": true,
+          "missingCount": 0,
+          "extraCount": 0,
+          "differingCount": 0
+        },
+        {
+          "skill": "matlab-testing-ci",
+          "rootId": "agents-shared",
+          "rootPath": "C:\\Users\\23201\\.agents\\skills",
+          "status": "DRIFTED",
+          "confidence": "observed",
+          "identical": false,
+          "missingCount": 5,
+          "extraCount": 0,
+          "differingCount": 2
+        }
+      ]
+    },
+    {
+      "id": "workbuddy",
+      "display": "WorkBuddy",
+      "resolutionLevel": "known-root",
+      "observed": false,
+      "evidence": "No WorkBuddy skill-list probe exists here. The root is reported, not asserted as loaded.",
+      "roots": [
+        "workbuddy-user"
+      ],
+      "skills": [
+        {
+          "skill": "matlab-codegen-deploy",
+          "rootId": "workbuddy-user",
+          "rootPath": "C:\\Users\\23201\\.workbuddy\\skills",
+          "status": "DRIFTED",
+          "confidence": "assumed",
+          "identical": false,
+          "missingCount": 0,
+          "extraCount": 0,
+          "differingCount": 4
+        },
+        {
+          "skill": "matlab-control-optimization",
+          "rootId": "workbuddy-user",
+          "rootPath": "C:\\Users\\23201\\.workbuddy\\skills",
+          "status": "DRIFTED",
+          "confidence": "assumed",
+          "identical": false,
+          "missingCount": 3,
+          "extraCount": 0,
+          "differingCount": 2
+        },
+        {
+          "skill": "matlab-data-analysis",
+          "rootId": "workbuddy-user",
+          "rootPath": "C:\\Users\\23201\\.workbuddy\\skills",
+          "status": "DRIFTED",
+          "confidence": "assumed",
+          "identical": false,
+          "missingCount": 12,
+          "extraCount": 0,
+          "differingCount": 1
+        },
+        {
+          "skill": "matlab-orchestrator",
+          "rootId": "workbuddy-user",
+          "rootPath": "C:\\Users\\23201\\.workbuddy\\skills",
+          "status": "DRIFTED",
+          "confidence": "assumed",
+          "identical": false,
+          "missingCount": 2,
+          "extraCount": 0,
+          "differingCount": 5
+        },
+        {
+          "skill": "matlab-robotics-autonomy",
+          "rootId": "workbuddy-user",
+          "rootPath": "C:\\Users\\23201\\.workbuddy\\skills",
+          "status": "DRIFTED",
+          "confidence": "assumed",
+          "identical": false,
+          "missingCount": 6,
+          "extraCount": 0,
+          "differingCount": 1
+        },
+        {
+          "skill": "matlab-runner",
+          "rootId": "workbuddy-user",
+          "rootPath": "C:\\Users\\23201\\.workbuddy\\skills",
+          "status": "DRIFTED",
+          "confidence": "assumed",
+          "identical": false,
+          "missingCount": 0,
+          "extraCount": 0,
+          "differingCount": 5
+        },
+        {
+          "skill": "matlab-signal-vision-ai",
+          "rootId": "workbuddy-user",
+          "rootPath": "C:\\Users\\23201\\.workbuddy\\skills",
+          "status": "DRIFTED",
+          "confidence": "assumed",
+          "identical": false,
+          "missingCount": 13,
+          "extraCount": 0,
+          "differingCount": 2
+        },
+        {
+          "skill": "matlab-simulink-modeling",
+          "rootId": "workbuddy-user",
+          "rootPath": "C:\\Users\\23201\\.workbuddy\\skills",
+          "status": "DRIFTED",
+          "confidence": "assumed",
+          "identical": false,
+          "missingCount": 3,
+          "extraCount": 0,
+          "differingCount": 1
+        },
+        {
+          "skill": "matlab-testing-ci",
+          "rootId": "workbuddy-user",
+          "rootPath": "C:\\Users\\23201\\.workbuddy\\skills",
+          "status": "DRIFTED",
+          "confidence": "assumed",
+          "identical": false,
+          "missingCount": 8,
+          "extraCount": 0,
+          "differingCount": 6
+        }
+      ]
+    }
+  ],
+  "skills": [
+    {
+      "name": "matlab-codegen-deploy",
+      "repoPath": "E:\\desktop\\MATLAB\\skills\\matlab-codegen-deploy",
+      "repoSkillMdSha256": "f06c60f01e6bde168e27d54909be097bdd97a2bef5aabdf21b43d51384c6d531",
+      "repoFileCount": 5,
+      "installs": [
+        {
+          "rootId": "qoder-project",
+          "root": "E:\\desktop\\MATLAB\\.qoder\\skills",
+          "path": "E:\\desktop\\MATLAB\\.qoder\\skills\\matlab-codegen-deploy",
+          "installed": false,
+          "identical": false,
+          "skillMdSha256": "",
+          "fileCount": 0,
+          "missing": [
+            "SKILL.md",
+            "scripts/mas_codegen_ready.m",
+            "scripts/mas_codegen_verify.m",
+            "scripts/mas_fixpt_range.m",
+            "tests/test_codegen.m"
+          ],
+          "extra": [],
+          "differing": [],
+          "referencedTools": [],
+          "missingReferencedTools": []
+        },
+        {
+          "rootId": "qoder-user",
+          "root": "C:\\Users\\23201\\.qoder-cn\\skills",
+          "path": "C:\\Users\\23201\\.qoder-cn\\skills\\matlab-codegen-deploy",
+          "installed": true,
+          "identical": false,
+          "skillMdSha256": "650b816cbe63897ea1ed49a51fbf01abbe23e7a32df246af0447c6d48bbb7d7b",
+          "fileCount": 5,
+          "missing": [],
+          "extra": [],
+          "differing": [
+            "SKILL.md",
+            "scripts/mas_codegen_ready.m",
+            "scripts/mas_codegen_verify.m",
+            "tests/test_codegen.m"
+          ],
+          "referencedTools": [
+            "mas_codegen_ready",
+            "mas_codegen_verify",
+            "mas_fixpt_range"
+          ],
+          "missingReferencedTools": []
+        },
+        {
+          "rootId": "agents-shared",
+          "root": "C:\\Users\\23201\\.agents\\skills",
+          "path": "C:\\Users\\23201\\.agents\\skills\\matlab-codegen-deploy",
+          "installed": true,
+          "identical": false,
+          "skillMdSha256": "f06c60f01e6bde168e27d54909be097bdd97a2bef5aabdf21b43d51384c6d531",
+          "fileCount": 5,
+          "missing": [],
+          "extra": [],
+          "differing": [
+            "scripts/mas_codegen_verify.m",
+            "tests/test_codegen.m"
+          ],
+          "referencedTools": [
+            "mas_codegen_ready",
+            "mas_codegen_verify",
+            "mas_fixpt_range"
+          ],
+          "missingReferencedTools": []
+        },
+        {
+          "rootId": "workbuddy-user",
+          "root": "C:\\Users\\23201\\.workbuddy\\skills",
+          "path": "C:\\Users\\23201\\.workbuddy\\skills\\matlab-codegen-deploy",
+          "installed": true,
+          "identical": false,
+          "skillMdSha256": "650b816cbe63897ea1ed49a51fbf01abbe23e7a32df246af0447c6d48bbb7d7b",
+          "fileCount": 5,
+          "missing": [],
+          "extra": [],
+          "differing": [
+            "SKILL.md",
+            "scripts/mas_codegen_ready.m",
+            "scripts/mas_codegen_verify.m",
+            "tests/test_codegen.m"
+          ],
+          "referencedTools": [
+            "mas_codegen_ready",
+            "mas_codegen_verify",
+            "mas_fixpt_range"
+          ],
+          "missingReferencedTools": []
+        },
+        {
+          "rootId": "codex-user",
+          "root": "C:\\Users\\23201\\.codex\\skills",
+          "path": "C:\\Users\\23201\\.codex\\skills\\matlab-codegen-deploy",
+          "installed": false,
+          "identical": false,
+          "skillMdSha256": "",
+          "fileCount": 0,
+          "missing": [
+            "SKILL.md",
+            "scripts/mas_codegen_ready.m",
+            "scripts/mas_codegen_verify.m",
+            "scripts/mas_fixpt_range.m",
+            "tests/test_codegen.m"
+          ],
+          "extra": [],
+          "differing": [],
+          "referencedTools": [],
+          "missingReferencedTools": []
+        }
+      ],
+      "referencedTools": [
+        "mas_codegen_ready",
+        "mas_codegen_verify",
+        "mas_fixpt_range"
+      ],
+      "missingReferencedToolsInRepo": []
+    },
+    {
+      "name": "matlab-control-optimization",
+      "repoPath": "E:\\desktop\\MATLAB\\skills\\matlab-control-optimization",
+      "repoSkillMdSha256": "4696460ac13b5dfa550012342bc0bbda76cd15d2b89e49f9e7952ab97431518f",
+      "repoFileCount": 8,
+      "installs": [
+        {
+          "rootId": "qoder-project",
+          "root": "E:\\desktop\\MATLAB\\.qoder\\skills",
+          "path": "E:\\desktop\\MATLAB\\.qoder\\skills\\matlab-control-optimization",
+          "installed": false,
+          "identical": false,
+          "skillMdSha256": "",
+          "fileCount": 0,
+          "missing": [
+            "SKILL.md",
+            "references/stability-contracts.md",
+            "scripts/mas_ctrl_analyze.m",
+            "scripts/mas_ctrl_aw_sim.m",
+            "scripts/mas_ctrl_pid_design.m",
+            "scripts/mas_stability_verdict.m",
+            "tests/test_ctrl_analyze.m",
+            "tests/test_stability_contract.m"
+          ],
+          "extra": [],
+          "differing": [],
+          "referencedTools": [],
+          "missingReferencedTools": []
+        },
+        {
+          "rootId": "qoder-user",
+          "root": "C:\\Users\\23201\\.qoder-cn\\skills",
+          "path": "C:\\Users\\23201\\.qoder-cn\\skills\\matlab-control-optimization",
+          "installed": true,
+          "identical": false,
+          "skillMdSha256": "16c363d28e678c9531d8a7a012dc5dca0905b7a6d4ed59473532c67705e612e0",
+          "fileCount": 5,
+          "missing": [
+            "references/stability-contracts.md",
+            "scripts/mas_stability_verdict.m",
+            "tests/test_stability_contract.m"
+          ],
+          "extra": [],
+          "differing": [
+            "SKILL.md",
+            "scripts/mas_ctrl_analyze.m"
+          ],
+          "referencedTools": [
+            "mas_ctrl_analyze",
+            "mas_ctrl_aw_sim",
+            "mas_ctrl_pid_design"
+          ],
+          "missingReferencedTools": []
+        },
+        {
+          "rootId": "agents-shared",
+          "root": "C:\\Users\\23201\\.agents\\skills",
+          "path": "C:\\Users\\23201\\.agents\\skills\\matlab-control-optimization",
+          "installed": true,
+          "identical": true,
+          "skillMdSha256": "4696460ac13b5dfa550012342bc0bbda76cd15d2b89e49f9e7952ab97431518f",
+          "fileCount": 8,
+          "missing": [],
+          "extra": [],
+          "differing": [],
+          "referencedTools": [
+            "mas_ctrl_analyze",
+            "mas_ctrl_aw_sim",
+            "mas_ctrl_pid_design",
+            "mas_stability_verdict"
+          ],
+          "missingReferencedTools": []
+        },
+        {
+          "rootId": "workbuddy-user",
+          "root": "C:\\Users\\23201\\.workbuddy\\skills",
+          "path": "C:\\Users\\23201\\.workbuddy\\skills\\matlab-control-optimization",
+          "installed": true,
+          "identical": false,
+          "skillMdSha256": "16c363d28e678c9531d8a7a012dc5dca0905b7a6d4ed59473532c67705e612e0",
+          "fileCount": 5,
+          "missing": [
+            "references/stability-contracts.md",
+            "scripts/mas_stability_verdict.m",
+            "tests/test_stability_contract.m"
+          ],
+          "extra": [],
+          "differing": [
+            "SKILL.md",
+            "scripts/mas_ctrl_analyze.m"
+          ],
+          "referencedTools": [
+            "mas_ctrl_analyze",
+            "mas_ctrl_aw_sim",
+            "mas_ctrl_pid_design"
+          ],
+          "missingReferencedTools": []
+        },
+        {
+          "rootId": "codex-user",
+          "root": "C:\\Users\\23201\\.codex\\skills",
+          "path": "C:\\Users\\23201\\.codex\\skills\\matlab-control-optimization",
+          "installed": false,
+          "identical": false,
+          "skillMdSha256": "",
+          "fileCount": 0,
+          "missing": [
+            "SKILL.md",
+            "references/stability-contracts.md",
+            "scripts/mas_ctrl_analyze.m",
+            "scripts/mas_ctrl_aw_sim.m",
+            "scripts/mas_ctrl_pid_design.m",
+            "scripts/mas_stability_verdict.m",
+            "tests/test_ctrl_analyze.m",
+            "tests/test_stability_contract.m"
+          ],
+          "extra": [],
+          "differing": [],
+          "referencedTools": [],
+          "missingReferencedTools": []
+        }
+      ],
+      "referencedTools": [
+        "mas_ctrl_analyze",
+        "mas_ctrl_aw_sim",
+        "mas_ctrl_pid_design",
+        "mas_stability_verdict"
+      ],
+      "missingReferencedToolsInRepo": []
+    },
+    {
+      "name": "matlab-data-analysis",
+      "repoPath": "E:\\desktop\\MATLAB\\skills\\matlab-data-analysis",
+      "repoSkillMdSha256": "9e7f66fa3ccba2cf0121018e3163f169256baa9131fa125bf2dde3a6dcd28c0a",
+      "repoFileCount": 15,
+      "installs": [
+        {
+          "rootId": "qoder-project",
+          "root": "E:\\desktop\\MATLAB\\.qoder\\skills",
+          "path": "E:\\desktop\\MATLAB\\.qoder\\skills\\matlab-data-analysis",
+          "installed": false,
+          "identical": false,
+          "skillMdSha256": "",
+          "fileCount": 0,
+          "missing": [
+            "SKILL.md",
+            "references/data-verification-contract.md",
+            "scripts/mas_converge_check.m",
+            "scripts/mas_fit_check.m",
+            "scripts/mas_linsolve_check.m",
+            "scripts/mas_ode_check.m",
+            "scripts/mas_quad_check.m",
+            "scripts/mas_repro_check.m",
+            "scripts/mas_stat_check.m",
+            "scripts/mas_table_audit.m",
+            "scripts/mas_uncert_check.m",
+            "tests/test_data_contract.m",
+            "tests/test_ode_contract.m",
+            "tests/test_ode_field_contract.m",
+            "tests/test_table_audit.m"
+          ],
+          "extra": [],
+          "differing": [],
+          "referencedTools": [],
+          "missingReferencedTools": []
+        },
+        {
+          "rootId": "qoder-user",
+          "root": "C:\\Users\\23201\\.qoder-cn\\skills",
+          "path": "C:\\Users\\23201\\.qoder-cn\\skills\\matlab-data-analysis",
+          "installed": true,
+          "identical": false,
+          "skillMdSha256": "e150aa8167ff8437751a039d06cc7f37008fac2bc99000412ebb6030a29ff836",
+          "fileCount": 3,
+          "missing": [
+            "references/data-verification-contract.md",
+            "scripts/mas_converge_check.m",
+            "scripts/mas_fit_check.m",
+            "scripts/mas_linsolve_check.m",
+            "scripts/mas_ode_check.m",
+            "scripts/mas_quad_check.m",
+            "scripts/mas_repro_check.m",
+            "scripts/mas_stat_check.m",
+            "scripts/mas_uncert_check.m",
+            "tests/test_data_contract.m",
+            "tests/test_ode_contract.m",
+            "tests/test_ode_field_contract.m"
+          ],
+          "extra": [],
+          "differing": [
+            "SKILL.md"
+          ],
+          "referencedTools": [
+            "mas_table_audit"
+          ],
+          "missingReferencedTools": []
+        },
+        {
+          "rootId": "agents-shared",
+          "root": "C:\\Users\\23201\\.agents\\skills",
+          "path": "C:\\Users\\23201\\.agents\\skills\\matlab-data-analysis",
+          "installed": true,
+          "identical": false,
+          "skillMdSha256": "819543aa030e455d63b352c2d92e071ab26e8bb5df0728d778d884de663de9aa",
+          "fileCount": 14,
+          "missing": [
+            "tests/test_ode_field_contract.m"
+          ],
+          "extra": [],
+          "differing": [
+            "SKILL.md",
+            "references/data-verification-contract.md",
+            "scripts/mas_ode_check.m"
+          ],
+          "referencedTools": [
+            "mas_converge_check",
+            "mas_fit_check",
+            "mas_linsolve_check",
+            "mas_ode_check",
+            "mas_precheck",
+            "mas_quad_check",
+            "mas_repro_check",
+            "mas_route",
+            "mas_stat_check",
+            "mas_table_audit",
+            "mas_uncert_check"
+          ],
+          "missingReferencedTools": []
+        },
+        {
+          "rootId": "workbuddy-user",
+          "root": "C:\\Users\\23201\\.workbuddy\\skills",
+          "path": "C:\\Users\\23201\\.workbuddy\\skills\\matlab-data-analysis",
+          "installed": true,
+          "identical": false,
+          "skillMdSha256": "e150aa8167ff8437751a039d06cc7f37008fac2bc99000412ebb6030a29ff836",
+          "fileCount": 3,
+          "missing": [
+            "references/data-verification-contract.md",
+            "scripts/mas_converge_check.m",
+            "scripts/mas_fit_check.m",
+            "scripts/mas_linsolve_check.m",
+            "scripts/mas_ode_check.m",
+            "scripts/mas_quad_check.m",
+            "scripts/mas_repro_check.m",
+            "scripts/mas_stat_check.m",
+            "scripts/mas_uncert_check.m",
+            "tests/test_data_contract.m",
+            "tests/test_ode_contract.m",
+            "tests/test_ode_field_contract.m"
+          ],
+          "extra": [],
+          "differing": [
+            "SKILL.md"
+          ],
+          "referencedTools": [
+            "mas_table_audit"
+          ],
+          "missingReferencedTools": []
+        },
+        {
+          "rootId": "codex-user",
+          "root": "C:\\Users\\23201\\.codex\\skills",
+          "path": "C:\\Users\\23201\\.codex\\skills\\matlab-data-analysis",
+          "installed": false,
+          "identical": false,
+          "skillMdSha256": "",
+          "fileCount": 0,
+          "missing": [
+            "SKILL.md",
+            "references/data-verification-contract.md",
+            "scripts/mas_converge_check.m",
+            "scripts/mas_fit_check.m",
+            "scripts/mas_linsolve_check.m",
+            "scripts/mas_ode_check.m",
+            "scripts/mas_quad_check.m",
+            "scripts/mas_repro_check.m",
+            "scripts/mas_stat_check.m",
+            "scripts/mas_table_audit.m",
+            "scripts/mas_uncert_check.m",
+            "tests/test_data_contract.m",
+            "tests/test_ode_contract.m",
+            "tests/test_ode_field_contract.m",
+            "tests/test_table_audit.m"
+          ],
+          "extra": [],
+          "differing": [],
+          "referencedTools": [],
+          "missingReferencedTools": []
+        }
+      ],
+      "referencedTools": [
+        "mas_converge_check",
+        "mas_fit_check",
+        "mas_linsolve_check",
+        "mas_ode_check",
+        "mas_precheck",
+        "mas_quad_check",
+        "mas_repro_check",
+        "mas_route",
+        "mas_stat_check",
+        "mas_table_audit",
+        "mas_uncert_check"
+      ],
+      "missingReferencedToolsInRepo": []
+    },
+    {
+      "name": "matlab-orchestrator",
+      "repoPath": "E:\\desktop\\MATLAB\\skills\\matlab-orchestrator",
+      "repoSkillMdSha256": "aa101900a83c647248714207ffc1cfcf64144bdef30b09918309955928d79488",
+      "repoFileCount": 10,
+      "installs": [
+        {
+          "rootId": "qoder-project",
+          "root": "E:\\desktop\\MATLAB\\.qoder\\skills",
+          "path": "E:\\desktop\\MATLAB\\.qoder\\skills\\matlab-orchestrator",
+          "installed": false,
+          "identical": false,
+          "skillMdSha256": "",
+          "fileCount": 0,
+          "missing": [
+            "SKILL.md",
+            "assets/routing.json",
+            "assets/tasks.json",
+            "references/routing-contract.md",
+            "scripts/mas_pipeline.m",
+            "scripts/mas_route.m",
+            "scripts/mas_skill_graph.m",
+            "tests/test_routing.m",
+            "tests/test_routing_contract.m",
+            "tests/test_skill_graph.m"
+          ],
+          "extra": [],
+          "differing": [],
+          "referencedTools": [],
+          "missingReferencedTools": []
+        },
+        {
+          "rootId": "qoder-user",
+          "root": "C:\\Users\\23201\\.qoder-cn\\skills",
+          "path": "C:\\Users\\23201\\.qoder-cn\\skills\\matlab-orchestrator",
+          "installed": false,
+          "identical": false,
+          "skillMdSha256": "",
+          "fileCount": 0,
+          "missing": [
+            "SKILL.md",
+            "assets/routing.json",
+            "assets/tasks.json",
+            "references/routing-contract.md",
+            "scripts/mas_pipeline.m",
+            "scripts/mas_route.m",
+            "scripts/mas_skill_graph.m",
+            "tests/test_routing.m",
+            "tests/test_routing_contract.m",
+            "tests/test_skill_graph.m"
+          ],
+          "extra": [],
+          "differing": [],
+          "referencedTools": [],
+          "missingReferencedTools": []
+        },
+        {
+          "rootId": "agents-shared",
+          "root": "C:\\Users\\23201\\.agents\\skills",
+          "path": "C:\\Users\\23201\\.agents\\skills\\matlab-orchestrator",
+          "installed": true,
+          "identical": true,
+          "skillMdSha256": "aa101900a83c647248714207ffc1cfcf64144bdef30b09918309955928d79488",
+          "fileCount": 10,
+          "missing": [],
+          "extra": [],
+          "differing": [],
+          "referencedTools": [
+            "mas_route",
+            "mas_skill_graph"
+          ],
+          "missingReferencedTools": []
+        },
+        {
+          "rootId": "workbuddy-user",
+          "root": "C:\\Users\\23201\\.workbuddy\\skills",
+          "path": "C:\\Users\\23201\\.workbuddy\\skills\\matlab-orchestrator",
+          "installed": true,
+          "identical": false,
+          "skillMdSha256": "5f17fbea2aaaaa3eeb234463fbf9a5a4c60018d7f5cbe71d590d3cfe00fbabce",
+          "fileCount": 8,
+          "missing": [
+            "references/routing-contract.md",
+            "tests/test_routing_contract.m"
+          ],
+          "extra": [],
+          "differing": [
+            "SKILL.md",
+            "assets/routing.json",
+            "assets/tasks.json",
+            "scripts/mas_pipeline.m",
+            "scripts/mas_route.m"
+          ],
+          "referencedTools": [
+            "mas_route"
+          ],
+          "missingReferencedTools": []
+        },
+        {
+          "rootId": "codex-user",
+          "root": "C:\\Users\\23201\\.codex\\skills",
+          "path": "C:\\Users\\23201\\.codex\\skills\\matlab-orchestrator",
+          "installed": false,
+          "identical": false,
+          "skillMdSha256": "",
+          "fileCount": 0,
+          "missing": [
+            "SKILL.md",
+            "assets/routing.json",
+            "assets/tasks.json",
+            "references/routing-contract.md",
+            "scripts/mas_pipeline.m",
+            "scripts/mas_route.m",
+            "scripts/mas_skill_graph.m",
+            "tests/test_routing.m",
+            "tests/test_routing_contract.m",
+            "tests/test_skill_graph.m"
+          ],
+          "extra": [],
+          "differing": [],
+          "referencedTools": [],
+          "missingReferencedTools": []
+        }
+      ],
+      "referencedTools": [
+        "mas_route",
+        "mas_skill_graph"
+      ],
+      "missingReferencedToolsInRepo": []
+    },
+    {
+      "name": "matlab-robotics-autonomy",
+      "repoPath": "E:\\desktop\\MATLAB\\skills\\matlab-robotics-autonomy",
+      "repoSkillMdSha256": "b03962b3e490e0e03155685865135a4176a480d2921d1c2b20a7509ab5baed73",
+      "repoFileCount": 12,
+      "installs": [
+        {
+          "rootId": "qoder-project",
+          "root": "E:\\desktop\\MATLAB\\.qoder\\skills",
+          "path": "E:\\desktop\\MATLAB\\.qoder\\skills\\matlab-robotics-autonomy",
+          "installed": false,
+          "identical": false,
+          "skillMdSha256": "",
+          "fileCount": 0,
+          "missing": [
+            "SKILL.md",
+            "references/robotics-verification-contract.md",
+            "scripts/mas_dyn_check.m",
+            "scripts/mas_ekf_check.m",
+            "scripts/mas_estimate_check.m",
+            "scripts/mas_frame_check.m",
+            "scripts/mas_kin_check.m",
+            "scripts/mas_kin_ik.m",
+            "scripts/mas_quat_check.m",
+            "scripts/mas_traj_check.m",
+            "tests/test_robotics.m",
+            "tests/test_robotics_contract.m"
+          ],
+          "extra": [],
+          "differing": [],
+          "referencedTools": [],
+          "missingReferencedTools": []
+        },
+        {
+          "rootId": "qoder-user",
+          "root": "C:\\Users\\23201\\.qoder-cn\\skills",
+          "path": "C:\\Users\\23201\\.qoder-cn\\skills\\matlab-robotics-autonomy",
+          "installed": true,
+          "identical": false,
+          "skillMdSha256": "b7110cafd4b8d17c39e52dd190c326dde91030d635b0f0e5a084042031c318b3",
+          "fileCount": 6,
+          "missing": [
+            "references/robotics-verification-contract.md",
+            "scripts/mas_dyn_check.m",
+            "scripts/mas_estimate_check.m",
+            "scripts/mas_quat_check.m",
+            "scripts/mas_traj_check.m",
+            "tests/test_robotics_contract.m"
+          ],
+          "extra": [],
+          "differing": [
+            "SKILL.md"
+          ],
+          "referencedTools": [
+            "mas_ekf_check",
+            "mas_frame_check",
+            "mas_kin_check",
+            "mas_kin_ik"
+          ],
+          "missingReferencedTools": []
+        },
+        {
+          "rootId": "agents-shared",
+          "root": "C:\\Users\\23201\\.agents\\skills",
+          "path": "C:\\Users\\23201\\.agents\\skills\\matlab-robotics-autonomy",
+          "installed": true,
+          "identical": true,
+          "skillMdSha256": "b03962b3e490e0e03155685865135a4176a480d2921d1c2b20a7509ab5baed73",
+          "fileCount": 12,
+          "missing": [],
+          "extra": [],
+          "differing": [],
+          "referencedTools": [
+            "mas_dyn_check",
+            "mas_ekf_check",
+            "mas_estimate_check",
+            "mas_frame_check",
+            "mas_grade",
+            "mas_kin_check",
+            "mas_kin_ik",
+            "mas_precheck",
+            "mas_quat_check",
+            "mas_route",
+            "mas_traj_check"
+          ],
+          "missingReferencedTools": []
+        },
+        {
+          "rootId": "workbuddy-user",
+          "root": "C:\\Users\\23201\\.workbuddy\\skills",
+          "path": "C:\\Users\\23201\\.workbuddy\\skills\\matlab-robotics-autonomy",
+          "installed": true,
+          "identical": false,
+          "skillMdSha256": "b7110cafd4b8d17c39e52dd190c326dde91030d635b0f0e5a084042031c318b3",
+          "fileCount": 6,
+          "missing": [
+            "references/robotics-verification-contract.md",
+            "scripts/mas_dyn_check.m",
+            "scripts/mas_estimate_check.m",
+            "scripts/mas_quat_check.m",
+            "scripts/mas_traj_check.m",
+            "tests/test_robotics_contract.m"
+          ],
+          "extra": [],
+          "differing": [
+            "SKILL.md"
+          ],
+          "referencedTools": [
+            "mas_ekf_check",
+            "mas_frame_check",
+            "mas_kin_check",
+            "mas_kin_ik"
+          ],
+          "missingReferencedTools": []
+        },
+        {
+          "rootId": "codex-user",
+          "root": "C:\\Users\\23201\\.codex\\skills",
+          "path": "C:\\Users\\23201\\.codex\\skills\\matlab-robotics-autonomy",
+          "installed": false,
+          "identical": false,
+          "skillMdSha256": "",
+          "fileCount": 0,
+          "missing": [
+            "SKILL.md",
+            "references/robotics-verification-contract.md",
+            "scripts/mas_dyn_check.m",
+            "scripts/mas_ekf_check.m",
+            "scripts/mas_estimate_check.m",
+            "scripts/mas_frame_check.m",
+            "scripts/mas_kin_check.m",
+            "scripts/mas_kin_ik.m",
+            "scripts/mas_quat_check.m",
+            "scripts/mas_traj_check.m",
+            "tests/test_robotics.m",
+            "tests/test_robotics_contract.m"
+          ],
+          "extra": [],
+          "differing": [],
+          "referencedTools": [],
+          "missingReferencedTools": []
+        }
+      ],
+      "referencedTools": [
+        "mas_dyn_check",
+        "mas_ekf_check",
+        "mas_estimate_check",
+        "mas_frame_check",
+        "mas_grade",
+        "mas_kin_check",
+        "mas_kin_ik",
+        "mas_precheck",
+        "mas_quat_check",
+        "mas_route",
+        "mas_traj_check"
+      ],
+      "missingReferencedToolsInRepo": []
+    },
+    {
+      "name": "matlab-runner",
+      "repoPath": "E:\\desktop\\MATLAB\\skills\\matlab-runner",
+      "repoSkillMdSha256": "380bb682188f14af5aefea93e12f6fe303e010f4f5fc69e5280c4a0fd066f0a6",
+      "repoFileCount": 11,
+      "installs": [
+        {
+          "rootId": "qoder-project",
+          "root": "E:\\desktop\\MATLAB\\.qoder\\skills",
+          "path": "E:\\desktop\\MATLAB\\.qoder\\skills\\matlab-runner",
+          "installed": false,
+          "identical": false,
+          "skillMdSha256": "",
+          "fileCount": 0,
+          "missing": [
+            "SKILL.md",
+            "references/acceptance-levels.md",
+            "references/failure-classes.md",
+            "references/mcp-readiness-ladder.md",
+            "references/toolbox-feature-map.md",
+            "scripts/mas_dep_probe.m",
+            "scripts/mas_precheck.m",
+            "scripts/mas_product_map.m",
+            "scripts/mas_toolbox_map.m",
+            "tests/test_dep_probe.m",
+            "tests/test_precheck.m"
+          ],
+          "extra": [],
+          "differing": [],
+          "referencedTools": [],
+          "missingReferencedTools": []
+        },
+        {
+          "rootId": "qoder-user",
+          "root": "C:\\Users\\23201\\.qoder-cn\\skills",
+          "path": "C:\\Users\\23201\\.qoder-cn\\skills\\matlab-runner",
+          "installed": true,
+          "identical": false,
+          "skillMdSha256": "896248e333136cd675a59ebef16ab890b3a726668e2fe947d04be15707d3d795",
+          "fileCount": 11,
+          "missing": [],
+          "extra": [],
+          "differing": [
+            "SKILL.md",
+            "references/mcp-readiness-ladder.md",
+            "scripts/mas_dep_probe.m",
+            "scripts/mas_product_map.m",
+            "tests/test_dep_probe.m"
+          ],
+          "referencedTools": [
+            "mas_capability_check",
+            "mas_codegen_ready",
+            "mas_dep_probe",
+            "mas_precheck",
+            "mas_product_map",
+            "mas_toolbox_map"
+          ],
+          "missingReferencedTools": []
+        },
+        {
+          "rootId": "agents-shared",
+          "root": "C:\\Users\\23201\\.agents\\skills",
+          "path": "C:\\Users\\23201\\.agents\\skills\\matlab-runner",
+          "installed": true,
+          "identical": true,
+          "skillMdSha256": "380bb682188f14af5aefea93e12f6fe303e010f4f5fc69e5280c4a0fd066f0a6",
+          "fileCount": 11,
+          "missing": [],
+          "extra": [],
+          "differing": [],
+          "referencedTools": [
+            "mas_capability_check",
+            "mas_codegen_ready",
+            "mas_dep_probe",
+            "mas_precheck",
+            "mas_product_map",
+            "mas_toolbox_map"
+          ],
+          "missingReferencedTools": []
+        },
+        {
+          "rootId": "workbuddy-user",
+          "root": "C:\\Users\\23201\\.workbuddy\\skills",
+          "path": "C:\\Users\\23201\\.workbuddy\\skills\\matlab-runner",
+          "installed": true,
+          "identical": false,
+          "skillMdSha256": "896248e333136cd675a59ebef16ab890b3a726668e2fe947d04be15707d3d795",
+          "fileCount": 11,
+          "missing": [],
+          "extra": [],
+          "differing": [
+            "SKILL.md",
+            "references/mcp-readiness-ladder.md",
+            "scripts/mas_dep_probe.m",
+            "scripts/mas_product_map.m",
+            "tests/test_dep_probe.m"
+          ],
+          "referencedTools": [
+            "mas_capability_check",
+            "mas_codegen_ready",
+            "mas_dep_probe",
+            "mas_precheck",
+            "mas_product_map",
+            "mas_toolbox_map"
+          ],
+          "missingReferencedTools": []
+        },
+        {
+          "rootId": "codex-user",
+          "root": "C:\\Users\\23201\\.codex\\skills",
+          "path": "C:\\Users\\23201\\.codex\\skills\\matlab-runner",
+          "installed": false,
+          "identical": false,
+          "skillMdSha256": "",
+          "fileCount": 0,
+          "missing": [
+            "SKILL.md",
+            "references/acceptance-levels.md",
+            "references/failure-classes.md",
+            "references/mcp-readiness-ladder.md",
+            "references/toolbox-feature-map.md",
+            "scripts/mas_dep_probe.m",
+            "scripts/mas_precheck.m",
+            "scripts/mas_product_map.m",
+            "scripts/mas_toolbox_map.m",
+            "tests/test_dep_probe.m",
+            "tests/test_precheck.m"
+          ],
+          "extra": [],
+          "differing": [],
+          "referencedTools": [],
+          "missingReferencedTools": []
+        }
+      ],
+      "referencedTools": [
+        "mas_capability_check",
+        "mas_codegen_ready",
+        "mas_dep_probe",
+        "mas_precheck",
+        "mas_product_map",
+        "mas_toolbox_map"
+      ],
+      "missingReferencedToolsInRepo": []
+    },
+    {
+      "name": "matlab-signal-vision-ai",
+      "repoPath": "E:\\desktop\\MATLAB\\skills\\matlab-signal-vision-ai",
+      "repoSkillMdSha256": "ef1bc70d382be214aeee3b04cb3f8e3fd289259e0c998c56900757bf2a654201",
+      "repoFileCount": 19,
+      "installs": [
+        {
+          "rootId": "qoder-project",
+          "root": "E:\\desktop\\MATLAB\\.qoder\\skills",
+          "path": "E:\\desktop\\MATLAB\\.qoder\\skills\\matlab-signal-vision-ai",
+          "installed": false,
+          "identical": false,
+          "skillMdSha256": "",
+          "fileCount": 0,
+          "missing": [
+            "SKILL.md",
+            "references/signal-measurement-contract.md",
+            "references/vision-verification-contract.md",
+            "scripts/mas_ber_check.m",
+            "scripts/mas_detect_check.m",
+            "scripts/mas_filter_check.m",
+            "scripts/mas_image_contract.m",
+            "scripts/mas_image_metrics.m",
+            "scripts/mas_measure_contract.m",
+            "scripts/mas_ofdm_ber.m",
+            "scripts/mas_sample_check.m",
+            "scripts/mas_seg_check.m",
+            "scripts/mas_spectrum_check.m",
+            "scripts/mas_split_seed.m",
+            "scripts/mas_stat_verdict.m",
+            "tests/test_signal_contract.m",
+            "tests/test_signal_vision.m",
+            "tests/test_stat_decision.m",
+            "tests/test_vision_contract.m"
+          ],
+          "extra": [],
+          "differing": [],
+          "referencedTools": [],
+          "missingReferencedTools": []
+        },
+        {
+          "rootId": "qoder-user",
+          "root": "C:\\Users\\23201\\.qoder-cn\\skills",
+          "path": "C:\\Users\\23201\\.qoder-cn\\skills\\matlab-signal-vision-ai",
+          "installed": true,
+          "identical": false,
+          "skillMdSha256": "aefd0d34a8f1b84225c910bd9c07000f439cf01cc1ce595b9a4a32a029479930",
+          "fileCount": 6,
+          "missing": [
+            "references/signal-measurement-contract.md",
+            "references/vision-verification-contract.md",
+            "scripts/mas_ber_check.m",
+            "scripts/mas_detect_check.m",
+            "scripts/mas_filter_check.m",
+            "scripts/mas_image_contract.m",
+            "scripts/mas_measure_contract.m",
+            "scripts/mas_sample_check.m",
+            "scripts/mas_seg_check.m",
+            "scripts/mas_stat_verdict.m",
+            "tests/test_signal_contract.m",
+            "tests/test_stat_decision.m",
+            "tests/test_vision_contract.m"
+          ],
+          "extra": [],
+          "differing": [
+            "SKILL.md",
+            "scripts/mas_ofdm_ber.m"
+          ],
+          "referencedTools": [
+            "mas_image_metrics",
+            "mas_ofdm_ber",
+            "mas_spectrum_check",
+            "mas_split_seed"
+          ],
+          "missingReferencedTools": []
+        },
+        {
+          "rootId": "agents-shared",
+          "root": "C:\\Users\\23201\\.agents\\skills",
+          "path": "C:\\Users\\23201\\.agents\\skills\\matlab-signal-vision-ai",
+          "installed": true,
+          "identical": false,
+          "skillMdSha256": "8b512f651c3f228575a5e84a5889f1f21258133341f98595b4005981e8156b8e",
+          "fileCount": 17,
+          "missing": [
+            "scripts/mas_stat_verdict.m",
+            "tests/test_stat_decision.m"
+          ],
+          "extra": [],
+          "differing": [
+            "SKILL.md",
+            "references/signal-measurement-contract.md",
+            "scripts/mas_ber_check.m",
+            "scripts/mas_ofdm_ber.m"
+          ],
+          "referencedTools": [
+            "mas_ber_check",
+            "mas_detect_check",
+            "mas_filter_check",
+            "mas_image_contract",
+            "mas_image_metrics",
+            "mas_measure_contract",
+            "mas_ofdm_ber",
+            "mas_precheck",
+            "mas_route",
+            "mas_sample_check",
+            "mas_seg_check",
+            "mas_spectrum_check",
+            "mas_split_seed"
+          ],
+          "missingReferencedTools": []
+        },
+        {
+          "rootId": "workbuddy-user",
+          "root": "C:\\Users\\23201\\.workbuddy\\skills",
+          "path": "C:\\Users\\23201\\.workbuddy\\skills\\matlab-signal-vision-ai",
+          "installed": true,
+          "identical": false,
+          "skillMdSha256": "aefd0d34a8f1b84225c910bd9c07000f439cf01cc1ce595b9a4a32a029479930",
+          "fileCount": 6,
+          "missing": [
+            "references/signal-measurement-contract.md",
+            "references/vision-verification-contract.md",
+            "scripts/mas_ber_check.m",
+            "scripts/mas_detect_check.m",
+            "scripts/mas_filter_check.m",
+            "scripts/mas_image_contract.m",
+            "scripts/mas_measure_contract.m",
+            "scripts/mas_sample_check.m",
+            "scripts/mas_seg_check.m",
+            "scripts/mas_stat_verdict.m",
+            "tests/test_signal_contract.m",
+            "tests/test_stat_decision.m",
+            "tests/test_vision_contract.m"
+          ],
+          "extra": [],
+          "differing": [
+            "SKILL.md",
+            "scripts/mas_ofdm_ber.m"
+          ],
+          "referencedTools": [
+            "mas_image_metrics",
+            "mas_ofdm_ber",
+            "mas_spectrum_check",
+            "mas_split_seed"
+          ],
+          "missingReferencedTools": []
+        },
+        {
+          "rootId": "codex-user",
+          "root": "C:\\Users\\23201\\.codex\\skills",
+          "path": "C:\\Users\\23201\\.codex\\skills\\matlab-signal-vision-ai",
+          "installed": false,
+          "identical": false,
+          "skillMdSha256": "",
+          "fileCount": 0,
+          "missing": [
+            "SKILL.md",
+            "references/signal-measurement-contract.md",
+            "references/vision-verification-contract.md",
+            "scripts/mas_ber_check.m",
+            "scripts/mas_detect_check.m",
+            "scripts/mas_filter_check.m",
+            "scripts/mas_image_contract.m",
+            "scripts/mas_image_metrics.m",
+            "scripts/mas_measure_contract.m",
+            "scripts/mas_ofdm_ber.m",
+            "scripts/mas_sample_check.m",
+            "scripts/mas_seg_check.m",
+            "scripts/mas_spectrum_check.m",
+            "scripts/mas_split_seed.m",
+            "scripts/mas_stat_verdict.m",
+            "tests/test_signal_contract.m",
+            "tests/test_signal_vision.m",
+            "tests/test_stat_decision.m",
+            "tests/test_vision_contract.m"
+          ],
+          "extra": [],
+          "differing": [],
+          "referencedTools": [],
+          "missingReferencedTools": []
+        }
+      ],
+      "referencedTools": [
+        "mas_ber_check",
+        "mas_detect_check",
+        "mas_filter_check",
+        "mas_image_contract",
+        "mas_image_metrics",
+        "mas_measure_contract",
+        "mas_ofdm_ber",
+        "mas_precheck",
+        "mas_route",
+        "mas_sample_check",
+        "mas_seg_check",
+        "mas_spectrum_check",
+        "mas_split_seed",
+        "mas_stat_verdict"
+      ],
+      "missingReferencedToolsInRepo": []
+    },
+    {
+      "name": "matlab-simulink-modeling",
+      "repoPath": "E:\\desktop\\MATLAB\\skills\\matlab-simulink-modeling",
+      "repoSkillMdSha256": "939073dcd6eca16a612092440c6b8bd47f49898a98452daf299c4db3b7644d6b",
+      "repoFileCount": 6,
+      "installs": [
+        {
+          "rootId": "qoder-project",
+          "root": "E:\\desktop\\MATLAB\\.qoder\\skills",
+          "path": "E:\\desktop\\MATLAB\\.qoder\\skills\\matlab-simulink-modeling",
+          "installed": false,
+          "identical": false,
+          "skillMdSha256": "",
+          "fileCount": 0,
+          "missing": [
+            "SKILL.md",
+            "references/excitation-checks.md",
+            "scripts/mas_dist_enter.m",
+            "scripts/mas_model_check.m",
+            "tests/test_dist_enter.m",
+            "tests/test_model_check.m"
+          ],
+          "extra": [],
+          "differing": [],
+          "referencedTools": [],
+          "missingReferencedTools": []
+        },
+        {
+          "rootId": "qoder-user",
+          "root": "C:\\Users\\23201\\.qoder-cn\\skills",
+          "path": "C:\\Users\\23201\\.qoder-cn\\skills\\matlab-simulink-modeling",
+          "installed": false,
+          "identical": false,
+          "skillMdSha256": "",
+          "fileCount": 0,
+          "missing": [
+            "SKILL.md",
+            "references/excitation-checks.md",
+            "scripts/mas_dist_enter.m",
+            "scripts/mas_model_check.m",
+            "tests/test_dist_enter.m",
+            "tests/test_model_check.m"
+          ],
+          "extra": [],
+          "differing": [],
+          "referencedTools": [],
+          "missingReferencedTools": []
+        },
+        {
+          "rootId": "agents-shared",
+          "root": "C:\\Users\\23201\\.agents\\skills",
+          "path": "C:\\Users\\23201\\.agents\\skills\\matlab-simulink-modeling",
+          "installed": true,
+          "identical": true,
+          "skillMdSha256": "939073dcd6eca16a612092440c6b8bd47f49898a98452daf299c4db3b7644d6b",
+          "fileCount": 6,
+          "missing": [],
+          "extra": [],
+          "differing": [],
+          "referencedTools": [
+            "mas_dist_enter",
+            "mas_model_check",
+            "mas_precheck"
+          ],
+          "missingReferencedTools": []
+        },
+        {
+          "rootId": "workbuddy-user",
+          "root": "C:\\Users\\23201\\.workbuddy\\skills",
+          "path": "C:\\Users\\23201\\.workbuddy\\skills\\matlab-simulink-modeling",
+          "installed": true,
+          "identical": false,
+          "skillMdSha256": "8708730a57e47ced8e36ee2d9d1d06fc3c6b661e2c4ec9bf9af1c0746e872c70",
+          "fileCount": 3,
+          "missing": [
+            "references/excitation-checks.md",
+            "scripts/mas_dist_enter.m",
+            "tests/test_dist_enter.m"
+          ],
+          "extra": [],
+          "differing": [
+            "SKILL.md"
+          ],
+          "referencedTools": [
+            "mas_model_check",
+            "mas_precheck"
+          ],
+          "missingReferencedTools": []
+        },
+        {
+          "rootId": "codex-user",
+          "root": "C:\\Users\\23201\\.codex\\skills",
+          "path": "C:\\Users\\23201\\.codex\\skills\\matlab-simulink-modeling",
+          "installed": false,
+          "identical": false,
+          "skillMdSha256": "",
+          "fileCount": 0,
+          "missing": [
+            "SKILL.md",
+            "references/excitation-checks.md",
+            "scripts/mas_dist_enter.m",
+            "scripts/mas_model_check.m",
+            "tests/test_dist_enter.m",
+            "tests/test_model_check.m"
+          ],
+          "extra": [],
+          "differing": [],
+          "referencedTools": [],
+          "missingReferencedTools": []
+        }
+      ],
+      "referencedTools": [
+        "mas_dist_enter",
+        "mas_model_check",
+        "mas_precheck"
+      ],
+      "missingReferencedToolsInRepo": []
+    },
+    {
+      "name": "matlab-testing-ci",
+      "repoPath": "E:\\desktop\\MATLAB\\skills\\matlab-testing-ci",
+      "repoSkillMdSha256": "c8f236b89898459fc2bf6d84e1156d624b7f89300030dd6e17df03c506686b52",
+      "repoFileCount": 20,
+      "installs": [
+        {
+          "rootId": "qoder-project",
+          "root": "E:\\desktop\\MATLAB\\.qoder\\skills",
+          "path": "E:\\desktop\\MATLAB\\.qoder\\skills\\matlab-testing-ci",
+          "installed": false,
+          "identical": false,
+          "skillMdSha256": "",
+          "fileCount": 0,
+          "missing": [
+            "SKILL.md",
+            "assets/install-roots.json",
+            "scripts/mas_bench_record.m",
+            "scripts/mas_capability_check.m",
+            "scripts/mas_delivery_check.m",
+            "scripts/mas_grade.m",
+            "scripts/mas_phase43_grade.m",
+            "scripts/mas_ref_derive.m",
+            "scripts/mas_ref_spec.m",
+            "scripts/mas_refcheck.m",
+            "scripts/mas_skill_audit.m",
+            "scripts/mas_skill_install_audit.m",
+            "scripts/mas_verify_task.m",
+            "tests/test_bench.m",
+            "tests/test_capability.m",
+            "tests/test_delivery_check.m",
+            "tests/test_grade.m",
+            "tests/test_phase43_grade.m",
+            "tests/test_refcheck.m",
+            "tests/test_skill_install_audit.m"
+          ],
+          "extra": [],
+          "differing": [],
+          "referencedTools": [],
+          "missingReferencedTools": []
+        },
+        {
+          "rootId": "qoder-user",
+          "root": "C:\\Users\\23201\\.qoder-cn\\skills",
+          "path": "C:\\Users\\23201\\.qoder-cn\\skills\\matlab-testing-ci",
+          "installed": true,
+          "identical": false,
+          "skillMdSha256": "ed2e866e2bf3504c7e9a69a0b82b84bd1921d7b999eeb81c1f3c2550e0fd43d0",
+          "fileCount": 12,
+          "missing": [
+            "assets/install-roots.json",
+            "scripts/mas_delivery_check.m",
+            "scripts/mas_phase43_grade.m",
+            "scripts/mas_skill_audit.m",
+            "scripts/mas_skill_install_audit.m",
+            "tests/test_delivery_check.m",
+            "tests/test_phase43_grade.m",
+            "tests/test_skill_install_audit.m"
+          ],
+          "extra": [],
+          "differing": [
+            "SKILL.md",
+            "scripts/mas_bench_record.m",
+            "scripts/mas_capability_check.m",
+            "scripts/mas_grade.m",
+            "tests/test_bench.m",
+            "tests/test_capability.m"
+          ],
+          "referencedTools": [
+            "mas_grade",
+            "mas_ref_derive",
+            "mas_ref_spec",
+            "mas_refcheck",
+            "mas_verify_task"
+          ],
+          "missingReferencedTools": []
+        },
+        {
+          "rootId": "agents-shared",
+          "root": "C:\\Users\\23201\\.agents\\skills",
+          "path": "C:\\Users\\23201\\.agents\\skills\\matlab-testing-ci",
+          "installed": true,
+          "identical": false,
+          "skillMdSha256": "c8f236b89898459fc2bf6d84e1156d624b7f89300030dd6e17df03c506686b52",
+          "fileCount": 15,
+          "missing": [
+            "assets/install-roots.json",
+            "scripts/mas_delivery_check.m",
+            "scripts/mas_skill_install_audit.m",
+            "tests/test_delivery_check.m",
+            "tests/test_skill_install_audit.m"
+          ],
+          "extra": [],
+          "differing": [
+            "scripts/mas_capability_check.m",
+            "tests/test_capability.m"
+          ],
+          "referencedTools": [
+            "mas_grade",
+            "mas_ref_derive",
+            "mas_ref_spec",
+            "mas_refcheck",
+            "mas_verify_task"
+          ],
+          "missingReferencedTools": []
+        },
+        {
+          "rootId": "workbuddy-user",
+          "root": "C:\\Users\\23201\\.workbuddy\\skills",
+          "path": "C:\\Users\\23201\\.workbuddy\\skills\\matlab-testing-ci",
+          "installed": true,
+          "identical": false,
+          "skillMdSha256": "ed2e866e2bf3504c7e9a69a0b82b84bd1921d7b999eeb81c1f3c2550e0fd43d0",
+          "fileCount": 12,
+          "missing": [
+            "assets/install-roots.json",
+            "scripts/mas_delivery_check.m",
+            "scripts/mas_phase43_grade.m",
+            "scripts/mas_skill_audit.m",
+            "scripts/mas_skill_install_audit.m",
+            "tests/test_delivery_check.m",
+            "tests/test_phase43_grade.m",
+            "tests/test_skill_install_audit.m"
+          ],
+          "extra": [],
+          "differing": [
+            "SKILL.md",
+            "scripts/mas_bench_record.m",
+            "scripts/mas_capability_check.m",
+            "scripts/mas_grade.m",
+            "tests/test_bench.m",
+            "tests/test_capability.m"
+          ],
+          "referencedTools": [
+            "mas_grade",
+            "mas_ref_derive",
+            "mas_ref_spec",
+            "mas_refcheck",
+            "mas_verify_task"
+          ],
+          "missingReferencedTools": []
+        },
+        {
+          "rootId": "codex-user",
+          "root": "C:\\Users\\23201\\.codex\\skills",
+          "path": "C:\\Users\\23201\\.codex\\skills\\matlab-testing-ci",
+          "installed": false,
+          "identical": false,
+          "skillMdSha256": "",
+          "fileCount": 0,
+          "missing": [
+            "SKILL.md",
+            "assets/install-roots.json",
+            "scripts/mas_bench_record.m",
+            "scripts/mas_capability_check.m",
+            "scripts/mas_delivery_check.m",
+            "scripts/mas_grade.m",
+            "scripts/mas_phase43_grade.m",
+            "scripts/mas_ref_derive.m",
+            "scripts/mas_ref_spec.m",
+            "scripts/mas_refcheck.m",
+            "scripts/mas_skill_audit.m",
+            "scripts/mas_skill_install_audit.m",
+            "scripts/mas_verify_task.m",
+            "tests/test_bench.m",
+            "tests/test_capability.m",
+            "tests/test_delivery_check.m",
+            "tests/test_grade.m",
+            "tests/test_phase43_grade.m",
+            "tests/test_refcheck.m",
+            "tests/test_skill_install_audit.m"
+          ],
+          "extra": [],
+          "differing": [],
+          "referencedTools": [],
+          "missingReferencedTools": []
+        }
+      ],
+      "referencedTools": [
+        "mas_grade",
+        "mas_ref_derive",
+        "mas_ref_spec",
+        "mas_refcheck",
+        "mas_verify_task"
+      ],
+      "missingReferencedToolsInRepo": []
+    }
+  ],
+  "conflicts": [
+    {
+      "skill": "matlab-codegen-deploy",
+      "roots": [
+        "qoder-user",
+        "agents-shared",
+        "workbuddy-user"
+      ],
+      "hashes": [
+        "650b816cbe63897ea1ed49a51fbf01abbe23e7a32df246af0447c6d48bbb7d7b",
+        "f06c60f01e6bde168e27d54909be097bdd97a2bef5aabdf21b43d51384c6d531",
+        "650b816cbe63897ea1ed49a51fbf01abbe23e7a32df246af0447c6d48bbb7d7b"
+      ],
+      "distinctHashes": 2,
+      "effective": [
+        {
+          "client": "qoder",
+          "rootId": "qoder-user"
+        },
+        {
+          "client": "codex-cli",
+          "rootId": "agents-shared"
+        },
+        {
+          "client": "codex-desktop",
+          "rootId": "agents-shared"
+        },
+        {
+          "client": "workbuddy",
+          "rootId": "workbuddy-user"
+        }
+      ]
+    },
+    {
+      "skill": "matlab-control-optimization",
+      "roots": [
+        "qoder-user",
+        "agents-shared",
+        "workbuddy-user"
+      ],
+      "hashes": [
+        "16c363d28e678c9531d8a7a012dc5dca0905b7a6d4ed59473532c67705e612e0",
+        "4696460ac13b5dfa550012342bc0bbda76cd15d2b89e49f9e7952ab97431518f",
+        "16c363d28e678c9531d8a7a012dc5dca0905b7a6d4ed59473532c67705e612e0"
+      ],
+      "distinctHashes": 2,
+      "effective": [
+        {
+          "client": "qoder",
+          "rootId": "qoder-user"
+        },
+        {
+          "client": "codex-cli",
+          "rootId": "agents-shared"
+        },
+        {
+          "client": "codex-desktop",
+          "rootId": "agents-shared"
+        },
+        {
+          "client": "workbuddy",
+          "rootId": "workbuddy-user"
+        }
+      ]
+    },
+    {
+      "skill": "matlab-data-analysis",
+      "roots": [
+        "qoder-user",
+        "agents-shared",
+        "workbuddy-user"
+      ],
+      "hashes": [
+        "e150aa8167ff8437751a039d06cc7f37008fac2bc99000412ebb6030a29ff836",
+        "819543aa030e455d63b352c2d92e071ab26e8bb5df0728d778d884de663de9aa",
+        "e150aa8167ff8437751a039d06cc7f37008fac2bc99000412ebb6030a29ff836"
+      ],
+      "distinctHashes": 2,
+      "effective": [
+        {
+          "client": "qoder",
+          "rootId": "qoder-user"
+        },
+        {
+          "client": "codex-cli",
+          "rootId": "agents-shared"
+        },
+        {
+          "client": "codex-desktop",
+          "rootId": "agents-shared"
+        },
+        {
+          "client": "workbuddy",
+          "rootId": "workbuddy-user"
+        }
+      ]
+    },
+    {
+      "skill": "matlab-orchestrator",
+      "roots": [
+        "agents-shared",
+        "workbuddy-user"
+      ],
+      "hashes": [
+        "aa101900a83c647248714207ffc1cfcf64144bdef30b09918309955928d79488",
+        "5f17fbea2aaaaa3eeb234463fbf9a5a4c60018d7f5cbe71d590d3cfe00fbabce"
+      ],
+      "distinctHashes": 2,
+      "effective": [
+        {
+          "client": "qoder",
+          "rootId": "agents-shared"
+        },
+        {
+          "client": "codex-cli",
+          "rootId": "agents-shared"
+        },
+        {
+          "client": "codex-desktop",
+          "rootId": "agents-shared"
+        },
+        {
+          "client": "workbuddy",
+          "rootId": "workbuddy-user"
+        }
+      ]
+    },
+    {
+      "skill": "matlab-robotics-autonomy",
+      "roots": [
+        "qoder-user",
+        "agents-shared",
+        "workbuddy-user"
+      ],
+      "hashes": [
+        "b7110cafd4b8d17c39e52dd190c326dde91030d635b0f0e5a084042031c318b3",
+        "b03962b3e490e0e03155685865135a4176a480d2921d1c2b20a7509ab5baed73",
+        "b7110cafd4b8d17c39e52dd190c326dde91030d635b0f0e5a084042031c318b3"
+      ],
+      "distinctHashes": 2,
+      "effective": [
+        {
+          "client": "qoder",
+          "rootId": "qoder-user"
+        },
+        {
+          "client": "codex-cli",
+          "rootId": "agents-shared"
+        },
+        {
+          "client": "codex-desktop",
+          "rootId": "agents-shared"
+        },
+        {
+          "client": "workbuddy",
+          "rootId": "workbuddy-user"
+        }
+      ]
+    },
+    {
+      "skill": "matlab-runner",
+      "roots": [
+        "qoder-user",
+        "agents-shared",
+        "workbuddy-user"
+      ],
+      "hashes": [
+        "896248e333136cd675a59ebef16ab890b3a726668e2fe947d04be15707d3d795",
+        "380bb682188f14af5aefea93e12f6fe303e010f4f5fc69e5280c4a0fd066f0a6",
+        "896248e333136cd675a59ebef16ab890b3a726668e2fe947d04be15707d3d795"
+      ],
+      "distinctHashes": 2,
+      "effective": [
+        {
+          "client": "qoder",
+          "rootId": "qoder-user"
+        },
+        {
+          "client": "codex-cli",
+          "rootId": "agents-shared"
+        },
+        {
+          "client": "codex-desktop",
+          "rootId": "agents-shared"
+        },
+        {
+          "client": "workbuddy",
+          "rootId": "workbuddy-user"
+        }
+      ]
+    },
+    {
+      "skill": "matlab-signal-vision-ai",
+      "roots": [
+        "qoder-user",
+        "agents-shared",
+        "workbuddy-user"
+      ],
+      "hashes": [
+        "aefd0d34a8f1b84225c910bd9c07000f439cf01cc1ce595b9a4a32a029479930",
+        "8b512f651c3f228575a5e84a5889f1f21258133341f98595b4005981e8156b8e",
+        "aefd0d34a8f1b84225c910bd9c07000f439cf01cc1ce595b9a4a32a029479930"
+      ],
+      "distinctHashes": 2,
+      "effective": [
+        {
+          "client": "qoder",
+          "rootId": "qoder-user"
+        },
+        {
+          "client": "codex-cli",
+          "rootId": "agents-shared"
+        },
+        {
+          "client": "codex-desktop",
+          "rootId": "agents-shared"
+        },
+        {
+          "client": "workbuddy",
+          "rootId": "workbuddy-user"
+        }
+      ]
+    },
+    {
+      "skill": "matlab-simulink-modeling",
+      "roots": [
+        "agents-shared",
+        "workbuddy-user"
+      ],
+      "hashes": [
+        "939073dcd6eca16a612092440c6b8bd47f49898a98452daf299c4db3b7644d6b",
+        "8708730a57e47ced8e36ee2d9d1d06fc3c6b661e2c4ec9bf9af1c0746e872c70"
+      ],
+      "distinctHashes": 2,
+      "effective": [
+        {
+          "client": "qoder",
+          "rootId": "agents-shared"
+        },
+        {
+          "client": "codex-cli",
+          "rootId": "agents-shared"
+        },
+        {
+          "client": "codex-desktop",
+          "rootId": "agents-shared"
+        },
+        {
+          "client": "workbuddy",
+          "rootId": "workbuddy-user"
+        }
+      ]
+    },
+    {
+      "skill": "matlab-testing-ci",
+      "roots": [
+        "qoder-user",
+        "agents-shared",
+        "workbuddy-user"
+      ],
+      "hashes": [
+        "ed2e866e2bf3504c7e9a69a0b82b84bd1921d7b999eeb81c1f3c2550e0fd43d0",
+        "c8f236b89898459fc2bf6d84e1156d624b7f89300030dd6e17df03c506686b52",
+        "ed2e866e2bf3504c7e9a69a0b82b84bd1921d7b999eeb81c1f3c2550e0fd43d0"
+      ],
+      "distinctHashes": 2,
+      "effective": [
+        {
+          "client": "qoder",
+          "rootId": "qoder-user"
+        },
+        {
+          "client": "codex-cli",
+          "rootId": "agents-shared"
+        },
+        {
+          "client": "codex-desktop",
+          "rootId": "agents-shared"
+        },
+        {
+          "client": "workbuddy",
+          "rootId": "workbuddy-user"
+        }
+      ]
+    }
+  ],
+  "recommendations": [
+    {
+      "skill": "matlab-codegen-deploy",
+      "client": "qoder",
+      "targetRoot": "C:\\Users\\23201\\.qoder-cn\\skills",
+      "action": "SYNC",
+      "add": [],
+      "overwrite": [
+        "SKILL.md",
+        "scripts/mas_codegen_ready.m",
+        "scripts/mas_codegen_verify.m",
+        "tests/test_codegen.m"
+      ],
+      "onlyInInstall": [],
+      "confidence": "observed",
+      "requiresApproval": true,
+      "note": "Read-only suggestion. Backup first; never delete onlyInInstall automatically."
+    },
+    {
+      "skill": "matlab-control-optimization",
+      "client": "qoder",
+      "targetRoot": "C:\\Users\\23201\\.qoder-cn\\skills",
+      "action": "SYNC",
+      "add": [
+        "references/stability-contracts.md",
+        "scripts/mas_stability_verdict.m",
+        "tests/test_stability_contract.m"
+      ],
+      "overwrite": [
+        "SKILL.md",
+        "scripts/mas_ctrl_analyze.m"
+      ],
+      "onlyInInstall": [],
+      "confidence": "observed",
+      "requiresApproval": true,
+      "note": "Read-only suggestion. Backup first; never delete onlyInInstall automatically."
+    },
+    {
+      "skill": "matlab-data-analysis",
+      "client": "qoder",
+      "targetRoot": "C:\\Users\\23201\\.qoder-cn\\skills",
+      "action": "SYNC",
+      "add": [
+        "references/data-verification-contract.md",
+        "scripts/mas_converge_check.m",
+        "scripts/mas_fit_check.m",
+        "scripts/mas_linsolve_check.m",
+        "scripts/mas_ode_check.m",
+        "scripts/mas_quad_check.m",
+        "scripts/mas_repro_check.m",
+        "scripts/mas_stat_check.m",
+        "scripts/mas_uncert_check.m",
+        "tests/test_data_contract.m",
+        "tests/test_ode_contract.m",
+        "tests/test_ode_field_contract.m"
+      ],
+      "overwrite": [
+        "SKILL.md"
+      ],
+      "onlyInInstall": [],
+      "confidence": "observed",
+      "requiresApproval": true,
+      "note": "Read-only suggestion. Backup first; never delete onlyInInstall automatically."
+    },
+    {
+      "skill": "matlab-robotics-autonomy",
+      "client": "qoder",
+      "targetRoot": "C:\\Users\\23201\\.qoder-cn\\skills",
+      "action": "SYNC",
+      "add": [
+        "references/robotics-verification-contract.md",
+        "scripts/mas_dyn_check.m",
+        "scripts/mas_estimate_check.m",
+        "scripts/mas_quat_check.m",
+        "scripts/mas_traj_check.m",
+        "tests/test_robotics_contract.m"
+      ],
+      "overwrite": [
+        "SKILL.md"
+      ],
+      "onlyInInstall": [],
+      "confidence": "observed",
+      "requiresApproval": true,
+      "note": "Read-only suggestion. Backup first; never delete onlyInInstall automatically."
+    },
+    {
+      "skill": "matlab-runner",
+      "client": "qoder",
+      "targetRoot": "C:\\Users\\23201\\.qoder-cn\\skills",
+      "action": "SYNC",
+      "add": [],
+      "overwrite": [
+        "SKILL.md",
+        "references/mcp-readiness-ladder.md",
+        "scripts/mas_dep_probe.m",
+        "scripts/mas_product_map.m",
+        "tests/test_dep_probe.m"
+      ],
+      "onlyInInstall": [],
+      "confidence": "observed",
+      "requiresApproval": true,
+      "note": "Read-only suggestion. Backup first; never delete onlyInInstall automatically."
+    },
+    {
+      "skill": "matlab-signal-vision-ai",
+      "client": "qoder",
+      "targetRoot": "C:\\Users\\23201\\.qoder-cn\\skills",
+      "action": "SYNC",
+      "add": [
+        "references/signal-measurement-contract.md",
+        "references/vision-verification-contract.md",
+        "scripts/mas_ber_check.m",
+        "scripts/mas_detect_check.m",
+        "scripts/mas_filter_check.m",
+        "scripts/mas_image_contract.m",
+        "scripts/mas_measure_contract.m",
+        "scripts/mas_sample_check.m",
+        "scripts/mas_seg_check.m",
+        "scripts/mas_stat_verdict.m",
+        "tests/test_signal_contract.m",
+        "tests/test_stat_decision.m",
+        "tests/test_vision_contract.m"
+      ],
+      "overwrite": [
+        "SKILL.md",
+        "scripts/mas_ofdm_ber.m"
+      ],
+      "onlyInInstall": [],
+      "confidence": "observed",
+      "requiresApproval": true,
+      "note": "Read-only suggestion. Backup first; never delete onlyInInstall automatically."
+    },
+    {
+      "skill": "matlab-testing-ci",
+      "client": "qoder",
+      "targetRoot": "C:\\Users\\23201\\.qoder-cn\\skills",
+      "action": "SYNC",
+      "add": [
+        "assets/install-roots.json",
+        "scripts/mas_delivery_check.m",
+        "scripts/mas_phase43_grade.m",
+        "scripts/mas_skill_audit.m",
+        "scripts/mas_skill_install_audit.m",
+        "tests/test_delivery_check.m",
+        "tests/test_phase43_grade.m",
+        "tests/test_skill_install_audit.m"
+      ],
+      "overwrite": [
+        "SKILL.md",
+        "scripts/mas_bench_record.m",
+        "scripts/mas_capability_check.m",
+        "scripts/mas_grade.m",
+        "tests/test_bench.m",
+        "tests/test_capability.m"
+      ],
+      "onlyInInstall": [],
+      "confidence": "observed",
+      "requiresApproval": true,
+      "note": "Read-only suggestion. Backup first; never delete onlyInInstall automatically."
+    },
+    {
+      "skill": "matlab-codegen-deploy",
+      "client": "codex-cli",
+      "targetRoot": "C:\\Users\\23201\\.agents\\skills",
+      "action": "SYNC",
+      "add": [],
+      "overwrite": [
+        "scripts/mas_codegen_verify.m",
+        "tests/test_codegen.m"
+      ],
+      "onlyInInstall": [],
+      "confidence": "observed",
+      "requiresApproval": true,
+      "note": "Read-only suggestion. Backup first; never delete onlyInInstall automatically."
+    },
+    {
+      "skill": "matlab-data-analysis",
+      "client": "codex-cli",
+      "targetRoot": "C:\\Users\\23201\\.agents\\skills",
+      "action": "SYNC",
+      "add": [
+        "tests/test_ode_field_contract.m"
+      ],
+      "overwrite": [
+        "SKILL.md",
+        "references/data-verification-contract.md",
+        "scripts/mas_ode_check.m"
+      ],
+      "onlyInInstall": [],
+      "confidence": "observed",
+      "requiresApproval": true,
+      "note": "Read-only suggestion. Backup first; never delete onlyInInstall automatically."
+    },
+    {
+      "skill": "matlab-signal-vision-ai",
+      "client": "codex-cli",
+      "targetRoot": "C:\\Users\\23201\\.agents\\skills",
+      "action": "SYNC",
+      "add": [
+        "scripts/mas_stat_verdict.m",
+        "tests/test_stat_decision.m"
+      ],
+      "overwrite": [
+        "SKILL.md",
+        "references/signal-measurement-contract.md",
+        "scripts/mas_ber_check.m",
+        "scripts/mas_ofdm_ber.m"
+      ],
+      "onlyInInstall": [],
+      "confidence": "observed",
+      "requiresApproval": true,
+      "note": "Read-only suggestion. Backup first; never delete onlyInInstall automatically."
+    },
+    {
+      "skill": "matlab-testing-ci",
+      "client": "codex-cli",
+      "targetRoot": "C:\\Users\\23201\\.agents\\skills",
+      "action": "SYNC",
+      "add": [
+        "assets/install-roots.json",
+        "scripts/mas_delivery_check.m",
+        "scripts/mas_skill_install_audit.m",
+        "tests/test_delivery_check.m",
+        "tests/test_skill_install_audit.m"
+      ],
+      "overwrite": [
+        "scripts/mas_capability_check.m",
+        "tests/test_capability.m"
+      ],
+      "onlyInInstall": [],
+      "confidence": "observed",
+      "requiresApproval": true,
+      "note": "Read-only suggestion. Backup first; never delete onlyInInstall automatically."
+    },
+    {
+      "skill": "matlab-codegen-deploy",
+      "client": "workbuddy",
+      "targetRoot": "C:\\Users\\23201\\.workbuddy\\skills",
+      "action": "SYNC",
+      "add": [],
+      "overwrite": [
+        "SKILL.md",
+        "scripts/mas_codegen_ready.m",
+        "scripts/mas_codegen_verify.m",
+        "tests/test_codegen.m"
+      ],
+      "onlyInInstall": [],
+      "confidence": "assumed",
+      "requiresApproval": true,
+      "note": "Read-only suggestion. Backup first; never delete onlyInInstall automatically."
+    },
+    {
+      "skill": "matlab-control-optimization",
+      "client": "workbuddy",
+      "targetRoot": "C:\\Users\\23201\\.workbuddy\\skills",
+      "action": "SYNC",
+      "add": [
+        "references/stability-contracts.md",
+        "scripts/mas_stability_verdict.m",
+        "tests/test_stability_contract.m"
+      ],
+      "overwrite": [
+        "SKILL.md",
+        "scripts/mas_ctrl_analyze.m"
+      ],
+      "onlyInInstall": [],
+      "confidence": "assumed",
+      "requiresApproval": true,
+      "note": "Read-only suggestion. Backup first; never delete onlyInInstall automatically."
+    },
+    {
+      "skill": "matlab-data-analysis",
+      "client": "workbuddy",
+      "targetRoot": "C:\\Users\\23201\\.workbuddy\\skills",
+      "action": "SYNC",
+      "add": [
+        "references/data-verification-contract.md",
+        "scripts/mas_converge_check.m",
+        "scripts/mas_fit_check.m",
+        "scripts/mas_linsolve_check.m",
+        "scripts/mas_ode_check.m",
+        "scripts/mas_quad_check.m",
+        "scripts/mas_repro_check.m",
+        "scripts/mas_stat_check.m",
+        "scripts/mas_uncert_check.m",
+        "tests/test_data_contract.m",
+        "tests/test_ode_contract.m",
+        "tests/test_ode_field_contract.m"
+      ],
+      "overwrite": [
+        "SKILL.md"
+      ],
+      "onlyInInstall": [],
+      "confidence": "assumed",
+      "requiresApproval": true,
+      "note": "Read-only suggestion. Backup first; never delete onlyInInstall automatically."
+    },
+    {
+      "skill": "matlab-orchestrator",
+      "client": "workbuddy",
+      "targetRoot": "C:\\Users\\23201\\.workbuddy\\skills",
+      "action": "SYNC",
+      "add": [
+        "references/routing-contract.md",
+        "tests/test_routing_contract.m"
+      ],
+      "overwrite": [
+        "SKILL.md",
+        "assets/routing.json",
+        "assets/tasks.json",
+        "scripts/mas_pipeline.m",
+        "scripts/mas_route.m"
+      ],
+      "onlyInInstall": [],
+      "confidence": "assumed",
+      "requiresApproval": true,
+      "note": "Read-only suggestion. Backup first; never delete onlyInInstall automatically."
+    },
+    {
+      "skill": "matlab-robotics-autonomy",
+      "client": "workbuddy",
+      "targetRoot": "C:\\Users\\23201\\.workbuddy\\skills",
+      "action": "SYNC",
+      "add": [
+        "references/robotics-verification-contract.md",
+        "scripts/mas_dyn_check.m",
+        "scripts/mas_estimate_check.m",
+        "scripts/mas_quat_check.m",
+        "scripts/mas_traj_check.m",
+        "tests/test_robotics_contract.m"
+      ],
+      "overwrite": [
+        "SKILL.md"
+      ],
+      "onlyInInstall": [],
+      "confidence": "assumed",
+      "requiresApproval": true,
+      "note": "Read-only suggestion. Backup first; never delete onlyInInstall automatically."
+    },
+    {
+      "skill": "matlab-runner",
+      "client": "workbuddy",
+      "targetRoot": "C:\\Users\\23201\\.workbuddy\\skills",
+      "action": "SYNC",
+      "add": [],
+      "overwrite": [
+        "SKILL.md",
+        "references/mcp-readiness-ladder.md",
+        "scripts/mas_dep_probe.m",
+        "scripts/mas_product_map.m",
+        "tests/test_dep_probe.m"
+      ],
+      "onlyInInstall": [],
+      "confidence": "assumed",
+      "requiresApproval": true,
+      "note": "Read-only suggestion. Backup first; never delete onlyInInstall automatically."
+    },
+    {
+      "skill": "matlab-signal-vision-ai",
+      "client": "workbuddy",
+      "targetRoot": "C:\\Users\\23201\\.workbuddy\\skills",
+      "action": "SYNC",
+      "add": [
+        "references/signal-measurement-contract.md",
+        "references/vision-verification-contract.md",
+        "scripts/mas_ber_check.m",
+        "scripts/mas_detect_check.m",
+        "scripts/mas_filter_check.m",
+        "scripts/mas_image_contract.m",
+        "scripts/mas_measure_contract.m",
+        "scripts/mas_sample_check.m",
+        "scripts/mas_seg_check.m",
+        "scripts/mas_stat_verdict.m",
+        "tests/test_signal_contract.m",
+        "tests/test_stat_decision.m",
+        "tests/test_vision_contract.m"
+      ],
+      "overwrite": [
+        "SKILL.md",
+        "scripts/mas_ofdm_ber.m"
+      ],
+      "onlyInInstall": [],
+      "confidence": "assumed",
+      "requiresApproval": true,
+      "note": "Read-only suggestion. Backup first; never delete onlyInInstall automatically."
+    },
+    {
+      "skill": "matlab-simulink-modeling",
+      "client": "workbuddy",
+      "targetRoot": "C:\\Users\\23201\\.workbuddy\\skills",
+      "action": "SYNC",
+      "add": [
+        "references/excitation-checks.md",
+        "scripts/mas_dist_enter.m",
+        "tests/test_dist_enter.m"
+      ],
+      "overwrite": [
+        "SKILL.md"
+      ],
+      "onlyInInstall": [],
+      "confidence": "assumed",
+      "requiresApproval": true,
+      "note": "Read-only suggestion. Backup first; never delete onlyInInstall automatically."
+    },
+    {
+      "skill": "matlab-testing-ci",
+      "client": "workbuddy",
+      "targetRoot": "C:\\Users\\23201\\.workbuddy\\skills",
+      "action": "SYNC",
+      "add": [
+        "assets/install-roots.json",
+        "scripts/mas_delivery_check.m",
+        "scripts/mas_phase43_grade.m",
+        "scripts/mas_skill_audit.m",
+        "scripts/mas_skill_install_audit.m",
+        "tests/test_delivery_check.m",
+        "tests/test_phase43_grade.m",
+        "tests/test_skill_install_audit.m"
+      ],
+      "overwrite": [
+        "SKILL.md",
+        "scripts/mas_bench_record.m",
+        "scripts/mas_capability_check.m",
+        "scripts/mas_grade.m",
+        "tests/test_bench.m",
+        "tests/test_capability.m"
+      ],
+      "onlyInInstall": [],
+      "confidence": "assumed",
+      "requiresApproval": true,
+      "note": "Read-only suggestion. Backup first; never delete onlyInInstall automatically."
+    }
+  ],
+  "summary": {
+    "verdict": "DRIFTED",
+    "nSkills": 9,
+    "nClients": 4,
+    "nRecommendations": 20,
+    "consistentClients": [
+      false,
+      false,
+      false,
+      false
+    ],
+    "claimLimit": "A root that exists is not a root the client loads. Only Qoder precedence (log) and Codex engine listing (skills/list) were observed.",
+    "byClient": [
+      {
+        "client": "qoder",
+        "nCurrent": 2,
+        "nDrifted": 7,
+        "nMissing": 0,
+        "nUnresolved": 0
+      },
+      {
+        "client": "codex-cli",
+        "nCurrent": 5,
+        "nDrifted": 4,
+        "nMissing": 0,
+        "nUnresolved": 0
+      },
+      {
+        "client": "codex-desktop",
+        "nCurrent": 5,
+        "nDrifted": 4,
+        "nMissing": 0,
+        "nUnresolved": 0
+      },
+      {
+        "client": "workbuddy",
+        "nCurrent": 0,
+        "nDrifted": 9,
+        "nMissing": 0,
+        "nUnresolved": 0
+      }
+    ]
+  }
+}

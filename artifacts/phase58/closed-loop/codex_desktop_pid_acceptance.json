@@ -1,0 +1,270 @@
+{
+  "schema": "mas-phase58-closed-loop/1",
+  "generatedAt": "2026-10-23 18:37:54",
+  "taskDir": "E:\\desktop\\MATLAB\\artifacts\\phase58\\native\\codex-desktop-tasks\\C_control_design_E3",
+  "client": "codex-desktop-0.163.0-alpha.11.1",
+  "taskId": "C_control_design",
+  "prompt": "Design a PID controller for a first-order plant P(s) = 1/(s+1). Target a settling time below 2 seconds and overshoot below 10% for a unit step. Simulate the closed loop, then write {\"Kp\": ..., \"Ki\": ..., \"Kd\": ..., \"overshootPercent\": ..., \"settlingTimeSeconds\": ...} to result.json. Report the gains and achieved metrics.",
+  "scope": "one real episode in an isolated project whose .agents/skills copy is byte-identical to the repository; the user-level Skills roots were not touched",
+  "claimLimit": "acceptance of a single delivered episode; not a benchmark, not a Skill-effect measurement, and not proof that the user-level installation is current",
+  "skillHashVerified": true,
+  "clientReadsOutsideSkillCopy": [
+    "E:/desktop/MATLAB/scripts/Test-MatlabMcpExistingSession.ps1",
+    "E:/desktop/MATLAB/schemas/acceptance-report.schema.json",
+    "E:/desktop/MATLAB/scripts/MatlabAgentSkills.McpProbe.psm1",
+    "E:/desktop/MATLAB/scripts/MatlabAgentSkills.Acceptance.psm1",
+    "E:/desktop/MATLAB/scripts/MatlabAgentSkills.Execution.psm1"
+  ],
+  "trace": {
+    "skillSelected": true,
+    "referencesLoaded": true,
+    "mcpExecuted": true,
+    "checksRun": true,
+    "repaired": true,
+    "toolCalls": 8,
+    "skillPaths": [
+      ".agents/skills/matlab-control-optimization/SKILL.md",
+      ".agents/skills/matlab-orchestrator/SKILL.md",
+      ".agents/skills/matlab-runner/SKILL.md"
+    ],
+    "referencePaths": [
+      ".agents/skills/matlab-control-optimization/scripts/mas_ctrl_analyze.m",
+      ".agents/skills/matlab-control-optimization/scripts/mas_stability_verdict.m",
+      ".agents/skills/matlab-orchestrator/assets/routing.json",
+      ".agents/skills/matlab-orchestrator/scripts/mas_route.m",
+      ".agents/skills/matlab-runner/references/acceptance-levels.md",
+      ".agents/skills/matlab-runner/references/failure-classes.md",
+      ".agents/skills/matlab-runner/references/mcp-readiness-ladder.md",
+      ".agents/skills/matlab-runner/scripts"
+    ],
+    "mcpTools": [
+      "detect_matlab_toolboxes",
+      "evaluate_matlab_code",
+      "check_matlab_code",
+      "evaluate_matlab_code",
+      "evaluate_matlab_code",
+      "check_matlab_code",
+      "evaluate_matlab_code",
+      "check_matlab_code"
+    ],
+    "mcpFailures": 1,
+    "mcpCompleted": 7,
+    "commandCalls": 26,
+    "projectScoped": true,
+    "userRootSkillReads": 0,
+    "otherSkillReads": 0,
+    "pathClasses": [
+      [
+        ".agents/skills/matlab-orchestrator/SKILL.md",
+        "projectCopy"
+      ],
+      [
+        ".agents/skills/matlab-control-optimization/SKILL.md",
+        "projectCopy"
+      ],
+      [
+        ".agents/skills/matlab-orchestrator/SKILL.md",
+        "projectCopy"
+      ],
+      [
+        ".agents/skills/matlab-control-optimization/SKILL.md",
+        "projectCopy"
+      ],
+      [
+        ".agents/skills/matlab-runner/SKILL.md",
+        "projectCopy"
+      ],
+      [
+        ".agents/skills/matlab-runner/SKILL.md",
+        "projectCopy"
+      ],
+      [
+        ".agents/skills/matlab-runner/references/mcp-readiness-ladder.md",
+        "projectCopy"
+      ],
+      [
+        ".agents/skills/matlab-orchestrator/scripts/mas_route.m",
+        "projectCopy"
+      ],
+      [
+        ".agents/skills/matlab-orchestrator/assets/routing.json",
+        "projectCopy"
+      ],
+      [
+        ".agents/skills/matlab-runner/references/acceptance-levels.md",
+        "projectCopy"
+      ],
+      [
+        ".agents/skills/matlab-runner/scripts",
+        "projectCopy"
+      ],
+      [
+        ".agents/skills/matlab-runner/references/mcp-readiness-ladder.md",
+        "projectCopy"
+      ],
+      [
+        ".agents/skills/matlab-orchestrator/scripts/mas_route.m",
+        "projectCopy"
+      ],
+      [
+        ".agents/skills/matlab-orchestrator/assets/routing.json",
+        "projectCopy"
+      ],
+      [
+        ".agents/skills/matlab-runner/references/acceptance-levels.md",
+        "projectCopy"
+      ],
+      [
+        ".agents/skills/matlab-runner/scripts",
+        "projectCopy"
+      ],
+      [
+        ".agents/skills/matlab-control-optimization/scripts/mas_stability_verdict.m",
+        "projectCopy"
+      ],
+      [
+        ".agents/skills/matlab-control-optimization/scripts/mas_stability_verdict.m",
+        "projectCopy"
+      ],
+      [
+        ".agents/skills/matlab-control-optimization/scripts/mas_ctrl_analyze.m",
+        "projectCopy"
+      ],
+      [
+        ".agents/skills/matlab-control-optimization/scripts/mas_ctrl_analyze.m",
+        "projectCopy"
+      ],
+      [
+        ".agents/skills/matlab-control-optimization/scripts/mas_stability_verdict.m",
+        "projectCopy"
+      ],
+      [
+        ".agents/skills/matlab-runner/references/failure-classes.md",
+        "projectCopy"
+      ],
+      [
+        ".agents/skills/matlab-control-optimization/scripts/mas_stability_verdict.m",
+        "projectCopy"
+      ],
+      [
+        ".agents/skills/matlab-runner/references/failure-classes.md",
+        "projectCopy"
+      ],
+      [
+        ".agents/skills/matlab-control-optimization/scripts/mas_stability_verdict.m",
+        "projectCopy"
+      ],
+      [
+        ".agents/skills/matlab-control-optimization/scripts/mas_stability_verdict.m",
+        "projectCopy"
+      ]
+    ],
+    "repoSourceReads": [
+      "E:/desktop/MATLAB/scripts/Test-MatlabMcpExistingSession.ps1",
+      "E:/desktop/MATLAB/schemas/acceptance-report.schema.json",
+      "E:/desktop/MATLAB/scripts/MatlabAgentSkills.McpProbe.psm1",
+      "E:/desktop/MATLAB/scripts/MatlabAgentSkills.Acceptance.psm1",
+      "E:/desktop/MATLAB/scripts/MatlabAgentSkills.Execution.psm1"
+    ],
+    "skillRoot": "E:/desktop/MATLAB/artifacts/phase58/native/fixtures/task_C3/.agents/skills",
+    "cwd": "E:/desktop/MATLAB/artifacts/phase58/native/fixtures/task_C3",
+    "eventCount": 62
+  },
+  "independentRecomputation": {
+    "plant": "P(s) = 1/(s+1)",
+    "feedback": "unit negative feedback, series PID: C(s) = Kp + Ki/s + Kd*s",
+    "settlingBand": 0.02,
+    "overshootLimitPercent": 10,
+    "settlingLimitSeconds": 2,
+    "overshootPercent": 4.974845912365633,
+    "settlingTimeSeconds": 1.5049240146120373,
+    "peakValue": 1.0497484591236563,
+    "finalValue": 1,
+    "stepWindowSeconds": 20,
+    "maxRealPartOfPole": -3,
+    "stable": true,
+    "expectedVerdict": "PASS"
+  },
+  "independentAgreement": true,
+  "delivered": {
+    "Kp": 5.6000000000000005,
+    "Ki": 9.9,
+    "Kd": 0.1,
+    "overshootPercent": 4.9748483765646334,
+    "settlingTimeSeconds": 1.5049239629437805
+  },
+  "normalizedFile": "D:\\Temp\\p58_normalized_20261023183754074.json",
+  "clientInputsUnchanged": true,
+  "dimensions": {
+    "numericalCorrectness": {
+      "status": "PASS",
+      "sources": [
+        "math.numericStatus"
+      ],
+      "detail": "numeric and domain checks judged by mas_grade"
+    },
+    "enumContractValid": {
+      "status": "PASS",
+      "sources": [
+        "enums.status",
+        "math.enumStatus"
+      ],
+      "detail": "enumContractValid: enums.status PASS, math.enumStatus NOT_REQUIRED"
+    },
+    "engineeringVerdictCorrect": {
+      "status": "PASS",
+      "sources": [
+        "verdict.status"
+      ],
+      "detail": "delivered verdict vs expected verdict; never coerced"
+    },
+    "structuralSchemaValid": {
+      "status": "PASS",
+      "sources": [
+        "format.status",
+        "required.status",
+        "units.status"
+      ],
+      "detail": "structuralSchemaValid: format.status PASS, required.status PASS, units.status PASS"
+    },
+    "workflowCompleted": {
+      "status": "PASS",
+      "sources": [
+        "workflow.status"
+      ],
+      "detail": "5 stage(s) declared"
+    },
+    "withinBudget": {
+      "status": "PASS",
+      "sources": [
+        "budget.status"
+      ],
+      "detail": "recorded usage vs declared limits"
+    },
+    "deliveryValid": {
+      "status": "PASS",
+      "sources": [
+        "dimensions.numericalCorrectness",
+        "dimensions.enumContractValid",
+        "dimensions.engineeringVerdictCorrect",
+        "dimensions.structuralSchemaValid",
+        "dimensions.workflowCompleted",
+        "dimensions.withinBudget",
+        "reference.status"
+      ],
+      "detail": "deliveryValid: dimensions.numericalCorrectness PASS, dimensions.enumContractValid PASS, dimensions.engineeringVerdictCorrect PASS, dimensions.structuralSchemaValid PASS, dimensions.workflowCompleted PASS, dimensions.withinBudget PASS, reference.status NOT_REQUIRED"
+    }
+  },
+  "v1": {
+    "overall": "PASS",
+    "format": "PASS",
+    "enums": "PASS",
+    "units": "PASS",
+    "verdict": "PASS",
+    "math": "PASS",
+    "budget": "PASS",
+    "workflow": "PASS"
+  },
+  "errors": [],
+  "pass": true
+}

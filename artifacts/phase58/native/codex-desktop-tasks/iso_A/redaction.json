@@ -1,0 +1,15 @@
+{
+ "schema": "mas-phase58-credential-redaction/1",
+ "generatedAt": "2026-10-23 19:01:09",
+ "file": "artifacts/phase58/native/codex-desktop-tasks/iso_A/events.jsonl",
+ "reason": "A MATLAB MCP session bootstrap file was echoed into the episode transcript by an agent grep, leaking the live session apiKey (port/path/pid retained; only the credential value is replaced).",
+ "redactedTokenClass": "matlab-mcp session apiKey (36-char UUID)",
+ "replacement": "REDACTED:4906bd42ef9f",
+ "replacementRule": "sha256(token) first 12 hex, so an authorized holder can still confirm which session this was without publishing it",
+ "occurrences": 1,
+ "bytesBefore": 75624,
+ "bytesAfter": 75609,
+ "sha256Before": "3bb6faa27b4c49c94adc928d3cd1c5598f4e4f03d4d3a33a07de8d73a350c1cb",
+ "sha256After": "fe41f19e395330beaf31f81ccff9fa27c3a2052b06414948f83646c5bba5bfbc",
+ "claimLimit": "Everything else in events.jsonl is byte-for-byte unchanged; the pristine copy existed only transiently and was never committed."
+}

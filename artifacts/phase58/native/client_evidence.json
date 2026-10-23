@@ -1,0 +1,767 @@
+{
+  "schema": "mas-phase58-client-evidence/1",
+  "generatedAt": "2026-10-23 18:37:59",
+  "phase": "5.8",
+  "readOnly": true,
+  "levels": {
+    "L1": "the repository ships the Skill",
+    "L2": "the client listing returns the Skill",
+    "L3": "the client emits a native Skill-load event",
+    "L4": "the task is worked through that Skill and independently accepted"
+  },
+  "l3MechanismNote": "Codex app-server/CLI event types are error, agent_message, command_execution, mcp_tool_call and file_change; no Skill item exists. Codex L3 is therefore NOT APPLICABLE (mechanism), and l3ReadInstalledCopy is its strongest available equivalent, not a native trigger.",
+  "episodes": [
+    {
+      "client": "codex-desktop",
+      "episode": "A_numeric_matlab",
+      "task": "A_numeric_matlab",
+      "status": "FAIL",
+      "exitCode": 0,
+      "approvalMode": "sandbox",
+      "durationSeconds": 296.2,
+      "prompt": "Use MATLAB to build the 4x4 matrix M = [2 -1 0 0; -1 2 -1 0; 0 -1 2 -1; 0 0 -1 2], compute its determinant and the largest magnitude of its eigenvalues, and write them rounded to 6 decimal places as {\"determinant\": ..., \"maxAbsEigenvalue\": ...} to result.json in the current directory. Run the computation and report the values.",
+      "promptHasSkillName": false,
+      "producedFiles": [],
+      "skillRoot": "D:/Temp/p58_codex_task_g3hp2o8s/.agents/skills",
+      "independentlyAccepted": false,
+      "levels": {
+        "L1": "EVIDENCED",
+        "L2": "EVIDENCED",
+        "L3": "NOT APPLICABLE (mechanism)",
+        "L4": "NOT EVIDENCED",
+        "l3ReadInstalledCopy": "EVIDENCED",
+        "matlabWorked": "NO"
+      },
+      "note": "episode recorded FAIL; its events are kept byte-for-byte | the client sandbox rejected process creation (access denied)",
+      "trace": {
+        "skillSelected": true,
+        "referencesLoaded": false,
+        "mcpExecuted": false,
+        "checksRun": false,
+        "repaired": false,
+        "toolCalls": 0,
+        "mcpFailures": 0,
+        "commandCalls": 22,
+        "userRootSkillReads": 2,
+        "projectScoped": false,
+        "skillPaths": [
+          "D:/Temp/p58_codex_task_g3hp2o8s/.agents/skills/matlab-runner/SKILL.md"
+        ],
+        "referencePaths": [],
+        "repoSourceReads": []
+      },
+      "l3eq": "EVIDENCED",
+      "l4": "NOT EVIDENCED",
+      "mcpExecuted": false,
+      "userRootSkillReads": 2,
+      "projectScoped": false,
+      "filesProduced": 0
+    },
+    {
+      "client": "codex-desktop",
+      "episode": "A_numeric_matlab_E",
+      "task": "A_numeric_matlab",
+      "status": "FAIL",
+      "exitCode": 0,
+      "approvalMode": "sandbox",
+      "durationSeconds": 304.1,
+      "prompt": "Use MATLAB to build the 4x4 matrix M = [2 -1 0 0; -1 2 -1 0; 0 -1 2 -1; 0 0 -1 2], compute its determinant and the largest magnitude of its eigenvalues, and write them rounded to 6 decimal places as {\"determinant\": ..., \"maxAbsEigenvalue\": ...} to result.json in the current directory. Run the computation and report the values.",
+      "promptHasSkillName": false,
+      "producedFiles": [
+        "compute_result_m"
+      ],
+      "skillRoot": "E:/desktop/MATLAB/artifacts/phase58/native/fixtures/task_A/.agents/skills",
+      "independentlyAccepted": false,
+      "levels": {
+        "L1": "EVIDENCED",
+        "L2": "EVIDENCED",
+        "L3": "NOT APPLICABLE (mechanism)",
+        "L4": "NOT EVIDENCED",
+        "l3ReadInstalledCopy": "EVIDENCED",
+        "matlabWorked": "NO"
+      },
+      "note": "episode recorded FAIL; its events are kept byte-for-byte | the client sandbox rejected process creation (access denied)",
+      "trace": {
+        "skillSelected": true,
+        "referencesLoaded": true,
+        "mcpExecuted": false,
+        "checksRun": false,
+        "repaired": false,
+        "toolCalls": 2,
+        "mcpFailures": 2,
+        "commandCalls": 14,
+        "userRootSkillReads": 0,
+        "projectScoped": true,
+        "skillPaths": [
+          "E:/desktop/MATLAB/artifacts/phase58/native/fixtures/task_A/.agents/skills/matlab-orchestrator/SKILL.md",
+          "E:/desktop/MATLAB/artifacts/phase58/native/fixtures/task_A/.agents/skills/matlab-runner/SKILL.md"
+        ],
+        "referencePaths": [
+          ".agents/skills/matlab-orchestrator/assets/routing.json",
+          ".agents/skills/matlab-orchestrator/scripts/mas_route.m",
+          ".agents/skills/matlab-runner/references/acceptance-levels.md",
+          ".agents/skills/matlab-runner/references/mcp-readiness-ladder.md"
+        ],
+        "repoSourceReads": []
+      },
+      "l3eq": "EVIDENCED",
+      "l4": "NOT EVIDENCED",
+      "mcpExecuted": false,
+      "userRootSkillReads": 0,
+      "projectScoped": true,
+      "filesProduced": 1
+    },
+    {
+      "client": "codex-desktop",
+      "episode": "A_numeric_matlab_E2",
+      "task": "A_numeric_matlab",
+      "status": "PASS",
+      "exitCode": 0,
+      "approvalMode": "approve-for-me",
+      "durationSeconds": 237.8,
+      "prompt": "Use MATLAB to build the 4x4 matrix M = [2 -1 0 0; -1 2 -1 0; 0 -1 2 -1; 0 0 -1 2], compute its determinant and the largest magnitude of its eigenvalues, and write them rounded to 6 decimal places as {\"determinant\": ..., \"maxAbsEigenvalue\": ...} to result.json in the current directory. Run the computation and report the values.",
+      "promptHasSkillName": false,
+      "producedFiles": [
+        "result_json"
+      ],
+      "skillRoot": "E:/desktop/MATLAB/artifacts/phase58/native/fixtures/task_A2/.agents/skills",
+      "independentlyAccepted": false,
+      "levels": {
+        "L1": "EVIDENCED",
+        "L2": "EVIDENCED",
+        "L3": "NOT APPLICABLE (mechanism)",
+        "L4": "PARTIAL: MATLAB ran through the Skill and an artifact was delivered, but no independent acceptance check covers this task",
+        "l3ReadInstalledCopy": "EVIDENCED",
+        "matlabWorked": "YES"
+      },
+      "note": "",
+      "trace": {
+        "skillSelected": true,
+        "referencesLoaded": false,
+        "mcpExecuted": true,
+        "checksRun": false,
+        "repaired": false,
+        "toolCalls": 1,
+        "mcpFailures": 0,
+        "commandCalls": 8,
+        "userRootSkillReads": 0,
+        "projectScoped": true,
+        "skillPaths": [
+          "E:/desktop/MATLAB/artifacts/phase58/native/fixtures/task_A2/.agents/skills/matlab-runner/SKILL.md"
+        ],
+        "referencePaths": [],
+        "repoSourceReads": []
+      },
+      "l3eq": "EVIDENCED",
+      "l4": "PARTIAL: MATLAB ran through the Skill and an artifact was delivered, but no independent acceptance check covers this task",
+      "mcpExecuted": true,
+      "userRootSkillReads": 0,
+      "projectScoped": true,
+      "filesProduced": 1
+    },
+    {
+      "client": "codex-desktop",
+      "episode": "B_simulink_model_E",
+      "task": "B_simulink_model",
+      "status": "PASS",
+      "exitCode": 0,
+      "approvalMode": "approve-for-me",
+      "durationSeconds": 362,
+      "prompt": "Build a small Simulink model: a Constant block with value 3 connected to a Gain block with gain 4, and a Display block receiving the Gain output. Save the model as phase58_model.slx, simulate it, and write the displayed value to result.json as {\"displayedValue\": ...}. Report whether the model was saved and simulated.",
+      "promptHasSkillName": false,
+      "producedFiles": [
+        "phase58_model_slx",
+        "result_json"
+      ],
+      "skillRoot": "E:/desktop/MATLAB/artifacts/phase58/native/fixtures/task_B/.agents/skills",
+      "independentlyAccepted": false,
+      "levels": {
+        "L1": "EVIDENCED",
+        "L2": "EVIDENCED",
+        "L3": "NOT APPLICABLE (mechanism)",
+        "L4": "PARTIAL: MATLAB ran through the Skill and an artifact was delivered, but no independent acceptance check covers this task",
+        "l3ReadInstalledCopy": "EVIDENCED",
+        "matlabWorked": "YES"
+      },
+      "note": "",
+      "trace": {
+        "skillSelected": true,
+        "referencesLoaded": false,
+        "mcpExecuted": true,
+        "checksRun": false,
+        "repaired": false,
+        "toolCalls": 3,
+        "mcpFailures": 0,
+        "commandCalls": 12,
+        "userRootSkillReads": 0,
+        "projectScoped": true,
+        "skillPaths": [
+          ".agents/skills/matlab-runner/SKILL.md",
+          ".agents/skills/matlab-simulink-modeling/SKILL.md"
+        ],
+        "referencePaths": [],
+        "repoSourceReads": []
+      },
+      "l3eq": "EVIDENCED",
+      "l4": "PARTIAL: MATLAB ran through the Skill and an artifact was delivered, but no independent acceptance check covers this task",
+      "mcpExecuted": true,
+      "userRootSkillReads": 0,
+      "projectScoped": true,
+      "filesProduced": 2
+    },
+    {
+      "client": "codex-desktop",
+      "episode": "C_control_design_E",
+      "task": "C_control_design",
+      "status": "FAIL",
+      "exitCode": 1,
+      "approvalMode": "approve-for-me",
+      "durationSeconds": 179.6,
+      "prompt": "Design a PID controller for a first-order plant P(s) = 1/(s+1). Target a settling time below 2 seconds and overshoot below 10% for a unit step. Simulate the closed loop, then write {\"Kp\": ..., \"Ki\": ..., \"Kd\": ..., \"overshootPercent\": ..., \"settlingTimeSeconds\": ...} to result.json. Report the gains and achieved metrics.",
+      "promptHasSkillName": false,
+      "producedFiles": [],
+      "skillRoot": "E:/desktop/MATLAB/artifacts/phase58/native/fixtures/task_C/.agents/skills",
+      "independentlyAccepted": false,
+      "levels": {
+        "L1": "EVIDENCED",
+        "L2": "EVIDENCED",
+        "L3": "NOT APPLICABLE (mechanism)",
+        "L4": "NOT EVIDENCED",
+        "l3ReadInstalledCopy": "NOT EVIDENCED",
+        "matlabWorked": "NO"
+      },
+      "note": "client aborted before any command or tool call ran | MCP transport closed mid-task",
+      "trace": {
+        "skillSelected": false,
+        "referencesLoaded": false,
+        "mcpExecuted": false,
+        "checksRun": false,
+        "repaired": false,
+        "toolCalls": 0,
+        "mcpFailures": 0,
+        "commandCalls": 0,
+        "userRootSkillReads": 0,
+        "projectScoped": false,
+        "skillPaths": [],
+        "referencePaths": [],
+        "repoSourceReads": []
+      },
+      "l3eq": "NOT EVIDENCED",
+      "l4": "NOT EVIDENCED",
+      "mcpExecuted": false,
+      "userRootSkillReads": 0,
+      "projectScoped": false,
+      "filesProduced": 0
+    },
+    {
+      "client": "codex-desktop",
+      "episode": "C_control_design_E2",
+      "task": "C_control_design",
+      "status": "FAIL",
+      "exitCode": 1,
+      "approvalMode": "approve-for-me",
+      "durationSeconds": 179.6,
+      "prompt": "Design a PID controller for a first-order plant P(s) = 1/(s+1). Target a settling time below 2 seconds and overshoot below 10% for a unit step. Simulate the closed loop, then write {\"Kp\": ..., \"Ki\": ..., \"Kd\": ..., \"overshootPercent\": ..., \"settlingTimeSeconds\": ...} to result.json. Report the gains and achieved metrics.",
+      "promptHasSkillName": false,
+      "producedFiles": [],
+      "skillRoot": "E:/desktop/MATLAB/artifacts/phase58/native/fixtures/task_C2/.agents/skills",
+      "independentlyAccepted": false,
+      "levels": {
+        "L1": "EVIDENCED",
+        "L2": "EVIDENCED",
+        "L3": "NOT APPLICABLE (mechanism)",
+        "L4": "NOT EVIDENCED",
+        "l3ReadInstalledCopy": "NOT EVIDENCED",
+        "matlabWorked": "NO"
+      },
+      "note": "client aborted before any command or tool call ran | MCP transport closed mid-task",
+      "trace": {
+        "skillSelected": false,
+        "referencesLoaded": false,
+        "mcpExecuted": false,
+        "checksRun": false,
+        "repaired": false,
+        "toolCalls": 0,
+        "mcpFailures": 0,
+        "commandCalls": 0,
+        "userRootSkillReads": 0,
+        "projectScoped": false,
+        "skillPaths": [],
+        "referencePaths": [],
+        "repoSourceReads": []
+      },
+      "l3eq": "NOT EVIDENCED",
+      "l4": "NOT EVIDENCED",
+      "mcpExecuted": false,
+      "userRootSkillReads": 0,
+      "projectScoped": false,
+      "filesProduced": 0
+    },
+    {
+      "client": "codex-desktop",
+      "episode": "C_control_design_E3",
+      "task": "C_control_design",
+      "status": "PASS",
+      "exitCode": 0,
+      "approvalMode": "approve-for-me",
+      "durationSeconds": 730.3,
+      "prompt": "Design a PID controller for a first-order plant P(s) = 1/(s+1). Target a settling time below 2 seconds and overshoot below 10% for a unit step. Simulate the closed loop, then write {\"Kp\": ..., \"Ki\": ..., \"Kd\": ..., \"overshootPercent\": ..., \"settlingTimeSeconds\": ...} to result.json. Report the gains and achieved metrics.",
+      "promptHasSkillName": false,
+      "producedFiles": [
+        "artifacts_data_pid_step_mat",
+        "artifacts_figures_pid_step_png",
+        "artifacts_logs_pid_simulation_log",
+        "artifacts_validation_acceptance_report_json",
+        "artifacts_validation_code_analysis_json",
+        "artifacts_validation_mcp_probe_json",
+        "artifacts_validation_mcp_probe_loopback_json",
+        "artifacts_validation_simulation_evidence_json",
+        "design_pid_m",
+        "result_json"
+      ],
+      "skillRoot": "E:/desktop/MATLAB/artifacts/phase58/native/fixtures/task_C3/.agents/skills",
+      "independentlyAccepted": true,
+      "levels": {
+        "L1": "EVIDENCED",
+        "L2": "EVIDENCED",
+        "L3": "NOT APPLICABLE (mechanism)",
+        "L4": "EVIDENCED",
+        "l3ReadInstalledCopy": "EVIDENCED",
+        "matlabWorked": "YES"
+      },
+      "note": "",
+      "trace": {
+        "skillSelected": true,
+        "referencesLoaded": true,
+        "mcpExecuted": true,
+        "checksRun": true,
+        "repaired": true,
+        "toolCalls": 8,
+        "mcpFailures": 1,
+        "commandCalls": 26,
+        "userRootSkillReads": 0,
+        "projectScoped": true,
+        "skillPaths": [
+          ".agents/skills/matlab-control-optimization/SKILL.md",
+          ".agents/skills/matlab-orchestrator/SKILL.md",
+          ".agents/skills/matlab-runner/SKILL.md"
+        ],
+        "referencePaths": [
+          ".agents/skills/matlab-control-optimization/scripts/mas_ctrl_analyze.m",
+          ".agents/skills/matlab-control-optimization/scripts/mas_stability_verdict.m",
+          ".agents/skills/matlab-orchestrator/assets/routing.json",
+          ".agents/skills/matlab-orchestrator/scripts/mas_route.m",
+          ".agents/skills/matlab-runner/references/acceptance-levels.md",
+          ".agents/skills/matlab-runner/references/failure-classes.md",
+          ".agents/skills/matlab-runner/references/mcp-readiness-ladder.md",
+          ".agents/skills/matlab-runner/scripts"
+        ],
+        "repoSourceReads": [
+          "E:/desktop/MATLAB/scripts/Test-MatlabMcpExistingSession.ps1",
+          "E:/desktop/MATLAB/schemas/acceptance-report.schema.json",
+          "E:/desktop/MATLAB/scripts/MatlabAgentSkills.McpProbe.psm1",
+          "E:/desktop/MATLAB/scripts/MatlabAgentSkills.Acceptance.psm1",
+          "E:/desktop/MATLAB/scripts/MatlabAgentSkills.Execution.psm1"
+        ]
+      },
+      "l3eq": "EVIDENCED",
+      "l4": "EVIDENCED",
+      "mcpExecuted": true,
+      "userRootSkillReads": 0,
+      "projectScoped": true,
+      "filesProduced": 10
+    },
+    {
+      "client": "codex-desktop",
+      "episode": "D_nonmatlab_control",
+      "task": "D_nonmatlab_control",
+      "status": "PASS",
+      "exitCode": 0,
+      "approvalMode": "sandbox",
+      "durationSeconds": 143.1,
+      "prompt": "Explain in three bullet points the main differences between TCP and UDP. Do not run any commands and do not create files.",
+      "promptHasSkillName": false,
+      "producedFiles": [],
+      "skillRoot": "D:/Temp/p58_codex_task_f6xeqeac/.agents/skills",
+      "independentlyAccepted": false,
+      "levels": {
+        "L1": "EVIDENCED",
+        "L2": "EVIDENCED",
+        "L3": "NOT APPLICABLE (mechanism)",
+        "L4": "NOT EVIDENCED",
+        "l3ReadInstalledCopy": "NOT EVIDENCED",
+        "matlabWorked": "NO"
+      },
+      "note": "",
+      "trace": {
+        "skillSelected": false,
+        "referencesLoaded": false,
+        "mcpExecuted": false,
+        "checksRun": false,
+        "repaired": false,
+        "toolCalls": 0,
+        "mcpFailures": 0,
+        "commandCalls": 0,
+        "userRootSkillReads": 0,
+        "projectScoped": false,
+        "skillPaths": [],
+        "referencePaths": [],
+        "repoSourceReads": []
+      },
+      "l3eq": "NOT EVIDENCED",
+      "l4": "NOT EVIDENCED",
+      "mcpExecuted": false,
+      "userRootSkillReads": 0,
+      "projectScoped": false,
+      "filesProduced": 0
+    },
+    {
+      "client": "codex-desktop",
+      "episode": "D_nonmatlab_control_E",
+      "task": "D_nonmatlab_control",
+      "status": "PASS",
+      "exitCode": 0,
+      "approvalMode": "approve-for-me",
+      "durationSeconds": 162.3,
+      "prompt": "Explain in three bullet points the main differences between TCP and UDP. Do not run any commands and do not create files.",
+      "promptHasSkillName": false,
+      "producedFiles": [],
+      "skillRoot": "E:/desktop/MATLAB/artifacts/phase58/native/fixtures/task_D/.agents/skills",
+      "independentlyAccepted": false,
+      "levels": {
+        "L1": "EVIDENCED",
+        "L2": "EVIDENCED",
+        "L3": "NOT APPLICABLE (mechanism)",
+        "L4": "NOT EVIDENCED",
+        "l3ReadInstalledCopy": "NOT EVIDENCED",
+        "matlabWorked": "NO"
+      },
+      "note": "",
+      "trace": {
+        "skillSelected": false,
+        "referencesLoaded": false,
+        "mcpExecuted": false,
+        "checksRun": false,
+        "repaired": false,
+        "toolCalls": 0,
+        "mcpFailures": 0,
+        "commandCalls": 0,
+        "userRootSkillReads": 0,
+        "projectScoped": false,
+        "skillPaths": [],
+        "referencePaths": [],
+        "repoSourceReads": []
+      },
+      "l3eq": "NOT EVIDENCED",
+      "l4": "NOT EVIDENCED",
+      "mcpExecuted": false,
+      "userRootSkillReads": 0,
+      "projectScoped": false,
+      "filesProduced": 0
+    },
+    {
+      "client": "codex-desktop",
+      "episode": "iso_A",
+      "task": "A_numeric_matlab",
+      "status": "FAIL",
+      "exitCode": 1,
+      "approvalMode": "approve-for-me",
+      "durationSeconds": 312.4,
+      "prompt": "Use MATLAB to build the 4x4 matrix M = [2 -1 0 0; -1 2 -1 0; 0 -1 2 -1; 0 0 -1 2], compute its determinant and the largest magnitude of its eigenvalues, and write them rounded to 6 decimal places as {\"determinant\": ..., \"maxAbsEigenvalue\": ...} to result.json in the current directory. Run the computation and report the values.",
+      "promptHasSkillName": false,
+      "producedFiles": [],
+      "skillRoot": "E:/desktop/p58-iso/task_A/.agents/skills",
+      "independentlyAccepted": false,
+      "levels": {
+        "L1": "EVIDENCED",
+        "L2": "EVIDENCED",
+        "L3": "NOT APPLICABLE (mechanism)",
+        "L4": "NOT EVIDENCED",
+        "l3ReadInstalledCopy": "EVIDENCED",
+        "matlabWorked": "NO"
+      },
+      "note": "episode recorded FAIL; its events are kept byte-for-byte | the client sandbox rejected process creation (access denied)",
+      "trace": {
+        "skillSelected": true,
+        "referencesLoaded": true,
+        "mcpExecuted": false,
+        "checksRun": false,
+        "repaired": false,
+        "toolCalls": 0,
+        "mcpFailures": 0,
+        "commandCalls": 26,
+        "userRootSkillReads": 0,
+        "projectScoped": true,
+        "skillPaths": [
+          "E:/desktop/p58-iso/task_A/.agents/skills/matlab-runner/SKILL.md"
+        ],
+        "referencePaths": [
+          ".agents/skills/matlab-runner/references/mcp-readiness-ladder.md"
+        ],
+        "repoSourceReads": []
+      },
+      "l3eq": "EVIDENCED",
+      "l4": "NOT EVIDENCED",
+      "mcpExecuted": false,
+      "userRootSkillReads": 0,
+      "projectScoped": true,
+      "filesProduced": 0
+    },
+    {
+      "client": "codex-cli",
+      "episode": "D_nonmatlab_control",
+      "task": "D_nonmatlab_control",
+      "status": "FAIL",
+      "exitCode": 1,
+      "approvalMode": "sandbox",
+      "durationSeconds": 134.7,
+      "prompt": "Explain in three bullet points the main differences between TCP and UDP. Do not run any commands and do not create files.",
+      "promptHasSkillName": false,
+      "producedFiles": [],
+      "skillRoot": "D:/Temp/p58_codex_task_6gvd9wl9/.agents/skills",
+      "independentlyAccepted": false,
+      "levels": {
+        "L1": "EVIDENCED",
+        "L2": "EVIDENCED",
+        "L3": "NOT APPLICABLE (mechanism)",
+        "L4": "NOT EVIDENCED",
+        "l3ReadInstalledCopy": "NOT EVIDENCED",
+        "matlabWorked": "NO"
+      },
+      "note": "client aborted before any command or tool call ran | model metadata rejected by the CLI",
+      "trace": {
+        "skillSelected": false,
+        "referencesLoaded": false,
+        "mcpExecuted": false,
+        "checksRun": false,
+        "repaired": false,
+        "toolCalls": 0,
+        "mcpFailures": 0,
+        "commandCalls": 0,
+        "userRootSkillReads": 0,
+        "projectScoped": false,
+        "skillPaths": [],
+        "referencePaths": [],
+        "repoSourceReads": []
+      },
+      "l3eq": "NOT EVIDENCED",
+      "l4": "NOT EVIDENCED",
+      "mcpExecuted": false,
+      "userRootSkillReads": 0,
+      "projectScoped": false,
+      "filesProduced": 0
+    }
+  ],
+  "discovery": [
+    {
+      "client": "Codex Desktop engine 0.163.0-alpha.11.1 isolated",
+      "status": "PASS",
+      "skillsReturned": 9,
+      "expected": 9,
+      "hashesMatchRepo": true,
+      "discoveryErrors": [],
+      "names": [
+        "matlab-codegen-deploy",
+        "matlab-control-optimization",
+        "matlab-data-analysis",
+        "matlab-orchestrator",
+        "matlab-robotics-autonomy",
+        "matlab-runner",
+        "matlab-signal-vision-ai",
+        "matlab-simulink-modeling",
+        "matlab-testing-ci"
+      ],
+      "fixtureRemoved": true
+    },
+    {
+      "client": "Codex CLI 0.147.0 isolated",
+      "status": "PASS",
+      "skillsReturned": 9,
+      "expected": 9,
+      "hashesMatchRepo": true,
+      "discoveryErrors": [],
+      "names": [
+        "matlab-codegen-deploy",
+        "matlab-control-optimization",
+        "matlab-data-analysis",
+        "matlab-orchestrator",
+        "matlab-robotics-autonomy",
+        "matlab-runner",
+        "matlab-signal-vision-ai",
+        "matlab-simulink-modeling",
+        "matlab-testing-ci"
+      ],
+      "fixtureRemoved": true
+    }
+  ],
+  "userRootsUnchanged": {
+    "generatedAt": "2026-10-23 13:07:58",
+    "recheckAt": "2026-10-23 18:38:02",
+    "copiesCompared": 45,
+    "equal": true,
+    "detail": [
+      "45 installed copies are byte-identical to the pre-probe snapshot"
+    ],
+    "nowVerdict": "DRIFTED",
+    "nowByClient": [
+      {
+        "client": "qoder",
+        "nCurrent": 2,
+        "nDrifted": 7,
+        "nMissing": 0,
+        "nUnresolved": 0
+      },
+      {
+        "client": "codex-cli",
+        "nCurrent": 5,
+        "nDrifted": 4,
+        "nMissing": 0,
+        "nUnresolved": 0
+      },
+      {
+        "client": "codex-desktop",
+        "nCurrent": 5,
+        "nDrifted": 4,
+        "nMissing": 0,
+        "nUnresolved": 0
+      },
+      {
+        "client": "workbuddy",
+        "nCurrent": 0,
+        "nDrifted": 9,
+        "nMissing": 0,
+        "nUnresolved": 0
+      }
+    ],
+    "method": "per-Skill SKILL.md sha256 plus the missing/differing file lists, snapshot vs now"
+  },
+  "closedLoop": {
+    "file": "E:\\desktop\\MATLAB\\artifacts\\phase58\\closed-loop\\codex_desktop_pid_acceptance.json",
+    "exists": true,
+    "pass": true,
+    "dimensions": {
+      "numericalCorrectness": "PASS",
+      "enumContractValid": "PASS",
+      "engineeringVerdictCorrect": "PASS",
+      "structuralSchemaValid": "PASS",
+      "workflowCompleted": "PASS",
+      "withinBudget": "PASS",
+      "deliveryValid": "PASS"
+    },
+    "independentAgreement": true
+  },
+  "clients": [
+    {
+      "client": "codex-desktop",
+      "name": "Codex Desktop engine 0.163.0-alpha.11.1",
+      "episodes": 10,
+      "episodesPass": 5,
+      "L2": "EVIDENCED",
+      "L3": "NOT APPLICABLE (mechanism)",
+      "l3ReadInstalledCopy": "EVIDENCED",
+      "L4": "EVIDENCED",
+      "status": "EVIDENCED to independently accepted L4, then BLOCKED by the account usage limit",
+      "basis": "four task episodes (A, B, C, D) plus two aborted transport attempts and one out-of-repo attempt"
+    },
+    {
+      "client": "codex-cli",
+      "name": "Codex CLI 0.147.0",
+      "episodes": 1,
+      "episodesPass": 0,
+      "L2": "EVIDENCED",
+      "L3": "NOT APPLICABLE (mechanism)",
+      "l3ReadInstalledCopy": "NOT EVIDENCED",
+      "L4": "NOT EVIDENCED",
+      "status": "L2 EVIDENCED only; task runs BLOCKED",
+      "basis": "app-server skills/list 9/9; its single task episode died on model metadata"
+    },
+    {
+      "client": "qoder",
+      "name": "Qoder Desktop",
+      "episodes": 0,
+      "episodesPass": 0,
+      "L2": "PARTIAL (Phase 5.7 override log and an explicit Skill event; not re-run in 5.8)",
+      "L3": "DEFERRED (user root 2/9 CURRENT, 7/9 DRIFTED; sync needs approval)",
+      "l3ReadInstalledCopy": "NOT TESTED",
+      "L4": "NOT TESTED",
+      "status": "BLOCKED pending an approved install sync",
+      "basis": "skill-usage.json records 1 use of matlab-orchestrator on this machine"
+    },
+    {
+      "client": "workbuddy",
+      "name": "WorkBuddy",
+      "episodes": 0,
+      "episodesPass": 0,
+      "L2": "NOT TESTED",
+      "L3": "NOT TESTED",
+      "l3ReadInstalledCopy": "NOT TESTED",
+      "L4": "NOT TESTED",
+      "status": "NO CLIENT INTERFACE IN THIS REPOSITORY",
+      "basis": "the .workbuddy skills root under the user profile is a symlink into an out-of-repo data directory; only disk presence is known"
+    }
+  ],
+  "coverageLimits": [
+    "Codex CLI task runs stopped at 2026-10-23T05:28Z: the models cache was rejected (missing field supports_parallel_tool_calls) and the skill context budget dropped descriptions; the one CLI episode produced no Skill read.",
+    "Codex Desktop task runs stopped after 2026-10-23T06:57Z: the account usage limit was reached, so no further episode was attempted.",
+    "Qoder native verification is deferred: its user root is 2/9 CURRENT and 7/9 DRIFTED and syncing it needs explicit approval.",
+    "WorkBuddy has no Skill-list or task interface in this repository, so it is NOT TESTED; disk presence under its out-of-repo skills directory is not loading.",
+    "The Codex Windows sandbox rejected process creation (CreateProcessAsUserW failed: 5, access denied) in three attempts: two in working directories outside the repository (a system temp scratch directory and an isolated probe tree on the desktop) and one inside the repository. Neither out-of-repo attempt ever exposed the MATLAB MCP and neither was retried, so they were abandoned; the in-repo attempt recovered on the next run. The rejection is therefore not attributed to the working directory alone.",
+    "Per-client observations on one machine; not a cross-client ranking and not a Skill-effect measurement."
+  ],
+  "provenanceNotes": [
+    "D:/Temp/p58_codex_task_g3hp2o8s/.agents/skills -- RELOCATED: the episode ran here and its evidence was filed under artifacts/phase58/native afterwards, so this root no longer exists to re-inspect. Path classification used the recorded root, which is the path the client actually addressed.",
+    "E:/desktop/MATLAB/artifacts/phase58/native/fixtures/task_A/.agents/skills -- RELOCATED: the episode ran here and its evidence was filed under artifacts/phase58/native afterwards, so this root no longer exists to re-inspect. Path classification used the recorded root, which is the path the client actually addressed.",
+    "E:/desktop/MATLAB/artifacts/phase58/native/fixtures/task_A2/.agents/skills -- RELOCATED: the episode ran here and its evidence was filed under artifacts/phase58/native afterwards, so this root no longer exists to re-inspect. Path classification used the recorded root, which is the path the client actually addressed.",
+    "E:/desktop/MATLAB/artifacts/phase58/native/fixtures/task_B/.agents/skills -- RELOCATED: the episode ran here and its evidence was filed under artifacts/phase58/native afterwards, so this root no longer exists to re-inspect. Path classification used the recorded root, which is the path the client actually addressed.",
+    "E:/desktop/MATLAB/artifacts/phase58/native/fixtures/task_C/.agents/skills -- RELOCATED: the episode ran here and its evidence was filed under artifacts/phase58/native afterwards, so this root no longer exists to re-inspect. Path classification used the recorded root, which is the path the client actually addressed.",
+    "E:/desktop/MATLAB/artifacts/phase58/native/fixtures/task_C2/.agents/skills -- RELOCATED: the episode ran here and its evidence was filed under artifacts/phase58/native afterwards, so this root no longer exists to re-inspect. Path classification used the recorded root, which is the path the client actually addressed.",
+    "E:/desktop/MATLAB/artifacts/phase58/native/fixtures/task_C3/.agents/skills -- RELOCATED: the episode ran here and its evidence was filed under artifacts/phase58/native afterwards, so this root no longer exists to re-inspect. Path classification used the recorded root, which is the path the client actually addressed.",
+    "D:/Temp/p58_codex_task_f6xeqeac/.agents/skills -- RELOCATED: the episode ran here and its evidence was filed under artifacts/phase58/native afterwards, so this root no longer exists to re-inspect. Path classification used the recorded root, which is the path the client actually addressed.",
+    "E:/desktop/MATLAB/artifacts/phase58/native/fixtures/task_D/.agents/skills -- RELOCATED: the episode ran here and its evidence was filed under artifacts/phase58/native afterwards, so this root no longer exists to re-inspect. Path classification used the recorded root, which is the path the client actually addressed.",
+    "E:/desktop/p58-iso/task_A/.agents/skills -- RELOCATED: the episode ran here and its evidence was filed under artifacts/phase58/native afterwards, so this root no longer exists to re-inspect. Path classification used the recorded root, which is the path the client actually addressed.",
+    "D:/Temp/p58_codex_task_6gvd9wl9/.agents/skills -- RELOCATED: the episode ran here and its evidence was filed under artifacts/phase58/native afterwards, so this root no longer exists to re-inspect. Path classification used the recorded root, which is the path the client actually addressed."
+  ],
+  "knownDefects": {
+    "id": "skill-reads-outside-its-own-directory",
+    "observedIn": [
+      "C_control_design_E3"
+    ],
+    "detail": "matlab-runner / matlab-orchestrator SKILL.md tells the agent to run .\\scripts\\Test-MatlabMcpExistingSession.ps1. Inside an installed project copy that path does not exist, so the client went looking for it and ended up reading the source repository working copy (scripts/* at the checkout root). The episode still passed, which is exactly why this is a latent defect: it works only where a clone happens to be reachable.",
+    "recommendation": "Ship that check inside the Skill and reference it relative to SKILL.md. Not edited this phase: changing SKILL.md would move every installed hash while the install audit is still open, and a metadata edit needs before/after evidence of its own."
+  },
+  "assertions": [
+    {
+      "label": "negative control never calls the MATLAB MCP and delivers nothing",
+      "ok": true
+    },
+    {
+      "label": "an episode reaches L4 only through the independent acceptance",
+      "ok": true
+    },
+    {
+      "label": "the L4 episode read only the installed project copy",
+      "ok": true
+    },
+    {
+      "label": "no prompt named a Skill or a mas_ tool",
+      "ok": true
+    },
+    {
+      "label": "both Codex engines listed 9/9 with hashes matching the repository",
+      "ok": true
+    },
+    {
+      "label": "user-level roots are byte-identical to the pre-probe snapshot",
+      "ok": true
+    },
+    {
+      "label": "the closed-loop acceptance passes",
+      "ok": true
+    },
+    {
+      "label": "a desktop episode shows the client reading SKILL.md unprompted",
+      "ok": true
+    }
+  ],
+  "pass": true
+}

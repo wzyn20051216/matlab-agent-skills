@@ -1,0 +1,481 @@
+{
+  "schema": "mas-client-task-probe/1",
+  "client": "codex-desktop-0.163.0-alpha.11.1",
+  "task": "C_control_design",
+  "scope": "isolated project; repo Skills synced to .agents/skills; no model prompt names a Skill",
+  "prompt": "Design a PID controller for a first-order plant P(s) = 1/(s+1). Target a settling time below 2 seconds and overshoot below 10% for a unit step. Simulate the closed loop, then write {\"Kp\": ..., \"Ki\": ..., \"Kd\": ..., \"overshootPercent\": ..., \"settlingTimeSeconds\": ...} to result.json. Report the gains and achieved metrics.",
+  "status": "PASS",
+  "sync": {
+    "syncTime": "2026-10-23 14:36:11",
+    "dryRun": false,
+    "sourceRoot": "E:\\desktop\\MATLAB\\skills",
+    "skillRoot": "E:\\desktop\\MATLAB\\artifacts\\phase58\\native\\fixtures\\task_C3\\.agents\\skills",
+    "skillEnvironment": {
+      "skillRoot": "E:\\desktop\\MATLAB\\artifacts\\phase58\\native\\fixtures\\task_C3\\.agents\\skills",
+      "userHome": "C:\\Users\\23201",
+      "runtime": "Windows",
+      "source": "explicit",
+      "legacySkillRoot": "C:\\Users\\23201\\.codex\\skills"
+    },
+    "manifestPath": "E:\\desktop\\MATLAB\\artifacts\\phase58\\native\\fixtures\\task_C3\\.agents\\skills\\.matlab-agent-skills-manifest.json",
+    "backupRoot": "E:\\desktop\\MATLAB\\artifacts\\phase58\\native\\fixtures\\task_C3\\.agents\\skills\\.matlab-agent-skills\\backups\\20261023-143609-sync-skills",
+    "installed": 9,
+    "updated": 0,
+    "unchanged": 0,
+    "conflicts": [],
+    "failed": false,
+    "skills": [
+      {
+        "name": "matlab-codegen-deploy",
+        "decision": "install",
+        "changed": true,
+        "backupPath": null,
+        "message": "�Ѱ�װ",
+        "preservedUserFiles": [],
+        "restoredFromBackup": false,
+        "recreatedFiles": 0
+      },
+      {
+        "name": "matlab-control-optimization",
+        "decision": "install",
+        "changed": true,
+        "backupPath": null,
+        "message": "�Ѱ�װ",
+        "preservedUserFiles": [],
+        "restoredFromBackup": false,
+        "recreatedFiles": 0
+      },
+      {
+        "name": "matlab-data-analysis",
+        "decision": "install",
+        "changed": true,
+        "backupPath": null,
+        "message": "�Ѱ�װ",
+        "preservedUserFiles": [],
+        "restoredFromBackup": false,
+        "recreatedFiles": 0
+      },
+      {
+        "name": "matlab-orchestrator",
+        "decision": "install",
+        "changed": true,
+        "backupPath": null,
+        "message": "�Ѱ�װ",
+        "preservedUserFiles": [],
+        "restoredFromBackup": false,
+        "recreatedFiles": 0
+      },
+      {
+        "name": "matlab-robotics-autonomy",
+        "decision": "install",
+        "changed": true,
+        "backupPath": null,
+        "message": "�Ѱ�װ",
+        "preservedUserFiles": [],
+        "restoredFromBackup": false,
+        "recreatedFiles": 0
+      },
+      {
+        "name": "matlab-runner",
+        "decision": "install",
+        "changed": true,
+        "backupPath": null,
+        "message": "�Ѱ�װ",
+        "preservedUserFiles": [],
+        "restoredFromBackup": false,
+        "recreatedFiles": 0
+      },
+      {
+        "name": "matlab-signal-vision-ai",
+        "decision": "install",
+        "changed": true,
+        "backupPath": null,
+        "message": "�Ѱ�װ",
+        "preservedUserFiles": [],
+        "restoredFromBackup": false,
+        "recreatedFiles": 0
+      },
+      {
+        "name": "matlab-simulink-modeling",
+        "decision": "install",
+        "changed": true,
+        "backupPath": null,
+        "message": "�Ѱ�װ",
+        "preservedUserFiles": [],
+        "restoredFromBackup": false,
+        "recreatedFiles": 0
+      },
+      {
+        "name": "matlab-testing-ci",
+        "decision": "install",
+        "changed": true,
+        "backupPath": null,
+        "message": "�Ѱ�װ",
+        "preservedUserFiles": [],
+        "restoredFromBackup": false,
+        "recreatedFiles": 0
+      }
+    ]
+  },
+  "approvalMode": "approve-for-me",
+  "command": [
+    "C:/Users/23201/AppData/Local/OpenAI/Codex/bin/a96ca4c1eee0cf35/codex.exe",
+    "exec",
+    "--json",
+    "--ephemeral",
+    "--skip-git-repo-check",
+    "--approve-for-me",
+    "-C",
+    "E:\\desktop\\MATLAB\\artifacts\\phase58\\native\\fixtures\\task_C3",
+    "Design a PID controller for a first-order plant P(s) = 1/(s+1). Target a settling time below 2 seconds and overshoot below 10% for a unit step. Simulate the closed loop, then write {\"Kp\": ..., \"Ki\": ..., \"Kd\": ..., \"overshootPercent\": ..., \"settlingTimeSeconds\": ...} to result.json. Report the gains and achieved metrics."
+  ],
+  "exitCode": 0,
+  "stderrTail": "Reading additional input from stdin...\n2026-10-23T06:46:48.765991Z ERROR codex_models_manager::manager: failed to refresh available models: request timed out\n",
+  "eventCount": 69,
+  "itemTypes": {
+    "error": 3,
+    "agent_message": 5,
+    "command_execution": 26,
+    "mcp_tool_call": 16,
+    "file_change": 12
+  },
+  "skillItems": [],
+  "mcpCalls": [
+    {
+      "id": "item_11",
+      "type": "mcp_tool_call",
+      "server": "matlab-official",
+      "tool": "detect_matlab_toolboxes",
+      "arguments": {},
+      "result": null,
+      "error": null,
+      "status": "in_progress"
+    },
+    {
+      "id": "item_11",
+      "type": "mcp_tool_call",
+      "server": "matlab-official",
+      "tool": "detect_matlab_toolboxes",
+      "arguments": {},
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "{\"installation_info\":\"---------------------------------------------------------\\nMATLAB 版本: 26.1.0.3276743 (R2026a) Update 3\\nMATLAB 许可证编号: 41305290\\n操作系统: Microsoft Windows 11 专业版 Version 10.0 (Build 26100)\\nJava 版本: Java is not loaded\\n---------------------------------------------------------\\nMATLAB                                                版本 26.1             (R2026a)\\nSimulink                                              版本 26.1             (R2026a)\\n5G Toolbox                                            版本 26.1             (R2026a)\\nAUTOSAR Blockset                                      版本 26.1             (R2026a)\\nAerospace Blockset                                    版本 26.1             (R2026a)\\nAerospace Toolbox                                     版本 26.1             (R2026a)\\nAntenna Toolbox                                       版本 26.1             (R2026a)\\nAudio Toolbox                                         版本 26.1             (R2026a)\\nAutomated Driving Toolbox                             版本 26.1             (R2026a)\\nBioinformatics Toolbox                                版本 26.1             (R2026a)\\nBluetooth Toolbox                                     版本 26.1             (R2026a)\\nC2000 Microcontroller Blockset                        版本 26.1             (R2026a)\\nCommunications Toolbox                                版本 26.1             (R2026a)\\nComputer Vision Toolbox                               版本 26.1             (R2026a)\\nControl System Toolbox                                版本 26.1             (R2026a)\\nCurve Fitting Toolbox                                 版本 26.1             (R2026a)\\nDDS Blockset                                          版本 26.1             (R2026a)\\nDSP HDL Toolbox                                       版本 26.1             (R2026a)\\nDSP System Toolbox                                    版本 26.1             (R2026a)\\nData Acquisition Toolbox                              版本 26.1             (R2026a)\\nDatabase Toolbox                                      版本 26.1             (R2026a)\\nDatafeed Toolbox                                      版本 26.1             (R2026a)\\nDeep Learning HDL Toolbox                             版本 26.1             (R2026a)\\nDeep Learning Toolbox                                 版本 26.1             (R2026a)\\nEconometrics Toolbox                                  版本 26.1             (R2026a)\\nEmbedded Coder                                        版本 26.1             (R2026a)\\nFinancial Instruments Toolbox                         版本 26.1             (R2026a)\\nFinancial Toolbox                                     版本 26.1             (R2026a)\\nFixed-Point Designer                                  版本 26.1             (R2026a)\\nFuzzy Logic Toolbox                                   版本 26.1             (R2026a)\\nGPU Coder                                             版本 26.1             (R2026a)\\nGlobal Optimization Toolbox                           版本 26.1             (R2026a)\\nHDL Coder                                             版本 26.1             (R2026a)\\nHDL Verifier                                          版本 26.1             (R2026a)\\nImage Acquisition Toolbox                             版本 26.1             (R2026a)\\nImage Processing Toolbox                              版本 26.1             (R2026a)\\nIndustrial Communication Toolbox                      版本 26.1             (R2026a)\\nInstrument Control Toolbox                            版本 26.1             (R2026a)\\nLTE Toolbox                                           版本 26.1             (R2026a)\\nLidar Toolbox                                         版本 26.1             (R2026a)\\nMATLAB Coder                                          版本 26.1             (R2026a)\\nMATLAB Compiler                                       版本 26.1             (R2026a)\\nMATLAB Compiler SDK                                   版本 26.1             (R2026a)\\nMATLAB MCP Server Toolbox                             版本 0.2.1            (R2026a)\\nMATLAB Report Generator                               版本 26.1             (R2026a)\\nMATLAB Test                                           版本 26.1             (R2026a)\\nMapping Toolbox                                       版本 26.1             (R2026a)\\nMedical Imaging Toolbox                               版本 26.1             (R2026a)\\nMixed-Signal Blockset                                 版本 26.1             (R2026a)\\nModel Predictive Control Toolbox                      版本 26.1             (R2026a)\\nModel-Based Calibration Toolbox                       版本 26.1             (R2026a)\\nMotor Control Blockset                                版本 26.1             (R2026a)\\nNavigation Toolbox                                    版本 26.1             (R2026a)\\nOptimization Toolbox                                  版本 26.1             (R2026a)\\nParallel Computing Toolbox                            版本 26.1             (R2026a)\\nPartial Differential Equation Toolbox                 版本 26.1             (R2026a)\\nPhased Array System Toolbox                           版本 26.1             (R2026a)\\nPowertrain Blockset                                   版本 26.1             (R2026a)\\nPredictive Maintenance Toolbox                        版本 26.1             (R2026a)\\nRF Blockset                                           版本 26.1             (R2026a)\\nRF PCB Toolbox                                        版本 26.1             (R2026a)\\nRF Toolbox                                            版本 26.1             (R2026a)\\nROS Toolbox                                           版本 26.1             (R2026a)\\nRadar Toolbox                                         版本 26.1             (R2026a)\\nRaspberry Pi Blockset                                 版本 26.1             (R2026a)\\nReinforcement Learning Toolbox                        版本 26.1             (R2026a)\\nRequirements Toolbox                                  版本 26.1             (R2026a)\\nRisk Management Toolbox                               版本 26.1             (R2026a)\\nRobotics System Toolbox                               版本 26.1             (R2026a)\\nRobust Control Toolbox                                版本 26.1             (R2026a)\\nSTM32 Microcontroller Blockset                        版本 26.1             (R2026a)\\nSatellite Communications Toolbox                      版本 26.1             (R2026a)\\nSensor Fusion and Tracking Toolbox                    版本 26.1             (R2026a)\\nSerDes Toolbox                                        版本 26.1             (R2026a)\\nSignal Integrity Toolbox                              版本 26.1             (R2026a)\\nSignal Processing Toolbox                             版本 26.1             (R2026a)\\nSimBiology                                            版本 26.1             (R2026a)\\nSimEvents                                             版本 26.1             (R2026a)\\nSimscape                                              版本 26.1             (R2026a)\\nSimscape Battery                                      版本 26.1             (R2026a)\\nSimscape Driveline                                    版本 26.1             (R2026a)\\nSimscape Electrical                                   版本 26.1             (R2026a)\\nSimscape Fluids                                       版本 26.1             (R2026a)\\nSimscape Multibody                                    版本 26.1             (R2026a)\\nSimulink 3D Animation                                 版本 26.1             (R2026a)\\nSimulink Check                                        版本 26.1             (R2026a)\\nSimulink Code Inspector                               版本 26.1             (R2026a)\\nSimulink Coder                                        版本 26.1             (R2026a)\\nSimulink Compiler                                     版本 26.1             (R2026a)\\nSimulink Control Design                               版本 26.1             (R2026a)\\nSimulink Coverage                                     版本 26.1             (R2026a)\\nSimulink Design Optimization                          版本 26.1             (R2026a)\\nSimulink Design Verifier                              版本 26.1             (R2026a)\\nSimulink Desktop Real-Time                            版本 26.1             (R2026a)\\nSimulink FMU Builder                                  版本 26.1             (R2026a)\\nSimulink Fault Analyzer                               版本 26.1             (R2026a)\\nSimulink PLC Coder                                    版本 26.1             (R2026a)\\nSimulink Real-Time                                    版本 26.1             (R2026a)\\nSimulink Report Generator                             版本 26.1             (R2026a)\\nSimulink Test                                         版本 26.1             (R2026a)\\nSoC Blockset                                          版本 26.1             (R2026a)\\nSpreadsheet Link                                      版本 26.1             (R2026a)\\nStateflow                                             版本 26.1             (R2026a)\\nStatistics and Machine Learning Toolbox               版本 26.1             (R2026a)\\nSymbolic Math Toolbox                                 版本 26.1             (R2026a)\\nSystem Composer                                       版本 26.1             (R2026a)\\nSystem Identification Toolbox                         版本 26.1             (R2026a)\\nText Analytics Toolbox                                版本 26.1             (R2026a)\\nUAV Toolbox                                           版本 26.1             (R2026a)\\nVehicle Dynamics Blockset                             版本 26.1             (R2026a)\\nVehicle Network Toolbox                               版本 26.1             (R2026a)\\nVision HDL Toolbox                                    版本 26.1             (R2026a)\\nWLAN Toolbox                                          版本 26.1             (R2026a)\\nWavelet Toolbox                                       版本 26.1             (R2026a)\\nWireless HDL Toolbox                                  版本 26.1             (R2026a)\\nWireless Network Toolbox                              版本 26.1             (R2026a)\\nWireless Testbench                                    版本 26.1             (R2026a)\\n\"}"
+          }
+        ],
+        "structured_content": {
+          "installation_info": "---------------------------------------------------------\nMATLAB 版本: 26.1.0.3276743 (R2026a) Update 3\nMATLAB 许可证编号: 41305290\n操作系统: Microsoft Windows 11 专业版 Version 10.0 (Build 26100)\nJava 版本: Java is not loaded\n---------------------------------------------------------\nMATLAB                                                版本 26.1             (R2026a)\nSimulink                                              版本 26.1             (R2026a)\n5G Toolbox                                            版本 26.1             (R2026a)\nAUTOSAR Blockset                                      版本 26.1             (R2026a)\nAerospace Blockset                                    版本 26.1             (R2026a)\nAerospace Toolbox                                     版本 26.1             (R2026a)\nAntenna Toolbox                                       版本 26.1             (R2026a)\nAudio Toolbox                                         版本 26.1             (R2026a)\nAutomated Driving Toolbox                             版本 26.1             (R2026a)\nBioinformatics Toolbox                                版本 26.1             (R2026a)\nBluetooth Toolbox                                     版本 26.1             (R2026a)\nC2000 Microcontroller Blockset                        版本 26.1             (R2026a)\nCommunications Toolbox                                版本 26.1             (R2026a)\nComputer Vision Toolbox                               版本 26.1             (R2026a)\nControl System Toolbox                                版本 26.1             (R2026a)\nCurve Fitting Toolbox                                 版本 26.1             (R2026a)\nDDS Blockset                                          版本 26.1             (R2026a)\nDSP HDL Toolbox                                       版本 26.1             (R2026a)\nDSP System Toolbox                                    版本 26.1             (R2026a)\nData Acquisition Toolbox                              版本 26.1             (R2026a)\nDatabase Toolbox                                      版本 26.1             (R2026a)\nDatafeed Toolbox                                      版本 26.1             (R2026a)\nDeep Learning HDL Toolbox                             版本 26.1             (R2026a)\nDeep Learning Toolbox                                 版本 26.1             (R2026a)\nEconometrics Toolbox                                  版本 26.1             (R2026a)\nEmbedded Coder                                        版本 26.1             (R2026a)\nFinancial Instruments Toolbox                         版本 26.1             (R2026a)\nFinancial Toolbox                                     版本 26.1             (R2026a)\nFixed-Point Designer                                  版本 26.1             (R2026a)\nFuzzy Logic Toolbox                                   版本 26.1             (R2026a)\nGPU Coder                                             版本 26.1             (R2026a)\nGlobal Optimization Toolbox                           版本 26.1             (R2026a)\nHDL Coder                                             版本 26.1             (R2026a)\nHDL Verifier                                          版本 26.1             (R2026a)\nImage Acquisition Toolbox                             版本 26.1             (R2026a)\nImage Processing Toolbox                              版本 26.1             (R2026a)\nIndustrial Communication Toolbox                      版本 26.1             (R2026a)\nInstrument Control Toolbox                            版本 26.1             (R2026a)\nLTE Toolbox                                           版本 26.1             (R2026a)\nLidar Toolbox                                         版本 26.1             (R2026a)\nMATLAB Coder                                          版本 26.1             (R2026a)\nMATLAB Compiler                                       版本 26.1             (R2026a)\nMATLAB Compiler SDK                                   版本 26.1             (R2026a)\nMATLAB MCP Server Toolbox                             版本 0.2.1            (R2026a)\nMATLAB Report Generator                               版本 26.1             (R2026a)\nMATLAB Test                                           版本 26.1             (R2026a)\nMapping Toolbox                                       版本 26.1             (R2026a)\nMedical Imaging Toolbox                               版本 26.1             (R2026a)\nMixed-Signal Blockset                                 版本 26.1             (R2026a)\nModel Predictive Control Toolbox                      版本 26.1             (R2026a)\nModel-Based Calibration Toolbox                       版本 26.1             (R2026a)\nMotor Control Blockset                                版本 26.1             (R2026a)\nNavigation Toolbox                                    版本 26.1             (R2026a)\nOptimization Toolbox                                  版本 26.1             (R2026a)\nParallel Computing Toolbox                            版本 26.1             (R2026a)\nPartial Differential Equation Toolbox                 版本 26.1             (R2026a)\nPhased Array System Toolbox                           版本 26.1             (R2026a)\nPowertrain Blockset                                   版本 26.1             (R2026a)\nPredictive Maintenance Toolbox                        版本 26.1             (R2026a)\nRF Blockset                                           版本 26.1             (R2026a)\nRF PCB Toolbox                                        版本 26.1             (R2026a)\nRF Toolbox                                            版本 26.1             (R2026a)\nROS Toolbox                                           版本 26.1             (R2026a)\nRadar Toolbox                                         版本 26.1             (R2026a)\nRaspberry Pi Blockset                                 版本 26.1             (R2026a)\nReinforcement Learning Toolbox                        版本 26.1             (R2026a)\nRequirements Toolbox                                  版本 26.1             (R2026a)\nRisk Management Toolbox                               版本 26.1             (R2026a)\nRobotics System Toolbox                               版本 26.1             (R2026a)\nRobust Control Toolbox                                版本 26.1             (R2026a)\nSTM32 Microcontroller Blockset                        版本 26.1             (R2026a)\nSatellite Communications Toolbox                      版本 26.1             (R2026a)\nSensor Fusion and Tracking Toolbox                    版本 26.1             (R2026a)\nSerDes Toolbox                                        版本 26.1             (R2026a)\nSignal Integrity Toolbox                              版本 26.1             (R2026a)\nSignal Processing Toolbox                             版本 26.1             (R2026a)\nSimBiology                                            版本 26.1             (R2026a)\nSimEvents                                             版本 26.1             (R2026a)\nSimscape                                              版本 26.1             (R2026a)\nSimscape Battery                                      版本 26.1             (R2026a)\nSimscape Driveline                                    版本 26.1             (R2026a)\nSimscape Electrical                                   版本 26.1             (R2026a)\nSimscape Fluids                                       版本 26.1             (R2026a)\nSimscape Multibody                                    版本 26.1             (R2026a)\nSimulink 3D Animation                                 版本 26.1             (R2026a)\nSimulink Check                                        版本 26.1             (R2026a)\nSimulink Code Inspector                               版本 26.1             (R2026a)\nSimulink Coder                                        版本 26.1             (R2026a)\nSimulink Compiler                                     版本 26.1             (R2026a)\nSimulink Control Design                               版本 26.1             (R2026a)\nSimulink Coverage                                     版本 26.1             (R2026a)\nSimulink Design Optimization                          版本 26.1             (R2026a)\nSimulink Design Verifier                              版本 26.1             (R2026a)\nSimulink Desktop Real-Time                            版本 26.1             (R2026a)\nSimulink FMU Builder                                  版本 26.1             (R2026a)\nSimulink Fault Analyzer                               版本 26.1             (R2026a)\nSimulink PLC Coder                                    版本 26.1             (R2026a)\nSimulink Real-Time                                    版本 26.1             (R2026a)\nSimulink Report Generator                             版本 26.1             (R2026a)\nSimulink Test                                         版本 26.1             (R2026a)\nSoC Blockset                                          版本 26.1             (R2026a)\nSpreadsheet Link                                      版本 26.1             (R2026a)\nStateflow                                             版本 26.1             (R2026a)\nStatistics and Machine Learning Toolbox               版本 26.1             (R2026a)\nSymbolic Math Toolbox                                 版本 26.1             (R2026a)\nSystem Composer                                       版本 26.1             (R2026a)\nSystem Identification Toolbox                         版本 26.1             (R2026a)\nText Analytics Toolbox                                版本 26.1             (R2026a)\nUAV Toolbox                                           版本 26.1             (R2026a)\nVehicle Dynamics Blockset                             版本 26.1             (R2026a)\nVehicle Network Toolbox                               版本 26.1             (R2026a)\nVision HDL Toolbox                                    版本 26.1             (R2026a)\nWLAN Toolbox                                          版本 26.1             (R2026a)\nWavelet Toolbox                                       版本 26.1             (R2026a)\nWireless HDL Toolbox                                  版本 26.1             (R2026a)\nWireless Network Toolbox                              版本 26.1             (R2026a)\nWireless Testbench                                    版本 26.1             (R2026a)\n"
+        }
+      },
+      "error": null,
+      "status": "completed"
+    },
+    {
+      "id": "item_13",
+      "type": "mcp_tool_call",
+      "server": "matlab-official",
+      "tool": "evaluate_matlab_code",
+      "arguments": {
+        "code": "disp(version); disp(pwd); disp(license('test','Control_Toolbox')); addpath(fullfile(pwd,'.agents','skills','matlab-orchestrator','scripts')); route = mas_route('Design a PID controller for a first-order plant P(s) = 1/(s+1). Target a settling time below 2 seconds and overshoot below 10% for a unit step. Simulate the closed loop.'); disp(jsonencode(route)); help pid; help stepinfo;",
+        "project_path": "E:/desktop/MATLAB/artifacts/phase58/native/fixtures/task_C3"
+      },
+      "result": null,
+      "error": null,
+      "status": "in_progress"
+    },
+    {
+      "id": "item_13",
+      "type": "mcp_tool_call",
+      "server": "matlab-official",
+      "tool": "evaluate_matlab_code",
+      "arguments": {
+        "code": "disp(version); disp(pwd); disp(license('test','Control_Toolbox')); addpath(fullfile(pwd,'.agents','skills','matlab-orchestrator','scripts')); route = mas_route('Design a PID controller for a first-order plant P(s) = 1/(s+1). Target a settling time below 2 seconds and overshoot below 10% for a unit step. Simulate the closed loop.'); disp(jsonencode(route)); help pid; help stepinfo;",
+        "project_path": "E:/desktop/MATLAB/artifacts/phase58/native/fixtures/task_C3"
+      },
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "26.1.0.3276743 (R2026a) Update 3\nE:\\desktop\\MATLAB\\artifacts\\phase58\\native\\fixtures\\task_C3\n     1\n\n{\"schemaVersion\":\"1.1\",\"decision\":\"ROUTE\",\"primary\":\"matlab-control-optimization\",\"secondary\":[],\"loadOrder\":[\"matlab-runner\",\"matlab-control-optimization\"],\"alwaysLoaded\":[\"matlab-runner\"],\"ranked\":[{\"id\":\"matlab-control-optimization\",\"score\":3,\"hits\":[\"pid\"],\"priority\":2},{\"id\":\"matlab-simulink-modeling\",\"score\":0,\"hits\":[],\"priority\":1},{\"id\":\"matlab-signal-vision-ai\",\"score\":0,\"hits\":[],\"priority\":2},{\"id\":\"matlab-data-analysis\",\"score\":0,\"hits\":[],\"priority\":3},{\"id\":\"matlab-codegen-deploy\",\"score\":0,\"hits\":[],\"priority\":3},{\"id\":\"matlab-robotics-autonomy\",\"score\":0,\"hits\":[],\"priority\":3},{\"id\":\"matlab-testing-ci\",\"score\":0,\"hits\":[],\"priority\":4}],\"matched\":{\"skill\":\"matlab-control-optimization\",\"term\":\"pid\",\"weight\":3},\"missing\":[],\"available\":[{\"id\":\"matlab-runner\",\"installed\":true,\"loadable\":true,\"problem\":\"\"},{\"id\":\"matlab-control-optimization\",\"installed\":true,\"loadable\":true,\"problem\":\"\"}],\"nextAction\":\"load\",\"reason\":\"routed to matlab-control-optimization (score 3); 0 secondary skill(s), 2 dependency-ordered\",\"notes\":[],\"prompt\":\"Design a PID controller for a first-order plant P(s) = 1/(s+1). Target a settling time below 2 seconds and overshoot below 10% for a unit step. Simulate the closed loop.\",\"tableSource\":\"E:\\\\desktop\\\\MATLAB\\\\artifacts\\\\phase58\\\\native\\\\fixtures\\\\task_C3\\\\.agents\\\\skills\\\\matlab-orchestrator\\\\assets\\\\routing.json\",\"tableVersion\":\"1.1\"}\n pid - 并联型 PID 控制器\n    使用 pid 创建并联型比例-积分-导数 (PID) 控制器模型对象，或将动态系统模型转换为并联型\n    PID 控制器。\n\n    创建\n      语法\n        C = pid(Kp,Ki,Kd,Tf)\n        C = pid(Kp,Ki,Kd,Tf,Ts)\n\n        C = pid(Kp)\n        C = pid(Kp,Ki)\n        C = pid(Kp,Ki,Kd)\n\n        C = pid(___,Name,Value)\n\n        C = pid\n\n        C = pid(sys)\n\n      输入参数\n        Kp - 比例增益\n          1 (默认值) | 标量 | 向量 | 矩阵 | realp 对象 | genmat 对象 |\n          tunableSurface 对象\n        Ki - 积分增益\n          0 (默认值) | 标量 | 向量 | 矩阵 | realp 对象 | genmat 对象 |\n          tunableSurface 对象\n        Kd - 导数增益\n          0 (默认值) | 标量 | 向量 | 矩阵 | realp 对象 | genmat 对象 |\n          tunableSurface 对象\n        Tf - 导数滤波器时间常数\n          0 (默认值) | 标量 | 向量 | 矩阵 | realp 对象 | genmat 对象 |\n          tunableSurface 对象\n        Ts - 采样时间\n          0 (默认值) | 正标量\n        sys - 动态系统\n          动态系统模型 | 模型数组\n\n      输出参数\n        C - 并联型 PID 控制器模型\n          pid 模型对象 | genss 模型对象 | uss 模型对象\n\n    属性\n      Kp - PID 控制器系数\n        标量\n      Ki - PID 控制器系数\n        标量\n      Kd - PID 控制器系数\n        标量\n      Tf - PID 控制器系数\n        标量\n      IFormula - 离散时间控制器中积分的计算方法\n        'ForwardEuler' (默认值) | 'BackwardEuler' | 'Trapezoidal'\n      DFormula - 离散时间控制器中导数的计算方法\n        'ForwardEuler' (默认值) | 'BackwardEuler' | 'Trapezoidal'\n      InputDelay - 输入延迟\n        0 (默认值)\n      OutputDelay - 输出延迟\n        0 (默认值)\n      Ts - 采样时间\n        0 (默认值) | 正标量\n      TimeUnit - 时间变量单位\n        'seconds' (默认值) | 'nanoseconds' | 'microseconds' |\n        'milliseconds' | 'minutes' | 'hours' | 'days' | 'weeks' | 'months' |\n        'years' | ...\n      InputName - 输入通道名称\n        '' (默认值) | 字符向量\n      InputUnit - 输入通道单位\n        '' (默认值) | 字符向量\n      InputGroup - 输入通道组\n        结构体\n      OutputName - 输出通道名称\n        '' (默认值) | 字符向量\n      OutputUnit - 输出通道单位\n        '' (默认值) | 字符向量\n      OutputGroup - 输出通道组\n        结构体\n      Notes - 用户指定的文本\n        {} (默认值) | 字符向量 | 字符向量元胞数组\n      UserData - 用户指定的数据\n        [] (默认值) | 任何 MATLAB 数据类型\n      Name - 系统名称\n        '' (默认值) | 字符向量\n      SamplingGrid - 模型数组的采样网格\n        结构体数组\n\n    对象函数\n      线性分析\n        step      - 动态系统的阶跃响应\n        impulse   - 动态系统的冲激响应图；冲激响应数据\n        lsim      - 计算动态系统对任意输入的时间响应仿真数据\n        bode      - 动态系统的波特频率响应\n        nyquist   - 动态系统的奈奎斯特响应\n        nichols   - 动态系统的尼柯尔斯响应\n        bandwidth - 频率响应带宽\n\n      稳定性分析\n        pole   - 动态系统的极点\n        zero   - SISO 动态系统的零点和增益\n        pzplot - Plot pole-zero map of dynamic system\n        margin - 增益裕度、相位裕度和穿越频率\n\n      模型变换\n        zpk - 零极点增益模型\n        ss  - 状态空间模型\n        c2d - 将模型从连续时间转换为离散时间\n        d2c - 将模型从离散时间转换为连续时间\n        d2d - 重采样离散时间模型\n\n      模型互连\n        feedback - 多个模型的反馈连接\n        connect  - Block diagram interconnections of dynamic systems\n        series   - 两个模型的串行连接\n        parallel - 两个模型的并行连接\n\n      控制器设计\n        pidtune    - 线性被控对象模型的 PID 调节算法\n        rlocus     - 动态系统的根轨迹\n        piddata    - Access coefficients of parallel-form PID controller\n        make2DOF   - Convert 1-DOF PID controller to 2-DOF controller\n        pidTuner   - 打开 PID 调节器进行 PID 调节\n        tunablePID - Tunable PID controller\n\n    示例\n      openExample('control/PDFControllerExample')\n      openExample('control/DiscreteTimePIControllerExample')\n      openExample('control/PIDControllerWithNamedInputAndOutputExample')\n      openExample('control/ArrayOfPIDControllersExample')\n      openExample('control/ConvertPIDControllerFromStandardToParallelFormExample')\n      openExample('control/ConvertDynamicSystemToParallelFormPIDControllerExample')\n      openExample('control/ConvertDiscreteTimeDynamicSystemToParallelFormPIDExample')\n      openExample('control/DiscretizeAContinuousTimePIDControllerExample')\n\n    另请参阅 pidstd, pid2, piddata, make2DOF, pidtune, pidTuner, tunablePID,\n      genss, realp\n\n    已在 R2010b 中的 Control System Toolbox 中引入\n    pid 的文档\n       doc pid\n\n    pid 的其他用法\n\n       DynamicSystem/pid    StaticModel/pid\n    名为 pid 的文件夹\n\n       library\\pid    ctrlguis\\pid\n\n stepinfo - 上升时间、稳定时间和其他阶跃响应特征\n    stepinfo 可用于计算动态系统模型或阶跃响应数据数组的阶跃响应特征。对于阶跃响应\n    y(t)，stepinfo 计算相对于 yinit 和 yfinal 的特征，其中 yinit 是初始偏移量（即施\n    加阶跃之前的值），yfinal 是响应的稳态值。这些值取决于您使用的语法。\n\n    语法\n      S = stepinfo(sys)\n\n      S = stepinfo(y,t)\n      S = stepinfo(y,t,yfinal)\n      S = stepinfo(y,t,yfinal,yinit)\n\n      S = stepinfo(___,SettlingTimeThreshold=ST)\n      S = stepinfo(___,RiseTimeLimits=RT)\n\n    输入参数\n      sys - 动态系统\n        动态系统模型 | 模型数组\n      y - 阶跃响应数据\n        向量 | 数组\n      t - 时间向量\n        向量\n      yfinal - 稳态值\n        标量 | 数组\n      yinit - 初始值\n        标量 | 数组\n      ST - 稳定时间阈值\n        0.02 (默认值) | 0 到 1 之间的标量\n      RT - 上升时间阈值\n        [0.1 0.9] (默认值) | 2 元素行向量\n\n    输出参数\n      S - 阶跃响应特征\n        结构体 | 结构体数组\n\n    示例\n      openExample('controls_id/StepResponseCharacteristicsDynamicSystemExample')\n      openExample('controls_id/StepResponseCharacteristicsMIMOSystemExample')\n      openExample('controls_id/StepResponseCharacteristicsForArrayOfLTISystemsExample')\n      openExample('controls_id/SpecifyDefinitionSettlingTimeRiseTimeExample')\n      openExample('controls_id/StepResponseCharacteristicsFromResponseDataExample')\n      openExample('controls_id/DifferenceBetweenTransientTimeAndSettlingTimeExample')\n      openExample('controls_id/StepResponseCharacteristicsForDataWithInitialOffsetExample')\n\n    另请参阅 step, lsiminfo\n\n    已在 R2006a 中的 Control System Toolbox 中引入\n    stepinfo 的文档\n       doc stepinfo\n\n    stepinfo 的其他用法\n\n       DynamicSystem/stepinfo\n\n"
+          }
+        ],
+        "structured_content": null
+      },
+      "error": null,
+      "status": "completed"
+    },
+    {
+      "id": "item_18",
+      "type": "mcp_tool_call",
+      "server": "matlab-official",
+      "tool": "check_matlab_code",
+      "arguments": {
+        "script_path": "E:/desktop/MATLAB/artifacts/phase58/native/fixtures/task_C3/design_pid.m"
+      },
+      "result": null,
+      "error": null,
+      "status": "in_progress"
+    },
+    {
+      "id": "item_18",
+      "type": "mcp_tool_call",
+      "server": "matlab-official",
+      "tool": "check_matlab_code",
+      "arguments": {
+        "script_path": "E:/desktop/MATLAB/artifacts/phase58/native/fixtures/task_C3/design_pid.m"
+      },
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "{\"code_issues\":[{\"description\":\"此处之前隐藏了一条代码分析器消息，但该消息不再产生。\",\"end_column\":53,\"fixable\":true,\"line\":18,\"severity\":\"info\",\"start_column\":43},{\"description\":\"此处之前隐藏了一条代码分析器消息，但该消息不再产生。\",\"end_column\":56,\"fixable\":true,\"line\":104,\"severity\":\"info\",\"start_column\":46}]}"
+          }
+        ],
+        "structured_content": {
+          "code_issues": [
+            {
+              "description": "此处之前隐藏了一条代码分析器消息，但该消息不再产生。",
+              "end_column": 53,
+              "fixable": true,
+              "line": 18,
+              "severity": "info",
+              "start_column": 43
+            },
+            {
+              "description": "此处之前隐藏了一条代码分析器消息，但该消息不再产生。",
+              "end_column": 56,
+              "fixable": true,
+              "line": 104,
+              "severity": "info",
+              "start_column": 46
+            }
+          ]
+        }
+      },
+      "error": null,
+      "status": "completed"
+    },
+    {
+      "id": "item_20",
+      "type": "mcp_tool_call",
+      "server": "matlab-official",
+      "tool": "evaluate_matlab_code",
+      "arguments": {
+        "code": "result = design_pid();",
+        "project_path": "E:/desktop/MATLAB/artifacts/phase58/native/fixtures/task_C3"
+      },
+      "result": null,
+      "error": null,
+      "status": "in_progress"
+    },
+    {
+      "id": "item_20",
+      "type": "mcp_tool_call",
+      "server": "matlab-official",
+      "tool": "evaluate_matlab_code",
+      "arguments": {
+        "code": "result = design_pid();",
+        "project_path": "E:/desktop/MATLAB/artifacts/phase58/native/fixtures/task_C3"
+      },
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "matlab error: MATLAB: 26.1.0.3276743 (R2026a) Update 3\nProject: E:\\desktop\\MATLAB\\artifacts\\phase58\\native\\fixtures\\task_C3\n错误使用 jsonencode\n无法将 double 类的复数值对象编码为 JSON 格式的文本。\n\n出错 design_pid>writeJson (第 105 行)\nfprintf(fileId, '%s\\n', jsonencode(value, 'PrettyPrint', true));\n                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n出错 design_pid (第 90 行)\nwriteJson(fullfile(validationDir, 'simulation_evidence.json'), evidence);\n^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n \n"
+          }
+        ],
+        "structured_content": null
+      },
+      "error": null,
+      "status": "failed"
+    },
+    {
+      "id": "item_25",
+      "type": "mcp_tool_call",
+      "server": "matlab-official",
+      "tool": "evaluate_matlab_code",
+      "arguments": {
+        "code": "result = design_pid();",
+        "project_path": "E:/desktop/MATLAB/artifacts/phase58/native/fixtures/task_C3"
+      },
+      "result": null,
+      "error": null,
+      "status": "in_progress"
+    },
+    {
+      "id": "item_25",
+      "type": "mcp_tool_call",
+      "server": "matlab-official",
+      "tool": "evaluate_matlab_code",
+      "arguments": {
+        "code": "result = design_pid();",
+        "project_path": "E:/desktop/MATLAB/artifacts/phase58/native/fixtures/task_C3"
+      },
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "MATLAB: 26.1.0.3276743 (R2026a) Update 3\nProject: E:\\desktop\\MATLAB\\artifacts\\phase58\\native\\fixtures\\task_C3\n{\n  \"Kp\": 5.6000000000000005,\n  \"Ki\": 9.9,\n  \"Kd\": 0.1,\n  \"overshootPercent\": 4.9748483765646334,\n  \"settlingTimeSeconds\": 1.5049239629437805\n}\nPASS: 2% settling band; simulation agrees with analytical response.\n"
+          }
+        ],
+        "structured_content": null
+      },
+      "error": null,
+      "status": "completed"
+    },
+    {
+      "id": "item_27",
+      "type": "mcp_tool_call",
+      "server": "matlab-official",
+      "tool": "check_matlab_code",
+      "arguments": {
+        "script_path": "E:/desktop/MATLAB/artifacts/phase58/native/fixtures/task_C3/design_pid.m"
+      },
+      "result": null,
+      "error": null,
+      "status": "in_progress"
+    },
+    {
+      "id": "item_27",
+      "type": "mcp_tool_call",
+      "server": "matlab-official",
+      "tool": "check_matlab_code",
+      "arguments": {
+        "script_path": "E:/desktop/MATLAB/artifacts/phase58/native/fixtures/task_C3/design_pid.m"
+      },
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "{\"code_issues\":[]}"
+          }
+        ],
+        "structured_content": {
+          "code_issues": []
+        }
+      },
+      "error": null,
+      "status": "completed"
+    },
+    {
+      "id": "item_30",
+      "type": "mcp_tool_call",
+      "server": "matlab-official",
+      "tool": "evaluate_matlab_code",
+      "arguments": {
+        "code": "result = design_pid();",
+        "project_path": "E:/desktop/MATLAB/artifacts/phase58/native/fixtures/task_C3"
+      },
+      "result": null,
+      "error": null,
+      "status": "in_progress"
+    },
+    {
+      "id": "item_30",
+      "type": "mcp_tool_call",
+      "server": "matlab-official",
+      "tool": "evaluate_matlab_code",
+      "arguments": {
+        "code": "result = design_pid();",
+        "project_path": "E:/desktop/MATLAB/artifacts/phase58/native/fixtures/task_C3"
+      },
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "MATLAB: 26.1.0.3276743 (R2026a) Update 3\nProject: E:\\desktop\\MATLAB\\artifacts\\phase58\\native\\fixtures\\task_C3\n{\n  \"Kp\": 5.6000000000000005,\n  \"Ki\": 9.9,\n  \"Kd\": 0.1,\n  \"overshootPercent\": 4.9748483765646334,\n  \"settlingTimeSeconds\": 1.5049239629437805\n}\nPASS: 2% settling band; simulation agrees with analytical response.\n"
+          }
+        ],
+        "structured_content": null
+      },
+      "error": null,
+      "status": "completed"
+    },
+    {
+      "id": "item_31",
+      "type": "mcp_tool_call",
+      "server": "matlab-official",
+      "tool": "check_matlab_code",
+      "arguments": {
+        "script_path": "E:/desktop/MATLAB/artifacts/phase58/native/fixtures/task_C3/design_pid.m"
+      },
+      "result": null,
+      "error": null,
+      "status": "in_progress"
+    },
+    {
+      "id": "item_31",
+      "type": "mcp_tool_call",
+      "server": "matlab-official",
+      "tool": "check_matlab_code",
+      "arguments": {
+        "script_path": "E:/desktop/MATLAB/artifacts/phase58/native/fixtures/task_C3/design_pid.m"
+      },
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "{\"code_issues\":[]}"
+          }
+        ],
+        "structured_content": {
+          "code_issues": []
+        }
+      },
+      "error": null,
+      "status": "completed"
+    }
+  ],
+  "commandCount": 26,
+  "skillPathMentions": [
+    "{\"type\": \"item.started\", \"item\": {\"id\": \"item_4\", \"type\": \"command_execution\", \"command\": \"\\\"C:\\\\\\\\Users\\\\\\\\23201\\\\\\\\AppData\\\\\\\\Local\\\\\\\\Microsoft\\\\\\\\WindowsApps\\\\\\\\pwsh.exe\\\" -Command \\\"Get-Location; rg --files -g 'AGENTS.md' -g 'AGENT.md' -g 'CLAUDE.md' -g '*.m' -g '*.json' -g 'README*' -g '\\\"'!node_modules'\\\"' -g '\\\"'!.git'\\\"'; Get-Content -LiteralPath '.agents/skills/matlab-orchestrator/SKILL.md'; Get-Content -LiteralPath '.agents/skills/matlab-control-optimization/SKILL.md'\\\"\", \"aggregated_output\": \"\", \"exit_code\": null, \"status\": \"in_progress\"}}",
+    "{\"type\": \"item.completed\", \"item\": {\"id\": \"item_4\", \"type\": \"command_execution\", \"command\": \"\\\"C:\\\\\\\\Users\\\\\\\\23201\\\\\\\\AppData\\\\\\\\Local\\\\\\\\Microsoft\\\\\\\\WindowsApps\\\\\\\\pwsh.exe\\\" -Command \\\"Get-Location; rg --files -g 'AGENTS.md' -g 'AGENT.md' -g 'CLAUDE.md' -g '*.m' -g '*.json' -g 'README*' -g '\\\"'!node_modules'\\\"' -g '\\\"'!.git'\\\"'; Get-Content -LiteralPath '.agents/skills/matlab-orchestrator/SKILL.md'; Get-Content -LiteralPath '.agents/skills/matlab-control-optimization/SKILL.md'\\\"\", \"aggregated_output\": \"\\r\\nPath\\r\\n----\\r\\nE:\\\\desktop\\\\MATLAB\\\\artifacts\\\\phase58\\\\native\\\\fixtures\\\\task_C3\\r\\n---\\r\\nname: matlab-orchestrator\\r\\ndescription: MATLAB agentic workflow router. Use this whenever the user asks for MATLAB, Simulink, .m/.mlx/.slx work, toolbox-driven engineering, paper reproduction, simulation, code generation, data analysis, control, robotics, signal/image/AI workflows, or wants an end-to-end automated MATLAB task with validation. For Simulink tasks on this machine, default to a visible workflow: open MATLAB/Simulink windows first so the user can watch modeling, simulation, tuning, and plotting progress.\\r\\n---\\r\\n\\r\\n# MATLAB Orchestrator\\r\\n\\r\\nUse this skill as the entry point for MATLAB work. The goal is to turn a loose engineering request into a closed-loop workflow: select the right specialist skill, run MATLAB when possible, save artifacts, and verify the result before reporting back.\\r\\n\\r\\n## Execution Requirement On This Machine\\r\\n\\r\\nOn this machine, MATLAB and Simulink work should default to the official **MATLAB MCP auto** workflow, not a fresh `matlab -batch` session. Treat the visible MATLAB desktop as the primary and expected execution path for engineering tasks, especially Simulink modeling, iterative control tuning, and repeated read-modify-simulate loops.\\r\\n\\r\\nUse this priority order:\\r\\n\\r\\n1. Official MATLAB MCP in `auto` mode, reusing an existing shared MATLAB session when present.\\r\\n2. Official MATLAB MCP in `existing` / `new` mode only if the user explicitly requests those modes.\\r\\n3. `matlab -batch` only if the user explicitly asks for batch, CI, or headless execution.\\r\\n\\r\\n## First pass\\r\\n\\r\\n1. Identify the task family.\\r\\n2. Check whether an official MATLAB MCP auto configuration is available first.\\r\\n3. If the task requires MATLAB work on this machine, stay on MCP unless the user explicitly requests a headless/batch path.\\r\\n4. Inspect installed toolboxes with `ver` before choosing toolbox-specific APIs.\\r\\n5. Prefer official MathWorks documentation and installed examples over memory.\\r\\n6. Treat forum posts and blogs as hints only; verify every API and parameter locally.\\r\\n\\r\\n## Local Simulink Visualization Preference\\r\\n\\r\\nThe user prefers to see Simulink work happen live, not only receive final files. For Simulink modeling, simulation, control tuning, or code generation tasks:\\r\\n\\r\\n1. Start by opening a visible MATLAB/Simulink session and the relevant `.slx` model with `load_system` / `open_system`.\\r\\n2. If creating a new model, create and save the model early, then open it before continuing with automated block edits.\\r\\n3. Use `open_system(modelName)`, `set_param(modelName,\\\"ZoomFactor\\\",\\\"FitSystem\\\")`, scopes, figures, and live plots so the user can watch the process.\\r\\n4. Prefer a visible demonstration step before or alongside batch validation. Batch logs and exported artifacts are still required for acceptance, but they should not replace the visible model/plot experience.\\r\\n5. When an already-open MATLAB window is present, try to execute `open_system` in that visible session or bring the Simulink model window to the front. Confirm the expected model window title in the final report.\\r\\n\\r\\n## MCP-Specific Guidance\\r\\n\\r\\nWhen an official MATLAB MCP auto path is available:\\r\\n\\r\\n1. Treat the visible MATLAB desktop session as the primary control plane.\\r\\n2. Prefer MCP-driven model edits, simulation commands, workspace inspection, and iterative tuning in that sa",
+    "{\"type\": \"item.started\", \"item\": {\"id\": \"item_5\", \"type\": \"command_execution\", \"command\": \"\\\"C:\\\\\\\\Users\\\\\\\\23201\\\\\\\\AppData\\\\\\\\Local\\\\\\\\Microsoft\\\\\\\\WindowsApps\\\\\\\\pwsh.exe\\\" -Command \\\"Get-ChildItem -Force | Select-Object Mode,Name; rg --files --hidden -g '\\\"'!**/.git/**'\\\"' -g 'AGENTS.md' -g 'AGENT.md' -g 'CLAUDE.md' -g 'Test-MatlabMcpExistingSession.ps1' -g 'mas_route.m' -g 'mas_stability_verdict.m' -g '*acceptance*' -g 'routing.json'; Get-Content -LiteralPath '.agents/skills/matlab-runner/SKILL.md'\\\"\", \"aggregated_output\": \"\", \"exit_code\": null, \"status\": \"in_progress\"}}",
+    "{\"type\": \"item.completed\", \"item\": {\"id\": \"item_5\", \"type\": \"command_execution\", \"command\": \"\\\"C:\\\\\\\\Users\\\\\\\\23201\\\\\\\\AppData\\\\\\\\Local\\\\\\\\Microsoft\\\\\\\\WindowsApps\\\\\\\\pwsh.exe\\\" -Command \\\"Get-ChildItem -Force | Select-Object Mode,Name; rg --files --hidden -g '\\\"'!**/.git/**'\\\"' -g 'AGENTS.md' -g 'AGENT.md' -g 'CLAUDE.md' -g 'Test-MatlabMcpExistingSession.ps1' -g 'mas_route.m' -g 'mas_stability_verdict.m' -g '*acceptance*' -g 'routing.json'; Get-Content -LiteralPath '.agents/skills/matlab-runner/SKILL.md'\\\"\", \"aggregated_output\": \"\\r\\n.agents\\\\skills\\\\matlab-orchestrator\\\\assets\\\\routing.json\\n.agents\\\\skills\\\\matlab-orchestrator\\\\scripts\\\\mas_route.m\\n.agents\\\\skills\\\\matlab-control-optimization\\\\scripts\\\\mas_stability_verdict.m\\n.agents\\\\skills\\\\matlab-runner\\\\references\\\\acceptance-levels.md\\nMode  Name\\r\\n----  ----\\r\\nd---- .agents\\r\\n---\\r\\nname: matlab-runner\\r\\ndescription: Run MATLAB tasks from Codex with reliable MCP-based execution, logs, artifacts, toolbox inventory, smoke tests, and reproducible validation. Use whenever MATLAB code, .m/.mlx scripts, MATLAB tests, local toolbox probing, or command-line automation is needed.\\r\\n---\\r\\n\\r\\n# MATLAB Runner\\r\\n\\r\\nUse this skill to execute MATLAB work safely and repeatably through the official MATLAB MCP server, preferably in `auto` mode, and only use terminal batch workflows when the user explicitly asks for them. It is the foundation skill for all other MATLAB skills.\\r\\n\\r\\n## References �� load on demand\\r\\n\\r\\nThis file carries the workflow. The tables below are **not** loaded unless the task\\r\\nactually reaches them, because each is a few hundred tokens of detail that costs\\r\\ncontext on every run and goes stale on every MATLAB release.\\r\\n\\r\\n| Load this | when |\\r\\n|---|---|\\r\\n| `references/toolbox-feature-map.md` | resolving a product name to a licence feature |\\r\\n| `references/mcp-readiness-ladder.md` | about to claim MCP is ready, or MCP failed |\\r\\n| `references/acceptance-levels.md` | about to write an acceptance report |\\r\\n| `references/failure-classes.md` | a run failed and you are deciding whether to retry |\\r\\n\\r\\n## Execution Rules\\r\\n\\r\\n1. Prefer the official MATLAB MCP auto mode for MATLAB work on this machine.\\r\\n2. Do not silently fall back to `matlab -batch` when MCP is expected.\\r\\n3. Capture logs, version info, working directory, and artifact paths where applicable.\\r\\n4. Run from a project root, not from a random temporary folder, unless isolation is required.\\r\\n5. Put generated files under `artifacts/` or a user-specified output folder.\\r\\n6. Keep scripts deterministic: seed random generators and record data sources.\\r\\n\\r\\n## Precheck Before A Long Run\\r\\n\\r\\nPhase 3B.1 shipped five scripts and none ran on the first attempt; most of those\\r\\nfailures were detectable in seconds. Run the cheap checks first, in this order:\\r\\n\\r\\n```matlab\\r\\nr = mas_precheck('function', 'boost_params');                 % exists?\\r\\nr = mas_precheck('struct',   cfg, {'Vin','L','C'});           % fields present?\\r\\nr = mas_precheck('numeric',  x, struct('finite',true));        % NaN/Inf?\\r\\nr = mas_precheck('index',    mask, numel(target));             % mask length\\r\\nr = mas_precheck('toolbox',  'Control System Toolbox');        % product vs feature\\r\\nr = mas_precheck('model',    'matlab/boost/models/boost_avg.slx');\\r\\n```\\r\\n\\r\\nThe `index` check exists because MATLAB does **not** error when a logical mask is\\r\\nshorter than the array it indexes: it silently returns the first `numel(mask)`\\r\\nelements. In Phase 3B.2 that turned every `iLref` reading into `0` and nearly\\r\\nproduced the conclusion \\\"the current command is railed\\\". A length check makes it\\r\\nloud. `tests/test_precheck.m` covers positive and must-fail cases.\\r\\n\\r\\nNever start a 20-minute matrix after a failed precheck; fix the precheck first.\\r\\n\\r\\n## MCP Required By Default\\r\\n\\r\\nA config file never proves MCP works, and `sessionDetails.json`, a listening `pid`\\r\\nor a client entry in"
+  ],
+  "producedFiles": {
+    "artifacts/data/pid_step.mat": {
+      "bytes": 852576,
+      "sha256": "064c25c15f9ce379853fa86f20b159c0a56bf4116efa13305b48de593dbc3cb1"
+    },
+    "artifacts/figures/pid_step.png": {
+      "bytes": 42502,
+      "sha256": "8e336f4e005a6353d6bbb4d7b54c3dca9b324d62efbf0e91f2040254e43765f8"
+    },
+    "artifacts/logs/pid_simulation.log": {
+      "bytes": 392,
+      "sha256": "420ee5532b278108ce10f013780fb707b21bfbdd85396c263361b1baab97dafb"
+    },
+    "artifacts/validation/acceptance_report.json": {
+      "bytes": 3876,
+      "sha256": "e06b65e1d4b3bfe82af8cf08a35efe18dcc2d7f8dbdfe468468c4ad110e82348"
+    },
+    "artifacts/validation/code_analysis.json": {
+      "bytes": 19,
+      "sha256": "6439294685a723c069491ad05cc0cd27c356bda2644516a7178cb6f339e94c72"
+    },
+    "artifacts/validation/mcp_probe.json": {
+      "bytes": 6521,
+      "sha256": "776daebee93234b2a7d70219ae4957591bf05274c287d6c5539a3c452a7dbd4a"
+    },
+    "artifacts/validation/mcp_probe_loopback.json": {
+      "bytes": 6169,
+      "sha256": "e8a0a64f8e10bec5301d3fd8714f8c31389e31d8c6ac98aa3b2f20c86194671f"
+    },
+    "artifacts/validation/simulation_evidence.json": {
+      "bytes": 2173,
+      "sha256": "4cd5c3fde7cc41816328e6740e903ac9dff4547d12412f700e74b3b85096400b"
+    },
+    "design_pid.m": {
+      "bytes": 6024,
+      "sha256": "fef810b4fbb2353f0d1e2a9bb1a62e91d141bbca9eb1153349f23c0b5a3ccebb"
+    },
+    "result.json": {
+      "bytes": 144,
+      "sha256": "0d409c5dc72a7dd6db6ea957079f442ba79dab4097a5184efad865841798807c"
+    }
+  },
+  "durationSeconds": 730.3,
+  "finishedUtc": "2026-10-23T06:48:18Z"
+}

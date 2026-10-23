@@ -1,0 +1,49 @@
+
+	Sponsored License -- for use in support of a program or activity sponsored by MathWorks.
+	Not for government, commercial or other non-sponsored organizational use.
+
+round 1: pass [15 15] total [15 15] sessions 2/2 own, cross=0, fixture=2/2
+round 2: pass [15 15] total [15 15] sessions 2/2 own, cross=0, fixture=2/2
+round 3: pass [15 15] total [15 15] sessions 2/2 own, cross=0, fixture=2/2
+test_concurrency: 3/3 rounds clean; isolation=1 (own=1 cross=0 fixture=1) residue shared=0 newMex=0 newTempDirs=0 left=0
+test_concurrency: stability=NOT CLAIMED (3/3 rounds complete at nProcs=2)
+  [PASS] MATLAB suites all pass with no ERROR
+       1127/1127 over 32 suites, 0 errored, 393.6 s
+  [PASS] the +52 suite delta is fully attributed against the frozen 1075
+       frozen 1075/1075 over 32 suites -> now 1127/1127 over 32; grew: deliveryCheck 93->145; shrank: none; missing: none
+  [PASS] frozen reference implementations verify
+       15/15 references
+  [PASS] nine-Skill cross-domain tasks pass
+       pass 15, fail 0, undetermined 0 of 15
+  [PASS] routed pipeline passes with no self-disagreement
+       15/15, skill match rate 1, selfDisagreement 0
+  [PASS] capability matrix is consistent with the nine shipped Skills
+       capability suite 8/8, 9 matlab-* skill directories, 9 matrix skill entries
+  [PASS] free-layer Pester suites executed
+       313/314 passed, 1 failed in 146.4 s (Pester 3.4.0)
+  [PASS] the single Pester failure is the known pre-existing hygiene gate
+       log shows 1 failing test line(s) (report says 1); gate hit inventory 77 entries, scan=git-tracked; named file=1
+  [PASS] install sync stays inside its own root and rediscovery passes
+       sync/rediscovery record generated 2026-10-23 13:20:34
+  [PASS] real user-level Skill roots were never written
+       45 installed copies byte-identical between 2026-10-23 13:07:58 and 2026-10-23 18:38:02
+  [PASS] client discovery still returns 9/9 with repo-matching hashes
+       Codex Desktop engine 0.163.0-alpha.11.1 isolated 9/9, Codex CLI 0.147.0 isolated 9/9
+  [PASS] native invocation evidence passes its own assertions
+       11 episodes, 8 assertions
+  [PASS] scoring v1 fields replay unchanged and v3 is additive
+       9 results, v1 preserved 9, enum-only 4, numerical failures 0
+  [PASS] schema/scoring test suites pass at their grown sizes
+       test_delivery_check 145/145 (Phase 5.7 froze 93), test_grade_v2 60/60
+  [PASS] the real closed loop still accepts independently
+       7 dimensions, agreement 1, client inputs unchanged 1
+  [PASS] Coder entry contract keeps its three distinct outcomes
+       string=PASS@compare handle=FAIL@codegen link=FAIL@build log 5708 bytes byte-exact 1 compiler "Microsoft Visual C++ 2022 (C)"
+  [PASS] concurrency isolation holds across independent processes
+       3/3 rounds clean; isolation.verified=1 own-session-log=1 cross-session=0 fixture-owned=1 residue temp=0 left=0
+  [PASS] the Phase 5.7 regression record is still readable and unchanged in size
+       Phase 5.7 archived 1075/1075 over 32 suites
+  [PASS] the frozen Task 1 install audit is still parseable
+       generated 2026-10-23 13:07:58, 9 Skills
+p58_regression_summary: 19/19 checks -> E:\desktop\MATLAB\artifacts\phase58\regression\regression_summary.json
+SUMMARY PASS=1

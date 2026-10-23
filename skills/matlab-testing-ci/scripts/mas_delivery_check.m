@@ -22,6 +22,7 @@ function R = mas_delivery_check(result, spec, varargin)
 %   units              optional struct mapping field name -> unit
 %   enums              optional struct mapping field name -> cellstr allowed
 %   budget             struct with required/maxToolCalls/maxWallSeconds
+%   workflow           optional v3 struct: required + stages (cellstr)
 %
 % RESULT PROFILES
 %   'mas-result/1-legacy'  requires `verdict` in the legal enum and `fields`
@@ -35,6 +36,14 @@ function R = mas_delivery_check(result, spec, varargin)
 %   format, required, units, enums, verdict, math, budget, reference,
 %   separation, overall, errors. `math` calls mas_grade; `reference` calls
 %   mas_refcheck. No numeric comparison is reimplemented here.
+%
+% OUTPUT (dimensionSchema mas-delivery-dimensions/3, additive in v1 output)
+%   dimensions.numericalCorrectness / enumContractValid /
+%   engineeringVerdictCorrect / structuralSchemaValid / workflowCompleted /
+%   withinBudget / deliveryValid, plus mapping. Every dimension records the
+%   v1 fields it was derived from. math.status stays the combined v1 label so
+%   historical reports replay unchanged; math.numericStatus and
+%   math.enumStatus are the two independent axes the dimensions consume.
 %
 % LEGAL STATES
 %   UNKNOWN and UNDETERMINED are legal verdict values and legal field values.
@@ -76,6 +85,11 @@ R.verdict = struct('status', 'NOT_RUN', 'errors', empty_errors());
 R.math = struct('status', 'NOT_RUN', 'errors', empty_errors());
 R.budget = struct('status', 'NOT_RUN', 'errors', empty_errors());
 R.reference = struct('status', 'NOT_RUN', 'errors', empty_errors());
+R.workflow = struct('status', 'NOT_RUN', 'required', {{}}, 'recorded', {{}}, ...
+    'missing', {{}}, 'incomplete', {{}}, 'errors', empty_errors());
+R.dimensionSchema = 'mas-delivery-dimensions/3';
+R.dimensions = empty_dimensions();
+R.mapping = dimension_mapping();
 
 if ischar(result) || isstring(result)
     R.source = char(result);
@@ -124,6 +138,7 @@ R.units = check_units(r, spec, R.profile);
 R.verdict = check_verdict(r, spec);
 R.math = check_math(r, spec);
 R.budget = check_budget(r, spec);
+R.workflow = check_workflow(r, spec);
 
 if isempty(opt.referenceManifest)
     R.reference = struct('status', 'NOT_REQUIRED', ...
@@ -132,10 +147,12 @@ else
     R.reference = check_reference(opt.referenceManifest);
 end
 
+R.dimensions = dimensions(R);
+R.dimensions = dimensions(R);
 R.separation = separation(R);
 R.errors = [R.format.errors(:); R.required.errors(:); R.enums.errors(:); ...
             R.units.errors(:); R.verdict.errors(:); R.math.errors(:); ...
-            R.budget.errors(:); R.reference.errors(:)];
+            R.budget.errors(:); R.reference.errors(:); R.workflow.errors(:)];
 R.overall = overall(R);
 R = finish(R, opt);
 end
@@ -152,6 +169,11 @@ if opt.verbose
     fprintf('delivery %s: format %s | units %s | verdict %s | math %s | overall %s\n', ...
         ternary(isempty(R.taskId), R.source, R.taskId), R.format.status, R.units.status, ...
         R.verdict.status, R.math.status, R.overall);
+    D = R.dimensions;
+    fprintf('  v3 %s: numerical %s | enum %s | verdict %s | schema %s | workflow %s | budget %s | delivery %s\n', ...
+        R.dimensionSchema, D.numericalCorrectness.status, D.enumContractValid.status, ...
+        D.engineeringVerdictCorrect.status, D.structuralSchemaValid.status, ...
+        D.workflowCompleted.status, D.withinBudget.status, D.deliveryValid.status);
 end
 end
 
@@ -351,6 +373,7 @@ end
 function M = check_math(r, spec)
 M = struct('status', 'NOT_REQUIRED', 'engine', 'mas_grade', 'grade', struct(), ...
     'checks', struct('id', {}, 'kind', {}, 'ok', {}, 'detail', {}), ...
+    'numericStatus', 'NOT_REQUIRED', 'enumStatus', 'NOT_REQUIRED', ...
     'errors', empty_errors());
 [fields, ~] = contract_fields(spec);
 if isempty(fields)
@@ -361,6 +384,13 @@ checks = struct('id', {}, 'executed', {}, 'kind', {}, 'value', {}, ...
 exactBad = false;
 nExact = 0;
 unrecorded = false;
+% v3 splits the two axes that used to share one label: a categorical value
+% that is spelled wrong (enum) and a number that is out of tolerance
+% (numerical). `status` stays the combined v1 verdict so old readers are
+% unaffected; `numericStatus`/`enumStatus` are the independent axes.
+enumBad = false;
+unrecordedEnum = false;
+unrecordedNumeric = false;
 for k = 1:numel(fields)
     f = fields{k};
     nm = char(getf(f, 'name', sprintf('field%d', k)));
@@ -371,16 +401,19 @@ for k = 1:numel(fields)
     if isempty(ref)
         continue;
     end
+    isEnumRef = ischar(ref) || isstring(ref);
     if ~isfield(r, 'fields') || ~isfield(r.fields, key)
         unrecorded = true;
+        if isEnumRef, unrecordedEnum = true; else, unrecordedNumeric = true; end
         M.checks(end+1) = struct('id', nm, 'kind', 'missing', 'ok', false, ...
             'detail', 'field absent; cannot evaluate'); %#ok<AGROW>
         continue;
     end
     value = r.fields.(key);
-    if ischar(ref) || isstring(ref)
+    if isEnumRef
         ok = ischar(value) && strcmp(char(value), char(ref));
         exactBad = exactBad || ~ok;
+        enumBad = enumBad || ~ok;
         nExact = nExact + 1;
         M.checks(end+1) = struct('id', nm, 'kind', 'exact', 'ok', ok, ...
             'detail', ternary(ok, 'exact match', sprintf('"%s" vs "%s"', ...
@@ -393,6 +426,7 @@ for k = 1:numel(fields)
     end
     if ~isnumeric(value) || isempty(value) || ~isscalar(value) || ~isfinite(value)
         unrecorded = true;
+        unrecordedNumeric = true;
         M.checks(end+1) = struct('id', nm, 'kind', 'nonfinite', 'ok', false, ...
             'detail', 'value is empty/non-numeric/non-finite'); %#ok<AGROW>
         continue;
@@ -414,6 +448,7 @@ for k = 1:numel(fields)
             c.cmp = 'le';
         otherwise
             unrecorded = true;
+            unrecordedNumeric = true;
             M.checks(end+1) = struct('id', nm, 'kind', 'op', 'ok', false, ...
                 'detail', sprintf('unknown op "%s"', op)); %#ok<AGROW>
             continue;
@@ -427,6 +462,12 @@ if ~isempty(checks)
         M.grade = g;
     catch ME
         M.status = 'UNDETERMINED';
+        M.numericStatus = 'UNDETERMINED';
+        if nExact > 0
+            M.enumStatus = ternary(exactBad, 'FAIL', 'PASS');
+        elseif unrecordedEnum
+            M.enumStatus = 'UNDETERMINED';
+        end
         M.errors = add_error(M.errors, 'MAS_GRADE_ERROR', 'math', ME.message, 'error');
         return;
     end
@@ -449,17 +490,30 @@ if ~isempty(checks)
     end
     if isequal(g.correct, false) || isequal(g.meets, false)
         M.status = 'FAIL';
+        M.numericStatus = 'FAIL';
+    elseif unrecordedNumeric
+        M.numericStatus = 'UNDETERMINED';
+        M.status = 'UNDETERMINED';
     elseif unrecorded
         M.status = 'UNDETERMINED';
+        M.numericStatus = 'PASS';
     else
         M.status = 'PASS';
+        M.numericStatus = 'PASS';
     end
 elseif unrecorded
     M.status = 'UNDETERMINED';
+    if unrecordedNumeric, M.numericStatus = 'UNDETERMINED'; end
+    if unrecordedEnum, M.enumStatus = 'UNDETERMINED'; end
 elseif nExact > 0
     M.status = ternary(exactBad, 'FAIL', 'PASS');
 else
     M.status = 'NOT_REQUIRED';
+end
+if nExact > 0
+    M.enumStatus = ternary(enumBad, 'FAIL', 'PASS');
+elseif unrecordedEnum
+    M.enumStatus = 'UNDETERMINED';
 end
 if exactBad
     M.status = 'FAIL';
@@ -526,6 +580,164 @@ else
     B.status = 'PASS';
 end
 B.detail = ternary(strcmp(B.status, 'PASS'), 'within budget', 'see errors');
+end
+
+function W = check_workflow(r, spec)
+%WORKFLOW  v3 dimension: did the run actually walk the declared stages?
+%   spec.workflow.stages  cellstr/char array of stage names (required when set)
+%   spec.workflow.required  logical, default true
+%   r.workflow            struct of stage -> logical, or array of
+%                         {name, completed}; absence is UNRECORDED, never a pass.
+W = struct('status', 'NOT_REQUIRED', 'required', {{}}, 'recorded', {{}}, ...
+    'missing', {{}}, 'incomplete', {{}}, 'detail', 'contract declares no workflow', ...
+    'errors', empty_errors());
+w = getf(spec, 'workflow', struct());
+if ~isstruct(w) || ~logical(getf(w, 'required', true))
+    return;
+end
+stages = as_cellstr(getf(w, 'stages', getf(w, 'requiredStages', {})));
+if isempty(stages)
+    W.status = 'NOT_REQUIRED';
+    W.detail = 'workflow declared without stages';
+    return;
+end
+W.required = stages;
+if ~isfield(r, 'workflow') || ~isstruct(r.workflow)
+    W.status = 'UNRECORDED';
+    W.detail = 'workflow was required but the result records no stages';
+    W.missing = stages;
+    W.errors = add_error(W.errors, 'WORKFLOW_UNRECORDED', 'workflow', ...
+        sprintf('%d required stage(s) are not recorded', numel(stages)), 'error');
+    return;
+end
+recorded = workflow_map(r.workflow);
+W.recorded = recorded.names;
+for k = 1:numel(stages)
+    if ~any(strcmp(recorded.names, stages{k}))
+        W.missing{end+1} = stages{k}; %#ok<AGROW>
+        W.errors = add_error(W.errors, 'WORKFLOW_STAGE_MISSING', ...
+            ['workflow.' stages{k}], 'stage is not recorded', 'error');
+    elseif ~recorded.values{strcmp(recorded.names, stages{k})}
+        W.incomplete{end+1} = stages{k}; %#ok<AGROW>
+        W.errors = add_error(W.errors, 'WORKFLOW_STAGE_INCOMPLETE', ...
+            ['workflow.' stages{k}], 'stage recorded as not completed', 'error');
+    end
+end
+W.status = status_from(W.errors);
+if strcmp(W.status, 'PASS')
+    W.detail = sprintf('all %d declared stage(s) completed', numel(stages));
+else
+    W.detail = 'see errors';
+end
+end
+
+function m = workflow_map(w)
+names = fieldnames(w);
+values = cell(1, numel(names));
+for k = 1:numel(names)
+    v = w.(names{k});
+    if islogical(v) && isscalar(v)
+        values{k} = v;
+    elseif isnumeric(v) && isscalar(v)
+        values{k} = logical(v);
+    else
+        values{k} = false;
+    end
+end
+m = struct('names', {names}, 'values', {values});
+end
+
+% ===========================================================================
+function D = dimensions(R)
+%DIMENSIONS  v3: seven independent delivery dimensions.
+%
+%   numericalCorrectness  only the numeric/domain axis of mas_grade
+%   enumContractValid     declared enums plus the categorical (exact string) axis
+%   engineeringVerdictCorrect  delivered verdict vs the expected verdict
+%   structuralSchemaValid profile/schema/taskId + required fields + units
+%   workflowCompleted     the stages the contract declared
+%   withinBudget          recorded usage vs declared limits
+%   deliveryValid         aggregate of the six above plus the reference guard
+%
+% A vocabulary mistake is never counted as a numerical mistake, and a
+% numerically correct answer never rescues a broken delivery contract.
+D = empty_dimensions();
+D.numericalCorrectness = dim(R.math.numericStatus, {'math.numericStatus'}, ...
+    'numeric and domain checks judged by mas_grade');
+D.enumContractValid = combine('enumContractValid', ...
+    {R.enums.status, R.math.enumStatus}, ...
+    {'enums.status', 'math.enumStatus'});
+D.engineeringVerdictCorrect = dim(R.verdict.status, {'verdict.status'}, ...
+    'delivered verdict vs expected verdict; never coerced');
+D.structuralSchemaValid = combine('structuralSchemaValid', ...
+    {R.format.status, R.required.status, R.units.status}, ...
+    {'format.status', 'required.status', 'units.status'});
+D.workflowCompleted = dim(R.workflow.status, {'workflow.status'}, ...
+    sprintf('%d stage(s) declared', numel(R.workflow.required)));
+D.withinBudget = dim(R.budget.status, {'budget.status'}, ...
+    'recorded usage vs declared limits');
+D.deliveryValid = combine('deliveryValid', ...
+    {D.numericalCorrectness.status, D.enumContractValid.status, ...
+     D.engineeringVerdictCorrect.status, D.structuralSchemaValid.status, ...
+     D.workflowCompleted.status, D.withinBudget.status, R.reference.status}, ...
+    {'dimensions.numericalCorrectness', 'dimensions.enumContractValid', ...
+     'dimensions.engineeringVerdictCorrect', 'dimensions.structuralSchemaValid', ...
+     'dimensions.workflowCompleted', 'dimensions.withinBudget', 'reference.status'});
+end
+
+function d = dim(status, sources, detail)
+d = struct('status', status, 'sources', {sources}, 'detail', detail);
+end
+
+function d = combine(name, statuses, sources)
+c = {statuses{:}};
+active = ~strcmp(c, 'NOT_REQUIRED');
+if ~any(active)
+    status = 'NOT_REQUIRED';
+elseif any(strcmp(c(active), 'FAIL'))
+    status = 'FAIL';
+elseif any(strcmp(c(active), 'UNRECORDED')) || any(strcmp(c(active), 'UNDETERMINED'))
+    status = 'UNDETERMINED';
+else
+    status = 'PASS';
+end
+parts = cell(1, numel(sources) + 1);
+parts{1} = [name ':'];
+for k = 1:numel(sources)
+    parts{k+1} = sprintf('%s %s', sources{k}, c{k});
+end
+detail = strjoin(parts(2:end), ', ');
+detail = [parts{1} ' ' detail];
+d = dim(status, sources, detail);
+end
+
+function D = empty_dimensions()
+d = struct('status', 'NOT_RUN', 'sources', {{}}, 'detail', '');
+names = {'numericalCorrectness', 'enumContractValid', 'engineeringVerdictCorrect', ...
+    'structuralSchemaValid', 'workflowCompleted', 'withinBudget', 'deliveryValid'};
+D = struct();
+for k = 1:numel(names)
+    D.(names{k}) = d;
+end
+end
+
+function M = dimension_mapping()
+M = struct();
+M.protocol = 'mas-delivery-dimensions/3';
+M.compatibility = 'v1 fields (schema/format/required/enums/units/verdict/math/budget/reference/separation/overall/errors) keep their exact meaning; dimensions are additive';
+M.mathStatusKeptCombined = true;
+M.enumErrorsCountAsNumericalErrors = false;
+M.dimensions = struct( ...
+    'name', {'numericalCorrectness', 'enumContractValid', 'engineeringVerdictCorrect', ...
+             'structuralSchemaValid', 'workflowCompleted', 'withinBudget', 'deliveryValid'}, ...
+    'from', {'math.numericStatus', ...
+             'enums.status + math.enumStatus', ...
+             'verdict.status', ...
+             'format.status + required.status + units.status', ...
+             'workflow.status', ...
+             'budget.status', ...
+             'the six dimensions above + reference.status'});
+M.removed = {};
 end
 
 function F = check_reference(manifestFile)

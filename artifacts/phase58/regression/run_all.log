@@ -1,0 +1,319 @@
+
+	Sponsored License -- for use in support of a program or activity sponsored by MathWorks.
+	Not for government, commercial or other non-sponsored organizational use.
+
+########## Phase 4.2 verification ##########
+
+routing          9 /   9
+precheck        16 /  16
+depProbe        26 /  26
+grading          6 /   6
+phase43Grade    43 /  43
+=== verifying references against reference_manifest.json ===
+id    agreement   spread hashOK   specOK valuesOK status
+D1     4.24e-16      0.0        1        1        1 OK
+D2     1.11e-16      0.0        1        1        1 OK
+D3     1.50e-14      0.0        1        1        0 VALUE magAt2Fc 1.6e-01
+D4     0.00e+00      0.0        1        1        1 OK
+D5     9.53e-03      0.0        1        1        1 OK
+D6     2.33e-15      0.0        1        1        1 OK
+D7     1.48e-16      0.0        1        1        1 OK
+D8     1.11e-16      0.0        1        1        1 OK
+C1     8.88e-12      0.0        1        1        1 OK
+C2     0.00e+00      0.0        1        1        1 OK
+C3     6.72e-05      0.0        1        1        1 OK
+T1     0.00e+00      0.0        1        1        1 OK
+S1     3.38e-04      0.0        1        1        1 OK
+R1     2.84e-16      0.0        1        1        1 OK
+G1     0.00e+00      0.0        1        1        1 OK
+
+---- 14 / 15 references verified ----
+=== verifying references against reference_manifest.json ===
+id    agreement   spread hashOK   specOK valuesOK status
+D1     4.24e-16      0.0        1        1        1 OK
+D2     1.11e-16      0.0        1        1        1 OK
+D3     1.50e-14      0.0        0        1        0 HASH_CHANGED
+D4     0.00e+00      0.0        1        1        1 OK
+D5     9.53e-03      0.0        1        1        1 OK
+D6     2.33e-15      0.0        1        1        1 OK
+D7     1.48e-16      0.0        1        1        1 OK
+D8     1.11e-16      0.0        1        1        1 OK
+C1     8.88e-12      0.0        1        1        1 OK
+C2     0.00e+00      0.0        1        1        1 OK
+C3     6.72e-05      0.0        1        1        1 OK
+T1     0.00e+00      0.0        1        1        1 OK
+S1     3.38e-04      0.0        1        1        1 OK
+R1     2.84e-16      0.0        1        1        1 OK
+G1     0.00e+00      0.0        1        1        1 OK
+
+---- 14 / 15 references verified ----
+=== verifying references against reference_manifest.json ===
+id    agreement   spread hashOK   specOK valuesOK status
+D1     4.24e-16      0.0        1        1        1 OK
+D2     1.11e-16      0.0        1        1        1 OK
+D3     1.50e-14      0.0        1        1        1 OK
+D4     0.00e+00      0.0        1        1        1 OK
+D5     9.53e-03      0.0        1        1        1 OK
+D6     2.33e-15      0.0        1        1        1 OK
+D7     1.48e-16      0.0        1        1        1 OK
+D8     1.11e-16      0.0        1        1        1 OK
+C1     8.88e-12      0.0        1        1        1 OK
+C2     0.00e+00      0.0        1        1        1 OK
+C3     6.72e-05      0.0        1        1        1 OK
+T1     0.00e+00      0.0        1        1        1 OK
+S1     3.38e-04      0.0        1        1        1 OK
+R1     2.84e-16      0.0        1        1        1 OK
+G1     0.00e+00      0.0        1        1        1 OK
+
+---- 15 / 15 references verified ----
+refcheck        11 /  11
+test_bench: 9 / 9 passed
+bench            9 /   9
+test_capability: 8 / 8 passed
+capability       8 /   8
+test_skill_graph: 13 / 13 passed
+skillGraph      13 /  13
+modelCheck       2 /   2
+ctrlAnalyze     14 /  14
+stabilityContract  32 /  32
+distEnter       19 /  19
+routingContract  16 /  16
+tableAudit      11 /  11
+[警告: 矩阵接近奇异值，或者缩放不良。结果可能不准确。RCOND =  2.609829e-17。] 
+[> 位置：test_data_contract (第 53 行)
+位置: run_all>@()test_data_contract(false) (第 59 行)
+位置: run_all (第 81 行)
+] 
+[警告: 秩亏，秩 = 2，tol =  3.748544e-14。] 
+[> 位置：test_data_contract (第 100 行)
+位置: run_all>@()test_data_contract(false) (第 59 行)
+位置: run_all (第 81 行)
+] 
+[警告: 秩亏，秩 = 2，tol =  3.748544e-14。] 
+[> 位置：mas_fit_check (第 67 行)
+位置: test_data_contract (第 100 行)
+位置: run_all>@()test_data_contract(false) (第 59 行)
+位置: run_all (第 81 行)
+] 
+dataContract   118 / 118
+signalVision    34 /  34
+signalContract  42 /  42
+statDecision    19 /  19
+robotics        31 /  31
+roboticsContract 162 / 162
+odeContract     56 /  56
+odeFieldContract  14 /  14
+visionContract 103 / 103
+frozen 3 tasks
+  tasks  D:\Temp\tp2bba349e_3ba1_40b9_bbba_0ad1c9544155\holdout\tasks.json
+  sha256 a13d8c97fec0bcba4819e6069c59eec60e94778a4343aa55996ea7aea7bdf3bb
+  answers sha256 5ccd6fbe91db7dcacd5132fefcf08187ec97bb9622c92a96ae1e6a738de6b04b
+  manifest D:\Temp\tp2bba349e_3ba1_40b9_bbba_0ad1c9544155\holdout\manifest.json
+task       domain   kind      expected     actual       pass    criteria
+dev-sig-normal signal   normal    PASS         PASS         1       all criteria met
+dev-data-normal data     normal    PASS         PASS         1       all criteria met
+dev-rob-normal robotics normal    PASS         PASS         1       all criteria met
+
+3/3 tasks | executed 3/3 (pass 3) | route 3/3 | tool 3/3 | verdict 3/3 | false accepts 0 | false rejects 0
+baseline: tool-level scripted policy (NOT an Agent benchmark)
+agent level: NOT TESTED (no independent agent episode was executed; the runner is a deterministic policy, so only tool-level evidence is reported)
+grade written to D:\Temp\tp2bba349e_3ba1_40b9_bbba_0ad1c9544155\results\grade.json
+task       domain   kind      expected     actual       pass    criteria
+dev-sig-normal signal   normal    PASS         PASS         1       all criteria met
+dev-data-normal data     normal    PASS         MISSING      0       result file missing
+dev-rob-normal robotics normal    PASS         PASS         1       all criteria met
+
+2/3 tasks | executed 2/3 (pass 2) | route 2/3 | tool 2/3 | verdict 2/3 | false accepts 0 | false rejects 0
+baseline: tool-level scripted policy (NOT an Agent benchmark)
+agent level: NOT TESTED (no independent agent episode was executed; the runner is a deterministic policy, so only tool-level evidence is reported)
+grade written to D:\Temp\tp2bba349e_3ba1_40b9_bbba_0ad1c9544155\results2\grade.json
+task       domain   kind      expected     actual       pass    criteria
+dev-sig-normal signal   normal    PASS         FAIL         0       failed: verdict
+dev-data-normal data     normal    PASS         PASS         1       all criteria met
+dev-rob-normal robotics normal    PASS         PASS         1       all criteria met
+
+2/3 tasks | executed 3/3 (pass 2) | route 3/3 | tool 3/3 | verdict 2/3 | false accepts 0 | false rejects 1
+baseline: tool-level scripted policy (NOT an Agent benchmark)
+agent level: NOT TESTED (no independent agent episode was executed; the runner is a deterministic policy, so only tool-level evidence is reported)
+grade written to D:\Temp\tp2bba349e_3ba1_40b9_bbba_0ad1c9544155\results3\grade.json
+task       domain   kind      expected     actual       pass    criteria
+dev-sig-normal signal   normal    PASS         PASS         1       all criteria met
+dev-data-normal data     normal    PASS         PASS         1       all criteria met
+dev-rob-normal robotics normal    PASS         PASS         0       failed: fields
+
+2/3 tasks | executed 3/3 (pass 2) | route 3/3 | tool 3/3 | verdict 3/3 | false accepts 0 | false rejects 0
+baseline: tool-level scripted policy (NOT an Agent benchmark)
+agent level: NOT TESTED (no independent agent episode was executed; the runner is a deterministic policy, so only tool-level evidence is reported)
+grade written to D:\Temp\tp2bba349e_3ba1_40b9_bbba_0ad1c9544155\results4\grade.json
+benchmarkHarness  11 /  11
+published 3 tasks into D:\Temp\tpa601dd50_f22e_43c6_972b_bccd0db8491e\bundle
+  tasks   sha256 9ffb788f81378fdf055cfaaea79f8e232e16f48307c3af9157045ac66793cbdb
+  public  sha256 acb276afe0f9f144eddf8e38cbe74285534fc001e6d35036046f35105357a4f8
+  answers present: false
+  reference committed by hash 8c85a00c8fa67f09a0fcf200b24edf39d36f4a2aa5b8b74858b8f126edc83fc9
+frozen 3 tasks
+  tasks  D:\Temp\tpa601dd50_f22e_43c6_972b_bccd0db8491e\eval\tasks_frozen.json
+  sha256 6b528da1c62f2cd4d171b859e7a713c8577b67fde3a591c82cd495a75e429d4b
+  answers sha256 bf27240134b4e441a0d06ebaa359b50079840d2f33c1dfa325c7ba4016eff4f1
+  manifest D:\Temp\tpa601dd50_f22e_43c6_972b_bccd0db8491e\eval\manifest.json
+sealed after 9 episodes (last finish 2026-10-22 10:20:00)
+  answers sha256 bf27240134b4e441a0d06ebaa359b50079840d2f33c1dfa325c7ba4016eff4f1
+twoPhaseSeal    22 /  22
+published 3 tasks into E:\desktop\p56-selftest-8606c78d\bench\bundle
+  tasks   sha256 9ffb788f81378fdf055cfaaea79f8e232e16f48307c3af9157045ac66793cbdb
+  public  sha256 acb276afe0f9f144eddf8e38cbe74285534fc001e6d35036046f35105357a4f8
+  answers present: false
+  reference committed by hash 8c85a00c8fa67f09a0fcf200b24edf39d36f4a2aa5b8b74858b8f126edc83fc9
+task         arm   files  .mat    .m   .md     mas_*.m
+P56-SIG-B    R1        3     1     0     1           0
+P56-SIG-B    R2       23     1     0    21           0
+P56-SIG-B    R3       82     1    56    21          56
+P56-ODE-N    R1        3     1     0     1           0
+P56-ODE-N    R2       23     1     0    21           0
+P56-ODE-N    R3       82     1    56    21          56
+P56-SIG-F    R1        3     1     0     1           0
+P56-SIG-F    R2       23     1     0    21           0
+P56-SIG-F    R3       82     1    56    21          56
+stage manifest: E:\desktop\p56-selftest-8606c78d\bench\stage_manifest.json
+scanned 324 staged arm files + the published bundle for expectation shapes
+  expectation scan: clean (no readable Phase 5.6 answer)
+  E:\desktop\MATLAB: 1 seal artifact(s)
+seal artifacts under the phase56 root: 0 | in other (historical) roots: 1
+generator hash matches commitment: 1 | Phase 5.6 answers absent: 1
+report: E:\desktop\p56-selftest-8606c78d\bench\absence_report.json
+scanned 324 staged arm files + the published bundle for expectation shapes
+  HIT arms :: R1/P56-SIG-B/answer_key.json :: named like an answer file: *answer*
+  HIT arms :: R1/P56-SIG-B/answer_key.json :: binds a verdict key to a verdict value
+  E:\desktop\MATLAB: 1 seal artifact(s)
+seal artifacts under the phase56 root: 0 | in other (historical) roots: 1
+generator hash matches commitment: 1 | Phase 5.6 answers absent: 0
+report: E:\desktop\p56-selftest-8606c78d\bench\absence_report.json
+scanned 324 staged arm files + the published bundle for expectation shapes
+  expectation scan: clean (no readable Phase 5.6 answer)
+  E:\desktop\MATLAB: 1 seal artifact(s)
+seal artifacts under the phase56 root: 0 | in other (historical) roots: 1
+generator hash matches commitment: 1 | Phase 5.6 answers absent: 1
+report: E:\desktop\p56-selftest-8606c78d\bench\absence_report.json
+scanned 324 staged arm files + the published bundle for expectation shapes
+  expectation scan: clean (no readable Phase 5.6 answer)
+  E:\desktop\MATLAB: 1 seal artifact(s)
+seal artifacts under the phase56 root: 0 | in other (historical) roots: 1
+generator hash matches commitment: 1 | Phase 5.6 answers absent: 1
+report: E:\desktop\p56-selftest-8606c78d\bench\absence_report.json
+p56Stage        21 /  21
+p56SessionReset  14 /  14
+skillInstallAudit  25 /  25
+task       domain   kind      expected     actual       overall       criteria
+T-ROUTE    sig      number    PASS         PASS         PASS          all applicable criteria met
+T-BASIC    data     judgement UNDETERMINED UNDETERMINED PASS          all applicable criteria met
+T-WRONG    sig      number    PASS         PASS         FAIL          failed/unrecorded: fields
+T-FA       data     number    FAIL         PASS         FAIL          failed/unrecorded: verdict, integrity
+T-UNREC    sig      number    PASS         PASS         UNDETERMINED  failed/unrecorded: route:unrecorded, tool:unrecorded
+T-MISSING  data     number    PASS         MISSING      MISSING       result file missing
+T-ENUM     sig      number    PASS         MAYBE        FAIL          failed/unrecorded: route:unrecorded, tool:unrecorded, verdict, schema, budget
+
+2/7 tasks PASS | executed 6 | missing 1 | error 0 | fail 3 | undetermined 1
+arm R2: hasSkills=1 hasTools=1
+  math 5/6 scored, 0 N/R, 0 N/A, 0 unrec | verdict 4/6 scored, 0 N/R, 0 N/A, 0 unrec | schema 5/6 scored, 0 N/R, 0 N/A, 0 unrec | workflow 4/6 scored, 0 N/R, 0 N/A, 2 unrec | budget 1/2 scored, 4 N/R, 0 N/A, 0 unrec | delivery 5/6 scored, 0 N/R, 0 N/A, 0 unrec
+  detail: route 3/5 scored, 1 N/R, 0 N/A, 2 unrec | tool 3/5 scored, 1 N/R, 0 N/A, 2 unrec | fields 5/6 scored, 0 N/R, 0 N/A, 0 unrec | integrity 5/6 scored, 0 N/R, 0 N/A, 0 unrec
+grade v2 written to D:\Temp\mas_grade_v2_20261023182205361\grade_R2.json
+task       domain   kind      expected     actual       overall       criteria
+T-NA       sig      number    PASS         PASS         PASS          all applicable criteria met
+T-BASIC    data     judgement UNDETERMINED UNDETERMINED PASS          all applicable criteria met
+
+2/2 tasks PASS | executed 2 | missing 0 | error 0 | fail 0 | undetermined 0
+arm R1: hasSkills=0 hasTools=0
+  math 2/2 scored, 0 N/R, 0 N/A, 0 unrec | verdict 2/2 scored, 0 N/R, 0 N/A, 0 unrec | schema 2/2 scored, 0 N/R, 0 N/A, 0 unrec | workflow 2/2 scored, 0 N/R, 0 N/A, 0 unrec | budget 0/0 scored, 2 N/R, 0 N/A, 0 unrec | delivery 2/2 scored, 0 N/R, 0 N/A, 0 unrec
+  detail: route 0/0 scored, 1 N/R, 1 N/A, 0 unrec | tool 0/0 scored, 1 N/R, 1 N/A, 0 unrec | fields 2/2 scored, 0 N/R, 0 N/A, 0 unrec | integrity 2/2 scored, 0 N/R, 0 N/A, 0 unrec
+grade v2 written to D:\Temp\mas_grade_v2_20261023182205361\grade_R1.json
+gradeV2         60 /  60
+=== verifying references against reference_manifest.json ===
+id    agreement   spread hashOK   specOK valuesOK status
+D1            -        -      -        -        - NOT_IN_MANIFEST
+D2            -        -      -        -        - NOT_IN_MANIFEST
+D3     1.50e-14      0.0        0        1        1 HASH_CHANGED
+D4            -        -      -        -        - NOT_IN_MANIFEST
+D5            -        -      -        -        - NOT_IN_MANIFEST
+D6            -        -      -        -        - NOT_IN_MANIFEST
+D7            -        -      -        -        - NOT_IN_MANIFEST
+D8            -        -      -        -        - NOT_IN_MANIFEST
+C1            -        -      -        -        - NOT_IN_MANIFEST
+C2            -        -      -        -        - NOT_IN_MANIFEST
+C3            -        -      -        -        - NOT_IN_MANIFEST
+T1            -        -      -        -        - NOT_IN_MANIFEST
+S1            -        -      -        -        - NOT_IN_MANIFEST
+R1            -        -      -        -        - NOT_IN_MANIFEST
+G1            -        -      -        -        - NOT_IN_MANIFEST
+
+---- 0 / 15 references verified ----
+deliveryCheck  145 / 145
+test_codegen_session: local_46332_20261023_182206_4982
+test_codegen_fixture: D:\Temp\mas_codegen_tests\local_46332_20261023_182206_4982\tp7dcef21c_8aca_4e10_9611_34877fdac954
+test_codegen: 15/15 passed
+codegen         15 /  15
+
+-- references --
+=== verifying references against reference_manifest.json ===
+id    agreement   spread hashOK   specOK valuesOK status
+D1     4.24e-16      0.0        1        1        1 OK
+D2     1.11e-16      0.0        1        1        1 OK
+D3     1.50e-14      0.0        1        1        1 OK
+D4     0.00e+00      0.0        1        1        1 OK
+D5     9.53e-03      0.0        1        1        1 OK
+D6     2.33e-15      0.0        1        1        1 OK
+D7     1.48e-16      0.0        1        1        1 OK
+D8     1.11e-16      0.0        1        1        1 OK
+C1     8.88e-12      0.0        1        1        1 OK
+C2     0.00e+00      0.0        1        1        1 OK
+C3     6.72e-05      0.0        1        1        1 OK
+T1     0.00e+00      0.0        1        1        1 OK
+S1     3.38e-04      0.0        1        1        1 OK
+R1     2.84e-16      0.0        1        1        1 OK
+G1     0.00e+00      0.0        1        1        1 OK
+
+---- 15 / 15 references verified ----
+
+-- cross-domain --
+===== cross-domain tasks (graded by mas_verify_task) =====
+id   domain                 verdict           time  detail
+D1   scientific computing   PASS              0.18  4/4 checks matched the frozen reference (8ab81eead7f1)
+D2   data analysis          PASS              0.01  3/3 checks matched the frozen reference (c1aab3fbeefc)
+D3   signal processing      PASS              0.02  4/4 checks matched the frozen reference (fc49eafd9423)
+D4   image processing       PASS              0.15  2/2 checks matched the frozen reference (bc57bb04ebc7)
+D5   control                PASS              0.24  4/4 checks matched the frozen reference (008f790406eb)
+D6   Simulink               PASS             40.22  2/2 checks matched the frozen reference (0b4b2612734b)
+D7   power electronics      PASS              1.86  2/2 checks matched the frozen reference (6223210197c0)
+D8   robotics               PASS              0.01  2/2 checks matched the frozen reference (45e192f9b09c)
+C1   control (stable)       PASS              1.75  4/4 checks matched the frozen reference (a4b6f537ef17)
+C2   control (unstable)     PASS              1.66  3/3 checks matched the frozen reference (f2ba7747be4d)
+C3   control (multi-cross)  PASS              1.84  3/3 checks matched the frozen reference (4420b23b11dd)
+T1   data cleaning          PASS              2.14  5/5 checks matched the frozen reference (6a6ec4187caa)
+S1   signal (held-out)      PASS              0.13  3/3 checks matched the frozen reference (13515453f6e5)
+R1   robotics (held-out)    PASS              0.04  3/3 checks matched the frozen reference (7093b07d29d7)
+G1   codegen (held-out)     PASS             14.17  2/2 checks matched the frozen reference (5bdb35bdb033)
+
+PASS 15 / FAIL 0 / UNDETERMINED 0 / SKIP 0  (total 15)
+     dev 12/12   held-out 3/3
+
+-- routed pipeline --
+id   skill      match  verdict        detail
+D1   matlab-dat 1      PASS           4/4 checks matched the frozen reference (8ab81eead7f1)
+D2   matlab-dat 1      PASS           3/3 checks matched the frozen reference (c1aab3fbeefc)
+D3   matlab-sig 1      PASS           4/4 checks matched the frozen reference (fc49eafd9423)
+D4   matlab-sig 1      PASS           2/2 checks matched the frozen reference (bc57bb04ebc7)
+D5   matlab-con 1      PASS           4/4 checks matched the frozen reference (008f790406eb)
+D6   matlab-sim 1      PASS           2/2 checks matched the frozen reference (0b4b2612734b)
+D7   matlab-con 1      PASS           2/2 checks matched the frozen reference (6223210197c0)
+D8   matlab-rob 1      PASS           2/2 checks matched the frozen reference (45e192f9b09c)
+C1   matlab-con 1      PASS           4/4 checks matched the frozen reference (a4b6f537ef17)
+C2   matlab-con 1      PASS           3/3 checks matched the frozen reference (f2ba7747be4d)
+C3   matlab-con 1      PASS           3/3 checks matched the frozen reference (4420b23b11dd)
+T1   matlab-dat 1      PASS           5/5 checks matched the frozen reference (6a6ec4187caa)
+S1   matlab-sig 1      PASS           3/3 checks matched the frozen reference (13515453f6e5)
+R1   matlab-rob 1      PASS           3/3 checks matched the frozen reference (7093b07d29d7)
+G1   matlab-cod 1      PASS           2/2 checks matched the frozen reference (5bdb35bdb033)
+
+15 tasks: PASS 15 / FAIL 0 / UNDETERMINED 0 / SKIP 0
+router agreed with the task's intended skill on 15/15
+
+==== 1127/1127 skill tests | 15/15 references | 15/15 cross-domain | 15/15 pipeline | 393.6 s ====

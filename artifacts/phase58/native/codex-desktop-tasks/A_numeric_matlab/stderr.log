@@ -1,0 +1,8 @@
+Reading additional input from stdin...
+2026-10-23T05:31:02.805530Z ERROR codex_models_manager::manager: failed to refresh available models: request timed out
+2026-10-23T05:33:32.887333Z ERROR codex_core::tools::router: error=exec_command failed: CreateProcess { message: "Rejected(\"Failed to create unified exec process: CreateProcessAsUserW failed: 5 (拒绝访问。) | cwd=D:\\\\Temp\\\\p58_codex_task_g3hp2o8s | cmd=C:\\\\Users\\\\23201\\\\AppData\\\\Local\\\\Microsoft\\\\WindowsApps\\\\pwsh.exe -NoProfile -Command \\\"try { [Console]::OutputEncoding=[System.Text.Encoding]::UTF8 } catch {}\\nGet-Item -LiteralPath 'D:\\\\Temp\\\\p58_codex_task_g3hp2o8s' -Force; Get-Content -LiteralPath 'D:\\\\Temp\\\\p58_codex_task_g3hp2o8s\\\\AGENTS.md' -ErrorAction SilentlyContinue; Get-Content -LiteralPath 'C:\\\\Users\\\\23201\\\\.codex\\\\config.toml' | Select-String -Pattern 'matlab|mcp|command|args|mode' -Context 0,2; Get-Command matlab -ErrorAction SilentlyContinue | Select-Object Source\\\" | env_u16_len=7252 | si_flags=256 | creation_flags=134743040\")" }
+2026-10-23T05:34:12.810457Z ERROR codex_core::tools::router: error=Exit code: 1
+Wall time: 2.8 seconds
+Output:
+Failed to write file D:\Temp\p58_codex_task_g3hp2o8s\compute_result.m
+

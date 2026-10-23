@@ -247,6 +247,136 @@ chk(all(ismember({'schema', 'taskId', 'verdict', 'fields'}, req)), true, ...
     'schema requires the fields the checker enforces');
 chk(J.properties.fields.type, 'object', 'schema requires fields to be an object');
 
+% ---- 18..27 v3 dimensions: seven axes reported independently ------------
+% A vocabulary mistake must not be counted as a numerical mistake, and a
+% numerically correct answer must not rescue a broken delivery contract.
+specW = spec;
+specW.workflow = struct('required', true, ...
+    'stages', {{'skillSelected', 'referencesLoaded', 'mcpExecuted', 'checksRun'}});
+rW = r;
+rW.workflow = struct('skillSelected', true, 'referencesLoaded', true, ...
+    'mcpExecuted', true, 'checksRun', true);
+A = run_check(rW, specW, {}, false);
+chk(A.dimensionSchema, 'mas-delivery-dimensions/3', 'v3 dimension schema is labelled');
+chk(A.schema, 'mas-delivery-check/1', 'v1 output schema is unchanged');
+d = A.dimensions;
+chk(d.numericalCorrectness.status, 'PASS', 'v3 numerical axis passes on a clean delivery');
+chk(d.enumContractValid.status, 'PASS', 'v3 enum axis passes on a clean delivery');
+chk(d.engineeringVerdictCorrect.status, 'PASS', 'v3 verdict axis passes');
+chk(d.structuralSchemaValid.status, 'PASS', 'v3 structural axis passes');
+chk(d.workflowCompleted.status, 'PASS', 'v3 workflow axis passes');
+chk(d.withinBudget.status, 'PASS', 'v3 budget axis passes');
+chk(d.deliveryValid.status, 'PASS', 'v3 delivery is valid');
+chk(numel(fieldnames(d)), 7, 'exactly seven v3 dimensions');
+chk(numel(A.mapping.dimensions) == 7 && ...
+        strcmp(A.mapping.dimensions(7).name, 'deliveryValid'), true, ...
+    'mapping documents all seven dimensions');
+chk(A.mapping.enumErrorsCountAsNumericalErrors, false, ...
+    'mapping states enum errors are not numerical errors');
+chk(has_string(A.mapping.dimensions(1).from, 'math.numericStatus'), true, ...
+    'numericalCorrectness is sourced from math.numericStatus');
+chk(strcmp(d.deliveryValid.sources(end), 'reference.status'), true, ...
+    'deliveryValid also carries the reference guard');
+
+% enum-only failure: right numbers, wrong categorical spelling
+r18 = r; r18.fields.mode = 'unstable'; r18.workflow = rW.workflow;
+A = run_check(r18, specW, {}, false);
+chk(A.math.status, 'FAIL', 'v1 math label stays combined for a wrong enum');
+chk(A.dimensions.numericalCorrectness.status, 'PASS', ...
+    'a categorical spelling error is not a numerical error');
+chk(A.dimensions.enumContractValid.status, 'FAIL', ...
+    'the categorical error lands on the enum dimension');
+chk(A.dimensions.engineeringVerdictCorrect.status, 'PASS', ...
+    'the engineering verdict is still the expected one');
+chk(A.dimensions.deliveryValid.status, 'FAIL', ...
+    'an enum error still fails the delivery contract');
+chk(A.overall, 'FAIL', 'v1 overall is unchanged by v3');
+
+% numeric-only failure: right vocabulary, wrong number
+r19 = r; r19.fields.settlingTime = 4.5; r19.workflow = rW.workflow;
+A = run_check(r19, specW, {}, false);
+chk(A.dimensions.numericalCorrectness.status, 'FAIL', ...
+    'an out-of-tolerance number fails the numerical axis');
+chk(A.dimensions.enumContractValid.status, 'PASS', ...
+    'a wrong number is not an enum error');
+chk(A.dimensions.structuralSchemaValid.status, 'PASS', ...
+    'a wrong number does not break the schema');
+chk(A.dimensions.deliveryValid.status, 'FAIL', 'a wrong number fails the delivery');
+
+% illegal verdict: enum axis and verdict axis both fail, math stays clean
+r20 = r; r20.verdict = 'MAYBE'; r20.workflow = rW.workflow;
+A = run_check(r20, specW, {}, false);
+chk(A.dimensions.enumContractValid.status, 'FAIL', 'illegal enum value fails the enum axis');
+chk(A.dimensions.engineeringVerdictCorrect.status, 'FAIL', ...
+    'an illegal verdict fails the verdict axis');
+chk(A.dimensions.numericalCorrectness.status, 'PASS', ...
+    'an illegal verdict is not a numerical error');
+
+% legal but wrong verdict: only the verdict axis fails
+r21 = r; r21.verdict = 'FAIL'; r21.workflow = rW.workflow;
+A = run_check(r21, specW, {}, false);
+chk(A.dimensions.enumContractValid.status, 'PASS', 'FAIL is a legal enum value');
+chk(A.dimensions.engineeringVerdictCorrect.status, 'FAIL', ...
+    'a legal but wrong verdict fails only the verdict axis');
+chk(A.dimensions.deliveryValid.status, 'FAIL', 'a wrong verdict fails the delivery');
+
+% structural failure with correct numbers: schema, not math
+r22 = rmfield(r, {'schema', 'taskId', 'units'}); r22.workflow = rW.workflow;
+A = run_check(r22, specW, {}, false);
+chk(A.dimensions.structuralSchemaValid.status, 'FAIL', 'missing schema fails the structural axis');
+chk(A.dimensions.numericalCorrectness.status, 'PASS', ...
+    'the numbers are still correct, so the numerical axis passes');
+chk(A.dimensions.enumContractValid.status, 'PASS', 'the enum axis is untouched');
+chk(A.separation.numericValidFormatInvalid, true, 'v1 separation flag is preserved');
+
+% workflow axis
+A = run_check(r, specW, {}, false);
+chk(A.dimensions.workflowCompleted.status, 'UNRECORDED', ...
+    'a required workflow that is not recorded is not a pass');
+chk(A.dimensions.deliveryValid.status, 'UNDETERMINED', ...
+    'an unrecorded workflow leaves the delivery undetermined');
+chk(has_error(A, 'WORKFLOW_UNRECORDED'), true, 'unrecorded workflow is a structured error');
+r23 = rW; r23.workflow.mcpExecuted = false;
+A = run_check(r23, specW, {}, false);
+chk(A.dimensions.workflowCompleted.status, 'FAIL', 'a stage recorded as incomplete fails');
+chk(has_error(A, 'WORKFLOW_STAGE_INCOMPLETE'), true, 'incomplete stage is recorded');
+chk(A.dimensions.numericalCorrectness.status, 'PASS', ...
+    'an unfinished workflow is not counted as a numerical error');
+r24 = rmfield(rW, 'workflow');
+A = run_check(r24, spec, {}, false);
+chk(A.dimensions.workflowCompleted.status, 'NOT_REQUIRED', ...
+    'a contract without workflow does not invent a workflow dimension');
+chk(A.dimensions.deliveryValid.status, 'PASS', ...
+    'NOT_REQUIRED dimensions do not block a valid delivery');
+
+% budget axis
+r25 = rW; r25.budget.toolCalls = 12;
+A = run_check(r25, specW, {}, false);
+chk(A.dimensions.withinBudget.status, 'FAIL', 'budget overflow lands on the budget axis');
+chk(A.dimensions.numericalCorrectness.status, 'PASS', 'budget overflow is not a numerical error');
+chk(A.dimensions.deliveryValid.status, 'FAIL', 'budget overflow fails the delivery');
+
+% legacy replay keeps its honest gap in both protocols
+spec26 = specW; spec26.profile = 'mas-result/1-legacy';
+r26 = struct('verdict', 'PASS', 'fields', struct('settlingTime', 4.02, ...
+    'overshoot', 16.25, 'mode', 'stable'), 'workflow', struct('skillSelected', true, ...
+    'referencesLoaded', true, 'mcpExecuted', true, 'checksRun', true));
+A = run_check(r26, spec26, {}, false);
+chk(A.overall, 'UNDETERMINED', 'v1 legacy replay stays undetermined');
+chk(A.dimensions.structuralSchemaValid.status, 'UNDETERMINED', ...
+    'v3 records the unit gap instead of passing it');
+chk(A.dimensions.numericalCorrectness.status, 'PASS', ...
+    'the legacy numbers are still judged on their own axis');
+chk(A.dimensions.deliveryValid.status, 'UNDETERMINED', ...
+    'v3 delivery is undetermined exactly where v1 was');
+
+% error paths still report dimensions
+A = run_check(fullfile(tmp, 'does_not_exist.json'), specW, {}, false);
+chk(A.overall, 'ERROR', 'missing result is an ERROR in v1');
+chk(A.dimensions.deliveryValid.status, 'NOT_RUN', 'v3 dimensions say they did not run');
+chk(A.dimensions.numericalCorrectness.status, 'NOT_RUN', ...
+    'no dimension is silently reported as passing after an ERROR');
+
 res = struct('nPass', nP, 'nTotal', nT, 'pass', nP == nT, 'failures', {fails});
 if verbose
     fprintf('\n---- %d / %d delivery contract cases passed ----\n', nP, nT);
@@ -296,6 +426,10 @@ end
 % ===========================================================================
 function ok = has_error(R, code)
 ok = any(strcmp({R.errors.code}, code));
+end
+
+function ok = has_string(hay, needle)
+ok = ischar(hay) && ~isempty(strfind(hay, needle)); %#ok<STREMP>
 end
 
 function w(p, s)

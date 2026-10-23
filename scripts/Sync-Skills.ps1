@@ -86,6 +86,10 @@ if (-not $DryRun) {
 $results = New-Object System.Collections.Generic.List[object]
 $conflicts = New-Object System.Collections.Generic.List[string]
 $failed = $false
+# 只有真的发生了目录变更（或有新目录被接管）才重写 manifest。
+# 重复同步必须零写入：既不能刷新 installedAt，也不能凭空建出备份会话目录。
+$adoptedNewSkill = $false
+$prunedCount = 0
 
 $sourceDirectories = @(Get-ChildItem -LiteralPath $sourceRoot -Directory -Filter "matlab-*" | Sort-Object Name)
 if ($sourceDirectories.Count -eq 0) {
@@ -140,6 +144,7 @@ try {
                 installedAt = (Get-Date).ToString("o")
             }
         }
+        if ($adopt -and -not $isManaged) { $adoptedNewSkill = $true }
 
         $results.Add($result)
     }
@@ -171,14 +176,39 @@ try {
                 Remove-Item -LiteralPath $managedPath -Recurse -Force
                 Write-Host "  pruned: $managedName" -ForegroundColor Yellow
             }
+            $prunedCount++
             $managedSkills.Remove($managedName)
         }
     }
 
-    $manifestPath = Write-SkillManifest -SkillRoot $SkillRoot -Skills $managedSkills `
-        -RepositoryRoot $RepositoryRoot -DryRun:$DryRun
+    # The manifest records ownership and installed hashes; a directory-only
+    # rollback would leave the new manifest in place and misreport what is installed.
+    # 但重复同步必须保持零写入，所以只有真的安装/更新/接管/清理时才落盘。
+    $manifestWillChange = (
+        @($results | Where-Object { $_.Decision -in @("install", "update") }).Count -gt 0 -or
+        $adoptedNewSkill -or
+        $prunedCount -gt 0
+    )
 
-    if ($session -and -not $DryRun) { Save-BackupManifest -Session $session }
+    $manifestPath = $manifest.Path
+    if ($manifestWillChange) {
+        if ($session -and -not $DryRun) {
+            if (Test-Path -LiteralPath $manifest.Path) {
+                Save-FileBackupToSession -Session $session -Path $manifest.Path -Label "skills-manifest" | Out-Null
+            }
+            else {
+                Add-BackupRecord -Session $session -Kind "file-absent" -TargetPath $manifest.Path | Out-Null
+            }
+        }
+
+        $manifestPath = Write-SkillManifest -SkillRoot $SkillRoot -Skills $managedSkills `
+            -RepositoryRoot $RepositoryRoot -DryRun:$DryRun
+
+        if ($session -and -not $DryRun) { Save-BackupManifest -Session $session }
+    }
+    else {
+        Write-Info "技能清单未变化，跳过重写: $($manifest.Path)"
+    }
 }
 catch {
     $failed = $true

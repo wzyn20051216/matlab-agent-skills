@@ -1,0 +1,2901 @@
+{
+ "schema": "p58-install-file-plan/1",
+ "readOnly": true,
+ "repoRoot": "E:\\desktop\\MATLAB",
+ "repoSkillCount": 9,
+ "roots": [
+  {
+   "id": "qoder-project",
+   "client": "qoder",
+   "path": "E:\\desktop\\MATLAB\\.qoder\\skills",
+   "physicalPath": "E:\\desktop\\MATLAB\\.qoder\\skills",
+   "pathIsLink": false,
+   "exists": false,
+   "targeted": false,
+   "reason": "Project-level root is absent; Qoder observed precedence uses the user root.",
+   "manifest": {
+    "path": "E:\\desktop\\MATLAB\\.qoder\\skills\\.matlab-agent-skills-manifest.json",
+    "exists": false
+   },
+   "backups": {
+    "path": "E:\\desktop\\MATLAB\\.qoder\\skills\\.matlab-agent-skills\\backups",
+    "exists": false,
+    "sessions": []
+   },
+   "skills": [],
+   "keepRootEntries": []
+  },
+  {
+   "id": "qoder-user",
+   "client": "qoder",
+   "path": "C:\\Users\\23201\\.qoder-cn\\skills",
+   "physicalPath": "C:\\Users\\23201\\.qoder-cn\\skills",
+   "pathIsLink": false,
+   "exists": true,
+   "targeted": true,
+   "reason": "Qoder override log gives this root precedence.",
+   "manifest": {
+    "path": "C:\\Users\\23201\\.qoder-cn\\skills\\.matlab-agent-skills-manifest.json",
+    "exists": false
+   },
+   "backups": {
+    "path": "C:\\Users\\23201\\.qoder-cn\\skills\\.matlab-agent-skills\\backups",
+    "exists": false,
+    "sessions": []
+   },
+   "skills": [
+    {
+     "decision": "conflict",
+     "requiresForce": true,
+     "add": [],
+     "overwrite": [
+      "SKILL.md",
+      "scripts/mas_codegen_ready.m",
+      "scripts/mas_codegen_verify.m",
+      "tests/test_codegen.m"
+     ],
+     "identical": [
+      "scripts/mas_fixpt_range.m"
+     ],
+     "keepUserFiles": [],
+     "name": "matlab-codegen-deploy",
+     "installed": true,
+     "installedFileCount": 5,
+     "repoFileCount": 5
+    },
+    {
+     "decision": "conflict",
+     "requiresForce": true,
+     "add": [
+      "references/stability-contracts.md",
+      "scripts/mas_stability_verdict.m",
+      "tests/test_stability_contract.m"
+     ],
+     "overwrite": [
+      "SKILL.md",
+      "scripts/mas_ctrl_analyze.m"
+     ],
+     "identical": [
+      "scripts/mas_ctrl_aw_sim.m",
+      "scripts/mas_ctrl_pid_design.m",
+      "tests/test_ctrl_analyze.m"
+     ],
+     "keepUserFiles": [],
+     "name": "matlab-control-optimization",
+     "installed": true,
+     "installedFileCount": 5,
+     "repoFileCount": 8
+    },
+    {
+     "decision": "conflict",
+     "requiresForce": true,
+     "add": [
+      "references/data-verification-contract.md",
+      "scripts/mas_converge_check.m",
+      "scripts/mas_fit_check.m",
+      "scripts/mas_linsolve_check.m",
+      "scripts/mas_ode_check.m",
+      "scripts/mas_quad_check.m",
+      "scripts/mas_repro_check.m",
+      "scripts/mas_stat_check.m",
+      "scripts/mas_uncert_check.m",
+      "tests/test_data_contract.m",
+      "tests/test_ode_contract.m",
+      "tests/test_ode_field_contract.m"
+     ],
+     "overwrite": [
+      "SKILL.md"
+     ],
+     "identical": [
+      "scripts/mas_table_audit.m",
+      "tests/test_table_audit.m"
+     ],
+     "keepUserFiles": [],
+     "name": "matlab-data-analysis",
+     "installed": true,
+     "installedFileCount": 3,
+     "repoFileCount": 15
+    },
+    {
+     "decision": "install",
+     "requiresForce": false,
+     "add": [
+      "SKILL.md",
+      "assets/routing.json",
+      "assets/tasks.json",
+      "references/routing-contract.md",
+      "scripts/mas_pipeline.m",
+      "scripts/mas_route.m",
+      "scripts/mas_skill_graph.m",
+      "tests/test_routing.m",
+      "tests/test_routing_contract.m",
+      "tests/test_skill_graph.m"
+     ],
+     "overwrite": [],
+     "identical": [],
+     "keepUserFiles": [],
+     "name": "matlab-orchestrator",
+     "installed": false,
+     "installedFileCount": 0,
+     "repoFileCount": 10
+    },
+    {
+     "decision": "conflict",
+     "requiresForce": true,
+     "add": [
+      "references/robotics-verification-contract.md",
+      "scripts/mas_dyn_check.m",
+      "scripts/mas_estimate_check.m",
+      "scripts/mas_quat_check.m",
+      "scripts/mas_traj_check.m",
+      "tests/test_robotics_contract.m"
+     ],
+     "overwrite": [
+      "SKILL.md"
+     ],
+     "identical": [
+      "scripts/mas_ekf_check.m",
+      "scripts/mas_frame_check.m",
+      "scripts/mas_kin_check.m",
+      "scripts/mas_kin_ik.m",
+      "tests/test_robotics.m"
+     ],
+     "keepUserFiles": [],
+     "name": "matlab-robotics-autonomy",
+     "installed": true,
+     "installedFileCount": 6,
+     "repoFileCount": 12
+    },
+    {
+     "decision": "conflict",
+     "requiresForce": true,
+     "add": [],
+     "overwrite": [
+      "SKILL.md",
+      "references/mcp-readiness-ladder.md",
+      "scripts/mas_dep_probe.m",
+      "scripts/mas_product_map.m",
+      "tests/test_dep_probe.m"
+     ],
+     "identical": [
+      "references/acceptance-levels.md",
+      "references/failure-classes.md",
+      "references/toolbox-feature-map.md",
+      "scripts/mas_precheck.m",
+      "scripts/mas_toolbox_map.m",
+      "tests/test_precheck.m"
+     ],
+     "keepUserFiles": [],
+     "name": "matlab-runner",
+     "installed": true,
+     "installedFileCount": 11,
+     "repoFileCount": 11
+    },
+    {
+     "decision": "conflict",
+     "requiresForce": true,
+     "add": [
+      "references/signal-measurement-contract.md",
+      "references/vision-verification-contract.md",
+      "scripts/mas_ber_check.m",
+      "scripts/mas_detect_check.m",
+      "scripts/mas_filter_check.m",
+      "scripts/mas_image_contract.m",
+      "scripts/mas_measure_contract.m",
+      "scripts/mas_sample_check.m",
+      "scripts/mas_seg_check.m",
+      "scripts/mas_stat_verdict.m",
+      "tests/test_signal_contract.m",
+      "tests/test_stat_decision.m",
+      "tests/test_vision_contract.m"
+     ],
+     "overwrite": [
+      "SKILL.md",
+      "scripts/mas_ofdm_ber.m"
+     ],
+     "identical": [
+      "scripts/mas_image_metrics.m",
+      "scripts/mas_spectrum_check.m",
+      "scripts/mas_split_seed.m",
+      "tests/test_signal_vision.m"
+     ],
+     "keepUserFiles": [],
+     "name": "matlab-signal-vision-ai",
+     "installed": true,
+     "installedFileCount": 6,
+     "repoFileCount": 19
+    },
+    {
+     "decision": "install",
+     "requiresForce": false,
+     "add": [
+      "SKILL.md",
+      "references/excitation-checks.md",
+      "scripts/mas_dist_enter.m",
+      "scripts/mas_model_check.m",
+      "tests/test_dist_enter.m",
+      "tests/test_model_check.m"
+     ],
+     "overwrite": [],
+     "identical": [],
+     "keepUserFiles": [],
+     "name": "matlab-simulink-modeling",
+     "installed": false,
+     "installedFileCount": 0,
+     "repoFileCount": 6
+    },
+    {
+     "decision": "conflict",
+     "requiresForce": true,
+     "add": [
+      "assets/install-roots.json",
+      "scripts/mas_delivery_check.m",
+      "scripts/mas_phase43_grade.m",
+      "scripts/mas_skill_audit.m",
+      "scripts/mas_skill_install_audit.m",
+      "tests/test_delivery_check.m",
+      "tests/test_phase43_grade.m",
+      "tests/test_skill_install_audit.m"
+     ],
+     "overwrite": [
+      "SKILL.md",
+      "scripts/mas_bench_record.m",
+      "scripts/mas_capability_check.m",
+      "scripts/mas_grade.m",
+      "tests/test_bench.m",
+      "tests/test_capability.m"
+     ],
+     "identical": [
+      "scripts/mas_ref_derive.m",
+      "scripts/mas_ref_spec.m",
+      "scripts/mas_refcheck.m",
+      "scripts/mas_verify_task.m",
+      "tests/test_grade.m",
+      "tests/test_refcheck.m"
+     ],
+     "keepUserFiles": [],
+     "name": "matlab-testing-ci",
+     "installed": true,
+     "installedFileCount": 12,
+     "repoFileCount": 20
+    }
+   ],
+   "keepRootEntries": [
+    {
+     "name": "desktop-app-api-404",
+     "type": "dir"
+    },
+    {
+     "name": "electron-app-windows-launch",
+     "type": "dir"
+    },
+    {
+     "name": "external-skill-safe-deploy",
+     "type": "dir"
+    },
+    {
+     "name": "goutoujunshi",
+     "type": "dir"
+    },
+    {
+     "name": "html-a4-pdf",
+     "type": "dir"
+    },
+    {
+     "name": "solidworks-automation",
+     "type": "dir"
+    },
+    {
+     "name": "solidworks-parametric-modeling",
+     "type": "dir"
+    },
+    {
+     "name": "web-access",
+     "type": "dir"
+    },
+    {
+     "name": "windows-personal-file-cleanup",
+     "type": "dir"
+    }
+   ]
+  },
+  {
+   "id": "agents-shared",
+   "client": "qoder+codex",
+   "path": "C:\\Users\\23201\\.agents\\skills",
+   "physicalPath": "C:\\Users\\23201\\.agents\\skills",
+   "pathIsLink": false,
+   "exists": true,
+   "targeted": true,
+   "reason": "Both Codex clients list 9/9 from this root; Qoder falls back here.",
+   "manifest": {
+    "path": "C:\\Users\\23201\\.agents\\skills\\.matlab-agent-skills-manifest.json",
+    "exists": true,
+    "repository": "E:\\desktop\\MATLAB",
+    "ownedByRepo": true,
+    "skills": [
+     "matlab-codegen-deploy",
+     "matlab-control-optimization",
+     "matlab-data-analysis",
+     "matlab-orchestrator",
+     "matlab-robotics-autonomy",
+     "matlab-runner",
+     "matlab-signal-vision-ai",
+     "matlab-simulink-modeling",
+     "matlab-testing-ci"
+    ],
+    "generatedAt": "2026-10-22T12:28:25.8507696+08:00"
+   },
+   "backups": {
+    "path": "C:\\Users\\23201\\.agents\\skills\\.matlab-agent-skills\\backups",
+    "exists": true,
+    "sessions": [
+     {
+      "name": "20261021-144456-sync-skills",
+      "fileCount": 1,
+      "size": 3003,
+      "hasPayload": false
+     },
+     {
+      "name": "20261021-144631-remove-skills",
+      "fileCount": 64,
+      "size": 443410,
+      "hasPayload": true
+     },
+     {
+      "name": "20261021-144650-sync-skills",
+      "fileCount": 1,
+      "size": 3003,
+      "hasPayload": false
+     },
+     {
+      "name": "20261021-150651-remove-skills",
+      "fileCount": 64,
+      "size": 445199,
+      "hasPayload": true
+     },
+     {
+      "name": "20261021-150702-sync-skills",
+      "fileCount": 1,
+      "size": 3003,
+      "hasPayload": false
+     },
+     {
+      "name": "20261021-160016-remove-skills",
+      "fileCount": 64,
+      "size": 443405,
+      "hasPayload": true
+     },
+     {
+      "name": "20261021-160043-sync-skills",
+      "fileCount": 1,
+      "size": 3003,
+      "hasPayload": false
+     },
+     {
+      "name": "20261021-161223-remove-skills",
+      "fileCount": 64,
+      "size": 443406,
+      "hasPayload": true
+     },
+     {
+      "name": "20261021-161227-sync-skills",
+      "fileCount": 1,
+      "size": 3003,
+      "hasPayload": false
+     },
+     {
+      "name": "20261022-122823-sync-skills",
+      "fileCount": 52,
+      "size": 382144,
+      "hasPayload": true
+     }
+    ]
+   },
+   "skills": [
+    {
+     "decision": "update",
+     "requiresForce": false,
+     "add": [],
+     "overwrite": [
+      "scripts/mas_codegen_verify.m",
+      "tests/test_codegen.m"
+     ],
+     "identical": [
+      "SKILL.md",
+      "scripts/mas_codegen_ready.m",
+      "scripts/mas_fixpt_range.m"
+     ],
+     "keepUserFiles": [],
+     "name": "matlab-codegen-deploy",
+     "installed": true,
+     "installedFileCount": 5,
+     "repoFileCount": 5
+    },
+    {
+     "decision": "unchanged",
+     "requiresForce": false,
+     "add": [],
+     "overwrite": [],
+     "identical": [
+      "SKILL.md",
+      "references/stability-contracts.md",
+      "scripts/mas_ctrl_analyze.m",
+      "scripts/mas_ctrl_aw_sim.m",
+      "scripts/mas_ctrl_pid_design.m",
+      "scripts/mas_stability_verdict.m",
+      "tests/test_ctrl_analyze.m",
+      "tests/test_stability_contract.m"
+     ],
+     "keepUserFiles": [],
+     "name": "matlab-control-optimization",
+     "installed": true,
+     "installedFileCount": 8,
+     "repoFileCount": 8
+    },
+    {
+     "decision": "update",
+     "requiresForce": false,
+     "add": [
+      "tests/test_ode_field_contract.m"
+     ],
+     "overwrite": [
+      "SKILL.md",
+      "references/data-verification-contract.md",
+      "scripts/mas_ode_check.m"
+     ],
+     "identical": [
+      "scripts/mas_converge_check.m",
+      "scripts/mas_fit_check.m",
+      "scripts/mas_linsolve_check.m",
+      "scripts/mas_quad_check.m",
+      "scripts/mas_repro_check.m",
+      "scripts/mas_stat_check.m",
+      "scripts/mas_table_audit.m",
+      "scripts/mas_uncert_check.m",
+      "tests/test_data_contract.m",
+      "tests/test_ode_contract.m",
+      "tests/test_table_audit.m"
+     ],
+     "keepUserFiles": [],
+     "name": "matlab-data-analysis",
+     "installed": true,
+     "installedFileCount": 14,
+     "repoFileCount": 15
+    },
+    {
+     "decision": "unchanged",
+     "requiresForce": false,
+     "add": [],
+     "overwrite": [],
+     "identical": [
+      "SKILL.md",
+      "assets/routing.json",
+      "assets/tasks.json",
+      "references/routing-contract.md",
+      "scripts/mas_pipeline.m",
+      "scripts/mas_route.m",
+      "scripts/mas_skill_graph.m",
+      "tests/test_routing.m",
+      "tests/test_routing_contract.m",
+      "tests/test_skill_graph.m"
+     ],
+     "keepUserFiles": [],
+     "name": "matlab-orchestrator",
+     "installed": true,
+     "installedFileCount": 10,
+     "repoFileCount": 10
+    },
+    {
+     "decision": "unchanged",
+     "requiresForce": false,
+     "add": [],
+     "overwrite": [],
+     "identical": [
+      "SKILL.md",
+      "references/robotics-verification-contract.md",
+      "scripts/mas_dyn_check.m",
+      "scripts/mas_ekf_check.m",
+      "scripts/mas_estimate_check.m",
+      "scripts/mas_frame_check.m",
+      "scripts/mas_kin_check.m",
+      "scripts/mas_kin_ik.m",
+      "scripts/mas_quat_check.m",
+      "scripts/mas_traj_check.m",
+      "tests/test_robotics.m",
+      "tests/test_robotics_contract.m"
+     ],
+     "keepUserFiles": [],
+     "name": "matlab-robotics-autonomy",
+     "installed": true,
+     "installedFileCount": 12,
+     "repoFileCount": 12
+    },
+    {
+     "decision": "unchanged",
+     "requiresForce": false,
+     "add": [],
+     "overwrite": [],
+     "identical": [
+      "SKILL.md",
+      "references/acceptance-levels.md",
+      "references/failure-classes.md",
+      "references/mcp-readiness-ladder.md",
+      "references/toolbox-feature-map.md",
+      "scripts/mas_dep_probe.m",
+      "scripts/mas_precheck.m",
+      "scripts/mas_product_map.m",
+      "scripts/mas_toolbox_map.m",
+      "tests/test_dep_probe.m",
+      "tests/test_precheck.m"
+     ],
+     "keepUserFiles": [],
+     "name": "matlab-runner",
+     "installed": true,
+     "installedFileCount": 11,
+     "repoFileCount": 11
+    },
+    {
+     "decision": "update",
+     "requiresForce": false,
+     "add": [
+      "scripts/mas_stat_verdict.m",
+      "tests/test_stat_decision.m"
+     ],
+     "overwrite": [
+      "SKILL.md",
+      "references/signal-measurement-contract.md",
+      "scripts/mas_ber_check.m",
+      "scripts/mas_ofdm_ber.m"
+     ],
+     "identical": [
+      "references/vision-verification-contract.md",
+      "scripts/mas_detect_check.m",
+      "scripts/mas_filter_check.m",
+      "scripts/mas_image_contract.m",
+      "scripts/mas_image_metrics.m",
+      "scripts/mas_measure_contract.m",
+      "scripts/mas_sample_check.m",
+      "scripts/mas_seg_check.m",
+      "scripts/mas_spectrum_check.m",
+      "scripts/mas_split_seed.m",
+      "tests/test_signal_contract.m",
+      "tests/test_signal_vision.m",
+      "tests/test_vision_contract.m"
+     ],
+     "keepUserFiles": [],
+     "name": "matlab-signal-vision-ai",
+     "installed": true,
+     "installedFileCount": 17,
+     "repoFileCount": 19
+    },
+    {
+     "decision": "unchanged",
+     "requiresForce": false,
+     "add": [],
+     "overwrite": [],
+     "identical": [
+      "SKILL.md",
+      "references/excitation-checks.md",
+      "scripts/mas_dist_enter.m",
+      "scripts/mas_model_check.m",
+      "tests/test_dist_enter.m",
+      "tests/test_model_check.m"
+     ],
+     "keepUserFiles": [],
+     "name": "matlab-simulink-modeling",
+     "installed": true,
+     "installedFileCount": 6,
+     "repoFileCount": 6
+    },
+    {
+     "decision": "update",
+     "requiresForce": false,
+     "add": [
+      "assets/install-roots.json",
+      "scripts/mas_delivery_check.m",
+      "scripts/mas_skill_install_audit.m",
+      "tests/test_delivery_check.m",
+      "tests/test_skill_install_audit.m"
+     ],
+     "overwrite": [
+      "scripts/mas_capability_check.m",
+      "tests/test_capability.m"
+     ],
+     "identical": [
+      "SKILL.md",
+      "scripts/mas_bench_record.m",
+      "scripts/mas_grade.m",
+      "scripts/mas_phase43_grade.m",
+      "scripts/mas_ref_derive.m",
+      "scripts/mas_ref_spec.m",
+      "scripts/mas_refcheck.m",
+      "scripts/mas_skill_audit.m",
+      "scripts/mas_verify_task.m",
+      "tests/test_bench.m",
+      "tests/test_grade.m",
+      "tests/test_phase43_grade.m",
+      "tests/test_refcheck.m"
+     ],
+     "keepUserFiles": [],
+     "name": "matlab-testing-ci",
+     "installed": true,
+     "installedFileCount": 15,
+     "repoFileCount": 20
+    }
+   ],
+   "keepRootEntries": [
+    {
+     "name": ".matlab-agent-skills",
+     "type": "dir"
+    },
+    {
+     "name": ".matlab-agent-skills-manifest.json",
+     "type": "file"
+    },
+    {
+     "name": ".matlab-agent-skills-manifest.json.p48-stale",
+     "type": "file"
+    },
+    {
+     "name": "Visiomaster",
+     "type": "dir"
+    },
+    {
+     "name": "academic-cv-builder",
+     "type": "dir"
+    },
+    {
+     "name": "access",
+     "type": "dir"
+    },
+    {
+     "name": "agent-browser",
+     "type": "dir"
+    },
+    {
+     "name": "agent-development",
+     "type": "dir"
+    },
+    {
+     "name": "alphafold-skill",
+     "type": "dir"
+    },
+    {
+     "name": "artifact-template-analytics-dashboard",
+     "type": "dir"
+    },
+    {
+     "name": "artifact-template-business-review",
+     "type": "dir"
+    },
+    {
+     "name": "artifact-template-design-report",
+     "type": "dir"
+    },
+    {
+     "name": "artifact-template-experiment-analysis",
+     "type": "dir"
+    },
+    {
+     "name": "artifact-template-financial-budget",
+     "type": "dir"
+    },
+    {
+     "name": "artifact-template-investment-committee-memo",
+     "type": "dir"
+    },
+    {
+     "name": "artifact-template-legal-memorandum",
+     "type": "dir"
+    },
+    {
+     "name": "artifact-template-market-trends-report",
+     "type": "dir"
+    },
+    {
+     "name": "artifact-template-minimal-letterhead",
+     "type": "dir"
+    },
+    {
+     "name": "artifact-template-operating-calendar",
+     "type": "dir"
+    },
+    {
+     "name": "artifact-template-operating-review",
+     "type": "dir"
+    },
+    {
+     "name": "artifact-template-project-kickoff",
+     "type": "dir"
+    },
+    {
+     "name": "artifact-template-project-tracker",
+     "type": "dir"
+    },
+    {
+     "name": "artifact-template-sales-pipeline",
+     "type": "dir"
+    },
+    {
+     "name": "artifact-template-simple-dark-mode",
+     "type": "dir"
+    },
+    {
+     "name": "artifact-template-simple-light-mode",
+     "type": "dir"
+    },
+    {
+     "name": "artifact-template-strategy-memorandum",
+     "type": "dir"
+    },
+    {
+     "name": "artifact-template-system-design",
+     "type": "dir"
+    },
+    {
+     "name": "artifact-template-team-alignment",
+     "type": "dir"
+    },
+    {
+     "name": "artifact-template-three-statement-forecast",
+     "type": "dir"
+    },
+    {
+     "name": "audit",
+     "type": "dir"
+    },
+    {
+     "name": "auto-embedded",
+     "type": "dir"
+    },
+    {
+     "name": "autocad-automation",
+     "type": "dir"
+    },
+    {
+     "name": "bgee-skill",
+     "type": "dir"
+    },
+    {
+     "name": "bindingdb-skill",
+     "type": "dir"
+    },
+    {
+     "name": "biobankjapan-phewas-skill",
+     "type": "dir"
+    },
+    {
+     "name": "biorxiv-skill",
+     "type": "dir"
+    },
+    {
+     "name": "biostudies-arrayexpress-skill",
+     "type": "dir"
+    },
+    {
+     "name": "black-tech-explainer-video",
+     "type": "dir"
+    },
+    {
+     "name": "boltz-check-status",
+     "type": "dir"
+    },
+    {
+     "name": "boltz-cli-setup",
+     "type": "dir"
+    },
+    {
+     "name": "boltz-protein-design",
+     "type": "dir"
+    },
+    {
+     "name": "boltz-protein-screen",
+     "type": "dir"
+    },
+    {
+     "name": "boltz-small-molecule-adme",
+     "type": "dir"
+    },
+    {
+     "name": "boltz-small-molecule-design",
+     "type": "dir"
+    },
+    {
+     "name": "boltz-small-molecule-screen",
+     "type": "dir"
+    },
+    {
+     "name": "boltz-structure-and-binding",
+     "type": "dir"
+    },
+    {
+     "name": "build-mcp-app",
+     "type": "dir"
+    },
+    {
+     "name": "build-mcp-server",
+     "type": "dir"
+    },
+    {
+     "name": "build-mcpb",
+     "type": "dir"
+    },
+    {
+     "name": "cad",
+     "type": "dir"
+    },
+    {
+     "name": "cad-modeling",
+     "type": "dir"
+    },
+    {
+     "name": "canva-brand-check",
+     "type": "dir"
+    },
+    {
+     "name": "canva-branded-presentation",
+     "type": "dir"
+    },
+    {
+     "name": "canva-bulk-create",
+     "type": "dir"
+    },
+    {
+     "name": "canva-design-feedback",
+     "type": "dir"
+    },
+    {
+     "name": "canva-edit-design",
+     "type": "dir"
+    },
+    {
+     "name": "canva-implement-feedback",
+     "type": "dir"
+    },
+    {
+     "name": "canva-resize-for-social-media",
+     "type": "dir"
+    },
+    {
+     "name": "canva-translate-design",
+     "type": "dir"
+    },
+    {
+     "name": "canvas-design",
+     "type": "dir"
+    },
+    {
+     "name": "cardputer-buddy",
+     "type": "dir"
+    },
+    {
+     "name": "cbioportal-skill",
+     "type": "dir"
+    },
+    {
+     "name": "cellxgene-skill",
+     "type": "dir"
+    },
+    {
+     "name": "chebi-skill",
+     "type": "dir"
+    },
+    {
+     "name": "chembl-skill",
+     "type": "dir"
+    },
+    {
+     "name": "civic-skill",
+     "type": "dir"
+    },
+    {
+     "name": "claude-automation-recommender",
+     "type": "dir"
+    },
+    {
+     "name": "claude-md-improver",
+     "type": "dir"
+    },
+    {
+     "name": "clinicaltrials-skill",
+     "type": "dir"
+    },
+    {
+     "name": "clinvar-variation-skill",
+     "type": "dir"
+    },
+    {
+     "name": "code-reviewer",
+     "type": "dir"
+    },
+    {
+     "name": "codex-team",
+     "type": "dir"
+    },
+    {
+     "name": "command-development",
+     "type": "dir"
+    },
+    {
+     "name": "computer-use",
+     "type": "dir"
+    },
+    {
+     "name": "configure",
+     "type": "dir"
+    },
+    {
+     "name": "content-generate",
+     "type": "dir"
+    },
+    {
+     "name": "create-crush",
+     "type": "dir"
+    },
+    {
+     "name": "cv-builder",
+     "type": "dir"
+    },
+    {
+     "name": "deploy-to-vercel",
+     "type": "dir"
+    },
+    {
+     "name": "deployment-pipeline-design",
+     "type": "dir"
+    },
+    {
+     "name": "design-qa",
+     "type": "dir"
+    },
+    {
+     "name": "design-taste-frontend",
+     "type": "dir"
+    },
+    {
+     "name": "developing-solidworks",
+     "type": "dir"
+    },
+    {
+     "name": "doc-coauthoring",
+     "type": "dir"
+    },
+    {
+     "name": "documents",
+     "type": "dir"
+    },
+    {
+     "name": "easy-taoci",
+     "type": "dir"
+    },
+    {
+     "name": "eda-pcb",
+     "type": "dir"
+    },
+    {
+     "name": "efo-ontology-skill",
+     "type": "dir"
+    },
+    {
+     "name": "encode-skill",
+     "type": "dir"
+    },
+    {
+     "name": "ensembl-skill",
+     "type": "dir"
+    },
+    {
+     "name": "epigraphdb-skill",
+     "type": "dir"
+    },
+    {
+     "name": "eqtl-catalogue-skill",
+     "type": "dir"
+    },
+    {
+     "name": "eva-skill",
+     "type": "dir"
+    },
+    {
+     "name": "example-command",
+     "type": "dir"
+    },
+    {
+     "name": "example-skill",
+     "type": "dir"
+    },
+    {
+     "name": "excel-live-control",
+     "type": "dir"
+    },
+    {
+     "name": "feishu-lark",
+     "type": "dir"
+    },
+    {
+     "name": "figma",
+     "type": "dir"
+    },
+    {
+     "name": "figma-code-connect",
+     "type": "dir"
+    },
+    {
+     "name": "figma-code-connect-components",
+     "type": "dir"
+    },
+    {
+     "name": "figma-create-design-system-rules",
+     "type": "dir"
+    },
+    {
+     "name": "figma-create-new-file",
+     "type": "dir"
+    },
+    {
+     "name": "figma-design-to-code",
+     "type": "dir"
+    },
+    {
+     "name": "figma-generate-design",
+     "type": "dir"
+    },
+    {
+     "name": "figma-generate-diagram",
+     "type": "dir"
+    },
+    {
+     "name": "figma-generate-library",
+     "type": "dir"
+    },
+    {
+     "name": "figma-implement-design",
+     "type": "dir"
+    },
+    {
+     "name": "figma-implement-motion",
+     "type": "dir"
+    },
+    {
+     "name": "figma-swiftui",
+     "type": "dir"
+    },
+    {
+     "name": "figma-use",
+     "type": "dir"
+    },
+    {
+     "name": "figma-use-figjam",
+     "type": "dir"
+    },
+    {
+     "name": "figma-use-motion",
+     "type": "dir"
+    },
+    {
+     "name": "figma-use-slides",
+     "type": "dir"
+    },
+    {
+     "name": "find-skills",
+     "type": "dir"
+    },
+    {
+     "name": "finngen-phewas-skill",
+     "type": "dir"
+    },
+    {
+     "name": "frontend-design",
+     "type": "dir"
+    },
+    {
+     "name": "full-output-enforcement",
+     "type": "dir"
+    },
+    {
+     "name": "gc-minimal-zine-poster",
+     "type": "dir"
+    },
+    {
+     "name": "genebass-gene-burden-skill",
+     "type": "dir"
+    },
+    {
+     "name": "get-context",
+     "type": "dir"
+    },
+    {
+     "name": "gnomad-graphql-skill",
+     "type": "dir"
+    },
+    {
+     "name": "google-docs",
+     "type": "dir"
+    },
+    {
+     "name": "google-drive",
+     "type": "dir"
+    },
+    {
+     "name": "google-drive-comments",
+     "type": "dir"
+    },
+    {
+     "name": "google-sheets",
+     "type": "dir"
+    },
+    {
+     "name": "google-slides",
+     "type": "dir"
+    },
+    {
+     "name": "goutoujunshi",
+     "type": "dir"
+    },
+    {
+     "name": "gpt-image-2",
+     "type": "dir"
+    },
+    {
+     "name": "gpt-taste",
+     "type": "dir"
+    },
+    {
+     "name": "gsap",
+     "type": "dir"
+    },
+    {
+     "name": "gtex-eqtl-skill",
+     "type": "dir"
+    },
+    {
+     "name": "gwas-catalog-skill",
+     "type": "dir"
+    },
+    {
+     "name": "hatch-pet",
+     "type": "dir"
+    },
+    {
+     "name": "high-end-visual-design",
+     "type": "dir"
+    },
+    {
+     "name": "hmdb-skill",
+     "type": "dir"
+    },
+    {
+     "name": "hook-development",
+     "type": "dir"
+    },
+    {
+     "name": "human-protein-atlas-skill",
+     "type": "dir"
+    },
+    {
+     "name": "hyperframes",
+     "type": "dir"
+    },
+    {
+     "name": "hyperframes-cli",
+     "type": "dir"
+    },
+    {
+     "name": "hyperframes-registry",
+     "type": "dir"
+    },
+    {
+     "name": "ideate",
+     "type": "dir"
+    },
+    {
+     "name": "image-to-code",
+     "type": "dir"
+    },
+    {
+     "name": "imagegen-frontend-mobile",
+     "type": "dir"
+    },
+    {
+     "name": "imagegen-frontend-web",
+     "type": "dir"
+    },
+    {
+     "name": "index",
+     "type": "dir"
+    },
+    {
+     "name": "industrial-brutalist-ui",
+     "type": "dir"
+    },
+    {
+     "name": "ipd-skill",
+     "type": "dir"
+    },
+    {
+     "name": "kb-retriever",
+     "type": "dir"
+    },
+    {
+     "name": "latex-compile",
+     "type": "dir"
+    },
+    {
+     "name": "latex-doctor",
+     "type": "dir"
+    },
+    {
+     "name": "linear",
+     "type": "dir"
+    },
+    {
+     "name": "locus-to-gene-mapper-skill",
+     "type": "dir"
+    },
+    {
+     "name": "m5-onboard",
+     "type": "dir"
+    },
+    {
+     "name": "math-olympiad",
+     "type": "dir"
+    },
+    {
+     "name": "mcp-builder",
+     "type": "dir"
+    },
+    {
+     "name": "mcp-integration",
+     "type": "dir"
+    },
+    {
+     "name": "metabolights-skill",
+     "type": "dir"
+    },
+    {
+     "name": "mgnify-skill",
+     "type": "dir"
+    },
+    {
+     "name": "minimalist-ui",
+     "type": "dir"
+    },
+    {
+     "name": "multisim-spice",
+     "type": "dir"
+    },
+    {
+     "name": "nature-academic-search",
+     "type": "dir"
+    },
+    {
+     "name": "nature-citation",
+     "type": "dir"
+    },
+    {
+     "name": "nature-data",
+     "type": "dir"
+    },
+    {
+     "name": "nature-figure",
+     "type": "dir"
+    },
+    {
+     "name": "nature-paper2ppt",
+     "type": "dir"
+    },
+    {
+     "name": "nature-polishing",
+     "type": "dir"
+    },
+    {
+     "name": "nature-reader",
+     "type": "dir"
+    },
+    {
+     "name": "nature-response",
+     "type": "dir"
+    },
+    {
+     "name": "nature-reviewer",
+     "type": "dir"
+    },
+    {
+     "name": "nature-writing",
+     "type": "dir"
+    },
+    {
+     "name": "ncbi-blast-skill",
+     "type": "dir"
+    },
+    {
+     "name": "ncbi-clinicaltables-skill",
+     "type": "dir"
+    },
+    {
+     "name": "ncbi-datasets-skill",
+     "type": "dir"
+    },
+    {
+     "name": "ncbi-entrez-skill",
+     "type": "dir"
+    },
+    {
+     "name": "ncbi-pmc-skill",
+     "type": "dir"
+    },
+    {
+     "name": "ngs-amplicon-microbiome",
+     "type": "dir"
+    },
+    {
+     "name": "ngs-analysis-router",
+     "type": "dir"
+    },
+    {
+     "name": "ngs-atacseq-peaks-qc",
+     "type": "dir"
+    },
+    {
+     "name": "ngs-bcl-to-fastq",
+     "type": "dir"
+    },
+    {
+     "name": "ngs-bulk-rnaseq",
+     "type": "dir"
+    },
+    {
+     "name": "ngs-bulk-rnaseq-counts-qc",
+     "type": "dir"
+    },
+    {
+     "name": "ngs-bulk-rnaseq-differential-expression",
+     "type": "dir"
+    },
+    {
+     "name": "ngs-chip-cutrun-peaks-qc",
+     "type": "dir"
+    },
+    {
+     "name": "ngs-dna-germline-variants",
+     "type": "dir"
+    },
+    {
+     "name": "ngs-dna-somatic-variants",
+     "type": "dir"
+    },
+    {
+     "name": "ngs-dna-umi-panel-variants",
+     "type": "dir"
+    },
+    {
+     "name": "ngs-dna-variant-calling",
+     "type": "dir"
+    },
+    {
+     "name": "ngs-epigenomics-peaks",
+     "type": "dir"
+    },
+    {
+     "name": "ngs-fastq-qc",
+     "type": "dir"
+    },
+    {
+     "name": "ngs-runtime-env",
+     "type": "dir"
+    },
+    {
+     "name": "ngs-scrna-seq",
+     "type": "dir"
+    },
+    {
+     "name": "ngs-shotgun-metagenomics",
+     "type": "dir"
+    },
+    {
+     "name": "notion-knowledge-capture",
+     "type": "dir"
+    },
+    {
+     "name": "notion-meeting-intelligence",
+     "type": "dir"
+    },
+    {
+     "name": "notion-research-documentation",
+     "type": "dir"
+    },
+    {
+     "name": "notion-spec-to-implementation",
+     "type": "dir"
+    },
+    {
+     "name": "openai-docs",
+     "type": "dir"
+    },
+    {
+     "name": "opentargets-skill",
+     "type": "dir"
+    },
+    {
+     "name": "pdf",
+     "type": "dir"
+    },
+    {
+     "name": "pharmgkb-skill",
+     "type": "dir"
+    },
+    {
+     "name": "pixverse-ad-variants",
+     "type": "dir"
+    },
+    {
+     "name": "pixverse-agent",
+     "type": "dir"
+    },
+    {
+     "name": "pixverse-agent-canvas",
+     "type": "dir"
+    },
+    {
+     "name": "pixverse-agent-gateway",
+     "type": "dir"
+    },
+    {
+     "name": "pixverse-agent-project-memory",
+     "type": "dir"
+    },
+    {
+     "name": "pixverse-agent-quality",
+     "type": "dir"
+    },
+    {
+     "name": "pixverse-agent-setup",
+     "type": "dir"
+    },
+    {
+     "name": "pixverse-audio",
+     "type": "dir"
+    },
+    {
+     "name": "pixverse-brand-system",
+     "type": "dir"
+    },
+    {
+     "name": "pixverse-canvas",
+     "type": "dir"
+    },
+    {
+     "name": "pixverse-captions",
+     "type": "dir"
+    },
+    {
+     "name": "pixverse-character-sheet",
+     "type": "dir"
+    },
+    {
+     "name": "pixverse-cinematic-story",
+     "type": "dir"
+    },
+    {
+     "name": "pixverse-cover-art",
+     "type": "dir"
+    },
+    {
+     "name": "pixverse-create-image",
+     "type": "dir"
+    },
+    {
+     "name": "pixverse-create-video",
+     "type": "dir"
+    },
+    {
+     "name": "pixverse-delivery",
+     "type": "dir"
+    },
+    {
+     "name": "pixverse-explainer",
+     "type": "dir"
+    },
+    {
+     "name": "pixverse-fashion-video",
+     "type": "dir"
+    },
+    {
+     "name": "pixverse-game-trailer",
+     "type": "dir"
+    },
+    {
+     "name": "pixverse-howto-video",
+     "type": "dir"
+    },
+    {
+     "name": "pixverse-listing-images",
+     "type": "dir"
+    },
+    {
+     "name": "pixverse-motion-design",
+     "type": "dir"
+    },
+    {
+     "name": "pixverse-music-video",
+     "type": "dir"
+    },
+    {
+     "name": "pixverse-podcast-clip",
+     "type": "dir"
+    },
+    {
+     "name": "pixverse-presenter",
+     "type": "dir"
+    },
+    {
+     "name": "pixverse-product-stills",
+     "type": "dir"
+    },
+    {
+     "name": "pixverse-product-video",
+     "type": "dir"
+    },
+    {
+     "name": "pixverse-production",
+     "type": "dir"
+    },
+    {
+     "name": "pixverse-ranking-video",
+     "type": "dir"
+    },
+    {
+     "name": "pixverse-seedance-prompt-enhance",
+     "type": "dir"
+    },
+    {
+     "name": "pixverse-setup",
+     "type": "dir"
+    },
+    {
+     "name": "pixverse-short-drama",
+     "type": "dir"
+    },
+    {
+     "name": "pixverse-street-interview",
+     "type": "dir"
+    },
+    {
+     "name": "pixverse-studio",
+     "type": "dir"
+    },
+    {
+     "name": "pixverse-talking-head",
+     "type": "dir"
+    },
+    {
+     "name": "pixverse-ugc-video",
+     "type": "dir"
+    },
+    {
+     "name": "pixverse-unbox-video",
+     "type": "dir"
+    },
+    {
+     "name": "pixverse-video-editing",
+     "type": "dir"
+    },
+    {
+     "name": "pixverse-video-remake",
+     "type": "dir"
+    },
+    {
+     "name": "pixverse-video-restyle",
+     "type": "dir"
+    },
+    {
+     "name": "pixverse-video-script",
+     "type": "dir"
+    },
+    {
+     "name": "pixverse-video-translate",
+     "type": "dir"
+    },
+    {
+     "name": "pixverse-video-variants",
+     "type": "dir"
+    },
+    {
+     "name": "pixverse-visual-recipes",
+     "type": "dir"
+    },
+    {
+     "name": "pixverse-voiceover",
+     "type": "dir"
+    },
+    {
+     "name": "playground",
+     "type": "dir"
+    },
+    {
+     "name": "playwright",
+     "type": "dir"
+    },
+    {
+     "name": "playwright-interactive",
+     "type": "dir"
+    },
+    {
+     "name": "plugin-management",
+     "type": "dir"
+    },
+    {
+     "name": "plugin-settings",
+     "type": "dir"
+    },
+    {
+     "name": "plugin-structure",
+     "type": "dir"
+    },
+    {
+     "name": "pptx",
+     "type": "dir"
+    },
+    {
+     "name": "presentations",
+     "type": "dir"
+    },
+    {
+     "name": "pride-skill",
+     "type": "dir"
+    },
+    {
+     "name": "prompt-engineering-patterns",
+     "type": "dir"
+    },
+    {
+     "name": "proteomexchange-skill",
+     "type": "dir"
+    },
+    {
+     "name": "pubchem-pug-skill",
+     "type": "dir"
+    },
+    {
+     "name": "quickgo-skill",
+     "type": "dir"
+    },
+    {
+     "name": "rcsb-pdb-skill",
+     "type": "dir"
+    },
+    {
+     "name": "reactome-skill",
+     "type": "dir"
+    },
+    {
+     "name": "redesign-existing-projects",
+     "type": "dir"
+    },
+    {
+     "name": "remotion",
+     "type": "dir"
+    },
+    {
+     "name": "remotion-captions",
+     "type": "dir"
+    },
+    {
+     "name": "remotion-create",
+     "type": "dir"
+    },
+    {
+     "name": "remotion-docs",
+     "type": "dir"
+    },
+    {
+     "name": "remotion-interactivity",
+     "type": "dir"
+    },
+    {
+     "name": "remotion-maps",
+     "type": "dir"
+    },
+    {
+     "name": "remotion-markup",
+     "type": "dir"
+    },
+    {
+     "name": "remotion-multimedia",
+     "type": "dir"
+    },
+    {
+     "name": "remotion-render",
+     "type": "dir"
+    },
+    {
+     "name": "remotion-saas",
+     "type": "dir"
+    },
+    {
+     "name": "remotion-studio",
+     "type": "dir"
+    },
+    {
+     "name": "remotion-upgrade",
+     "type": "dir"
+    },
+    {
+     "name": "research",
+     "type": "dir"
+    },
+    {
+     "name": "research-router-skill",
+     "type": "dir"
+    },
+    {
+     "name": "rhea-skill",
+     "type": "dir"
+    },
+    {
+     "name": "rnacentral-skill",
+     "type": "dir"
+    },
+    {
+     "name": "ros-robotics",
+     "type": "dir"
+    },
+    {
+     "name": "s7-200-stl-simulation",
+     "type": "dir"
+    },
+    {
+     "name": "screenshot",
+     "type": "dir"
+    },
+    {
+     "name": "scrna-seq-qc",
+     "type": "dir"
+    },
+    {
+     "name": "security-best-practices",
+     "type": "dir"
+    },
+    {
+     "name": "session-report",
+     "type": "dir"
+    },
+    {
+     "name": "share",
+     "type": "dir"
+    },
+    {
+     "name": "simubridge",
+     "type": "dir"
+    },
+    {
+     "name": "sites-building",
+     "type": "dir"
+    },
+    {
+     "name": "sites-hosting",
+     "type": "dir"
+    },
+    {
+     "name": "sites-preview-troubleshooting",
+     "type": "dir"
+    },
+    {
+     "name": "skill-creator",
+     "type": "dir"
+    },
+    {
+     "name": "skill-development",
+     "type": "dir"
+    },
+    {
+     "name": "smithery-ai-cli",
+     "type": "dir"
+    },
+    {
+     "name": "solidworks-automation",
+     "type": "dir"
+    },
+    {
+     "name": "speech",
+     "type": "dir"
+    },
+    {
+     "name": "spice",
+     "type": "dir"
+    },
+    {
+     "name": "spice-sim",
+     "type": "dir"
+    },
+    {
+     "name": "spreadsheets",
+     "type": "dir"
+    },
+    {
+     "name": "stitch-design-taste",
+     "type": "dir"
+    },
+    {
+     "name": "string-skill",
+     "type": "dir"
+    },
+    {
+     "name": "tailored-resume-generator",
+     "type": "dir"
+    },
+    {
+     "name": "teaching-resource-generator",
+     "type": "dir"
+    },
+    {
+     "name": "tech-flow-video-demo",
+     "type": "dir"
+    },
+    {
+     "name": "template-creator",
+     "type": "dir"
+    },
+    {
+     "name": "texlive-runtime-installer",
+     "type": "dir"
+    },
+    {
+     "name": "theme-factory",
+     "type": "dir"
+    },
+    {
+     "name": "tpmi-phewas-skill",
+     "type": "dir"
+    },
+    {
+     "name": "transcribe",
+     "type": "dir"
+    },
+    {
+     "name": "tscircuit",
+     "type": "dir"
+    },
+    {
+     "name": "ukb-topmed-phewas-skill",
+     "type": "dir"
+    },
+    {
+     "name": "uniprot-skill",
+     "type": "dir"
+    },
+    {
+     "name": "url-to-code",
+     "type": "dir"
+    },
+    {
+     "name": "user-context",
+     "type": "dir"
+    },
+    {
+     "name": "using-git-worktrees",
+     "type": "dir"
+    },
+    {
+     "name": "vercel-cli-with-tokens",
+     "type": "dir"
+    },
+    {
+     "name": "vercel-composition-patterns",
+     "type": "dir"
+    },
+    {
+     "name": "vercel-deploy",
+     "type": "dir"
+    },
+    {
+     "name": "vercel-react-best-practices",
+     "type": "dir"
+    },
+    {
+     "name": "vercel-react-native-skills",
+     "type": "dir"
+    },
+    {
+     "name": "vercel-react-view-transitions",
+     "type": "dir"
+    },
+    {
+     "name": "video-editing",
+     "type": "dir"
+    },
+    {
+     "name": "video-spec-builder",
+     "type": "dir"
+    },
+    {
+     "name": "videoagent-video-studio",
+     "type": "dir"
+    },
+    {
+     "name": "visualize",
+     "type": "dir"
+    },
+    {
+     "name": "web-design-engineer",
+     "type": "dir"
+    },
+    {
+     "name": "web-design-guidelines",
+     "type": "dir"
+    },
+    {
+     "name": "web-scraping",
+     "type": "dir"
+    },
+    {
+     "name": "web-video-presentation",
+     "type": "dir"
+    },
+    {
+     "name": "webapp-testing",
+     "type": "dir"
+    },
+    {
+     "name": "website-to-hyperframes",
+     "type": "dir"
+    },
+    {
+     "name": "workflow-automation",
+     "type": "dir"
+    },
+    {
+     "name": "writing-rules",
+     "type": "dir"
+    },
+    {
+     "name": "writing-skills",
+     "type": "dir"
+    },
+    {
+     "name": "xlsx",
+     "type": "dir"
+    },
+    {
+     "name": "zotero",
+     "type": "dir"
+    }
+   ]
+  },
+  {
+   "id": "workbuddy-user",
+   "client": "workbuddy",
+   "path": "C:\\Users\\23201\\.workbuddy\\skills",
+   "physicalPath": "E:\\WorkBuddyData\\skills",
+   "pathIsLink": true,
+   "exists": true,
+   "targeted": true,
+   "reason": "Client-visible path is behind a linked .workbuddy directory; sync must target the physical path, resolved here with realpath.",
+   "manifest": {
+    "path": "E:\\WorkBuddyData\\skills\\.matlab-agent-skills-manifest.json",
+    "exists": true,
+    "repository": "E:\\desktop\\MATLAB",
+    "ownedByRepo": true,
+    "skills": [
+     "matlab-codegen-deploy",
+     "matlab-control-optimization",
+     "matlab-data-analysis",
+     "matlab-orchestrator",
+     "matlab-robotics-autonomy",
+     "matlab-runner",
+     "matlab-signal-vision-ai",
+     "matlab-simulink-modeling",
+     "matlab-testing-ci"
+    ],
+    "generatedAt": "2026-10-20T10:26:26.1656536+08:00"
+   },
+   "backups": {
+    "path": "E:\\WorkBuddyData\\skills\\.matlab-agent-skills\\backups",
+    "exists": true,
+    "sessions": [
+     {
+      "name": "20261020-102624-sync-skills",
+      "fileCount": 1,
+      "size": 3030,
+      "hasPayload": false
+     }
+    ]
+   },
+   "skills": [
+    {
+     "decision": "update",
+     "requiresForce": false,
+     "add": [],
+     "overwrite": [
+      "SKILL.md",
+      "scripts/mas_codegen_ready.m",
+      "scripts/mas_codegen_verify.m",
+      "tests/test_codegen.m"
+     ],
+     "identical": [
+      "scripts/mas_fixpt_range.m"
+     ],
+     "keepUserFiles": [],
+     "name": "matlab-codegen-deploy",
+     "installed": true,
+     "installedFileCount": 5,
+     "repoFileCount": 5
+    },
+    {
+     "decision": "update",
+     "requiresForce": false,
+     "add": [
+      "references/stability-contracts.md",
+      "scripts/mas_stability_verdict.m",
+      "tests/test_stability_contract.m"
+     ],
+     "overwrite": [
+      "SKILL.md",
+      "scripts/mas_ctrl_analyze.m"
+     ],
+     "identical": [
+      "scripts/mas_ctrl_aw_sim.m",
+      "scripts/mas_ctrl_pid_design.m",
+      "tests/test_ctrl_analyze.m"
+     ],
+     "keepUserFiles": [],
+     "name": "matlab-control-optimization",
+     "installed": true,
+     "installedFileCount": 5,
+     "repoFileCount": 8
+    },
+    {
+     "decision": "update",
+     "requiresForce": false,
+     "add": [
+      "references/data-verification-contract.md",
+      "scripts/mas_converge_check.m",
+      "scripts/mas_fit_check.m",
+      "scripts/mas_linsolve_check.m",
+      "scripts/mas_ode_check.m",
+      "scripts/mas_quad_check.m",
+      "scripts/mas_repro_check.m",
+      "scripts/mas_stat_check.m",
+      "scripts/mas_uncert_check.m",
+      "tests/test_data_contract.m",
+      "tests/test_ode_contract.m",
+      "tests/test_ode_field_contract.m"
+     ],
+     "overwrite": [
+      "SKILL.md"
+     ],
+     "identical": [
+      "scripts/mas_table_audit.m",
+      "tests/test_table_audit.m"
+     ],
+     "keepUserFiles": [],
+     "name": "matlab-data-analysis",
+     "installed": true,
+     "installedFileCount": 3,
+     "repoFileCount": 15
+    },
+    {
+     "decision": "update",
+     "requiresForce": false,
+     "add": [
+      "references/routing-contract.md",
+      "tests/test_routing_contract.m"
+     ],
+     "overwrite": [
+      "SKILL.md",
+      "assets/routing.json",
+      "assets/tasks.json",
+      "scripts/mas_pipeline.m",
+      "scripts/mas_route.m"
+     ],
+     "identical": [
+      "scripts/mas_skill_graph.m",
+      "tests/test_routing.m",
+      "tests/test_skill_graph.m"
+     ],
+     "keepUserFiles": [],
+     "name": "matlab-orchestrator",
+     "installed": true,
+     "installedFileCount": 8,
+     "repoFileCount": 10
+    },
+    {
+     "decision": "update",
+     "requiresForce": false,
+     "add": [
+      "references/robotics-verification-contract.md",
+      "scripts/mas_dyn_check.m",
+      "scripts/mas_estimate_check.m",
+      "scripts/mas_quat_check.m",
+      "scripts/mas_traj_check.m",
+      "tests/test_robotics_contract.m"
+     ],
+     "overwrite": [
+      "SKILL.md"
+     ],
+     "identical": [
+      "scripts/mas_ekf_check.m",
+      "scripts/mas_frame_check.m",
+      "scripts/mas_kin_check.m",
+      "scripts/mas_kin_ik.m",
+      "tests/test_robotics.m"
+     ],
+     "keepUserFiles": [],
+     "name": "matlab-robotics-autonomy",
+     "installed": true,
+     "installedFileCount": 6,
+     "repoFileCount": 12
+    },
+    {
+     "decision": "update",
+     "requiresForce": false,
+     "add": [],
+     "overwrite": [
+      "SKILL.md",
+      "references/mcp-readiness-ladder.md",
+      "scripts/mas_dep_probe.m",
+      "scripts/mas_product_map.m",
+      "tests/test_dep_probe.m"
+     ],
+     "identical": [
+      "references/acceptance-levels.md",
+      "references/failure-classes.md",
+      "references/toolbox-feature-map.md",
+      "scripts/mas_precheck.m",
+      "scripts/mas_toolbox_map.m",
+      "tests/test_precheck.m"
+     ],
+     "keepUserFiles": [],
+     "name": "matlab-runner",
+     "installed": true,
+     "installedFileCount": 11,
+     "repoFileCount": 11
+    },
+    {
+     "decision": "update",
+     "requiresForce": false,
+     "add": [
+      "references/signal-measurement-contract.md",
+      "references/vision-verification-contract.md",
+      "scripts/mas_ber_check.m",
+      "scripts/mas_detect_check.m",
+      "scripts/mas_filter_check.m",
+      "scripts/mas_image_contract.m",
+      "scripts/mas_measure_contract.m",
+      "scripts/mas_sample_check.m",
+      "scripts/mas_seg_check.m",
+      "scripts/mas_stat_verdict.m",
+      "tests/test_signal_contract.m",
+      "tests/test_stat_decision.m",
+      "tests/test_vision_contract.m"
+     ],
+     "overwrite": [
+      "SKILL.md",
+      "scripts/mas_ofdm_ber.m"
+     ],
+     "identical": [
+      "scripts/mas_image_metrics.m",
+      "scripts/mas_spectrum_check.m",
+      "scripts/mas_split_seed.m",
+      "tests/test_signal_vision.m"
+     ],
+     "keepUserFiles": [],
+     "name": "matlab-signal-vision-ai",
+     "installed": true,
+     "installedFileCount": 6,
+     "repoFileCount": 19
+    },
+    {
+     "decision": "update",
+     "requiresForce": false,
+     "add": [
+      "references/excitation-checks.md",
+      "scripts/mas_dist_enter.m",
+      "tests/test_dist_enter.m"
+     ],
+     "overwrite": [
+      "SKILL.md"
+     ],
+     "identical": [
+      "scripts/mas_model_check.m",
+      "tests/test_model_check.m"
+     ],
+     "keepUserFiles": [],
+     "name": "matlab-simulink-modeling",
+     "installed": true,
+     "installedFileCount": 3,
+     "repoFileCount": 6
+    },
+    {
+     "decision": "update",
+     "requiresForce": false,
+     "add": [
+      "assets/install-roots.json",
+      "scripts/mas_delivery_check.m",
+      "scripts/mas_phase43_grade.m",
+      "scripts/mas_skill_audit.m",
+      "scripts/mas_skill_install_audit.m",
+      "tests/test_delivery_check.m",
+      "tests/test_phase43_grade.m",
+      "tests/test_skill_install_audit.m"
+     ],
+     "overwrite": [
+      "SKILL.md",
+      "scripts/mas_bench_record.m",
+      "scripts/mas_capability_check.m",
+      "scripts/mas_grade.m",
+      "tests/test_bench.m",
+      "tests/test_capability.m"
+     ],
+     "identical": [
+      "scripts/mas_ref_derive.m",
+      "scripts/mas_ref_spec.m",
+      "scripts/mas_refcheck.m",
+      "scripts/mas_verify_task.m",
+      "tests/test_grade.m",
+      "tests/test_refcheck.m"
+     ],
+     "keepUserFiles": [],
+     "name": "matlab-testing-ci",
+     "installed": true,
+     "installedFileCount": 12,
+     "repoFileCount": 20
+    }
+   ],
+   "keepRootEntries": [
+    {
+     "name": ".disable_to_model_invocation_migration.json",
+     "type": "file"
+    },
+    {
+     "name": ".matlab-agent-skills",
+     "type": "dir"
+    },
+    {
+     "name": ".matlab-agent-skills-manifest.json",
+     "type": "file"
+    },
+    {
+     "name": ".model_invocation_to_override_migration.json",
+     "type": "file"
+    },
+    {
+     "name": ".user_invocable_only_to_off_migration.json",
+     "type": "file"
+    },
+    {
+     "name": "_bm_skillid_migration.json",
+     "type": "file"
+    },
+    {
+     "name": "desktop-app-api-404",
+     "type": "dir"
+    },
+    {
+     "name": "electron-app-windows-launch",
+     "type": "dir"
+    },
+    {
+     "name": "external-skill-safe-deploy",
+     "type": "dir"
+    },
+    {
+     "name": "goutoujunshi",
+     "type": "dir"
+    },
+    {
+     "name": "html-a4-pdf",
+     "type": "dir"
+    },
+    {
+     "name": "solidworks-automation",
+     "type": "dir"
+    },
+    {
+     "name": "solidworks-parametric-modeling",
+     "type": "dir"
+    },
+    {
+     "name": "web-access",
+     "type": "dir"
+    },
+    {
+     "name": "windows-personal-file-cleanup",
+     "type": "dir"
+    }
+   ]
+  },
+  {
+   "id": "codex-user",
+   "client": "codex",
+   "path": "C:\\Users\\23201\\.codex\\skills",
+   "physicalPath": "C:\\Users\\23201\\.codex\\skills",
+   "pathIsLink": false,
+   "exists": true,
+   "targeted": false,
+   "reason": "Legacy root; observed Codex discovery uses .agents/skills, not this root.",
+   "manifest": {
+    "path": "C:\\Users\\23201\\.codex\\skills\\.matlab-agent-skills-manifest.json",
+    "exists": false
+   },
+   "backups": {
+    "path": "C:\\Users\\23201\\.codex\\skills\\.matlab-agent-skills\\backups",
+    "exists": false,
+    "sessions": []
+   },
+   "skills": [
+    {
+     "decision": "install",
+     "requiresForce": false,
+     "add": [
+      "SKILL.md",
+      "scripts/mas_codegen_ready.m",
+      "scripts/mas_codegen_verify.m",
+      "scripts/mas_fixpt_range.m",
+      "tests/test_codegen.m"
+     ],
+     "overwrite": [],
+     "identical": [],
+     "keepUserFiles": [],
+     "name": "matlab-codegen-deploy",
+     "installed": false,
+     "installedFileCount": 0,
+     "repoFileCount": 5
+    },
+    {
+     "decision": "install",
+     "requiresForce": false,
+     "add": [
+      "SKILL.md",
+      "references/stability-contracts.md",
+      "scripts/mas_ctrl_analyze.m",
+      "scripts/mas_ctrl_aw_sim.m",
+      "scripts/mas_ctrl_pid_design.m",
+      "scripts/mas_stability_verdict.m",
+      "tests/test_ctrl_analyze.m",
+      "tests/test_stability_contract.m"
+     ],
+     "overwrite": [],
+     "identical": [],
+     "keepUserFiles": [],
+     "name": "matlab-control-optimization",
+     "installed": false,
+     "installedFileCount": 0,
+     "repoFileCount": 8
+    },
+    {
+     "decision": "install",
+     "requiresForce": false,
+     "add": [
+      "SKILL.md",
+      "references/data-verification-contract.md",
+      "scripts/mas_converge_check.m",
+      "scripts/mas_fit_check.m",
+      "scripts/mas_linsolve_check.m",
+      "scripts/mas_ode_check.m",
+      "scripts/mas_quad_check.m",
+      "scripts/mas_repro_check.m",
+      "scripts/mas_stat_check.m",
+      "scripts/mas_table_audit.m",
+      "scripts/mas_uncert_check.m",
+      "tests/test_data_contract.m",
+      "tests/test_ode_contract.m",
+      "tests/test_ode_field_contract.m",
+      "tests/test_table_audit.m"
+     ],
+     "overwrite": [],
+     "identical": [],
+     "keepUserFiles": [],
+     "name": "matlab-data-analysis",
+     "installed": false,
+     "installedFileCount": 0,
+     "repoFileCount": 15
+    },
+    {
+     "decision": "install",
+     "requiresForce": false,
+     "add": [
+      "SKILL.md",
+      "assets/routing.json",
+      "assets/tasks.json",
+      "references/routing-contract.md",
+      "scripts/mas_pipeline.m",
+      "scripts/mas_route.m",
+      "scripts/mas_skill_graph.m",
+      "tests/test_routing.m",
+      "tests/test_routing_contract.m",
+      "tests/test_skill_graph.m"
+     ],
+     "overwrite": [],
+     "identical": [],
+     "keepUserFiles": [],
+     "name": "matlab-orchestrator",
+     "installed": false,
+     "installedFileCount": 0,
+     "repoFileCount": 10
+    },
+    {
+     "decision": "install",
+     "requiresForce": false,
+     "add": [
+      "SKILL.md",
+      "references/robotics-verification-contract.md",
+      "scripts/mas_dyn_check.m",
+      "scripts/mas_ekf_check.m",
+      "scripts/mas_estimate_check.m",
+      "scripts/mas_frame_check.m",
+      "scripts/mas_kin_check.m",
+      "scripts/mas_kin_ik.m",
+      "scripts/mas_quat_check.m",
+      "scripts/mas_traj_check.m",
+      "tests/test_robotics.m",
+      "tests/test_robotics_contract.m"
+     ],
+     "overwrite": [],
+     "identical": [],
+     "keepUserFiles": [],
+     "name": "matlab-robotics-autonomy",
+     "installed": false,
+     "installedFileCount": 0,
+     "repoFileCount": 12
+    },
+    {
+     "decision": "install",
+     "requiresForce": false,
+     "add": [
+      "SKILL.md",
+      "references/acceptance-levels.md",
+      "references/failure-classes.md",
+      "references/mcp-readiness-ladder.md",
+      "references/toolbox-feature-map.md",
+      "scripts/mas_dep_probe.m",
+      "scripts/mas_precheck.m",
+      "scripts/mas_product_map.m",
+      "scripts/mas_toolbox_map.m",
+      "tests/test_dep_probe.m",
+      "tests/test_precheck.m"
+     ],
+     "overwrite": [],
+     "identical": [],
+     "keepUserFiles": [],
+     "name": "matlab-runner",
+     "installed": false,
+     "installedFileCount": 0,
+     "repoFileCount": 11
+    },
+    {
+     "decision": "install",
+     "requiresForce": false,
+     "add": [
+      "SKILL.md",
+      "references/signal-measurement-contract.md",
+      "references/vision-verification-contract.md",
+      "scripts/mas_ber_check.m",
+      "scripts/mas_detect_check.m",
+      "scripts/mas_filter_check.m",
+      "scripts/mas_image_contract.m",
+      "scripts/mas_image_metrics.m",
+      "scripts/mas_measure_contract.m",
+      "scripts/mas_ofdm_ber.m",
+      "scripts/mas_sample_check.m",
+      "scripts/mas_seg_check.m",
+      "scripts/mas_spectrum_check.m",
+      "scripts/mas_split_seed.m",
+      "scripts/mas_stat_verdict.m",
+      "tests/test_signal_contract.m",
+      "tests/test_signal_vision.m",
+      "tests/test_stat_decision.m",
+      "tests/test_vision_contract.m"
+     ],
+     "overwrite": [],
+     "identical": [],
+     "keepUserFiles": [],
+     "name": "matlab-signal-vision-ai",
+     "installed": false,
+     "installedFileCount": 0,
+     "repoFileCount": 19
+    },
+    {
+     "decision": "install",
+     "requiresForce": false,
+     "add": [
+      "SKILL.md",
+      "references/excitation-checks.md",
+      "scripts/mas_dist_enter.m",
+      "scripts/mas_model_check.m",
+      "tests/test_dist_enter.m",
+      "tests/test_model_check.m"
+     ],
+     "overwrite": [],
+     "identical": [],
+     "keepUserFiles": [],
+     "name": "matlab-simulink-modeling",
+     "installed": false,
+     "installedFileCount": 0,
+     "repoFileCount": 6
+    },
+    {
+     "decision": "install",
+     "requiresForce": false,
+     "add": [
+      "SKILL.md",
+      "assets/install-roots.json",
+      "scripts/mas_bench_record.m",
+      "scripts/mas_capability_check.m",
+      "scripts/mas_delivery_check.m",
+      "scripts/mas_grade.m",
+      "scripts/mas_phase43_grade.m",
+      "scripts/mas_ref_derive.m",
+      "scripts/mas_ref_spec.m",
+      "scripts/mas_refcheck.m",
+      "scripts/mas_skill_audit.m",
+      "scripts/mas_skill_install_audit.m",
+      "scripts/mas_verify_task.m",
+      "tests/test_bench.m",
+      "tests/test_capability.m",
+      "tests/test_delivery_check.m",
+      "tests/test_grade.m",
+      "tests/test_phase43_grade.m",
+      "tests/test_refcheck.m",
+      "tests/test_skill_install_audit.m"
+     ],
+     "overwrite": [],
+     "identical": [],
+     "keepUserFiles": [],
+     "name": "matlab-testing-ci",
+     "installed": false,
+     "installedFileCount": 0,
+     "repoFileCount": 20
+    }
+   ],
+   "keepRootEntries": [
+    {
+     "name": ".system",
+     "type": "dir"
+    },
+    {
+     "name": "Visiomaster",
+     "type": "dir"
+    },
+    {
+     "name": "_shared",
+     "type": "dir"
+    },
+    {
+     "name": "auto-embedded",
+     "type": "dir"
+    },
+    {
+     "name": "black-tech-explainer-video",
+     "type": "dir"
+    },
+    {
+     "name": "cad",
+     "type": "dir"
+    },
+    {
+     "name": "code-reviewer",
+     "type": "dir"
+    },
+    {
+     "name": "cv-builder",
+     "type": "dir"
+    },
+    {
+     "name": "deployment-pipeline-design",
+     "type": "dir"
+    },
+    {
+     "name": "developing-solidworks",
+     "type": "dir"
+    },
+    {
+     "name": "easy-taoci",
+     "type": "dir"
+    },
+    {
+     "name": "figma",
+     "type": "dir"
+    },
+    {
+     "name": "figma-code-connect-components",
+     "type": "dir"
+    },
+    {
+     "name": "figma-create-design-system-rules",
+     "type": "dir"
+    },
+    {
+     "name": "figma-create-new-file",
+     "type": "dir"
+    },
+    {
+     "name": "figma-generate-design",
+     "type": "dir"
+    },
+    {
+     "name": "figma-generate-library",
+     "type": "dir"
+    },
+    {
+     "name": "figma-implement-design",
+     "type": "dir"
+    },
+    {
+     "name": "figma-use",
+     "type": "dir"
+    },
+    {
+     "name": "find-skills",
+     "type": "dir"
+    },
+    {
+     "name": "gc-minimal-zine-poster",
+     "type": "dir"
+    },
+    {
+     "name": "goutoujunshi",
+     "type": "dir"
+    },
+    {
+     "name": "gpt-image-2",
+     "type": "dir"
+    },
+    {
+     "name": "hatch-pet",
+     "type": "dir"
+    },
+    {
+     "name": "kb-retriever",
+     "type": "dir"
+    },
+    {
+     "name": "linear",
+     "type": "dir"
+    },
+    {
+     "name": "multisim-spice",
+     "type": "dir"
+    },
+    {
+     "name": "nature-academic-search",
+     "type": "dir"
+    },
+    {
+     "name": "nature-citation",
+     "type": "dir"
+    },
+    {
+     "name": "nature-data",
+     "type": "dir"
+    },
+    {
+     "name": "nature-figure",
+     "type": "dir"
+    },
+    {
+     "name": "nature-paper2ppt",
+     "type": "dir"
+    },
+    {
+     "name": "nature-polishing",
+     "type": "dir"
+    },
+    {
+     "name": "nature-reader",
+     "type": "dir"
+    },
+    {
+     "name": "nature-response",
+     "type": "dir"
+    },
+    {
+     "name": "nature-reviewer",
+     "type": "dir"
+    },
+    {
+     "name": "nature-writing",
+     "type": "dir"
+    },
+    {
+     "name": "notion-knowledge-capture",
+     "type": "dir"
+    },
+    {
+     "name": "notion-meeting-intelligence",
+     "type": "dir"
+    },
+    {
+     "name": "notion-research-documentation",
+     "type": "dir"
+    },
+    {
+     "name": "notion-spec-to-implementation",
+     "type": "dir"
+    },
+    {
+     "name": "openai-docs",
+     "type": "dir"
+    },
+    {
+     "name": "pdf",
+     "type": "dir"
+    },
+    {
+     "name": "playwright",
+     "type": "dir"
+    },
+    {
+     "name": "playwright-interactive",
+     "type": "dir"
+    },
+    {
+     "name": "ros-robotics",
+     "type": "dir"
+    },
+    {
+     "name": "s7-200-stl-simulation",
+     "type": "dir"
+    },
+    {
+     "name": "screenshot",
+     "type": "dir"
+    },
+    {
+     "name": "security-best-practices",
+     "type": "dir"
+    },
+    {
+     "name": "simubridge",
+     "type": "dir"
+    },
+    {
+     "name": "solidworks-automation",
+     "type": "dir"
+    },
+    {
+     "name": "speech",
+     "type": "dir"
+    },
+    {
+     "name": "tech-flow-video-demo",
+     "type": "dir"
+    },
+    {
+     "name": "transcribe",
+     "type": "dir"
+    },
+    {
+     "name": "using-git-worktrees",
+     "type": "dir"
+    },
+    {
+     "name": "vercel-deploy",
+     "type": "dir"
+    },
+    {
+     "name": "vercel-react-best-practices",
+     "type": "dir"
+    },
+    {
+     "name": "vibe-knowledge-film",
+     "type": "dir"
+    },
+    {
+     "name": "video-editing",
+     "type": "dir"
+    },
+    {
+     "name": "web-design-engineer",
+     "type": "dir"
+    },
+    {
+     "name": "web-design-guidelines",
+     "type": "dir"
+    },
+    {
+     "name": "web-video-presentation",
+     "type": "dir"
+    },
+    {
+     "name": "webapp-testing",
+     "type": "dir"
+    },
+    {
+     "name": "writing-skills",
+     "type": "dir"
+    }
+   ]
+  }
+ ],
+ "totals": {
+  "add": 113,
+  "overwrite": 59,
+  "identical": 146,
+  "keepUserFiles": 0,
+  "conflicts": 7,
+  "updates": 13,
+  "installs": 2,
+  "unchanged": 5,
+  "targetedRoots": 3,
+  "nonTargetedRoots": 2
+ },
+ "byRoot": {
+  "qoder-project": {
+   "add": 0,
+   "overwrite": 0,
+   "identical": 0,
+   "keepUserFiles": 0,
+   "conflicts": 0,
+   "updates": 0,
+   "installs": 0,
+   "unchanged": 0,
+   "keepRootEntries": 0
+  },
+  "qoder-user": {
+   "add": 58,
+   "overwrite": 21,
+   "identical": 27,
+   "keepUserFiles": 0,
+   "conflicts": 7,
+   "updates": 0,
+   "installs": 2,
+   "unchanged": 0,
+   "keepRootEntries": 9
+  },
+  "agents-shared": {
+   "add": 8,
+   "overwrite": 11,
+   "identical": 87,
+   "keepUserFiles": 0,
+   "conflicts": 0,
+   "updates": 4,
+   "installs": 0,
+   "unchanged": 5,
+   "keepRootEntries": 334
+  },
+  "workbuddy-user": {
+   "add": 47,
+   "overwrite": 27,
+   "identical": 32,
+   "keepUserFiles": 0,
+   "conflicts": 0,
+   "updates": 9,
+   "installs": 0,
+   "unchanged": 0,
+   "keepRootEntries": 15
+  },
+  "codex-user": {
+   "add": 106,
+   "overwrite": 0,
+   "identical": 0,
+   "keepUserFiles": 0,
+   "conflicts": 0,
+   "updates": 0,
+   "installs": 9,
+   "unchanged": 0,
+   "keepRootEntries": 64
+  }
+ }
+}

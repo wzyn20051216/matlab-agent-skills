@@ -1,0 +1,146 @@
+{
+  "schema": "mas-client-task-probe/1",
+  "client": "codex-desktop-0.163.0-alpha.11.1",
+  "task": "D_nonmatlab_control",
+  "scope": "isolated project; repo Skills synced to .agents/skills; no model prompt names a Skill",
+  "prompt": "Explain in three bullet points the main differences between TCP and UDP. Do not run any commands and do not create files.",
+  "status": "PASS",
+  "sync": {
+    "syncTime": "2026-10-23 14:33:24",
+    "dryRun": false,
+    "sourceRoot": "E:\\desktop\\MATLAB\\skills",
+    "skillRoot": "E:\\desktop\\MATLAB\\artifacts\\phase58\\native\\fixtures\\task_D\\.agents\\skills",
+    "skillEnvironment": {
+      "skillRoot": "E:\\desktop\\MATLAB\\artifacts\\phase58\\native\\fixtures\\task_D\\.agents\\skills",
+      "userHome": "C:\\Users\\23201",
+      "runtime": "Windows",
+      "source": "explicit",
+      "legacySkillRoot": "C:\\Users\\23201\\.codex\\skills"
+    },
+    "manifestPath": "E:\\desktop\\MATLAB\\artifacts\\phase58\\native\\fixtures\\task_D\\.agents\\skills\\.matlab-agent-skills-manifest.json",
+    "backupRoot": "E:\\desktop\\MATLAB\\artifacts\\phase58\\native\\fixtures\\task_D\\.agents\\skills\\.matlab-agent-skills\\backups\\20261023-143322-sync-skills",
+    "installed": 9,
+    "updated": 0,
+    "unchanged": 0,
+    "conflicts": [],
+    "failed": false,
+    "skills": [
+      {
+        "name": "matlab-codegen-deploy",
+        "decision": "install",
+        "changed": true,
+        "backupPath": null,
+        "message": "�Ѱ�װ",
+        "preservedUserFiles": [],
+        "restoredFromBackup": false,
+        "recreatedFiles": 0
+      },
+      {
+        "name": "matlab-control-optimization",
+        "decision": "install",
+        "changed": true,
+        "backupPath": null,
+        "message": "�Ѱ�װ",
+        "preservedUserFiles": [],
+        "restoredFromBackup": false,
+        "recreatedFiles": 0
+      },
+      {
+        "name": "matlab-data-analysis",
+        "decision": "install",
+        "changed": true,
+        "backupPath": null,
+        "message": "�Ѱ�װ",
+        "preservedUserFiles": [],
+        "restoredFromBackup": false,
+        "recreatedFiles": 0
+      },
+      {
+        "name": "matlab-orchestrator",
+        "decision": "install",
+        "changed": true,
+        "backupPath": null,
+        "message": "�Ѱ�װ",
+        "preservedUserFiles": [],
+        "restoredFromBackup": false,
+        "recreatedFiles": 0
+      },
+      {
+        "name": "matlab-robotics-autonomy",
+        "decision": "install",
+        "changed": true,
+        "backupPath": null,
+        "message": "�Ѱ�װ",
+        "preservedUserFiles": [],
+        "restoredFromBackup": false,
+        "recreatedFiles": 0
+      },
+      {
+        "name": "matlab-runner",
+        "decision": "install",
+        "changed": true,
+        "backupPath": null,
+        "message": "�Ѱ�װ",
+        "preservedUserFiles": [],
+        "restoredFromBackup": false,
+        "recreatedFiles": 0
+      },
+      {
+        "name": "matlab-signal-vision-ai",
+        "decision": "install",
+        "changed": true,
+        "backupPath": null,
+        "message": "�Ѱ�װ",
+        "preservedUserFiles": [],
+        "restoredFromBackup": false,
+        "recreatedFiles": 0
+      },
+      {
+        "name": "matlab-simulink-modeling",
+        "decision": "install",
+        "changed": true,
+        "backupPath": null,
+        "message": "�Ѱ�װ",
+        "preservedUserFiles": [],
+        "restoredFromBackup": false,
+        "recreatedFiles": 0
+      },
+      {
+        "name": "matlab-testing-ci",
+        "decision": "install",
+        "changed": true,
+        "backupPath": null,
+        "message": "�Ѱ�װ",
+        "preservedUserFiles": [],
+        "restoredFromBackup": false,
+        "recreatedFiles": 0
+      }
+    ]
+  },
+  "approvalMode": "approve-for-me",
+  "command": [
+    "C:/Users/23201/AppData/Local/OpenAI/Codex/bin/a96ca4c1eee0cf35/codex.exe",
+    "exec",
+    "--json",
+    "--ephemeral",
+    "--skip-git-repo-check",
+    "--approve-for-me",
+    "-C",
+    "E:\\desktop\\MATLAB\\artifacts\\phase58\\native\\fixtures\\task_D",
+    "Explain in three bullet points the main differences between TCP and UDP. Do not run any commands and do not create files."
+  ],
+  "exitCode": 0,
+  "stderrTail": "Reading additional input from stdin...\n2026-10-23T06:33:29.933020Z ERROR codex_models_manager::manager: failed to refresh available models: request timed out\n2026-10-23T06:33:29.945971Z ERROR codex_models_manager::manager: failed to refresh available models: request timed out\n2026-10-23T06:33:37.310607Z ERROR rmcp::transport::worker: worker quit with fatal: Transport channel closed, when Client(HttpRequest(HttpRequest(\"http/request failed: error sending request for url (https://chatgpt.com/backend-api/ps/mcp)\")))\n2026-10-23T06:33:37.330008Z ERROR codex_models_manager::manager: failed to refresh available models: request timed out\n2026-10-23T06:33:42.579652Z ERROR rmcp::transport::worker: worker quit with fatal: Transport channel closed, when Client(HttpRequest(HttpRequest(\"http/request failed: error sending request for url (https://chatgpt.com/backend-api/ps/mcp)\")))\n2026-10-23T06:33:48.593804Z ERROR rmcp::transport::worker: worker quit with fatal: Transport channel closed, when Client(HttpRequest(HttpRequest(\"http/request failed: error sending request for url (https://chatgpt.com/backend-api/ps/mcp)\")))\n2026-10-23T06:33:53.596227Z ERROR rmcp::transport::worker: worker quit with fatal: Transport channel closed, when Client(HttpRequest(HttpRequest(\"http/request failed: error sending request for url (https://chatgpt.com/backend-api/ps/mcp)\")))\n",
+  "eventCount": 12,
+  "itemTypes": {
+    "error": 4,
+    "agent_message": 1
+  },
+  "skillItems": [],
+  "mcpCalls": [],
+  "commandCount": 0,
+  "skillPathMentions": [],
+  "producedFiles": {},
+  "durationSeconds": 162.3,
+  "finishedUtc": "2026-10-23T06:36:03Z"
+}

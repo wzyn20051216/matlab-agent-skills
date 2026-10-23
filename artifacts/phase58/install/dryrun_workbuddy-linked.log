@@ -1,0 +1,7 @@
+技能路径包含链接，拒绝自动修改: C:\Users\23201\.workbuddy
+At E:\desktop\MATLAB\scripts\MatlabAgentSkills.SkillInstallation.psm1:75 char:17
++                 throw "技能路径包含链接，拒绝自动修改: $ancestorPath"
++                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : OperationStopped: (技能路径包含链接，拒绝自动修改...3201\.workbuddy:String) [], RuntimeException
+    + FullyQualifiedErrorId : 技能路径包含链接，拒绝自动修改: C:\Users\23201\.workbuddy
+ 
