@@ -1,0 +1,43 @@
+{
+  "generatedAt": "2026-10-23 12:30:10",
+  "matlabVersion": "26.1.0.3276743 (R2026a) Update 3",
+  "compiler": "Microsoft Visual C++ 2022 (C)",
+  "status": "PASS",
+  "entries": {
+    "stringFileName": {
+      "verdict": "PASS",
+      "stage": "compare",
+      "detail": "p57_cg_ok: maxAbs 0.000e+00, maxRel 0.000e+00 (tol 1.0e-09) -- PASS",
+      "check": true,
+      "errorIdentifier": "",
+      "returnedSession": "",
+      "buildDirRetained": true,
+      "compilerLogBytes": 4432
+    },
+    "functionHandle": {
+      "verdict": "FAIL",
+      "stage": "codegen",
+      "detail": "FAIL at codegen: emlc:compilationError with an empty message: the entry was a function handle, not a file name. Pass the function NAME (mas_codegen_verify('myAlg', ...)) instead of a function handle or an anonymous function.",
+      "check": true,
+      "errorIdentifier": "emlc:compilationError",
+      "returnedSession": ""
+    },
+    "linkFailure": {
+      "verdict": "FAIL",
+      "stage": "build",
+      "detail": "FAIL at build: emlc:compilationError with an empty message; the compiler log reports: build\\win64\\buildLog.log: p57_build_fail.obj : error LNK2019: ÎÞ·¨½âÎöµÄÍâ²¿·ûºÅ mas_undefined_symbol_xyz£¬º¯Êý p57_build_fail ÖÐÒýÓÃÁË¸Ã·ûºÅ | build\\win64\\buildLog.log: p57_build_fail_mex.mexw64 : fatal error LNK1120: 1 ¸öÎÞ·¨½âÎöµÄÍâ²¿ÃüÁî (full text in r.compilerLog)",
+      "check": true,
+      "errorIdentifier": "emlc:compilationError",
+      "returnedSession": "",
+      "logCount": 1,
+      "compilerLogFile": "E:\\desktop\\MATLAB\\artifacts\\phase57\\task7\\build_failure_compiler.log",
+      "compilerLogBytes": 5561,
+      "compilerLogBytesOnDisk": 5561,
+      "sourceLogBytes": 5561,
+      "byteExact": true,
+      "compilerLogSha256": "1a158f7dbb841b98a02b9382151b474d833d913a1b95b114ac5b9b2c29da847e",
+      "buildDirRemoved": true
+    }
+  },
+  "pass": true
+}

@@ -11,19 +11,43 @@ function add(name, fn)
 end
 
 % ---- codegen_ready: fixtures --------------------------------------------
-% A per-run directory. Two MATLAB processes used to share
-% tests/fixtures_codegen and one run's cleanup deleted the other's files
-% mid-test (10/12 and 11/12 under concurrency); the marker proves ownership
-% before anything is removed.
-runRoot = fullfile(tempdir, 'mas_codegen_tests');
+% Every artifact this run produces lives under one session root: the fixture
+% directory, the generated C, object files and build logs from
+% mas_codegen_verify. The manifest names what the session owns, so cleanup can
+% prove ownership instead of deleting a well-known path. Two processes used to
+% share tests/fixtures_codegen and each other's MEX; the session id also makes
+% the log attributable when two runs overlap.
+session = getenv('MAS_RUN_SESSION');
+if isempty(session)
+    session = sprintf('local_%d_%s_%04d', feature('getpid'), ...
+        datestr(now, 'yyyymmdd_HHMMSS'), randi(9999));
+end
+session = regexprep(session, '[^A-Za-z0-9_.-]', '_');
+runRoot = getenv('MAS_CODEGEN_RUN_ROOT');
+if isempty(runRoot)
+    runRoot = fullfile(tempdir, 'mas_codegen_tests');
+end
 if ~exist(runRoot, 'dir'), mkdir(runRoot); end
-fixDir = tempname(runRoot);
+sessionRoot = fullfile(runRoot, session);
+if ~exist(sessionRoot, 'dir'), mkdir(sessionRoot); end
+fixDir = tempname(sessionRoot);
 mkdir(fixDir);
 ownerFile = fullfile(fixDir, '.mas_run_owner');
 fid = fopen(ownerFile, 'w');
 fprintf(fid, '%s', fixDir);
 fclose(fid);
-cleanup = onCleanup(@() cleanup_run_dir(fixDir, ownerFile));
+manifest = struct('session', session, 'pid', feature('getpid'), ...
+    'matlabVersion', version, 'startedAt', datestr(now, 'yyyy-mm-dd HH:MM:SS'), ...
+    'sessionRoot', sessionRoot, 'fixtureDir', fixDir);
+manifestFile = fullfile(sessionRoot, '.mas_run_session.json');
+fid = fopen(manifestFile, 'w');
+fprintf(fid, '%s', jsonencode(manifest));
+fclose(fid);
+prevRunRoot = getenv('MAS_CODEGEN_RUN_ROOT');
+cleanup = onCleanup(@() cleanup_run_dir(fixDir, ownerFile, sessionRoot, session, manifestFile, prevRunRoot));
+% mas_codegen_verify puts its private build/work dirs under this root, so no
+% compile artifact can land in a directory another process also uses.
+setenv('MAS_CODEGEN_RUN_ROOT', sessionRoot);
 
 cleanFn  = fullfile(fixDir, 'clean_fn.m');
 growFn   = fullfile(fixDir, 'grow_in_loop.m');
@@ -31,8 +55,10 @@ growOut  = fullfile(fixDir, 'grow_outside.m');
 evalFn   = fullfile(fixDir, 'has_eval.m');
 tgtFn    = fullfile(fixDir, 'codegen_target.m');
 tgtWrong = fullfile(fixDir, 'codegen_target_wrong.m');
+bfFn     = fullfile(fixDir, 'build_fail_fn.m');
+skFn     = fullfile(fixDir, 'syntax_bad.m');
 
-write_fixtures(cleanFn, growFn, growOut, evalFn, tgtFn, tgtWrong);
+write_fixtures(cleanFn, growFn, growOut, evalFn, tgtFn, tgtWrong, bfFn, skFn);
 addpath(fixDir);
 
 add('ready: clean file is READY', @() ready_clean());
@@ -57,6 +83,16 @@ add('verify: FAIL on bad codegen input', @() verify_badarg());
 % diagnostic for the caller to act on. Same blank on both call channels.
 add('verify: empty-message codegen error still yields a usable detail', ...
     @() verify_blank_error_detail());
+% A linker failure also arrives as emlc:compilationError with an EMPTY message.
+% The build log is the only way to tell it apart from a rejected entry, so the
+% case asserts the stage, the retained log text and an actionable detail.
+add('verify: link failure reported at build with compiler log', ...
+    @() verify_buildfail());
+% A string entry that codegen rejects before the build also has an EMPTY
+% message. The detail must describe that case, not blame the function-handle
+% entry form -- the two failures share an identifier and differ only by cause.
+add('verify: string entry rejection does not blame entry form', ...
+    @() verify_string_entry_detail());
 
 % ---- fixpt_range --------------------------------------------------------
 add('fixpt: SQNR matches theory within band', @() fixpt_sqnr());
@@ -82,12 +118,15 @@ for k = 1:n
         fprintf('  %-4s %s\n', tern(pass(k), 'PASS', 'FAIL'), T{k}.name);
     end
 end
-r = struct('names', {names}, 'pass', pass, 'nPass', sum(pass), 'nTotal', n);
+r = struct('names', {names}, 'pass', pass, 'nPass', sum(pass), 'nTotal', n, ...
+    'session', session, 'sessionRoot', sessionRoot, 'fixtureDir', fixDir);
+fprintf('test_codegen_session: %s\n', session);
+fprintf('test_codegen_fixture: %s\n', fixDir);
 fprintf('test_codegen: %d/%d passed\n', r.nPass, r.nTotal);
 end
 
 % ===========================================================================
-function write_fixtures(cleanFn, growFn, growOut, evalFn, tgtFn, tgtWrong)
+function write_fixtures(cleanFn, growFn, growOut, evalFn, tgtFn, tgtWrong, bfFn, skFn)
 fid = fopen(cleanFn, 'w');
 fprintf(fid, 'function y = clean_fn(x)\ny = x.^2 + 1;\nend\n');
 fclose(fid);
@@ -110,6 +149,16 @@ fclose(fid);
 
 fid = fopen(tgtWrong, 'w');
 fprintf(fid, 'function y = codegen_target_wrong(x)\ny = x.^2 + sin(x) + 2;\nend\n');
+fclose(fid);
+
+fid = fopen(bfFn, 'w');
+fprintf(fid, ['function y = build_fail_fn(x)\n' ...
+    'coder.ceval(''mas_undefined_symbol_xyz'', int32(1));\n' ...
+    'y = x + 1;\nend\n']);
+fclose(fid);
+
+fid = fopen(skFn, 'w');
+fprintf(fid, 'function y = syntax_bad(x)\ny = x + ;\nend\n');
 fclose(fid);
 end
 
@@ -168,6 +217,9 @@ end
 function v = verify_pass()
 % A trivial but real function; the MEX must agree with MATLAB to machine
 % precision. This exercises probe -> codegen -> build -> run -> compare.
+% The entry is a STRING FILE NAME -- the supported form. The test also pins
+% that the complete compiler log is retained in memory and that the private
+% build tree is under this session's root, not a shared temp path.
 if exist('codegen', 'file') == 0
     r = mas_codegen_verify('codegen_target', {1:10});
     v = strcmp(r.verdict, 'SKIP');
@@ -175,7 +227,20 @@ if exist('codegen', 'file') == 0
     return;
 end
 r = mas_codegen_verify('codegen_target', {1:10});
-v = strcmp(r.verdict, 'PASS') && strcmp(r.stage, 'compare');
+logs = r.compilerLog;
+names = {};
+texts = {};
+if ~isempty(logs), names = {logs.name}; texts = {logs.text}; end
+hasBuildLog = any(~cellfun(@isempty, regexpi(names, 'buildLog\.log$')));
+complete = hasBuildLog && all(cellfun(@(t) ~isempty(t), texts));
+root = getenv('MAS_CODEGEN_RUN_ROOT');
+owned = ~isempty(root) && strncmpi(r.buildDir, root, numel(root));
+v = strcmp(r.verdict, 'PASS') && strcmp(r.stage, 'compare') && ...
+    complete && owned && strcmp(r.session, getenv('MAS_RUN_SESSION'));
+if ~v
+    fprintf('       why: buildLog=%d complete=%d owned=%d nLogs=%d root=%s buildDir=%s\n', ...
+        hasBuildLog, complete, owned, numel(logs), root, r.buildDir);
+end
 say_why(v, r);
 end
 
@@ -221,10 +286,64 @@ end
 d = strtrim(r.detail);
 tells = {'emlc', 'identifier', 'file name', 'function handle'};
 hit = any(cellfun(@(s) ~isempty(strfind(d, s)), tells));
-v = numel(d) > numel('FAIL at codegen:') + 20 && hit;
+idOk = isfield(r, 'errorIdentifier') && ~isempty(strfind(r.errorIdentifier, 'emlc'));
+v = numel(d) > numel('FAIL at codegen:') + 20 && hit && idOk;
 if ~v
-    fprintf('       why: detail is %d chars and mentions none of emlc/identifier/file name/function handle\n', ...
-        numel(d));
+    fprintf('       why: detail is %d chars, tells=%d, identifier=''%s''\n', ...
+        numel(d), hit, fld(r, 'errorIdentifier'));
+end
+end
+
+function v = verify_buildfail()
+% coder.ceval to a symbol that does not exist compiles but fails to link. This
+% is the only way here to produce a REAL compiler log: the entry is a valid
+% string file name, so a diagnostic that blames the entry form would be wrong.
+if exist('codegen', 'file') == 0
+    v = true;
+    return;
+end
+try
+    cc = mex.getCompilerConfigurations('C');
+    if isempty(cc), v = true; return; end
+catch
+    v = true;
+    return;
+end
+r = mas_codegen_verify('build_fail_fn', {1});
+names = {}; texts = {};
+if isfield(r, 'compilerLog') && ~isempty(r.compilerLog)
+    names = {r.compilerLog.name}; texts = {r.compilerLog.text};
+end
+hasLog = any(~cellfun(@isempty, regexpi(names, 'buildLog\.log$')));
+hasErr = any(cellfun(@(t) ~isempty(regexpi(t, 'LNK\d+|fatal error', 'once')), texts));
+cleaned = isfield(r, 'buildDir') && ~isfolder(r.buildDir);
+detailOk = ~isempty(strfind(lower(fld(r, 'detail')), 'compiler log'));
+v = strcmp(fld(r, 'verdict'), 'FAIL') && strcmp(fld(r, 'stage'), 'build') && ...
+    hasLog && hasErr && cleaned && detailOk;
+if ~v
+    fprintf('       why: verdict=%s stage=%s log=%d err=%d cleaned=%d detail=%s\n', ...
+        fld(r, 'verdict'), fld(r, 'stage'), hasLog, hasErr, cleaned, ...
+        oneline(fld(r, 'detail')));
+end
+end
+
+function v = verify_string_entry_detail()
+% A string entry with a parse error is rejected before the build, with the same
+% empty message as a function handle. The diagnostic must name the function and
+% say the failure is pre-build; blaming the entry form would be wrong.
+if exist('codegen', 'file') == 0
+    v = true;
+    return;
+end
+r = mas_codegen_verify('syntax_bad', {1});
+d = lower(fld(r, 'detail'));
+blamesHandle = ~isempty(strfind(d, 'function handle'));
+v = strcmp(fld(r, 'verdict'), 'FAIL') && strcmp(fld(r, 'stage'), 'codegen') && ...
+    ~isempty(strfind(d, 'syntax_bad')) && ~isempty(strfind(d, 'before the build')) && ...
+    isempty(r.compilerLog) && ~blamesHandle;
+if ~v
+    fprintf('       why: stage=%s nLogs=%d blamesHandle=%d detail=%s\n', ...
+        fld(r, 'stage'), numel(r.compilerLog), blamesHandle, oneline(fld(r, 'detail')));
 end
 end
 
@@ -267,11 +386,15 @@ v = ~isempty(r.warnings) && ~r.ok;
 end
 
 % ===========================================================================
-function cleanup_run_dir(d, ownerFile)
+function cleanup_run_dir(d, ownerFile, sessionRoot, session, manifestFile, prevRoot)
 % Remove only this run's directory, and only when the marker says so. A
 % cleanup that blindly rmdir's a well-known path is what caused the race.
+% The session root is removed only after its manifest names this session and
+% this fixture directory, and only when nothing else is left inside it; a
+% crash that stranded build output therefore shows up as residue instead of
+% being deleted by the next run.
+setenv('MAS_CODEGEN_RUN_ROOT', prevRoot);
 try
-    if ~exist(d, 'dir'), return; end
     owned = false;
     if exist(ownerFile, 'file')
         fid = fopen(ownerFile, 'r');
@@ -285,8 +408,27 @@ try
         warning('test_codegen:ownerMismatch', 'not removing %s: ownership marker does not match', d);
         return;
     end
+    sessionOk = false;
+    if exist(manifestFile, 'file')
+        try
+            M = jsondecode(fileread(manifestFile));
+            sessionOk = strcmp(M.session, session) && strcmp(M.fixtureDir, d);
+        catch
+        end
+    end
     try, rmpath(d); catch, end
-    rmdir(d, 's');
+    if exist(d, 'dir'), rmdir(d, 's'); end
+    if sessionOk
+        try, delete(manifestFile); catch, end
+        try, rmdir(sessionRoot); catch, end
+        if exist(sessionRoot, 'dir')
+            warning('test_codegen:sessionResidue', ...
+                'session root still holds files after cleanup: %s', sessionRoot);
+        end
+    else
+        warning('test_codegen:sessionManifest', ...
+            'not removing session root %s: manifest missing or does not match', sessionRoot);
+    end
 catch ME
     warning('test_codegen:cleanupFailed', 'cleanup of %s failed: %s', d, ME.message);
 end

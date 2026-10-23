@@ -1,0 +1,133 @@
+{
+  "schema": "mas-phase57-isolation-design/1",
+  "generatedAt": "2026-10-23",
+  "task": "Phase 5.7 Task 4",
+  "strongIsolation": "BLOCKED",
+  "executed": false,
+  "requiresApproval": true,
+  "task5Authorized": false,
+  "causalClaimAllowed": false,
+  "evidence": {
+    "leakSurfaceProbe": "E:\\desktop\\MATLAB\\artifacts\\phase57\\isolation\\leak_surface_probe.json",
+    "leakSurfaceProbeSha256": "e8f1afaec398688639e9b0e69069ea4592bb8e9fcfcc655e5bc6c33e11af4324",
+    "matlabState": "E:\\desktop\\MATLAB\\artifacts\\phase57\\isolation\\matlab_state.json",
+    "matlabStateSha256": "b77085cff01ef9e4ed3303af5a9d2a158ceeacccc2f05562255b0fca4fc9e70f",
+    "summary": {
+      "nSurfaces": 26,
+      "nReached": 26,
+      "nNotReached": 0,
+      "phase56PriorVectors": 11,
+      "phase56PriorReached": 11
+    },
+    "newFindings": [
+      "The sealed Phase 5.6 answers can be regenerated exactly (3/3 tasks, all fields) from the repository generator plus the published task set.",
+      "Two separate MATLAB MCP evaluate calls share one workspace: a canary set in one call was read in the next.",
+      "The parent session transcript is 34,075,136 bytes and mentions P56 task ids 2031 times; 12 episode transcripts (1,564,191 bytes) are readable and hash-unchanged.",
+      "Install roots are agent-reachable: a Qoder agent read .agents/skills/matlab-orchestrator/assets/routing.json through ordinary tools (Phase 5.7 Task 2)."
+    ]
+  },
+  "rejectedPrimitives": [
+    {
+      "primitive": "prompt-level prohibition",
+      "status": "REJECTED",
+      "reason": "26/26 surfaces reached without any exploit; text instructions do not remove read access."
+    },
+    {
+      "primitive": "NTFS DENY ACE owned by the same account",
+      "status": "REJECTED",
+      "reason": "Phase 5.6 V5: the owning account reset the ACE and took ownership, rc=0."
+    },
+    {
+      "primitive": "static encryption with the key on the same volume",
+      "status": "REJECTED",
+      "reason": "Phase 5.6 V6: key derivation and ciphertext were readable by the same account; decryption succeeded."
+    },
+    {
+      "primitive": "workspace layout / renamed files",
+      "status": "REJECTED",
+      "reason": "Absolute paths to evaluation-side assets, install roots and transcripts are readable."
+    }
+  ],
+  "options": [
+    {
+      "id": "A",
+      "name": "non-owner local account + least-privilege ACL",
+      "verdict": "VIABLE-WITH-APPROVAL",
+      "covers": ["reference-generator", "historical-answers", "grader-source", "other-arms", "install-roots", "command-execution", "derivable-answers", "historical-trajectories", "shared-matlab-state-with-per-arm-cleanup"],
+      "mechanism": "Run the client and MATLAB as a standard local user; ACL-deny evaluation assets, generator and transcripts to that account; grant only the arm's own workspace and skill root.",
+      "requires": ["local account creation (admin)", "MATLAB license for the second identity", "client login/configuration for the second identity", "ACL changes with backup", "per-arm workspace and profile cleanup"],
+      "residualRisks": ["same kernel/hardware", "arm can write its own profile between episodes", "license eligibility unverified", "ACL misconfiguration fails open"],
+      "acceptanceGate": "single-arm pilot: V1-V13 all BLOCKED and a positive control readable"
+    },
+    {
+      "id": "B",
+      "name": "Windows Sandbox or Hyper-V VM with MATLAB inside",
+      "verdict": "VIABLE-WITH-ADMIN-APPROVAL",
+      "covers": ["reference-generator", "historical-answers", "grader-source", "other-arms", "install-roots", "command-execution", "derivable-answers", "historical-trajectories", "shared-matlab-state"],
+      "mechanism": "Snapshot per arm; only the task bundle is mapped read-only; no evaluation assets, skill roots or parent transcript; clipboard/network disabled except an approved license path.",
+      "requires": ["admin feature enablement (may reboot)", "MATLAB license inside VM/sandbox", "20-40 GB disk", "client login inside VM"],
+      "residualRisks": ["hypervisor escape outside scope", "license/toolbox and GPU availability must be verified", "high startup cost"],
+      "acceptanceGate": "V1-V13 all BLOCKED and a positive control readable"
+    },
+    {
+      "id": "C",
+      "name": "remote ephemeral runner (CI/container)",
+      "verdict": "BLOCKED-ENVIRONMENT",
+      "covers": [],
+      "mechanism": "One-shot container/CI job per arm with only the task bundle mounted and a one-way result export.",
+      "requires": ["MATLAB container license and registry access", "authorized remote execution service", "model credentials inside the runner"],
+      "residualRisks": ["without MATLAB the task changes and the benchmark is invalid", "no such service is authorized in this round"],
+      "acceptanceGate": "not applicable while BLOCKED"
+    },
+    {
+      "id": "D",
+      "name": "physical separation / manual one-way transfer",
+      "verdict": "VIABLE-MANUAL",
+      "covers": ["reference-generator", "historical-answers", "grader-source", "other-arms", "install-roots", "command-execution", "derivable-answers", "historical-trajectories", "shared-matlab-state"],
+      "mechanism": "Second machine with MATLAB and no network path to this host; task bundle in by removable media, results out manually.",
+      "requires": ["second machine and MATLAB license", "manual per-arm operation", "manual skill synchronization"],
+      "residualRisks": ["operator error", "not automatable for the current benchmark loop"],
+      "acceptanceGate": "V1-V13 all BLOCKED on the arm machine and a positive control readable"
+    }
+  ],
+  "permissionRequest": {
+    "status": "PENDING",
+    "executed": false,
+    "items": [
+      {"id": "P1", "action": "create standard local user masarm (non-admin)", "requires": "administrator", "impact": "new account and profile", "rollback": "remove account and profile"},
+      {"id": "P2", "action": "verify MATLAB R2026a starts and is licensed under masarm", "requires": "license owner", "impact": "license session", "rollback": "sign out the second identity"},
+      {"id": "P3", "action": "ACL-deny eval answers, historical answers, reference generator to masarm", "requires": "administrator/owner", "impact": "only named files and directories", "rollback": "icacls /save then /restore"},
+      {"id": "P4", "action": "ACL-deny the parent transcript directory to masarm", "requires": "administrator/owner", "impact": "project session directory", "rollback": "icacls /save then /restore"},
+      {"id": "P5", "action": "per-arm workspace and skill root; wipe profile temp state between arms", "requires": "owner", "impact": "new directories", "rollback": "delete new directories"},
+      {"id": "P6", "action": "disable network for the arm identity except an approved license path", "requires": "administrator", "impact": "network policy for that identity", "rollback": "restore policy"},
+      {"id": "P7", "action": "launch the client as masarm and run one single-arm read probe", "requires": "P1-P6", "impact": "one client process", "rollback": "close the process"}
+    ],
+    "notExecutedCommands": [
+      "New-LocalUser -Name masarm -NoPassword",
+      "Add-LocalGroupMember -Group Users -Member masarm",
+      "icacls \"E:\\desktop\\MATLAB-bench-phase56\\eval\" /save <backup> /t",
+      "icacls \"E:\\desktop\\MATLAB-bench-phase56\\eval\" /inheritance:r /grant:r \"23201:(OI)(CI)F\" \"SYSTEM:(OI)(CI)F\""
+    ],
+    "approvalChecklist": [
+      "approve creating a non-admin local account",
+      "confirm the MATLAB license permits a second identity",
+      "approve ACL tightening with backup and rollback",
+      "approve disabling network for the arm identity",
+      "approve a pilot before any Task 5 run"
+    ]
+  },
+  "acceptanceTest": {
+    "mustPassBeforeTask5": true,
+    "vectors": [
+      {"id": "V1-V10", "scope": "historical/current answers, sibling arms, grader, user and repo skills, ACL escalation, static encryption, parent transcript", "required": "BLOCKED"},
+      {"id": "V11", "scope": "MATLAB MCP system() read of evaluation assets or transcript", "required": "BLOCKED"},
+      {"id": "V12", "scope": "answer derivation from generator plus tasks", "required": "BLOCKED"},
+      {"id": "V13", "scope": "shared MATLAB state: canary, path, base variables", "required": "BLOCKED"}
+    ],
+    "positiveControl": "the arm can read its own staged task bundle",
+    "passRule": "0/13 reached and the positive control readable",
+    "postPassRequirements": ["pre-registered sample size", "versioned scoring protocol", "fixed model id and budgets"]
+  },
+  "allowedMeanwhile": ["Task 6 engineering contracts", "Task 7 concurrency and Coder diagnosis", "Task 8 regression and delivery", "EXPLORATORY labels on any existing run"],
+  "forbidden": ["causal Skill-gain claims", "treating the Phase 5.6 replay as a new experiment", "Task 5 before V1-V13 pass", "changing user system directories, ACLs, global configuration or the official MCP server"]
+}

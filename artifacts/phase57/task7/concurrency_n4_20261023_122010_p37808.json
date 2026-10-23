@@ -1,0 +1,107 @@
+{
+  "ok": true,
+  "rounds": {
+    "round": 1,
+    "logs": [
+      "E:\\desktop\\MATLAB\\artifacts\\phase54\\evidence\\concurrency_regression\\20261023_122010_p37808\\round1_proc1.log",
+      "E:\\desktop\\MATLAB\\artifacts\\phase54\\evidence\\concurrency_regression\\20261023_122010_p37808\\round1_proc2.log",
+      "E:\\desktop\\MATLAB\\artifacts\\phase54\\evidence\\concurrency_regression\\20261023_122010_p37808\\round1_proc3.log",
+      "E:\\desktop\\MATLAB\\artifacts\\phase54\\evidence\\concurrency_regression\\20261023_122010_p37808\\round1_proc4.log"
+    ],
+    "sessions": [
+      "r01_p1_20261023_122010_p37808_743132",
+      "r01_p2_20261023_122010_p37808_655478",
+      "r01_p3_20261023_122010_p37808_678735",
+      "r01_p4_20261023_122010_p37808_849129"
+    ],
+    "fixtureDir": [
+      "D:\\Temp\\mas_codegen_tests\\r01_p1_20261023_122010_p37808_743132\\tpcb06160e_2c5e_4897_b0b2_425b1d773a2d\r\ntest_codegen: 13/13 passed",
+      "D:\\Temp\\mas_codegen_tests\\r01_p2_20261023_122010_p37808_655478\\tpf4aa5edd_316c_4e86_9e4a_95db3a06a20d\r\ntest_codegen: 13/13 passed",
+      "D:\\Temp\\mas_codegen_tests\\r01_p3_20261023_122010_p37808_678735\\tpb63a7264_e0d3_445b_9062_e38692524570\r\ntest_codegen: 13/13 passed",
+      "D:\\Temp\\mas_codegen_tests\\r01_p4_20261023_122010_p37808_849129\\tpdc175a11_e34b_4dc1_87e8_83fdbf15aef2\r\ntest_codegen: 13/13 passed"
+    ],
+    "pass": [
+      13,
+      13,
+      13,
+      13
+    ],
+    "total": [
+      13,
+      13,
+      13,
+      13
+    ],
+    "ok": true,
+    "timedOut": false,
+    "sessionInLog": [
+      true,
+      true,
+      true,
+      true
+    ],
+    "crossSession": [
+      false,
+      false,
+      false,
+      false
+    ],
+    "fixtureOwned": [
+      true,
+      true,
+      true,
+      true
+    ],
+    "logSha256": [
+      "287fd9d18def276313f3c0e3cc9cda082af52fe0394525f46bea7c43cbe490b7",
+      "e9a3ed6fb007e2de2a6b2bc2b17b58217f7f8ccafaf036a2eabbf28998c38efc",
+      "b25330a279ae5eabb2d8b430210a52b6bc0c2f545d220a611923df4e8e5f2587",
+      "8c04464dbf42e89c0b84e9706ec6e02921b68e10c217ef75f16b8e5ba61764ef"
+    ]
+  },
+  "residue": {
+    "sharedFixtureDir": false,
+    "cwdMexBefore": [
+      "E:\\desktop\\MATLAB\\codegen_target_mex.mexw64"
+    ],
+    "cwdMex": false,
+    "preExistingMex": [
+      "E:\\desktop\\MATLAB\\codegen_target_mex.mexw64"
+    ],
+    "tempRunDirsBefore": [
+      "tp9dec176f_b7e5_428a_a827_e96782db4694",
+      "tpa2286e8b_a96e_4ba5_8206_5c913ea6238f"
+    ],
+    "tempRunDirs": 0,
+    "tempRunDirsNow": 2,
+    "newTempRunDirs": [],
+    "newRootFiles": [],
+    "sessionDirsLeft": []
+  },
+  "isolation": {
+    "scope": "log identity, fixture/build directory ownership, and residue attribution",
+    "sessionIdPerProcess": true,
+    "sessionInLog": true,
+    "crossSessionContamination": false,
+    "fixtureUnderSessionRoot": true,
+    "sharedFixtureDirAbsent": true,
+    "newRepoMex": false,
+    "newTempDirs": 0,
+    "newRootFiles": [],
+    "sessionDirsLeft": [],
+    "verified": true
+  },
+  "stability": {
+    "nProcs": 4,
+    "roundsComplete": 1,
+    "roundsTotal": 1,
+    "status": "EXPLORATORY",
+    "note": "High-load observation at nProcs >= 4. It is not a controlled stability experiment and a degraded round is recorded without being attributed to resource contention."
+  },
+  "nRounds": 1,
+  "nProcs": 4,
+  "runRoot": "E:\\desktop\\MATLAB\\artifacts\\phase54\\concurrency_runs\\20261023_122010_p37808",
+  "logRoot": "E:\\desktop\\MATLAB\\artifacts\\phase54\\evidence\\concurrency_regression\\20261023_122010_p37808",
+  "runBase": "D:\\Temp\\mas_codegen_tests",
+  "evidenceFile": "E:\\desktop\\MATLAB\\artifacts\\phase57\\task7\\concurrency_n4_20261023_122010_p37808.json"
+}

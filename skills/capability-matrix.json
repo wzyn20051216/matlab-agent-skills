@@ -1,6 +1,6 @@
 {
  "version": "2.0",
- "phase": "5.6 (three-arm same-alias comparison run under a two-phase seal, 9 of 27 planned episodes executed and the shortfall declared; native Skill triggering still NOT EVIDENCED and strong isolation BLOCKED, 2026-10-23)",
+ "phase": "5.7 (read-only install/discovery audit across four clients, v2 scoring replayed against unchanged Phase 5.6 inputs, 26 of 26 leak surfaces reached so strong isolation and Task 5 stay BLOCKED, native automatic Skill triggering still NOT EVIDENCED, 2026-10-23)",
  "date": "2026-10-23",
  "legend": {
   "VERIFIED": "exercised by a run in this repository, with an independent reference or a test that can fail",
@@ -116,6 +116,14 @@
    "ci_pipeline_generation": {
     "status": "NOT TESTED",
     "evidence": "no CI config was generated or executed in this phase"
+   },
+   "read_only_install_audit": {
+    "status": "VERIFIED",
+    "evidence": "test_skill_install_audit.m 25/25: drift is classified per client, a manifest that claims an install which is absent is MISSING, conflicting duplicates are CONFLICT, and every audit run opens files read-only without deleting or overwriting an install root"
+   },
+   "delivery_format_math_separation": {
+    "status": "VERIFIED",
+    "evidence": "test_delivery_check.m 93/93: numeric-valid/format-invalid and format-valid/numeric-invalid are reported separately, verdictCoerced stays false, and a malformed result is never repaired into a pass"
    }
   },
   "matlab-control-optimization": {
@@ -251,7 +259,7 @@
   "matlab-codegen-deploy": {
    "mex_generation_and_golden_comparison": {
     "status": "VERIFIED",
-    "evidence": "test_codegen.m 11/11; mas_codegen_verify runs real codegen -> MSVC 2022 build -> both executed -> compared"
+    "evidence": "test_codegen.m 15/15; mas_codegen_verify runs real codegen -> MSVC 2022 build -> both executed -> compared in a session-scoped directory, and keeps the raw-byte compiler log on failure"
    },
    "static_codegen_readiness_audit": {
     "status": "VERIFIED",
@@ -461,19 +469,62 @@
    "coderChannel": "docs/PHASE5_6_CODER_CHANNEL_ZH.md and artifacts/phase56/coder_channel/coder_diagnosis.json supersede the phase55AgentBenchmark.coderDiagnosis line above: with the entry form held fixed both channels behave identically, so the channel is not the discriminating variable -- the argument form passed to codegen is (a file-name string builds; function-handle forms fail in every channel with an empty-message emlc:compilationError). The Phase 5.5 sentence is left untouched as the record of what that round concluded.",
    "gainClaim": "UNDETERMINED. 3 paired cells, 1 repeat each, 0 ties, all favouring R3 over R1, with R2 matching R3 on 2 of 3. That is not enough to separate skills from noise, and the isolation probe above prevents calling it causal.",
    "evidence": "artifacts/phase56/episodes/{statistics.json,trigger_evidence.json,episodes.json,episode_order.json}, artifacts/phase56/isolation/probe_report.json, artifacts/phase56/freeze/freeze_report.json, docs/PHASE5_6_BENCHMARK_ZH.md"
+  },
+  "phase57Verification": {
+   "status": "PARTIAL",
+   "date": "2026-10-23",
+   "installAudit": {
+    "tool": "mas_skill_install_audit (read-only, test 25/25)",
+    "result": "DRIFTED across 9 skills x 4 clients: qoder 2 current / 7 drifted, codex-cli 5/4, codex-desktop 5/4, workbuddy 0/9; 0 missing, 9 conflicting skills, 20 update recommendations. No install root was modified.",
+    "observedDiscovery": "Qoder reads .qoder-cn/skills (qodercli.log precedence over .agents); Codex CLI and Codex Desktop engine both return 9/9 from .agents/skills via app-server skills/list. WorkBuddy has no skill-list probe here, so its root stays KNOWN but loading UNOBSERVED.",
+    "claimLimit": "a root that exists is not a root the client loads; drift is a file-content difference, not proof that a client loaded a stale copy"
+   },
+   "nativeInvocation": {
+    "L1": "EVIDENCED -- nine SKILL.md exist under skills/.",
+    "L2": "EVIDENCED for Qoder (precedence log plus Skill tool resolution), Codex CLI and Codex Desktop engine (skills/list returns 9 of 9 with no discovery errors).",
+    "L3_auto": "NOT EVIDENCED -- a MATLAB BER task produced only mcp_list/mcp_get/mcp_call and zero Skill events.",
+    "L3_explicit": "EVIDENCED for Qoder -- an explicit Skill request produced a Skill tool event and loaded matlab-orchestrator.",
+    "L4": "NOT TESTED -- the explicit validation forbade MATLAB execution, so no work-product effect is attributable.",
+    "claimLimit": "no client-native automatic Skill trigger was observed; explicit invocation is not auto-selection, and Qoder evidence is not used as Codex evidence"
+   },
+   "scoringV2": {
+    "protocol": "mas-benchmark-scoring/2 and mas-benchmark-grade/2",
+    "replay": "Phase 5.6 stored results rescored without touching the six v1 files or the episode inputs (all hashes unchanged).",
+    "result": "v1 pass R1 0, R2 0, R3 0 -> v2 R1 0/3, R2 2/3, R3 3/3. route/tool are NOT_REQUIRED because neither prompt asked for a skill or a tool, and the R1 arm has no Skills.",
+    "claimLimit": "a retrospective rescore of 3 tasks with one repeat per cell; it corrects the scoring artifact, not the sample size, and is not a Skill-effect measurement"
+   },
+   "isolation": {
+    "strongIsolation": "BLOCKED",
+    "probe": "26 of 26 leak surfaces reached, including sealed answers, eval directories and user-level skill roots.",
+    "task5": "BLOCKED -- no restricted account, VM or one-way delivery environment was authorized, and a prompt prohibition is not enforcement."
+   },
+   "threeArm": {
+    "completed": "No new arm episodes in Phase 5.7. The only three-arm numbers are the Phase 5.6 observations rescored under v2; no causal gain is claimed.",
+    "gainClaim": "UNDETERMINED"
+   },
+   "delivery": {
+    "results": "9 stored Phase 5.6 results re-checked: 9 format-valid, 5 math-valid, 0 numeric-valid/format-invalid, 4 format-valid/numeric-invalid, 0 coerced verdicts, 9/9 agreement with the stored grading.",
+    "separation": "format and mathematics are reported independently; the checker never rewrites a verdict to satisfy the schema."
+   },
+   "coderAndConcurrency": {
+    "isolation": "3 rounds x 2 concurrent processes, all 15/15; own-session-only 6/6, cross-session 0, fixture ownership 6/6, residue 0. The 4-process round is recorded as EXPLORATORY, not as a stability or resource-race claim.",
+    "overlapExhibit": "the Phase 5.6 overlapping-run logs are preserved read-only: 6 logs, all 11/13, no session identity, causation NOT ESTABLISHED.",
+    "coderContract": "file-name string entry PASS with a retained build dir; function-handle entry FAIL at codegen with an actionable message; real link failure FAIL at build with the byte-exact compiler log (LNK2019/LNK1120)."
+   },
+   "evidence": "artifacts/phase57/install/install_audit.json, artifacts/phase57/native/*/verification.json, artifacts/phase57/grading/replay_summary.json, artifacts/phase57/isolation/leak_surface_probe.json, artifacts/phase57/delivery/delivery_audit.json, artifacts/phase57/task7/coder_contract.json, docs/PHASE5_7_*_ZH.md"
   }
  },
  "summary": {
   "capability_counts": {
-   "VERIFIED": 56,
+   "VERIFIED": 58,
    "NOTTESTED": 14,
    "PARTIAL": 3
   },
   "tool_counts": {
-   "VERIFIED": 53
+   "VERIFIED": 56
   },
-  "verified_capabilities": 56,
-  "note": "Counts are COMPUTED from the entries above, not typed in -- mas_capability_check.m fails if they drift. Keys carry no spaces because jsonencode strips them. R1/R2/R3 benchmark ran for real on 2026-10-20 (docs/PHASE4_3_VERIFICATION_ZH.md); the official MATLAB MCP server is reachable over stdio. PARTIAL on the benchmark entry is deliberate: the task scripts are fixed, so it does not yet measure an agent's own skill selection or recovery. Phase 4.5 changed no mas_* tool status, so those counts were unchanged; it added the autonomousExecution block and recorded R1/R2/R3 as UNKNOWN/BLOCKED instead of measured. Phase 5.3 added the four matlab-signal-vision-ai measurement tools verified by test_signal_contract.m 42/42, the seven matlab-data-analysis verification tools verified by test_data_contract.m 118/118, and the four robotics contract tools verified by test_robotics_contract.m 162/162 alongside test_robotics.m 31/31. The Phase 5.3 full regression was 644/644 skill tests over 22 suites, 15/15 references, 15/15 cross-domain tasks and 15/15 pipeline tasks with 0 errored suites; it also ran the isolated benchmark harness 11/11 and a tool-level held-out baseline 9/9. Phase 5.4 added mas_ode_check verified by test_ode_contract.m 56/56 and mas_seg_check/mas_detect_check/mas_image_contract verified by test_vision_contract.m 103/103; the isolated benchmark gained six tool-level ODE/vision tasks (2 normal, 2 boundary, 2 fault) graded 6/6 with 0 false accepts and 0 false rejects, and a real agent episode ran 3/3 normal holdout tasks through the MATLAB MCP with grading on the evaluation side. Tool-level results are not agent-level results, and 6/6 new-domain tasks are not a full-domain success rate. Phase 5.5 ran the first genuinely executed R1/R2/R3 comparison on an identical prompt and budget: all three arms passed the one task run in every arm, so no gain was measured. The R3 full-skill arm then executed all 12 holdout tasks with 10 graded passes, 0 false accepts, 0 false rejects and 4 of 5 UNDETERMINED expectations detected. Client-native Skill triggering appeared in 0 of 14 audited episodes, while workspace-level autonomous discovery of the matching skill happened in 9 of 12 R3 episodes and 9 of 12 executed a mas_* contract tool. An adversarial probe proved that grader isolation is not enforced by the client, so the benchmark stays procedural plus post-hoc transcript audited. Phase 5.6 sealed the answers only after every episode (two-phase publish/commit/seal, 22/22 self-test), ran 9 of 27 planned episodes of a frozen 3x3x1 design with four separately reported labels (correctnessPass R1 0/3, R2 2/3, R3 3/3; withinBudget, taskCompleted and deliveryValid 3/3 in every arm), and still found no native Skill invocation (0 of 12). Strong isolation stays BLOCKED (11 of 11 adversarial vectors reached), so the pair differences are reported as observations, not as a causal gain. Full gate 894/894 over 29 suites."
+  "verified_capabilities": 58,
+  "note": "Counts are COMPUTED from the entries above, not typed in -- mas_capability_check.m fails if they drift. Keys carry no spaces because jsonencode strips them. R1/R2/R3 benchmark ran for real on 2026-10-20 (docs/PHASE4_3_VERIFICATION_ZH.md); the official MATLAB MCP server is reachable over stdio. PARTIAL on the benchmark entry is deliberate: the task scripts are fixed, so it does not yet measure an agent's own skill selection or recovery. Phase 4.5 changed no mas_* tool status, so those counts were unchanged; it added the autonomousExecution block and recorded R1/R2/R3 as UNKNOWN/BLOCKED instead of measured. Phase 5.3 added the four matlab-signal-vision-ai measurement tools verified by test_signal_contract.m 42/42, the seven matlab-data-analysis verification tools verified by test_data_contract.m 118/118, and the four robotics contract tools verified by test_robotics_contract.m 162/162 alongside test_robotics.m 31/31. The Phase 5.3 full regression was 644/644 skill tests over 22 suites, 15/15 references, 15/15 cross-domain tasks and 15/15 pipeline tasks with 0 errored suites; it also ran the isolated benchmark harness 11/11 and a tool-level held-out baseline 9/9. Phase 5.4 added mas_ode_check verified by test_ode_contract.m 56/56 and mas_seg_check/mas_detect_check/mas_image_contract verified by test_vision_contract.m 103/103; the isolated benchmark gained six tool-level ODE/vision tasks (2 normal, 2 boundary, 2 fault) graded 6/6 with 0 false accepts and 0 false rejects, and a real agent episode ran 3/3 normal holdout tasks through the MATLAB MCP with grading on the evaluation side. Tool-level results are not agent-level results, and 6/6 new-domain tasks are not a full-domain success rate. Phase 5.5 ran the first genuinely executed R1/R2/R3 comparison on an identical prompt and budget: all three arms passed the one task run in every arm, so no gain was measured. The R3 full-skill arm then executed all 12 holdout tasks with 10 graded passes, 0 false accepts, 0 false rejects and 4 of 5 UNDETERMINED expectations detected. Client-native Skill triggering appeared in 0 of 14 audited episodes, while workspace-level autonomous discovery of the matching skill happened in 9 of 12 R3 episodes and 9 of 12 executed a mas_* contract tool. An adversarial probe proved that grader isolation is not enforced by the client, so the benchmark stays procedural plus post-hoc transcript audited. Phase 5.6 sealed the answers only after every episode (two-phase publish/commit/seal, 22/22 self-test), ran 9 of 27 planned episodes of a frozen 3x3x1 design with four separately reported labels (correctnessPass R1 0/3, R2 2/3, R3 3/3; withinBudget, taskCompleted and deliveryValid 3/3 in every arm), and still found no native Skill invocation (0 of 12). Strong isolation stays BLOCKED (11 of 11 adversarial vectors reached), so the pair differences are reported as observations, not as a causal gain. Full gate 894/894 over 29 suites. Phase 5.7 audited four clients read-only and found every copied tree drifted (qoder 2 current/7 drifted, codex-cli and codex-desktop 5/4 each, workbuddy 0/9) with no install root modified; Qoder reads .qoder-cn/skills while both Codex clients read .agents/skills. It added mas_skill_install_audit (test_skill_install_audit.m 25/25) and mas_delivery_check (test_delivery_check.m 93/93), rescored the unchanged Phase 5.6 results under protocol v2 (v1 0/0/0 -> v2 R1 0/3, R2 2/3, R3 3/3, route/tool NOT_REQUIRED) without altering inputs or v1 files, reached 26 of 26 leak surfaces so strong isolation and Task 5 stay BLOCKED, and pinned the Coder entry contract (file-name string PASS; function handle FAIL at codegen with a diagnostic; real link failure FAIL at build with a byte-exact compiler log). Concurrency isolation was verified for 2 processes over 3 rounds; the 4-process round is EXPLORATORY only. Full gate 1075/1075 over 32 suites."
  },
  "tools": {
   "mas_codegen_ready": {
@@ -721,6 +772,18 @@
    "status": "VERIFIED",
    "tests": "test_capability_check.m",
    "what": "keeps the matrix honest: every mas_*.m must be listed, owners must match disk, summary counts must be derived, and every VERIFIED claim must cite a test file or a graded task id"
+  },
+  "mas_skill_install_audit": {
+   "skill": "matlab-testing-ci",
+   "status": "VERIFIED",
+   "tests": "test_skill_install_audit.m 25/25",
+   "what": "read-only audit of what each client actually installed and discovered; a root that exists is not a root the client loads, and no client's discovery rule is applied to another"
+  },
+  "mas_delivery_check": {
+   "skill": "matlab-testing-ci",
+   "status": "VERIFIED",
+   "tests": "test_delivery_check.m 93/93",
+   "what": "checks the delivery envelope (schema, enums, units, required fields, legal UNKNOWN/UNDETERMINED) independently of the engineering numbers; a format error never rewrites the verdict"
   },
   "mas_skill_graph": {
    "skill": "matlab-orchestrator",

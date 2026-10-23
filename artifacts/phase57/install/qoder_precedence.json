@@ -1,0 +1,35 @@
+{
+ "schema": "mas-phase57-qoder-precedence/1",
+ "observation": "user-root precedence over shared root",
+ "client": "Qoder (qodercli)",
+ "run": "2026-10-23T11-06-11-480+08-00-dmtb4t-p24844",
+ "logFile": "C:\\Users\\23201\\.qoder-cn\\logs\\runs\\2026-10-23T11-06-11-480+08-00-dmtb4t-p24844\\qodercli.log",
+ "logSha256": "2fcd9f37ba6ed727ef1d85dabd1bde0bea6cfe228a3385f224a2518a723f46a9",
+ "lineNumbers": [
+  677,
+  678,
+  679,
+  680,
+  681,
+  682,
+  683
+ ],
+ "lines": [
+  "2026-10-23T11:06:16.233+08:00 WARN  debug.message Skill \"matlab-codegen-deploy\" from \"C:\\Users\\23201\\.qoder-cn\\skills\\matlab-codegen-deploy\\SKILL.md\" overrides same-source skill at \"C:\\Users\\23201\\.agents\\skills\\matlab-codegen-deploy\\SKILL.md\" (source: user).",
+  "2026-10-23T11:06:16.233+08:00 WARN  debug.message Skill \"matlab-control-optimization\" from \"C:\\Users\\23201\\.qoder-cn\\skills\\matlab-control-optimization\\SKILL.md\" overrides same-source skill at \"C:\\Users\\23201\\.agents\\skills\\matlab-control-optimization\\SKILL.md\" (source: user).",
+  "2026-10-23T11:06:16.233+08:00 WARN  debug.message Skill \"matlab-data-analysis\" from \"C:\\Users\\23201\\.qoder-cn\\skills\\matlab-data-analysis\\SKILL.md\" overrides same-source skill at \"C:\\Users\\23201\\.agents\\skills\\matlab-data-analysis\\SKILL.md\" (source: user).",
+  "2026-10-23T11:06:16.233+08:00 WARN  debug.message Skill \"matlab-robotics-autonomy\" from \"C:\\Users\\23201\\.qoder-cn\\skills\\matlab-robotics-autonomy\\SKILL.md\" overrides same-source skill at \"C:\\Users\\23201\\.agents\\skills\\matlab-robotics-autonomy\\SKILL.md\" (source: user).",
+  "2026-10-23T11:06:16.233+08:00 WARN  debug.message Skill \"matlab-runner\" from \"C:\\Users\\23201\\.qoder-cn\\skills\\matlab-runner\\SKILL.md\" overrides same-source skill at \"C:\\Users\\23201\\.agents\\skills\\matlab-runner\\SKILL.md\" (source: user).",
+  "2026-10-23T11:06:16.233+08:00 WARN  debug.message Skill \"matlab-signal-vision-ai\" from \"C:\\Users\\23201\\.qoder-cn\\skills\\matlab-signal-vision-ai\\SKILL.md\" overrides same-source skill at \"C:\\Users\\23201\\.agents\\skills\\matlab-signal-vision-ai\\SKILL.md\" (source: user).",
+  "2026-10-23T11:06:16.233+08:00 WARN  debug.message Skill \"matlab-testing-ci\" from \"C:\\Users\\23201\\.qoder-cn\\skills\\matlab-testing-ci\\SKILL.md\" overrides same-source skill at \"C:\\Users\\23201\\.agents\\skills\\matlab-testing-ci\\SKILL.md\" (source: user)."
+ ],
+ "interpretation": [
+  "a skill present in both C:/Users/23201/.qoder-cn/skills and C:/Users/23201/.agents/skills is loaded from .qoder-cn",
+  "this is the client's own precedence log, not an inference from directory order",
+  "it does not prove that the loaded copy equals the repository copy; the install audit measures that separately"
+ ],
+ "notProven": [
+  "project-level .qoder/skills precedence (root absent on this machine)",
+  "that the same precedence applies to any other client"
+ ]
+}

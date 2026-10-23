@@ -1,0 +1,391 @@
+{
+  "phase": "5.7",
+  "task": 7,
+  "generatedAt": "2026-10-23 12:34:15",
+  "matlabVersion": "26.1.0.3276743 (R2026a) Update 3",
+  "compiler": "Microsoft Visual C++ 2022 (C)",
+  "phase56Overlap": {
+    "dir": "E:\\desktop\\MATLAB\\artifacts\\phase54\\evidence\\concurrency_regression\\20261022_230327",
+    "available": true,
+    "preserved": true,
+    "files": [
+      {
+        "name": "round1_proc1.log",
+        "bytes": 757,
+        "sha256": "8fcee464dc095ded17fce565a4db1ac3206d21d0df7bb1f9898e5e1bed0fb79d",
+        "pass": 11,
+        "total": 13,
+        "failedCases": [
+          "verify: PASS on a real function",
+          "verify: FAIL via goldenFcn mismatch"
+        ]
+      },
+      {
+        "name": "round1_proc2.log",
+        "bytes": 757,
+        "sha256": "8fcee464dc095ded17fce565a4db1ac3206d21d0df7bb1f9898e5e1bed0fb79d",
+        "pass": 11,
+        "total": 13,
+        "failedCases": [
+          "verify: PASS on a real function",
+          "verify: FAIL via goldenFcn mismatch"
+        ]
+      },
+      {
+        "name": "round2_proc1.log",
+        "bytes": 757,
+        "sha256": "8fcee464dc095ded17fce565a4db1ac3206d21d0df7bb1f9898e5e1bed0fb79d",
+        "pass": 11,
+        "total": 13,
+        "failedCases": [
+          "verify: PASS on a real function",
+          "verify: FAIL via goldenFcn mismatch"
+        ]
+      },
+      {
+        "name": "round2_proc2.log",
+        "bytes": 757,
+        "sha256": "8fcee464dc095ded17fce565a4db1ac3206d21d0df7bb1f9898e5e1bed0fb79d",
+        "pass": 11,
+        "total": 13,
+        "failedCases": [
+          "verify: PASS on a real function",
+          "verify: FAIL via goldenFcn mismatch"
+        ]
+      },
+      {
+        "name": "round3_proc1.log",
+        "bytes": 757,
+        "sha256": "8fcee464dc095ded17fce565a4db1ac3206d21d0df7bb1f9898e5e1bed0fb79d",
+        "pass": 11,
+        "total": 13,
+        "failedCases": [
+          "verify: PASS on a real function",
+          "verify: FAIL via goldenFcn mismatch"
+        ]
+      },
+      {
+        "name": "round3_proc2.log",
+        "bytes": 757,
+        "sha256": "8fcee464dc095ded17fce565a4db1ac3206d21d0df7bb1f9898e5e1bed0fb79d",
+        "pass": 11,
+        "total": 13,
+        "failedCases": [
+          "verify: PASS on a real function",
+          "verify: FAIL via goldenFcn mismatch"
+        ]
+      }
+    ],
+    "identicalContent": true,
+    "summary": "6 logs, 6 x 11/13, identical content=1. The two failing cases are the build-dependent ones (verify PASS and goldenFcn mismatch); the logs print case names only -- Phase 5.6 fixed that reporting gap afterwards.",
+    "attribution": "NOT POSSIBLE: these logs carry no session or process id, so a log cannot be tied to the process that wrote it.",
+    "causation": "NOT ESTABLISHED",
+    "interpretation": "Six logs, all 11/13, byte-identical, from two overlapping drivers. This is consistent with interference between concurrent runs, but the drivers were not isolated and no controlled comparison exists, so resource contention is not asserted. The data is preserved as an observed degradation only and is not used as a formal conclusion."
+  },
+  "isolationRun": {
+    "ok": true,
+    "rounds": [
+      {
+        "round": 1,
+        "logs": [
+          "E:\\desktop\\MATLAB\\artifacts\\phase54\\evidence\\concurrency_regression\\20261023_123058_p38656\\round1_proc1.log",
+          "E:\\desktop\\MATLAB\\artifacts\\phase54\\evidence\\concurrency_regression\\20261023_123058_p38656\\round1_proc2.log"
+        ],
+        "sessions": [
+          "r01_p1_20261023_123058_p38656_126987",
+          "r01_p2_20261023_123058_p38656_632359"
+        ],
+        "fixtureDir": [
+          "D:\\Temp\\mas_codegen_tests\\r01_p1_20261023_123058_p38656_126987\\tp196a2d2c_84ed_4146_8a3d_22d9bac127f1\r\ntest_codegen: 15/15 passed",
+          "D:\\Temp\\mas_codegen_tests\\r01_p2_20261023_123058_p38656_632359\\tp23fb1c68_c088_47ce_9a29_874a66646b08\r\ntest_codegen: 15/15 passed"
+        ],
+        "pass": [
+          15,
+          15
+        ],
+        "total": [
+          15,
+          15
+        ],
+        "ok": true,
+        "timedOut": false,
+        "sessionInLog": [
+          true,
+          true
+        ],
+        "crossSession": [
+          false,
+          false
+        ],
+        "fixtureOwned": [
+          true,
+          true
+        ],
+        "logSha256": [
+          "778558821b86f9ea2879f8ceee87a572c7e163271e1acb764a24f01e69e34306",
+          "d515b19715435c6b2d95e763903fda2593b3d4993fd6703495e48d2dff44b543"
+        ]
+      },
+      {
+        "round": 2,
+        "logs": [
+          "E:\\desktop\\MATLAB\\artifacts\\phase54\\evidence\\concurrency_regression\\20261023_123058_p38656\\round2_proc1.log",
+          "E:\\desktop\\MATLAB\\artifacts\\phase54\\evidence\\concurrency_regression\\20261023_123058_p38656\\round2_proc2.log"
+        ],
+        "sessions": [
+          "r02_p1_20261023_123058_p38656_957506",
+          "r02_p2_20261023_123058_p38656_157613"
+        ],
+        "fixtureDir": [
+          "D:\\Temp\\mas_codegen_tests\\r02_p1_20261023_123058_p38656_957506\\tp9fdddb1e_1b04_45ea_a994_d03db73639fd\r\ntest_codegen: 15/15 passed",
+          "D:\\Temp\\mas_codegen_tests\\r02_p2_20261023_123058_p38656_157613\\tp2e7e8900_147f_44a8_b93e_db1616b7ce56\r\ntest_codegen: 15/15 passed"
+        ],
+        "pass": [
+          15,
+          15
+        ],
+        "total": [
+          15,
+          15
+        ],
+        "ok": true,
+        "timedOut": false,
+        "sessionInLog": [
+          true,
+          true
+        ],
+        "crossSession": [
+          false,
+          false
+        ],
+        "fixtureOwned": [
+          true,
+          true
+        ],
+        "logSha256": [
+          "5b56f370b7c409a2fa30d0450ca491e8dcbf17de959951d73e070df947c19600",
+          "e07918c060ff7b5198592d950152c665db16d7ddce966b7e1b41cced65504d61"
+        ]
+      },
+      {
+        "round": 3,
+        "logs": [
+          "E:\\desktop\\MATLAB\\artifacts\\phase54\\evidence\\concurrency_regression\\20261023_123058_p38656\\round3_proc1.log",
+          "E:\\desktop\\MATLAB\\artifacts\\phase54\\evidence\\concurrency_regression\\20261023_123058_p38656\\round3_proc2.log"
+        ],
+        "sessions": [
+          "r03_p1_20261023_123058_p38656_421761",
+          "r03_p2_20261023_123058_p38656_800280"
+        ],
+        "fixtureDir": [
+          "D:\\Temp\\mas_codegen_tests\\r03_p1_20261023_123058_p38656_421761\\tpde74ebeb_64ee_444f_983e_d7ffe5e98b07\r\ntest_codegen: 15/15 passed",
+          "D:\\Temp\\mas_codegen_tests\\r03_p2_20261023_123058_p38656_800280\\tpb04ebbc8_9cd8_4d52_83d7_14ce21aa2616\r\ntest_codegen: 15/15 passed"
+        ],
+        "pass": [
+          15,
+          15
+        ],
+        "total": [
+          15,
+          15
+        ],
+        "ok": true,
+        "timedOut": false,
+        "sessionInLog": [
+          true,
+          true
+        ],
+        "crossSession": [
+          false,
+          false
+        ],
+        "fixtureOwned": [
+          true,
+          true
+        ],
+        "logSha256": [
+          "e020b96463d57c7086744c02314cf7699b371e3700e14f400741ee359bfac4b1",
+          "5afc63b7cf8e776befb1ee93e89571e743320ef5d06f48753f89d62b02b9f2e7"
+        ]
+      }
+    ],
+    "residue": {
+      "sharedFixtureDir": false,
+      "cwdMexBefore": [
+        "E:\\desktop\\MATLAB\\codegen_target_mex.mexw64"
+      ],
+      "cwdMex": false,
+      "preExistingMex": [
+        "E:\\desktop\\MATLAB\\codegen_target_mex.mexw64"
+      ],
+      "tempRunDirsBefore": [
+        "tp9dec176f_b7e5_428a_a827_e96782db4694",
+        "tpa2286e8b_a96e_4ba5_8206_5c913ea6238f"
+      ],
+      "tempRunDirs": 0,
+      "tempRunDirsNow": 2,
+      "newTempRunDirs": [],
+      "newRootFiles": [],
+      "sessionDirsLeft": []
+    },
+    "isolation": {
+      "scope": "log identity, fixture/build directory ownership, and residue attribution",
+      "sessionIdPerProcess": true,
+      "sessionInLog": true,
+      "crossSessionContamination": false,
+      "fixtureUnderSessionRoot": true,
+      "sharedFixtureDirAbsent": true,
+      "newRepoMex": false,
+      "newTempDirs": 0,
+      "newRootFiles": [],
+      "sessionDirsLeft": [],
+      "verified": true
+    },
+    "stability": {
+      "nProcs": 2,
+      "roundsComplete": 3,
+      "roundsTotal": 3,
+      "status": "NOT CLAIMED",
+      "note": "Isolation is verified at this concurrency; numerical stability under high load is a separate question and is not claimed by this run."
+    },
+    "nRounds": 3,
+    "nProcs": 2,
+    "runRoot": "E:\\desktop\\MATLAB\\artifacts\\phase54\\concurrency_runs\\20261023_123058_p38656",
+    "logRoot": "E:\\desktop\\MATLAB\\artifacts\\phase54\\evidence\\concurrency_regression\\20261023_123058_p38656",
+    "runBase": "D:\\Temp\\mas_codegen_tests",
+    "evidenceFile": "E:\\desktop\\MATLAB\\artifacts\\phase57\\task7\\concurrency_n2_20261023_123058_p38656.json"
+  },
+  "stressObservation": {
+    "status": "EXPLORATORY",
+    "note": "High-load observation only. A degraded round here is recorded as an observation, not attributed to resource contention; no controlled comparison was run.",
+    "result": {
+      "ok": true,
+      "rounds": {
+        "round": 1,
+        "logs": [
+          "E:\\desktop\\MATLAB\\artifacts\\phase54\\evidence\\concurrency_regression\\20261023_123318_p38656\\round1_proc1.log",
+          "E:\\desktop\\MATLAB\\artifacts\\phase54\\evidence\\concurrency_regression\\20261023_123318_p38656\\round1_proc2.log",
+          "E:\\desktop\\MATLAB\\artifacts\\phase54\\evidence\\concurrency_regression\\20261023_123318_p38656\\round1_proc3.log",
+          "E:\\desktop\\MATLAB\\artifacts\\phase54\\evidence\\concurrency_regression\\20261023_123318_p38656\\round1_proc4.log"
+        ],
+        "sessions": [
+          "r01_p1_20261023_123318_p38656_743132",
+          "r01_p2_20261023_123318_p38656_655478",
+          "r01_p3_20261023_123318_p38656_678735",
+          "r01_p4_20261023_123318_p38656_849129"
+        ],
+        "fixtureDir": [
+          "D:\\Temp\\mas_codegen_tests\\r01_p1_20261023_123318_p38656_743132\\tp20ce0801_2652_4593_840d_bffebe7755d5\r\ntest_codegen: 15/15 passed",
+          "D:\\Temp\\mas_codegen_tests\\r01_p2_20261023_123318_p38656_655478\\tpc2193e11_4821_4e99_be88_aa3837adf9a3\r\ntest_codegen: 15/15 passed",
+          "D:\\Temp\\mas_codegen_tests\\r01_p3_20261023_123318_p38656_678735\\tp679fd096_1a47_4e6c_bf7c_3ae376ceb1a6\r\ntest_codegen: 15/15 passed",
+          "D:\\Temp\\mas_codegen_tests\\r01_p4_20261023_123318_p38656_849129\\tpc1652202_e860_4afa_810f_242367ad7d20\r\ntest_codegen: 15/15 passed"
+        ],
+        "pass": [
+          15,
+          15,
+          15,
+          15
+        ],
+        "total": [
+          15,
+          15,
+          15,
+          15
+        ],
+        "ok": true,
+        "timedOut": false,
+        "sessionInLog": [
+          true,
+          true,
+          true,
+          true
+        ],
+        "crossSession": [
+          false,
+          false,
+          false,
+          false
+        ],
+        "fixtureOwned": [
+          true,
+          true,
+          true,
+          true
+        ],
+        "logSha256": [
+          "ae0ec25d234648fd3743e6842f3933f09d976ebcd6f309d13c5bf7abad7c1397",
+          "23b982118c77ed614662d68b8bc20a44776303afdcb52357c5e865d0d059aab9",
+          "b8c720816445cb5915df10a0f0bf96f5885860af7656abaeebb926eace4b5530",
+          "7cd1ab8fed70eb5edcb86de5bf7e0e930e851b526d7a281a45dc8325d16abc8f"
+        ]
+      },
+      "residue": {
+        "sharedFixtureDir": false,
+        "cwdMexBefore": [
+          "E:\\desktop\\MATLAB\\codegen_target_mex.mexw64"
+        ],
+        "cwdMex": false,
+        "preExistingMex": [
+          "E:\\desktop\\MATLAB\\codegen_target_mex.mexw64"
+        ],
+        "tempRunDirsBefore": [
+          "tp9dec176f_b7e5_428a_a827_e96782db4694",
+          "tpa2286e8b_a96e_4ba5_8206_5c913ea6238f"
+        ],
+        "tempRunDirs": 0,
+        "tempRunDirsNow": 2,
+        "newTempRunDirs": [],
+        "newRootFiles": [],
+        "sessionDirsLeft": []
+      },
+      "isolation": {
+        "scope": "log identity, fixture/build directory ownership, and residue attribution",
+        "sessionIdPerProcess": true,
+        "sessionInLog": true,
+        "crossSessionContamination": false,
+        "fixtureUnderSessionRoot": true,
+        "sharedFixtureDirAbsent": true,
+        "newRepoMex": false,
+        "newTempDirs": 0,
+        "newRootFiles": [],
+        "sessionDirsLeft": [],
+        "verified": true
+      },
+      "stability": {
+        "nProcs": 4,
+        "roundsComplete": 1,
+        "roundsTotal": 1,
+        "status": "EXPLORATORY",
+        "note": "High-load observation at nProcs >= 4. It is not a controlled stability experiment and a degraded round is recorded without being attributed to resource contention."
+      },
+      "nRounds": 1,
+      "nProcs": 4,
+      "runRoot": "E:\\desktop\\MATLAB\\artifacts\\phase54\\concurrency_runs\\20261023_123318_p38656",
+      "logRoot": "E:\\desktop\\MATLAB\\artifacts\\phase54\\evidence\\concurrency_regression\\20261023_123318_p38656",
+      "runBase": "D:\\Temp\\mas_codegen_tests",
+      "evidenceFile": "E:\\desktop\\MATLAB\\artifacts\\phase57\\task7\\concurrency_n4_20261023_123318_p38656.json"
+    }
+  },
+  "isolation": {
+    "scope": "log identity, fixture/build directory ownership, and residue attribution",
+    "sessionIdPerProcess": true,
+    "sessionInLog": true,
+    "crossSessionContamination": false,
+    "fixtureUnderSessionRoot": true,
+    "sharedFixtureDirAbsent": true,
+    "newRepoMex": false,
+    "newTempDirs": 0,
+    "newRootFiles": [],
+    "sessionDirsLeft": [],
+    "verified": true
+  },
+  "stability": {
+    "nProcs": 2,
+    "roundsComplete": 3,
+    "roundsTotal": 3,
+    "status": "NOT CLAIMED",
+    "note": "Isolation is verified at this concurrency; numerical stability under high load is a separate question and is not claimed by this run."
+  },
+  "pass": true,
+  "evidenceFile": "E:\\desktop\\MATLAB\\artifacts\\phase57\\task7\\concurrency_evidence_20261023_123056_p38656.json"
+}

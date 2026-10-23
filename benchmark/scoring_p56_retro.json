@@ -1,0 +1,64 @@
+{
+ "schema": "mas-benchmark-scoring/2",
+ "protocolVersion": "2.0",
+ "name": "Phase 5.6 retrospective replay under conditional scoring",
+ "replayOf": "phase56",
+ "createdAt": "2026-10-23",
+ "purpose": "Score the stored Phase 5.6 results under protocol v2 without changing the frozen v1 grades or the historical reports. This file declares what each task actually required; it does not add requirements after seeing the results.",
+ "rules": [
+  "route is scored only when the task requires routing AND the arm has Skills",
+  "tool is scored only when the task requires a tool AND the arm has that tool",
+  "a requirement that applies but has no recorded evidence is UNRECORDED and makes the task UNDETERMINED",
+  "NOT_REQUIRED and NOT_APPLICABLE_ARM are reported but excluded from the denominator",
+  "a missing result is MISSING, never a false reject and never a pass"
+ ],
+ "requireArmDeclaration": true,
+ "defaults": {
+  "routeRequired": false,
+  "toolRequired": false
+ },
+ "arms": {
+  "R1": {
+   "hasSkills": false,
+   "hasTools": false,
+   "reason": "Phase 5.6 staged 3 files: no SKILL.md and no .m tool; a missing capability cannot be required"
+  },
+  "R2": {
+   "hasSkills": false,
+   "hasTools": false,
+   "reason": "Phase 5.6 staged 23 documentation files (21 .md, 0 .m): knowledge documents, not an invocable Skill"
+  },
+  "R3": {
+   "hasSkills": true,
+   "hasTools": true,
+   "reason": "Phase 5.6 staged 79 files including SKILL.md and 54 mas_*.m tools"
+  }
+ },
+ "tasks": {
+  "P56-SIG-B": {
+   "routeRequired": false,
+   "toolRequired": false,
+   "routeReason": "the prompt asked for a judgement and a JSON object; it neither named a Skill nor asked for a route decision",
+   "toolReason": "the prompt allowed MATLAB but did not require a named tool or a tool declaration"
+  },
+  "P56-ODE-N": {
+   "routeRequired": false,
+   "toolRequired": false,
+   "routeReason": "the prompt asked for numerical fields; routing was not part of the deliverable",
+   "toolReason": "the prompt did not require a named tool or a tool declaration"
+  },
+  "P56-SIG-F": {
+   "routeRequired": false,
+   "toolRequired": false,
+   "routeReason": "the prompt asked for a verdict and statistics; routing was not part of the deliverable",
+   "toolReason": "the prompt did not require a named tool or a tool declaration"
+  }
+ },
+ "separationFromV1": {
+  "v1Grader": "benchmark/benchmark_grade.m (schema mas-benchmark-grade/1)",
+  "v1Results": "E:/desktop/MATLAB-bench-phase56/eval/grade_R1.json .. grade_R3.json",
+  "rule": "v1 files are read-only inputs to the comparison; v2 writes to artifacts/phase57/grading and never rewrites a v1 grade",
+  "whyV1ReportedZero": "v1 required routeOk && toolOk for every task while the prompts asked for neither; Phase 5.6 reported this as a criterion mismatch rather than changing v1 after the fact"
+ },
+ "claimLimit": "n=3 tasks, one primary result per arm, and some arms were repeated. This replay can show whether the fields and verdicts were right; it cannot measure a Skill effect, a confidence interval, or a success rate for the holdout."
+}

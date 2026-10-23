@@ -164,6 +164,34 @@ for k = 1:numel(cf)
         mism{end+1} = sprintf('%s claimed %d actual %d', cf{k}, claimed.(cf{k}), actual); %#ok<AGROW>
     end
 end
+% tool_counts was not validated by the first version, and by Phase 5.7 it still
+% said 53 while all 54 listed tools were VERIFIED. An unvalidated count is a
+% count that drifts, so the same derivation is applied to the tool entries.
+if isfield(M.summary, 'tool_counts')
+    tcnt = containers.Map('KeyType', 'char', 'ValueType', 'double');
+    for k = 1:numel(need)
+        tcnt(need{k}) = 0;
+        tcnt(strrep(need{k}, ' ', '')) = 0;
+    end
+    tf = fieldnames(M.tools);
+    for k = 1:numel(tf)
+        info = M.tools.(tf{k});
+        if isstruct(info) && isfield(info, 'status') && isKey(tcnt, info.status)
+            tcnt(info.status) = tcnt(info.status) + 1;
+            tcnt(strrep(info.status, ' ', '')) = tcnt(info.status);
+        end
+    end
+    claimedT = M.summary.tool_counts;
+    ctf = fieldnames(claimedT);
+    for k = 1:numel(ctf)
+        actual = 0;
+        if isKey(tcnt, ctf{k}), actual = tcnt(ctf{k}); end
+        if actual ~= claimedT.(ctf{k})
+            mism{end+1} = sprintf('tool %s claimed %d actual %d', ...
+                ctf{k}, claimedT.(ctf{k}), actual); %#ok<AGROW>
+        end
+    end
+end
     C(end+1) = struct('id', 'summary', 'pass', isempty(mism), ...
         'detail', tern(isempty(mism), 'counts match the entries', strjoin(mism, '; ')));
 end

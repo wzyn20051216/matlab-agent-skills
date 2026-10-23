@@ -1,0 +1,9 @@
+[2m2026-10-23T03:33:29.380114Z[0m [31mERROR[0m [2mcodex_app_server[0m[2m:[0m Project-local config, hooks, and exec policies are disabled in the following folders until the project is trusted, but skills still load.
+    1. E:\desktop\MATLAB\.codex
+       To load project-local config, hooks, and exec policies, add e:\desktop\matlab as a trusted project in C:\Users\23201\.codex\config.toml.
+
+[2m2026-10-23T03:33:29.380219Z[0m [31mERROR[0m [2mcodex_app_server[0m[2m:[0m Codex is ignoring 4 unrecognized configuration settings. Check for typos or deprecated settings.
+  user (C:\Users\23201\.codex\config.toml): `base_url` is ignored.
+  user (C:\Users\23201\.codex\config.toml): `disable_response_storage` is ignored.
+  user (C:\Users\23201\.codex\config.toml): `experimental_bearer_token` is ignored.
+  ... and 1 more ignored settings.

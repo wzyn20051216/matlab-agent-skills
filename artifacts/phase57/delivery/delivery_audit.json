@@ -1,0 +1,232 @@
+{
+  "schema": "mas-phase57-delivery-audit/1",
+  "generatedAt": "2026-10-23 12:09:02",
+  "evalDir": "E:\\desktop\\MATLAB-bench-phase56\\eval",
+  "profile": "mas-result/1-legacy",
+  "claimLimit": "stored results re-checked for delivery consistency; not a new experiment and not evidence of a Skill effect",
+  "nResults": 9,
+  "nExecuted": 9,
+  "nFormatValid": 9,
+  "nMathValid": 5,
+  "nNumericValidFormatInvalid": 0,
+  "nFormatValidNumericInvalid": 4,
+  "agreement": {
+    "nCompared": 9,
+    "nAgree": 9,
+    "disagreements": []
+  },
+  "inputsUnchanged": true,
+  "inputFiles": [
+    "E:\\desktop\\MATLAB-bench-phase56\\eval\\answers.json",
+    "E:\\desktop\\MATLAB-bench-phase56\\eval\\tasks_frozen.json",
+    "E:\\desktop\\MATLAB-bench-phase56\\eval\\arm_R1\\result_P56-SIG-B.json",
+    "E:\\desktop\\MATLAB-bench-phase56\\eval\\arm_R1\\result_P56-ODE-N.json",
+    "E:\\desktop\\MATLAB-bench-phase56\\eval\\arm_R1\\result_P56-SIG-F.json",
+    "E:\\desktop\\MATLAB-bench-phase56\\eval\\arm_R2\\result_P56-SIG-B.json",
+    "E:\\desktop\\MATLAB-bench-phase56\\eval\\arm_R2\\result_P56-ODE-N.json",
+    "E:\\desktop\\MATLAB-bench-phase56\\eval\\arm_R2\\result_P56-SIG-F.json",
+    "E:\\desktop\\MATLAB-bench-phase56\\eval\\arm_R3\\result_P56-SIG-B.json",
+    "E:\\desktop\\MATLAB-bench-phase56\\eval\\arm_R3\\result_P56-ODE-N.json",
+    "E:\\desktop\\MATLAB-bench-phase56\\eval\\arm_R3\\result_P56-SIG-F.json"
+  ],
+  "inputsSha256": [
+    "5397be4bf001d65b5dae42d1f93665e075b023f4b5240714a909426df634fd2c",
+    "6b528da1c62f2cd4d171b859e7a713c8577b67fde3a591c82cd495a75e429d4b",
+    "e616226137c448d40a9571cb7eddbd9afe8e8614d7e332ce5a70c0c7ad9b141f",
+    "d084138c981852f967d082e05bad2de10b93bd5389ccd086e7aae083a99b55b0",
+    "dc78f9345cb35af7af2484ec0d4f61f1eb6fb2d862fd689c6a49abdee4947016",
+    "8c45b35a1de8739567eb2e51b1baa1619fd6524493f4b3d3a557fd1d71ffd69a",
+    "12df5b9140a6758253b589adc6107687ee980fab1146450c98366383d4adad01",
+    "3d38d8be872cfb3af5fed4d7488cc6c062e63ed21a61eeddb130f06ecd6fb3f1",
+    "f68f51b4f2b062f23b18a0317bdcff46293b8399bd5c1922b90063e934f4b0b4",
+    "57e330a2ccec90143190ad565fa2343c6a241a320473230099ad8725f03e955e",
+    "202da6060de067d7256559644d8aea79621cd52b0296c310d922a4e1421209a8"
+  ],
+  "perArm": [
+    {
+      "arm": "R1",
+      "n": 3,
+      "formatPass": 3,
+      "mathPass": 0,
+      "verdictPass": 3,
+      "overallPass": 0,
+      "numericValidFormatInvalid": 0,
+      "formatValidNumericInvalid": 3
+    },
+    {
+      "arm": "R2",
+      "n": 3,
+      "formatPass": 3,
+      "mathPass": 2,
+      "verdictPass": 3,
+      "overallPass": 2,
+      "numericValidFormatInvalid": 0,
+      "formatValidNumericInvalid": 1
+    },
+    {
+      "arm": "R3",
+      "n": 3,
+      "formatPass": 3,
+      "mathPass": 3,
+      "verdictPass": 3,
+      "overallPass": 3,
+      "numericValidFormatInvalid": 0,
+      "formatValidNumericInvalid": 0
+    }
+  ],
+  "rows": [
+    {
+      "arm": "R1",
+      "taskId": "P56-SIG-B",
+      "overall": "FAIL",
+      "format": "PASS",
+      "required": "PASS",
+      "enums": "PASS",
+      "units": "NOT_REQUIRED",
+      "verdict": "PASS",
+      "math": "FAIL",
+      "budget": "NOT_REQUIRED",
+      "reference": "NOT_REQUIRED",
+      "numericValidFormatInvalid": false,
+      "formatValidNumericInvalid": true,
+      "errorCodes": [
+        "MATH_MISMATCH"
+      ]
+    },
+    {
+      "arm": "R1",
+      "taskId": "P56-ODE-N",
+      "overall": "FAIL",
+      "format": "PASS",
+      "required": "PASS",
+      "enums": "PASS",
+      "units": "NOT_REQUIRED",
+      "verdict": "PASS",
+      "math": "FAIL",
+      "budget": "NOT_REQUIRED",
+      "reference": "NOT_REQUIRED",
+      "numericValidFormatInvalid": false,
+      "formatValidNumericInvalid": true,
+      "errorCodes": [
+        "MATH_MISMATCH"
+      ]
+    },
+    {
+      "arm": "R1",
+      "taskId": "P56-SIG-F",
+      "overall": "FAIL",
+      "format": "PASS",
+      "required": "PASS",
+      "enums": "PASS",
+      "units": "NOT_REQUIRED",
+      "verdict": "PASS",
+      "math": "FAIL",
+      "budget": "NOT_REQUIRED",
+      "reference": "NOT_REQUIRED",
+      "numericValidFormatInvalid": false,
+      "formatValidNumericInvalid": true,
+      "errorCodes": [
+        "MATH_MISMATCH"
+      ]
+    },
+    {
+      "arm": "R2",
+      "taskId": "P56-SIG-B",
+      "overall": "PASS",
+      "format": "PASS",
+      "required": "PASS",
+      "enums": "PASS",
+      "units": "NOT_REQUIRED",
+      "verdict": "PASS",
+      "math": "PASS",
+      "budget": "NOT_REQUIRED",
+      "reference": "NOT_REQUIRED",
+      "numericValidFormatInvalid": false,
+      "formatValidNumericInvalid": false,
+      "errorCodes": []
+    },
+    {
+      "arm": "R2",
+      "taskId": "P56-ODE-N",
+      "overall": "FAIL",
+      "format": "PASS",
+      "required": "PASS",
+      "enums": "PASS",
+      "units": "NOT_REQUIRED",
+      "verdict": "PASS",
+      "math": "FAIL",
+      "budget": "NOT_REQUIRED",
+      "reference": "NOT_REQUIRED",
+      "numericValidFormatInvalid": false,
+      "formatValidNumericInvalid": true,
+      "errorCodes": [
+        "MATH_MISMATCH"
+      ]
+    },
+    {
+      "arm": "R2",
+      "taskId": "P56-SIG-F",
+      "overall": "PASS",
+      "format": "PASS",
+      "required": "PASS",
+      "enums": "PASS",
+      "units": "NOT_REQUIRED",
+      "verdict": "PASS",
+      "math": "PASS",
+      "budget": "NOT_REQUIRED",
+      "reference": "NOT_REQUIRED",
+      "numericValidFormatInvalid": false,
+      "formatValidNumericInvalid": false,
+      "errorCodes": []
+    },
+    {
+      "arm": "R3",
+      "taskId": "P56-SIG-B",
+      "overall": "PASS",
+      "format": "PASS",
+      "required": "PASS",
+      "enums": "PASS",
+      "units": "NOT_REQUIRED",
+      "verdict": "PASS",
+      "math": "PASS",
+      "budget": "NOT_REQUIRED",
+      "reference": "NOT_REQUIRED",
+      "numericValidFormatInvalid": false,
+      "formatValidNumericInvalid": false,
+      "errorCodes": []
+    },
+    {
+      "arm": "R3",
+      "taskId": "P56-ODE-N",
+      "overall": "PASS",
+      "format": "PASS",
+      "required": "PASS",
+      "enums": "PASS",
+      "units": "NOT_REQUIRED",
+      "verdict": "PASS",
+      "math": "PASS",
+      "budget": "NOT_REQUIRED",
+      "reference": "NOT_REQUIRED",
+      "numericValidFormatInvalid": false,
+      "formatValidNumericInvalid": false,
+      "errorCodes": []
+    },
+    {
+      "arm": "R3",
+      "taskId": "P56-SIG-F",
+      "overall": "PASS",
+      "format": "PASS",
+      "required": "PASS",
+      "enums": "PASS",
+      "units": "NOT_REQUIRED",
+      "verdict": "PASS",
+      "math": "PASS",
+      "budget": "NOT_REQUIRED",
+      "reference": "NOT_REQUIRED",
+      "numericValidFormatInvalid": false,
+      "formatValidNumericInvalid": false,
+      "errorCodes": []
+    }
+  ],
+  "pass": true
+}

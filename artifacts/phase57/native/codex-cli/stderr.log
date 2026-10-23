@@ -1,0 +1,4 @@
+[2m2026-10-23T03:33:26.604358Z[0m [31mERROR[0m [2mcodex_app_server[0m[2m:[0m Project-local config, hooks, and exec policies are disabled in the following folders until the project is trusted, but skills still load.
+    1. E:\desktop\MATLAB\.codex
+       To load project-local config, hooks, and exec policies, add e:\desktop\matlab as a trusted project in C:\Users\23201\.codex\config.toml.
+

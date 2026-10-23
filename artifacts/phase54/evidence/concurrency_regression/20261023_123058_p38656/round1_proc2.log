@@ -1,0 +1,22 @@
+
+	Sponsored License -- for use in support of a program or activity sponsored by MathWorks.
+	Not for government, commercial or other non-sponsored organizational use.
+
+  PASS ready: clean file is READY
+  PASS ready: eval is a blocker
+  PASS ready: growth in loop is blocker
+  PASS ready: growth outside loop is only warning
+  PASS ready: strict promotes warnings
+  PASS ready: full path resolves
+  PASS verify: PASS on a real function
+  PASS verify: FAIL via goldenFcn mismatch
+  PASS verify: FAIL on bad codegen input
+  PASS verify: empty-message codegen error still yields a usable detail
+  PASS verify: link failure reported at build with compiler log
+  PASS verify: string entry rejection does not blame entry form
+  PASS fixpt: SQNR matches theory within band
+  PASS fixpt: overflow detected as fraction
+  PASS fixpt: zero output warns
+test_codegen_session: r01_p2_20261023_123058_p38656_632359
+test_codegen_fixture: D:\Temp\mas_codegen_tests\r01_p2_20261023_123058_p38656_632359\tp23fb1c68_c088_47ce_9a29_874a66646b08
+test_codegen: 15/15 passed

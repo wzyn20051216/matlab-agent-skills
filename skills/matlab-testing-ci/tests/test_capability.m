@@ -32,6 +32,7 @@ T(end+1) = mk('neg: missing tool is caught',  @() missingToolCaught(realFile, sc
 T(end+1) = mk('neg: ghost tool is caught',    @() ghostToolCaught(realFile, scratch),      true);
 T(end+1) = mk('neg: wrong owner is caught',   @() wrongOwnerCaught(realFile, scratch),     true);
 T(end+1) = mk('neg: stale summary is caught',  @() staleSummaryCaught(realFile, scratch),   true);
+T(end+1) = mk('neg: stale tool summary is caught', @() staleToolSummaryCaught(realFile, scratch), true);
 T(end+1) = mk('neg: evidence-free VERIFIED is caught', ...
               @() evidenceFreeCaught(realFile, scratch),                                  true);
 
@@ -110,6 +111,13 @@ r = mas_capability_check_at(f);
 v = ~r.ok && any(strcmp({r.checks.id}, 'summary'));
 end
 
+function v = staleToolSummaryCaught(realFile, scratch)
+f = broken(realFile, scratch, 'bumpToolSummary');
+r = mas_capability_check_at(f);
+v = ~r.ok && any(strcmp({r.checks.id}, 'summary')) && ...
+    contains(detailOf(r, 'summary'), 'tool VERIFIED');
+end
+
 function v = evidenceFreeCaught(realFile, scratch)
 f = broken(realFile, scratch, 'stripEvidence');
 r = mas_capability_check_at(f);
@@ -152,6 +160,8 @@ switch mode
         M.tools.(k{1}).skill = 'matlab-not-a-skill';
     case 'bumpSummary'
         M.summary.capability_counts.VERIFIED = 999;
+    case 'bumpToolSummary'
+        M.summary.tool_counts.VERIFIED = 999;
     case 'stripEvidence'
         f2 = fieldnames(M.skills);
         M.skills.(f2{1}).weighted_routing.evidence = 'trust me';

@@ -1,0 +1,49 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/wzyn20051216/matlab-agent-skills/schemas/mas-result-2.schema.json",
+  "title": "MATLAB Agent Skills Delivery Result v2",
+  "description": "Versioned result contract for an engineering task. UNKNOWN and UNDETERMINED are legal verdict and field values: they record the absence of a determination, not a schema error. A verdict is never rewritten to satisfy this schema; format and engineering math are checked independently by mas_delivery_check.",
+  "type": "object",
+  "additionalProperties": true,
+  "required": ["schema", "taskId", "verdict", "fields"],
+  "properties": {
+    "schema": {
+      "const": "mas-result/2"
+    },
+    "taskId": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$"
+    },
+    "verdict": {
+      "description": "PASS/FAIL are decisions; UNDETERMINED/UNKNOWN are legal non-decisions.",
+      "enum": ["PASS", "FAIL", "UNDETERMINED", "UNKNOWN"]
+    },
+    "fields": {
+      "type": "object",
+      "description": "Declared answer fields. Values may be numbers, strings, booleans or arrays; the grading contract decides how each is compared."
+    },
+    "units": {
+      "type": "object",
+      "description": "One unit string per contract field that declares a unit.",
+      "additionalProperties": { "type": "string" }
+    },
+    "budget": {
+      "type": "object",
+      "description": "Recorded usage. Required only when the grading contract declares a budget.",
+      "required": ["toolCalls", "wallSeconds"],
+      "properties": {
+        "toolCalls": { "type": "integer", "minimum": 0 },
+        "wallSeconds": { "type": "number", "minimum": 0 }
+      }
+    },
+    "status": {
+      "description": "Runner outcome. ERROR is surfaced as a structured error, never as a verdict.",
+      "enum": ["OK", "ERROR"]
+    },
+    "error": {
+      "type": "object",
+      "description": "Structured runner error; only meaningful when status is ERROR."
+    }
+  }
+}

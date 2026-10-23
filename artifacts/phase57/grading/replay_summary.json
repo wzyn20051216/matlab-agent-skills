@@ -1,0 +1,246 @@
+{
+  "schema": "mas-phase57-grade-replay/1",
+  "generatedAt": "2026-10-23 12:07:52",
+  "replayOf": "phase56",
+  "kind": "retrospective replay under protocol v2",
+  "scoringFile": "E:\\desktop\\MATLAB\\benchmark\\scoring_p56_retro.json",
+  "scoringSha256": "06aa95a7edb383f24de3d65b03fa86578a6b1a133e2337f7db1a429038d95fa2",
+  "claimLimit": "stored results rescored under v2; not a new experiment, not a new sample, and not evidence of a Skill effect",
+  "arms": [
+    {
+      "arm": "R1",
+      "v1Pass": 0,
+      "v2Pass": 0,
+      "nTasks": 3,
+      "nFail": 3,
+      "nUndetermined": 0,
+      "nMissing": 0,
+      "dimensions": [
+        {
+          "name": "mathematicalCorrectness",
+          "applicable": 3,
+          "pass": 0,
+          "fail": 3,
+          "notRequired": 0,
+          "notApplicableArm": 0,
+          "unrecorded": 0,
+          "label": "0/3 scored, 0 N/R, 0 N/A, 0 unrec"
+        },
+        {
+          "name": "engineeringVerdictCorrect",
+          "applicable": 3,
+          "pass": 3,
+          "fail": 0,
+          "notRequired": 0,
+          "notApplicableArm": 0,
+          "unrecorded": 0,
+          "label": "3/3 scored, 0 N/R, 0 N/A, 0 unrec"
+        },
+        {
+          "name": "outputSchemaValid",
+          "applicable": 3,
+          "pass": 3,
+          "fail": 0,
+          "notRequired": 0,
+          "notApplicableArm": 0,
+          "unrecorded": 0,
+          "label": "3/3 scored, 0 N/R, 0 N/A, 0 unrec"
+        },
+        {
+          "name": "workflowCompliance",
+          "applicable": 3,
+          "pass": 3,
+          "fail": 0,
+          "notRequired": 0,
+          "notApplicableArm": 0,
+          "unrecorded": 0,
+          "label": "3/3 scored, 0 N/R, 0 N/A, 0 unrec"
+        },
+        {
+          "name": "withinBudget",
+          "applicable": 0,
+          "pass": 0,
+          "fail": 0,
+          "notRequired": 3,
+          "notApplicableArm": 0,
+          "unrecorded": 0,
+          "label": "0/0 scored, 3 N/R, 0 N/A, 0 unrec"
+        },
+        {
+          "name": "deliveryValid",
+          "applicable": 3,
+          "pass": 3,
+          "fail": 0,
+          "notRequired": 0,
+          "notApplicableArm": 0,
+          "unrecorded": 0,
+          "label": "3/3 scored, 0 N/R, 0 N/A, 0 unrec"
+        }
+      ],
+      "gradeFile": "E:\\desktop\\MATLAB\\artifacts\\phase57\\grading\\replay_R1.json"
+    },
+    {
+      "arm": "R2",
+      "v1Pass": 0,
+      "v2Pass": 2,
+      "nTasks": 3,
+      "nFail": 1,
+      "nUndetermined": 0,
+      "nMissing": 0,
+      "dimensions": [
+        {
+          "name": "mathematicalCorrectness",
+          "applicable": 3,
+          "pass": 2,
+          "fail": 1,
+          "notRequired": 0,
+          "notApplicableArm": 0,
+          "unrecorded": 0,
+          "label": "2/3 scored, 0 N/R, 0 N/A, 0 unrec"
+        },
+        {
+          "name": "engineeringVerdictCorrect",
+          "applicable": 3,
+          "pass": 3,
+          "fail": 0,
+          "notRequired": 0,
+          "notApplicableArm": 0,
+          "unrecorded": 0,
+          "label": "3/3 scored, 0 N/R, 0 N/A, 0 unrec"
+        },
+        {
+          "name": "outputSchemaValid",
+          "applicable": 3,
+          "pass": 3,
+          "fail": 0,
+          "notRequired": 0,
+          "notApplicableArm": 0,
+          "unrecorded": 0,
+          "label": "3/3 scored, 0 N/R, 0 N/A, 0 unrec"
+        },
+        {
+          "name": "workflowCompliance",
+          "applicable": 3,
+          "pass": 3,
+          "fail": 0,
+          "notRequired": 0,
+          "notApplicableArm": 0,
+          "unrecorded": 0,
+          "label": "3/3 scored, 0 N/R, 0 N/A, 0 unrec"
+        },
+        {
+          "name": "withinBudget",
+          "applicable": 0,
+          "pass": 0,
+          "fail": 0,
+          "notRequired": 3,
+          "notApplicableArm": 0,
+          "unrecorded": 0,
+          "label": "0/0 scored, 3 N/R, 0 N/A, 0 unrec"
+        },
+        {
+          "name": "deliveryValid",
+          "applicable": 3,
+          "pass": 3,
+          "fail": 0,
+          "notRequired": 0,
+          "notApplicableArm": 0,
+          "unrecorded": 0,
+          "label": "3/3 scored, 0 N/R, 0 N/A, 0 unrec"
+        }
+      ],
+      "gradeFile": "E:\\desktop\\MATLAB\\artifacts\\phase57\\grading\\replay_R2.json"
+    },
+    {
+      "arm": "R3",
+      "v1Pass": 0,
+      "v2Pass": 3,
+      "nTasks": 3,
+      "nFail": 0,
+      "nUndetermined": 0,
+      "nMissing": 0,
+      "dimensions": [
+        {
+          "name": "mathematicalCorrectness",
+          "applicable": 3,
+          "pass": 3,
+          "fail": 0,
+          "notRequired": 0,
+          "notApplicableArm": 0,
+          "unrecorded": 0,
+          "label": "3/3 scored, 0 N/R, 0 N/A, 0 unrec"
+        },
+        {
+          "name": "engineeringVerdictCorrect",
+          "applicable": 3,
+          "pass": 3,
+          "fail": 0,
+          "notRequired": 0,
+          "notApplicableArm": 0,
+          "unrecorded": 0,
+          "label": "3/3 scored, 0 N/R, 0 N/A, 0 unrec"
+        },
+        {
+          "name": "outputSchemaValid",
+          "applicable": 3,
+          "pass": 3,
+          "fail": 0,
+          "notRequired": 0,
+          "notApplicableArm": 0,
+          "unrecorded": 0,
+          "label": "3/3 scored, 0 N/R, 0 N/A, 0 unrec"
+        },
+        {
+          "name": "workflowCompliance",
+          "applicable": 3,
+          "pass": 3,
+          "fail": 0,
+          "notRequired": 0,
+          "notApplicableArm": 0,
+          "unrecorded": 0,
+          "label": "3/3 scored, 0 N/R, 0 N/A, 0 unrec"
+        },
+        {
+          "name": "withinBudget",
+          "applicable": 0,
+          "pass": 0,
+          "fail": 0,
+          "notRequired": 3,
+          "notApplicableArm": 0,
+          "unrecorded": 0,
+          "label": "0/0 scored, 3 N/R, 0 N/A, 0 unrec"
+        },
+        {
+          "name": "deliveryValid",
+          "applicable": 3,
+          "pass": 3,
+          "fail": 0,
+          "notRequired": 0,
+          "notApplicableArm": 0,
+          "unrecorded": 0,
+          "label": "3/3 scored, 0 N/R, 0 N/A, 0 unrec"
+        }
+      ],
+      "gradeFile": "E:\\desktop\\MATLAB\\artifacts\\phase57\\grading\\replay_R3.json"
+    }
+  ],
+  "inputsAndV1Unchanged": true,
+  "v1Files": [
+    "E:\\desktop\\MATLAB-bench-phase56\\eval\\tasks_frozen.json",
+    "E:\\desktop\\MATLAB-bench-phase56\\eval\\answers.json",
+    "E:\\desktop\\MATLAB-bench-phase56\\eval\\manifest.json",
+    "E:\\desktop\\MATLAB-bench-phase56\\eval\\grade_R1.json",
+    "E:\\desktop\\MATLAB-bench-phase56\\eval\\grade_R2.json",
+    "E:\\desktop\\MATLAB-bench-phase56\\eval\\grade_R3.json"
+  ],
+  "v1Sha256": [
+    "6b528da1c62f2cd4d171b859e7a713c8577b67fde3a591c82cd495a75e429d4b",
+    "5397be4bf001d65b5dae42d1f93665e075b023f4b5240714a909426df634fd2c",
+    "b62c4e39f9d8204fc5155cbd7b766959c115b431cd30a942355a4bc87f6a8729",
+    "a45ee8f46b1e98173cc1d6291fcf18e022bf69ec4192975f3e66b37ea45abb7a",
+    "0762532447cd2c8c7876a7dd92493ab217da62bd9e35ceebd4c9dacd1cf882c4",
+    "0dff5e4961a7f0017295119901ac00b23a13c69f066ed71208fdd0b00014198f"
+  ],
+  "explanation": "v1 required routeOk && toolOk for every task; the Phase 5.6 prompts asked for neither and R1 had no Skills, so all three v1 pass counts are zero. v2 scores route/tool only when required; for this replay they are NOT_REQUIRED, so the v2 pass counts reflect verdict and field correctness only.",
+  "pass": true
+}
