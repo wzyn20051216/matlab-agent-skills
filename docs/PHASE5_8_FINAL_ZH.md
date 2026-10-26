@@ -189,7 +189,7 @@ Task 0 是只读审计，结论：工作区与 Phase 5.7 报告一致，没有�
 | 七维 | numericalCorrectness / enumContractValid / engineeringVerdictCorrect / structuralSchemaValid / workflowCompleted / withinBudget / deliveryValid **全 PASS** |
 | v1 字段 | overall/format/enums/units/verdict/math/budget/workflow 全 PASS（未改写） |
 | 客户端输入未被改动 | `clientInputsUnchanged = true` |
-| 泄漏 | 事件流里出现一次会话 `apiKey`，已脱敏并留痕（第 12 节第 6 条） |
+| 泄漏 | 事件流里出现一次会话 `apiKey`，已脱敏并留痕；读取与落盘面已由 S1 修复（第 12 节第 6 条） |
 
 一处不体面但必须写出的事实：这条 episode 的 `clientReadsOutsideSkillCopy` 非空——客户端为了找 `scripts/Test-MatlabMcpExistingSession.ps1`，读到了**源仓库工作副本**里的 5 个脚本/schema。它恰好成功，是因为这台机器上正好有一个可读的 clone。这就是第 12 节那条潜在缺陷。
 
@@ -299,7 +299,7 @@ Pester free 层：313/314 通过，1 条失败即第 12 节第 1 条那个既存
 3. **Qoder 原生触发未验证**：不是失败，是被推迟——同步前验证只会拿到旧版本 Skill，等于给出错误的"客户端在用最新 Skill"结论。
 4. **WorkBuddy 完全没有可核对的加载接口**：只有磁盘事实。它的根还是符号链接，任何写入都必须先确认物理目标，不能误操作整个数据目录。
 5. **Codex L3 机制性缺失**：只要 Codex 不发出 Skill 事件，L3 就永远取不到；`l3ReadInstalledCopy` 是替代物而非等价物。报告与 JSON 里都分开记，不合并。
-6. **一次凭据泄漏（已脱敏）**：episode 10 的事件流里，agent 的一次 grep 把 MATLAB MCP 会话 bootstrap 内容打进 transcript，含会话 `apiKey`。已在提交前替换为 `REDACTED:<sha256-12>`，前后哈希、次数与理由记在该 episode 的 `redaction.json`。真正的修法是**别让会话凭据出现在 agent 可读输出里**，这需要改 MCP 会话脚本，本轮未动。
+6. **一次凭据泄漏（历史证据已脱敏；读取面修复已落地）**：episode 10 的事件流里，agent 的一次 grep 把 MATLAB MCP 会话 bootstrap 内容打进 transcript，含会话 `apiKey`。已在提交前替换为 `REDACTED:<sha256-12>`，前后哈希、次数与理由记在该 episode 的 `redaction.json`。**2026-10-26 S1 修复**：会话描述符（`sessionDetails.json`）本身即凭据，禁止读取、回显、复制或归档；`Core.Protect-MasText` 统一覆盖普通/转义 JSON 字段、`x-api-key`、`Authorization: Bearer|Basic`、`--api-key`、环境变量赋值、裸 UUID 与长十六进制六类形态；`McpProbe` 不再把 `apiKey` 放进可序列化对象（只保留 `HasApiKey`/`ApiKeyLength`，值改由进程内 `Get-McpSessionCredential` 短持有），报告只记录会话文件名与 SHA-256；`Write-StageLog` 写盘前脱敏；Phase 5.8 Python 探针在写 `events.jsonl`/`stderr.log`/`protocol.json` 前结构化脱敏，并记录 `sanitize.applied`/`replaced`。历史 Trace 与 Phase 5.8 证据未重写；**报告已脱敏不等于底层凭据失效，仍需人工确认并撤销或轮换**。
 7. **潜在缺陷 `skill-reads-outside-its-own-directory`**：`matlab-runner`/`matlab-orchestrator` 的 SKILL.md 让 agent 跑 `.\scripts\Test-MatlabMcpExistingSession.ps1`，该路径在安装副本内不存在，于是客户端跑到仓库工作副本里去读。它"成功"了，只在恰好有可读 clone 的机器上。修法：把该检查随 Skill 一起发布，并用相对 Skill 根的路径引用。
 8. **探针残留诊断保留**：`fixtures/mcpprobe*` 与 `writeprobe*` 事件/错误日志留作负面证据（记录了 CLI 侧被拒的具体形态），不当作结果。
 9. **统计量不足**：账号上限与 CLI 元数据拒绝使 A/B/C 各只有 1–3 次可用运行，只能做存在性证明，不能做增益推断。
@@ -307,7 +307,7 @@ Pester free 层：313/314 通过，1 条失败即第 12 节第 1 条那个既存
 ### 下一阶段建议（按性价比排序，不自行开始）
 
 1. 请批准第 4 节的最小同步集（先 `AGENTS`，再 `QODER-CN` 的 7 个 conflict，`WB-PHYS` 最后且需先确认物理目标），同步后**用客户端自己的发现列表/日志**复证，才算闭环。
-2. 修第 7 条缺陷（把脚本发布进 Skill）与第 6 条泄漏面，二者都是一行级改动、收益直接。
+2. 修第 7 条缺陷（把脚本发布进 Skill）；第 6 条的读取与落盘面已由 S1 修复，剩余待办是人工撤销/轮换可能仍然有效的凭据。
 3. 再谈强隔离：走 B（Sandbox/VM）并把 V1–V13 打到 0/13，否则任何"三臂增益"数字都不成立。
 4. 把卫生门禁当一次专门的清理任务（77 行、30 文件），要么改写报告、要么在门禁里显式豁免冻结历史——**但不能删失败**。
 

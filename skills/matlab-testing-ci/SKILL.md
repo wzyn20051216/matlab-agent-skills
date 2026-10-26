@@ -7,6 +7,21 @@ description: MATLAB testing, validation, and CI workflow for matlab.unittest, MA
 
 Use this skill to close the loop on MATLAB work.
 
+## Skill Root
+
+The installed directory containing this `SKILL.md` is the resource root. Add its
+helper folder for the current MATLAB session only — never through `savepath`,
+`startup.m`, or a global path edit:
+
+```matlab
+skillRoot = '<absolute path to the installed matlab-testing-ci Skill directory>';
+addpath(fullfile(skillRoot, 'scripts'));
+```
+
+Resolve `references/`, `tests/`, and helper calls from that root, not from the
+caller's working directory. If a shipped helper or reference is missing, report the
+exact path and reinstall the Skill; do not scan the disk for a substitute.
+
 ## Test Ladder
 
 Start as small as possible, then broaden:
@@ -96,7 +111,13 @@ into another. `tests/test_grade.m` covers six combinations.
 
 A task that grades itself is not being tested. `mas_verify_task(id, values)` grades a
 task's NUMBERS against `evals/references/reference_manifest.json`, which is committed
-with a SHA-256 per entry:
+with a SHA-256 per entry.
+
+`mas_verify_task` and `mas_refcheck` are **repository-only developer operations**:
+the frozen manifest under `evals/` is not shipped inside the installed Skill. When it
+is absent they report `UNDETERMINED` with `reference manifest missing`; that is the
+expected installed-only outcome, not a reason to search for a development checkout.
+Use the shipped `mas_grade` for standalone acceptance.
 
 ```matlab
 v = mas_verify_task('D3', out.values);

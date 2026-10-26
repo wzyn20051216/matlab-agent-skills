@@ -1,0 +1,143 @@
+{
+    "syncTime":  "2026-10-26 13:49:12",
+    "dryRun":  false,
+    "sourceRoot":  "D:\\Temp\\mas-s2-acceptance-98b1dce463a74964badfa980213c4530\\installer-repo\\skills",
+    "skillRoot":  "D:\\Temp\\mas-s2-acceptance-98b1dce463a74964badfa980213c4530\\installed-skills",
+    "skillEnvironment":  {
+                             "skillRoot":  "D:\\Temp\\mas-s2-acceptance-98b1dce463a74964badfa980213c4530\\installed-skills",
+                             "userHome":  "C:\\Users\\23201",
+                             "runtime":  "Windows",
+                             "source":  "explicit",
+                             "legacySkillRoot":  "C:\\Users\\23201\\.codex\\skills"
+                         },
+    "payloadManifestPath":  "D:\\Temp\\mas-s2-acceptance-98b1dce463a74964badfa980213c4530\\installer-repo\\config\\skill-payloads.json",
+    "payloadManifestSha256":  "2914FF29FA3CEEE65990E6C6F35C8AA6ACB47289695D3DA1BB4AA8D2962065CA",
+    "manifestPath":  "D:\\Temp\\mas-s2-acceptance-98b1dce463a74964badfa980213c4530\\installed-skills\\.matlab-agent-skills-manifest.json",
+    "backupRoot":  "D:\\Temp\\mas-s2-acceptance-98b1dce463a74964badfa980213c4530\\backups\\20261026-134911-sync-skills",
+    "installed":  0,
+    "updated":  0,
+    "unchanged":  8,
+    "conflicts":  [
+
+                  ],
+    "failed":  true,
+    "skills":  [
+                   {
+                       "name":  "matlab-codegen-deploy",
+                       "decision":  "unchanged",
+                       "changed":  false,
+                       "backupPath":  null,
+                       "message":  "内容一致，跳过",
+                       "preservedUserFiles":  [
+
+                                              ],
+                       "restoredFromBackup":  false,
+                       "recreatedFiles":  0,
+                       "payloadFileCount":  0
+                   },
+                   {
+                       "name":  "matlab-control-optimization",
+                       "decision":  "unchanged",
+                       "changed":  false,
+                       "backupPath":  null,
+                       "message":  "内容一致，跳过",
+                       "preservedUserFiles":  [
+
+                                              ],
+                       "restoredFromBackup":  false,
+                       "recreatedFiles":  0,
+                       "payloadFileCount":  0
+                   },
+                   {
+                       "name":  "matlab-data-analysis",
+                       "decision":  "unchanged",
+                       "changed":  false,
+                       "backupPath":  null,
+                       "message":  "内容一致，跳过",
+                       "preservedUserFiles":  [
+
+                                              ],
+                       "restoredFromBackup":  false,
+                       "recreatedFiles":  0,
+                       "payloadFileCount":  0
+                   },
+                   {
+                       "name":  "matlab-orchestrator",
+                       "decision":  "unchanged",
+                       "changed":  false,
+                       "backupPath":  null,
+                       "message":  "内容一致，跳过",
+                       "preservedUserFiles":  [
+
+                                              ],
+                       "restoredFromBackup":  false,
+                       "recreatedFiles":  0,
+                       "payloadFileCount":  6
+                   },
+                   {
+                       "name":  "matlab-robotics-autonomy",
+                       "decision":  "unchanged",
+                       "changed":  false,
+                       "backupPath":  null,
+                       "message":  "内容一致，跳过",
+                       "preservedUserFiles":  [
+
+                                              ],
+                       "restoredFromBackup":  false,
+                       "recreatedFiles":  0,
+                       "payloadFileCount":  0
+                   },
+                   {
+                       "name":  "matlab-runner",
+                       "decision":  "error",
+                       "changed":  false,
+                       "backupPath":  "D:\\Temp\\mas-s2-acceptance-98b1dce463a74964badfa980213c4530\\backups\\20261026-134911-sync-skills\\dirs\\matlab-runner-matlab-runner",
+                       "message":  "同步失败: 文件“MatlabAgentSkills.Core.psm1”正由另一进程使用，因此该进程无法访问此文件。；已从备份补齐缺失文件（重建 11 个），被占用的文件保持原样",
+                       "preservedUserFiles":  [
+
+                                              ],
+                       "restoredFromBackup":  true,
+                       "recreatedFiles":  11,
+                       "payloadFileCount":  7
+                   },
+                   {
+                       "name":  "matlab-signal-vision-ai",
+                       "decision":  "unchanged",
+                       "changed":  false,
+                       "backupPath":  null,
+                       "message":  "内容一致，跳过",
+                       "preservedUserFiles":  [
+
+                                              ],
+                       "restoredFromBackup":  false,
+                       "recreatedFiles":  0,
+                       "payloadFileCount":  0
+                   },
+                   {
+                       "name":  "matlab-simulink-modeling",
+                       "decision":  "unchanged",
+                       "changed":  false,
+                       "backupPath":  null,
+                       "message":  "内容一致，跳过",
+                       "preservedUserFiles":  [
+
+                                              ],
+                       "restoredFromBackup":  false,
+                       "recreatedFiles":  0,
+                       "payloadFileCount":  0
+                   },
+                   {
+                       "name":  "matlab-testing-ci",
+                       "decision":  "unchanged",
+                       "changed":  false,
+                       "backupPath":  null,
+                       "message":  "内容一致，跳过",
+                       "preservedUserFiles":  [
+
+                                              ],
+                       "restoredFromBackup":  false,
+                       "recreatedFiles":  0,
+                       "payloadFileCount":  0
+                   }
+               ]
+}

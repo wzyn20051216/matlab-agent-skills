@@ -1,0 +1,31 @@
+==> 使用 Pester 3.4.0 (C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Pester.psd1) [installed]
+==> 运行 [free] McpProbe.Tests.ps1
+
+
+
+
+
+Describing 阶段 3~5 只有在真实可执行时才 PASS
+ [+] 全套正常时五阶段通过，且整体为 PASS 3.34s
+ [+] 端口不可达时握手 FAIL，后续阶段 SKIP（不冒充成功） 1.15s
+ [+] 只有配置文件没有会话时，握手必须 SKIP 而不是 PASS 68ms
+ [+] 会话文件损坏时配置阶段 FAIL 73ms
+ [+] 证书缺失时按过期会话处理，输出 SKIP 并给出原因 1.13s
+Describing 工具探测与文件回读
+ [+] 服务端没有执行工具时只读阶段 SKIP 并记录工具清单 1.49s
+ [+] 回读内容不一致时文件读写阶段 FAIL 1.57s
+ [+] 握手失败（HTTP 500）时判定 FAIL 且不继续执行 1.3s
+ [+] 鉴权失败（HTTP 401）时握手 FAIL 1.37s
+ [+] 服务端挂起时握手在超时后 FAIL（不会无限等待） 3.16s
+Describing 客户端注册校验
+ [+] existing 模式带 display-mode 会被判为非法注册 74ms
+ [+] 注册指向不存在的 command 会被判为 FAIL 64ms
+ [+] 没有注册时输出 SKIP 并说明检查了哪些客户端 38ms
+Describing JSON 解析保持键名大小写
+ [+] 大小写不同但合法的键不会被当成重复键 59ms
+Tests completed in 14.89s
+Passed: 14 Failed: 0 Skipped: 0 Pending: 0 Inconclusive: 0
+
+==> 汇总: 共 14 个用例，通过 14，失败 0，跳过 0
+    层 free: 已执行 14 个用例，通过 14，失败 0，耗时 15s
+==> 层报告: artifacts/s2/evidence/task6/ps7-jsonfix-ps51/layer_report.json

@@ -1,0 +1,155 @@
+{
+    "schema":  "mas-s2-prefix-install/1",
+    "syncedAt":  "2026-10-26T12:51:00.0841854+08:00",
+    "syncInstalled":  9,
+    "syncUpdated":  0,
+    "syncUnchanged":  0,
+    "syncFailed":  false,
+    "runnerTree":  [
+                       {
+                           "relative":  "references\\acceptance-levels.md",
+                           "bytes":  3002,
+                           "sha256":  "045ed4fcc83579196400e0cce306e77e0601b2f71d24270b05c7b24960363554"
+                       },
+                       {
+                           "relative":  "references\\failure-classes.md",
+                           "bytes":  2535,
+                           "sha256":  "6d7348ef134b8f7f3c7bef620edf3c8ea4bd96028127e47620cdbd7f449d3d96"
+                       },
+                       {
+                           "relative":  "references\\mcp-readiness-ladder.md",
+                           "bytes":  4487,
+                           "sha256":  "838edc58772818692c99148314d702ccdd16027de71bf96904f7f6c60f0eeb47"
+                       },
+                       {
+                           "relative":  "references\\toolbox-feature-map.md",
+                           "bytes":  1117,
+                           "sha256":  "b9590845256442c432e787771ae70745784480c9bf24f15200ab8736bdbf1c77"
+                       },
+                       {
+                           "relative":  "scripts\\mas_dep_probe.m",
+                           "bytes":  11629,
+                           "sha256":  "d2bda1e6ff57ecb4df30860fbd74eb72bbbc3dd146981b9a3d0e1e678e215a8e"
+                       },
+                       {
+                           "relative":  "scripts\\mas_precheck.m",
+                           "bytes":  7663,
+                           "sha256":  "19be55e102d57bc9902318b8cb0135acb9987bebef0d6700ba2c4eba82ec34b5"
+                       },
+                       {
+                           "relative":  "scripts\\mas_product_map.m",
+                           "bytes":  6368,
+                           "sha256":  "431bd98a2f39233a15a481eed6d876011b901d75cd9287cbb6da7e69c64fb6ec"
+                       },
+                       {
+                           "relative":  "scripts\\mas_toolbox_map.m",
+                           "bytes":  2824,
+                           "sha256":  "069726bfba5c6adb890730319267164be3a59771a9c5453ff797bd082b9f26eb"
+                       },
+                       {
+                           "relative":  "SKILL.md",
+                           "bytes":  9815,
+                           "sha256":  "305b7116fb8cd9a5029c173dfd2d1401d80e7f0e6efe5e171e1a9ea96e3578bf"
+                       },
+                       {
+                           "relative":  "tests\\test_dep_probe.m",
+                           "bytes":  6383,
+                           "sha256":  "f6891dbe73441ce63c4ee1f74f48cec1bda669d6ca06cbff4463c7a91e2c152c"
+                       },
+                       {
+                           "relative":  "tests\\test_precheck.m",
+                           "bytes":  3710,
+                           "sha256":  "623121fb64b339fbeaa986c1d39474130c7ff8bc7ca4d2da4c0cd23a81eeb9bc"
+                       }
+                   ],
+    "orchestratorTree":  [
+                             {
+                                 "relative":  "assets\\routing.json",
+                                 "bytes":  13722,
+                                 "sha256":  "2d6649112cf6e912d3d35ebf68e60a9f6ab21b414e51be38e9d630ebaeac311f"
+                             },
+                             {
+                                 "relative":  "assets\\tasks.json",
+                                 "bytes":  5062,
+                                 "sha256":  "67a9ff1ee99d74797b711deb6b83e151283cbb1ad7794d4317443fbe664a8289"
+                             },
+                             {
+                                 "relative":  "references\\routing-contract.md",
+                                 "bytes":  6699,
+                                 "sha256":  "deccce48886d8dbad4efacfd2b5b39037a82371e3be34c1acf2214fb26310897"
+                             },
+                             {
+                                 "relative":  "scripts\\mas_pipeline.m",
+                                 "bytes":  8217,
+                                 "sha256":  "e140749ad06fdd7d60d8585209015bdfbaca61b5b6b445d83846dc1b3597e637"
+                             },
+                             {
+                                 "relative":  "scripts\\mas_route.m",
+                                 "bytes":  16322,
+                                 "sha256":  "a5b1df4d248b0b21fcce1c018b78ac22b36e9c571148cf73aca312f1ce8f56c3"
+                             },
+                             {
+                                 "relative":  "scripts\\mas_skill_graph.m",
+                                 "bytes":  15501,
+                                 "sha256":  "614615ed8ea5e5e171594d1c1aab1effdb6da506e21db957a32612be96dba240"
+                             },
+                             {
+                                 "relative":  "SKILL.md",
+                                 "bytes":  9966,
+                                 "sha256":  "aa101900a83c647248714207ffc1cfcf64144bdef30b09918309955928d79488"
+                             },
+                             {
+                                 "relative":  "tests\\test_routing.m",
+                                 "bytes":  3619,
+                                 "sha256":  "ed5bfe3b94efc20ecc3daae0475f0a3babe5261b054707e407dc9a2dd528f858"
+                             },
+                             {
+                                 "relative":  "tests\\test_routing_contract.m",
+                                 "bytes":  10369,
+                                 "sha256":  "0ddbfd5690dd1a684760daada4c69b4618c0da0a2a93076cb97c4ee04ee7af31"
+                             },
+                             {
+                                 "relative":  "tests\\test_skill_graph.m",
+                                 "bytes":  5454,
+                                 "sha256":  "ef919a0027f3e7c9f1b3848c31a441130b1191b8a73f20cde730e6820de77a3c"
+                             }
+                         ],
+    "closureChecks":  [
+                          {
+                              "relative":  "scripts\\Test-MatlabMcpExistingSession.ps1",
+                              "runnerInstalled":  false,
+                              "orchestratorInstalled":  false,
+                              "sourceExists":  true
+                          },
+                          {
+                              "relative":  "scripts\\MatlabAgentSkills.Acceptance.psm1",
+                              "runnerInstalled":  false,
+                              "orchestratorInstalled":  false,
+                              "sourceExists":  true
+                          },
+                          {
+                              "relative":  "scripts\\MatlabAgentSkills.Execution.psm1",
+                              "runnerInstalled":  false,
+                              "orchestratorInstalled":  false,
+                              "sourceExists":  true
+                          },
+                          {
+                              "relative":  "scripts\\MatlabAgentSkills.McpProbe.psm1",
+                              "runnerInstalled":  false,
+                              "orchestratorInstalled":  false,
+                              "sourceExists":  true
+                          },
+                          {
+                              "relative":  "scripts\\MatlabAgentSkills.Core.psm1",
+                              "runnerInstalled":  false,
+                              "orchestratorInstalled":  false,
+                              "sourceExists":  true
+                          },
+                          {
+                              "relative":  "schemas\\acceptance-report.schema.json",
+                              "runnerInstalled":  false,
+                              "orchestratorInstalled":  false,
+                              "sourceExists":  true
+                          }
+                      ]
+}

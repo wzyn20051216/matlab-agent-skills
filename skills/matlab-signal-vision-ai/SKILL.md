@@ -7,6 +7,21 @@ description: MATLAB workflow for signal processing, DSP, image processing, compu
 
 Use this skill when the core artifact is a processed signal, image, video, point cloud, neural network, or AI experiment.
 
+## Skill Root
+
+The installed directory containing this `SKILL.md` is the resource root. Add its
+helper folder for the current MATLAB session only — never through `savepath`,
+`startup.m`, or a global path edit:
+
+```matlab
+skillRoot = '<absolute path to the installed matlab-signal-vision-ai Skill directory>';
+addpath(fullfile(skillRoot, 'scripts'));
+```
+
+Resolve `references/`, `tests/`, and helper calls from that root, not from the
+caller's working directory. If a shipped helper or reference is missing, report the
+exact path and reinstall the Skill; do not scan the disk for a substitute.
+
 ## Workflow
 
 1. 任务识别 — Identify data modality, sampling rate, image size, color space, labels, expected outputs. State the units (Hz vs rad/s), the analysis window, and whether the claim is steady-state or transient.

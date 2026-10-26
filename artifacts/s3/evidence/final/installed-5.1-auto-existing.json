@@ -1,0 +1,204 @@
+{
+    "tag":  "5.1-auto-existing",
+    "startedAt":  "2026-10-26T21:33:58+08:00",
+    "repositoryRoot":  "E:\\desktop\\MATLAB",
+    "isolatedRoot":  "D:\\Temp\\mas-s3-5.1-auto-existing-c47ce931922e49ca94447256f3a29095",
+    "transport":  "auto",
+    "serverExe":  "",
+    "sessionMode":  "existing",
+    "skipTlsValidation":  false,
+    "host":  "5.1",
+    "payload":  {
+                    "scripts/Test-MatlabMcpExistingSession.ps1":  {
+                                                                      "exists":  true,
+                                                                      "sha256":  "28ACC07D6866EE5470AB081648421A49D2E641146192731FA6F9980EECA35564",
+                                                                      "matchesSource":  true
+                                                                  },
+                    "scripts/MatlabAgentSkills.McpProbe.psm1":  {
+                                                                    "exists":  true,
+                                                                    "sha256":  "19F63B3A253C600D67207A47783E60BB5EE56BEB1F43BD427221D4E0D0EDEC72",
+                                                                    "matchesSource":  true
+                                                                },
+                    "scripts/MatlabAgentSkills.McpStdio.psm1":  {
+                                                                    "exists":  true,
+                                                                    "sha256":  "D4171D4C0A9135620022668455D18FAD940C22B7E287E937D606E48B6E630CA4",
+                                                                    "matchesSource":  true
+                                                                },
+                    "config/mcp-server-manifest.json":  {
+                                                            "exists":  true,
+                                                            "sha256":  "452C269984245F866F1F7E20AEE816901C797F5DFA72CAE7A3949541509C82C9",
+                                                            "matchesSource":  true
+                                                        },
+                    "schemas/acceptance-report.schema.json":  {
+                                                                  "exists":  true,
+                                                                  "sha256":  "47DDF8200E8A93CDA93DB38EA710369C080B11AD6429781DD64199F784FBF947",
+                                                                  "matchesSource":  true
+                                                              }
+                },
+    "install":  {
+                    "installed":  9,
+                    "skillRoot":  "D:\\Temp\\mas-s3-5.1-auto-existing-c47ce931922e49ca94447256f3a29095\\installed-skills",
+                    "logPath":  "E:\\desktop\\MATLAB\\artifacts\\s3\\evidence\\final\\installed-5.1-auto-existing.sync.log"
+                },
+    "probe":  {
+                  "exe":  "C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+                  "exitCode":  0,
+                  "stdoutPath":  "E:\\desktop\\MATLAB\\artifacts\\s3\\evidence\\final\\installed-5.1-auto-existing.stdout.txt",
+                  "stderrPath":  "E:\\desktop\\MATLAB\\artifacts\\s3\\evidence\\final\\installed-5.1-auto-existing.stderr.txt",
+                  "overallStatus":  "PASS",
+                  "achievedLevel":  "L4",
+                  "matlabVersion":  "26.1.0.3276743 Update 3",
+                  "checks":  [
+                                 {
+                                     "id":  "mcp.matlab-install",
+                                     "status":  "PASS",
+                                     "reason":  null,
+                                     "level":  "L1",
+                                     "evidencePath":  null,
+                                     "metrics":  {
+                                                     "executable":  "E:\\matlab\\bin\\matlab.exe",
+                                                     "versionInfo":  "E:\\matlab\\VersionInfo.xml",
+                                                     "version":  "26.1.0.3276743",
+                                                     "release":  "R2026a",
+                                                     "versionReadable":  true
+                                                 }
+                                 },
+                                 {
+                                     "id":  "mcp.matlab-license",
+                                     "status":  "PASS",
+                                     "reason":  null,
+                                     "level":  "L1",
+                                     "evidencePath":  null,
+                                     "metrics":  {
+                                                     "provenBy":  "mcp.readonly-exec",
+                                                     "note":  "通过共享会话真实执行 disp(version)，证明 MATLAB 已授权且可运行"
+                                                 }
+                                 },
+                                 {
+                                     "id":  "mcp.session-config",
+                                     "status":  "PASS",
+                                     "reason":  null,
+                                     "level":  "L1",
+                                     "evidencePath":  null,
+                                     "metrics":  {
+                                                     "sessionFile":  "sessionDetails.json",
+                                                     "sessionFileSha256":  "086321AAD1A5645A084CFA872F0ADAB0275E23195640E5E88E342FD7410E6991",
+                                                     "exists":  true,
+                                                     "parsed":  true,
+                                                     "port":  31520,
+                                                     "hasApiKey":  true,
+                                                     "apiKeyLength":  16,
+                                                     "certificate":  "C:\\Users\\23201\\AppData\\Roaming\\MathWorks\\MATLAB\\R2026a\\thisMatlab.pem",
+                                                     "certificateExists":  true,
+                                                     "pid":  42956,
+                                                     "pidAlive":  true,
+                                                     "processName":  "MATLAB",
+                                                     "note":  "会话文件与 PID 存活只说明配置存在，不代表 MCP 协议可用"
+                                                 }
+                                 },
+                                 {
+                                     "id":  "mcp.client-registration",
+                                     "status":  "PASS",
+                                     "reason":  null,
+                                     "level":  "L2",
+                                     "evidencePath":  null,
+                                     "metrics":  {
+                                                     "total":  1,
+                                                     "valid":  1,
+                                                     "violationCount":  0,
+                                                     "missingCommand":  0,
+                                                     "clients":  [
+                                                                     "generic"
+                                                                 ],
+                                                     "entries":  [
+                                                                     {
+                                                                         "client":  "generic",
+                                                                         "source":  "D:\\Temp\\mas-s3-project\\.mcp.json",
+                                                                         "command":  "E:\\desktop\\MATLAB\\bin\\matlab-mcp-server-windows-x64.exe",
+                                                                         "args":  [
+                                                                                      "--matlab-session-mode=existing"
+                                                                                  ],
+                                                                         "valid":  true,
+                                                                         "commandExists":  true,
+                                                                         "violations":  [
+
+                                                                                        ]
+                                                                     }
+                                                                 ]
+                                                 }
+                                 },
+                                 {
+                                     "id":  "mcp.protocol-handshake",
+                                     "status":  "PASS",
+                                     "reason":  null,
+                                     "level":  "L2",
+                                     "evidencePath":  null,
+                                     "metrics":  {
+                                                     "transport":  "stdio",
+                                                     "transportNote":  null,
+                                                     "serverExe":  "E:\\desktop\\MATLAB\\bin\\matlab-mcp-server-windows-x64.exe",
+                                                     "serverOrigin":  "registration:generic",
+                                                     "serverIntegrity":  "VERIFIED_AGAINST_MANIFEST",
+                                                     "serverVerified":  true,
+                                                     "serverRelease":  "v0.15.0",
+                                                     "serverSha256":  "A1F67DD917C5731F88399E1671EBE4F6959D2FD520C78DCAA1FAF3AD37EA9518",
+                                                     "sessionMode":  "existing",
+                                                     "endpoint":  null,
+                                                     "tcpReachable":  false,
+                                                     "protocolVersion":  "2025-06-18",
+                                                     "serverName":  "matlab-mcp-server",
+                                                     "tlsMode":  "stdio",
+                                                     "pinnedThumbprint":  null,
+                                                     "httpStatus":  null,
+                                                     "durationMs":  481,
+                                                     "skippedLines":  0,
+                                                     "serverVersion":  "github.com/matlab/matlab-mcp-server v0.15.0"
+                                                 }
+                                 },
+                                 {
+                                     "id":  "mcp.readonly-exec",
+                                     "status":  "PASS",
+                                     "reason":  null,
+                                     "level":  "L3",
+                                     "evidencePath":  null,
+                                     "metrics":  {
+                                                     "tool":  "evaluate_matlab_code",
+                                                     "toolCount":  5,
+                                                     "output":  "26.1.0.3276743 (R2026a) Update 3\n",
+                                                     "expectedPattern":  "\\d+\\.\\d+",
+                                                     "tools":  [
+                                                                   "check_matlab_code",
+                                                                   "detect_matlab_toolboxes",
+                                                                   "evaluate_matlab_code",
+                                                                   "run_matlab_file",
+                                                                   "run_matlab_test_file"
+                                                               ],
+                                                     "durationMs":  591
+                                                 }
+                                 },
+                                 {
+                                     "id":  "mcp.file-io",
+                                     "status":  "PASS",
+                                     "reason":  null,
+                                     "level":  "L4",
+                                     "evidencePath":  null,
+                                     "metrics":  {
+                                                     "directory":  "D:\\Temp\\mas-s3-5.1-auto-existing-c47ce931922e49ca94447256f3a29095\\artifacts\\validation\\mcp_io_probe",
+                                                     "token":  "9d49266ed60a4084a3c2c1a7653a1f7c",
+                                                     "echoed":  "9d49266ed60a4084a3c2c1a7653a1f7c\n",
+                                                     "hostVerified":  true,
+                                                     "file":  "D:\\Temp\\mas-s3-5.1-auto-existing-c47ce931922e49ca94447256f3a29095\\artifacts\\validation\\mcp_io_probe\\io_probe_9d49266ed60a4084a3c2c1a7653a1f7c.txt",
+                                                     "hostContent":  "9d49266ed60a4084a3c2c1a7653a1f7c",
+                                                     "fileBytes":  32
+                                                 }
+                                 }
+                             ],
+                  "limitations":  [
+                                      "阶段 1b（许可证）默认 SKIP：只有指定 -VerifyLicense 时才启动 MATLAB 校验。",
+                                      "阶段 3~5 依赖真实 MCP server 的实现细节（端点路径、鉴权头、工具名）；未匹配时输出 FAIL/SKIP 并给出原因，不会偽造 PASS。",
+                                      "stdio 通道已在本探针结束时关闭（exit=0, forced=False）；本次探测未下载任何二进制。"
+                                  ],
+                  "stderrTail":  ""
+              },
+    "finishedAt":  "2026-10-26T21:34:07+08:00"
+}

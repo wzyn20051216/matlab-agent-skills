@@ -12,10 +12,14 @@ import pathlib
 import queue
 import shutil
 import subprocess
+import sys
 import tempfile
 import threading
 import time
 import uuid
+
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
+import p58_sanitize  # noqa: E402
 
 
 def sha256(path):
@@ -26,20 +30,37 @@ def sha256(path):
     return h.hexdigest()
 
 
-def finish(output, record, transcript, start, root):
+def finish(output, record, transcript, start, root, stderr_text=""):
     record["durationMs"] = round((time.monotonic() - start) * 1000)
     record["finishedUtc"] = dt.datetime.now(dt.timezone.utc).isoformat()
     record["fixtureRoot"] = str(root)
     record["fixtureRemoved"] = False
-    (output / "protocol.json").write_text(json.dumps(transcript, ensure_ascii=False, indent=2), encoding="utf-8")
-    (output / "verification.json").write_text(json.dumps(record, ensure_ascii=False, indent=2), encoding="utf-8")
+
+    # 协议回放、stderr 与验证记录都可能在客户端回显里带出会话凭据，先脱敏再落盘。
+    safe_transcript, protocol_replacements = p58_sanitize.sanitize_value(transcript)
+    safe_stderr, stderr_replacements = p58_sanitize.sanitize_text(stderr_text or "")
+    sanitize = record.setdefault("sanitize", {})
+    sanitize["applied"] = True
+    sanitize["protocolReplaced"] = protocol_replacements
+    sanitize["stderrReplaced"] = stderr_replacements
+    sanitize["replaced"] = (int(sanitize.get("skillsListReplaced", 0) or 0) +
+                            protocol_replacements + stderr_replacements)
+
+    (output / "protocol.json").write_text(
+        json.dumps(safe_transcript, ensure_ascii=False, indent=2), encoding="utf-8")
+    (output / "stderr.log").write_text(safe_stderr, encoding="utf-8")
     shutil.rmtree(root, ignore_errors=True)
     record["fixtureRemoved"] = not root.exists()
-    (output / "verification.json").write_text(json.dumps(record, ensure_ascii=False, indent=2), encoding="utf-8")
-    print(json.dumps({"status": record["status"], "client": record["client"],
-                      "version": record.get("version"), "skills": len(record.get("skills", [])),
-                      "reason": record.get("reason"), "output": str(output)}, ensure_ascii=False))
-    raise SystemExit(0 if record["status"] == "PASS" else 1)
+    safe_record, _ = p58_sanitize.sanitize_value(record)
+    (output / "verification.json").write_text(
+        json.dumps(safe_record, ensure_ascii=False, indent=2), encoding="utf-8")
+    print(json.dumps({"status": safe_record["status"], "client": safe_record["client"],
+                      "version": safe_record.get("version"),
+                      "skills": len(safe_record.get("skills", [])),
+                      "replaced": safe_record["sanitize"]["replaced"],
+                      "reason": safe_record.get("reason"),
+                      "output": str(output)}, ensure_ascii=False))
+    raise SystemExit(0 if safe_record["status"] == "PASS" else 1)
 
 
 def main():
@@ -112,93 +133,107 @@ def main():
         finish(output, record, transcript, start, root)
 
     received = queue.Queue()
-    with (output / "stderr.log").open("wb") as stderr:
+    stderr_chunks = []
+    try:
+        process = subprocess.Popen(command, cwd=str(project), stdin=subprocess.PIPE,
+                                   stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                                   text=True, encoding="utf-8")
+    except Exception as error:
+        record["reason"] = f"{type(error).__name__}: {error}"
+        finish(output, record, transcript, start, root)
+
+    def read_stdout():
         try:
-            process = subprocess.Popen(command, cwd=str(project), stdin=subprocess.PIPE,
-                                       stdout=subprocess.PIPE, stderr=stderr, text=True, encoding="utf-8")
-        except Exception as error:
-            record["reason"] = f"{type(error).__name__}: {error}"
-            finish(output, record, transcript, start, root)
-
-        def read_stdout():
-            try:
-                for line in process.stdout:
-                    received.put(line)
-            finally:
-                received.put(None)
-
-        threading.Thread(target=read_stdout, daemon=True).start()
-
-        def request(method, params, request_id):
-            message = {"id": request_id, "method": method, "params": params}
-            process.stdin.write(json.dumps(message) + "\n")
-            process.stdin.flush()
-            transcript.append({"direction": "send", "message": message})
-            deadline = time.monotonic() + args.timeout
-            while True:
-                remaining = deadline - time.monotonic()
-                if remaining <= 0:
-                    raise TimeoutError(f"{method} timeout")
-                line = received.get(timeout=remaining)
-                if line is None:
-                    raise RuntimeError("client exited before responding")
-                reply = json.loads(line)
-                transcript.append({"direction": "receive", "message": reply})
-                if reply.get("id") == request_id:
-                    if "error" in reply:
-                        raise RuntimeError(json.dumps(reply["error"], ensure_ascii=False))
-                    return reply["result"]
-
-        try:
-            record["initialize"] = request("initialize", {
-                "clientInfo": {"name": "mas_phase58_probe", "version": "1.0"},
-                "capabilities": {"experimentalApi": True}}, 1)
-            process.stdin.write(json.dumps({"method": "initialized", "params": {}}) + "\n")
-            process.stdin.flush()
-            result = request("skills/list", {"cwds": [str(project)], "forceReload": True}, 2)
-            (output / "skills_list_response.json").write_text(
-                json.dumps(result, ensure_ascii=False, indent=2), encoding="utf-8")
-            entries = result.get("data")
-            if not isinstance(entries, list) or len(entries) != 1:
-                raise ValueError("skills/list did not return exactly one cwd entry")
-            if pathlib.Path(entries[0]["cwd"]).resolve() != project.resolve():
-                raise ValueError("skills/list cwd mismatch")
-            errors = entries[0].get("errors", [])
-            if errors:
-                raise ValueError(f"discovery errors: {errors}")
-            found = []
-            for skill in entries[0].get("skills", []):
-                path = pathlib.Path(skill["path"]).resolve()
-                try:
-                    path.relative_to(skills.resolve())
-                except ValueError:
-                    continue
-                if skill.get("enabled") is True and skill["name"].startswith("matlab-"):
-                    found.append(skill)
-            record["skills"] = found
-            record["discoveryErrors"] = errors
-            record["expectedCount"] = 9
-            record["status"] = "PASS" if len(found) == 9 else "FAIL"
-            if record["status"] == "FAIL":
-                record["reason"] = f"isolated root supplied 9 Skills but client listed {len(found)}"
-        except Exception as error:
-            record["status"] = "FAIL"
-            record["reason"] = f"{type(error).__name__}: {error}"
+            for line in process.stdout:
+                received.put(line)
         finally:
+            received.put(None)
+
+    def read_stderr():
+        try:
+            for line in process.stderr:
+                stderr_chunks.append(line)
+        except (OSError, ValueError):
+            pass
+
+    threading.Thread(target=read_stdout, daemon=True).start()
+    stderr_thread = threading.Thread(target=read_stderr, daemon=True)
+    stderr_thread.start()
+
+    def request(method, params, request_id):
+        message = {"id": request_id, "method": method, "params": params}
+        process.stdin.write(json.dumps(message) + "\n")
+        process.stdin.flush()
+        transcript.append({"direction": "send", "message": message})
+        deadline = time.monotonic() + args.timeout
+        while True:
+            remaining = deadline - time.monotonic()
+            if remaining <= 0:
+                raise TimeoutError(f"{method} timeout")
+            line = received.get(timeout=remaining)
+            if line is None:
+                raise RuntimeError("client exited before responding")
+            reply = json.loads(line)
+            transcript.append({"direction": "receive", "message": reply})
+            if reply.get("id") == request_id:
+                if "error" in reply:
+                    raise RuntimeError(json.dumps(reply["error"], ensure_ascii=False))
+                return reply["result"]
+
+    try:
+        record["initialize"] = request("initialize", {
+            "clientInfo": {"name": "mas_phase58_probe", "version": "1.0"},
+            "capabilities": {"experimentalApi": True}}, 1)
+        process.stdin.write(json.dumps({"method": "initialized", "params": {}}) + "\n")
+        process.stdin.flush()
+        result = request("skills/list", {"cwds": [str(project)], "forceReload": True}, 2)
+        safe_result, response_replacements = p58_sanitize.sanitize_value(result)
+        record["sanitize"] = {"applied": True, "skillsListReplaced": response_replacements}
+        (output / "skills_list_response.json").write_text(
+            json.dumps(safe_result, ensure_ascii=False, indent=2), encoding="utf-8")
+        entries = result.get("data")
+        if not isinstance(entries, list) or len(entries) != 1:
+            raise ValueError("skills/list did not return exactly one cwd entry")
+        if pathlib.Path(entries[0]["cwd"]).resolve() != project.resolve():
+            raise ValueError("skills/list cwd mismatch")
+        errors = entries[0].get("errors", [])
+        if errors:
+            raise ValueError(f"discovery errors: {errors}")
+        found = []
+        for skill in entries[0].get("skills", []):
+            path = pathlib.Path(skill["path"]).resolve()
             try:
-                process.stdin.close()
-            except (BrokenPipeError, OSError):
-                pass
+                path.relative_to(skills.resolve())
+            except ValueError:
+                continue
+            if skill.get("enabled") is True and skill["name"].startswith("matlab-"):
+                found.append(skill)
+        record["skills"] = found
+        record["discoveryErrors"] = errors
+        record["expectedCount"] = 9
+        record["status"] = "PASS" if len(found) == 9 else "FAIL"
+        if record["status"] == "FAIL":
+            record["reason"] = f"isolated root supplied 9 Skills but client listed {len(found)}"
+    except Exception as error:
+        record["status"] = "FAIL"
+        record["reason"] = f"{type(error).__name__}: {error}"
+    finally:
+        try:
+            process.stdin.close()
+        except (BrokenPipeError, OSError):
+            pass
+        try:
+            process.wait(timeout=5)
+        except subprocess.TimeoutExpired:
+            process.terminate()
             try:
                 process.wait(timeout=5)
             except subprocess.TimeoutExpired:
-                process.terminate()
-                try:
-                    process.wait(timeout=5)
-                except subprocess.TimeoutExpired:
-                    process.kill()
-                    process.wait(timeout=5)
-    finish(output, record, transcript, start, root)
+                process.kill()
+                process.wait(timeout=5)
+
+    stderr_thread.join(timeout=5)
+    finish(output, record, transcript, start, root, stderr_text="".join(stderr_chunks))
 
 
 if __name__ == "__main__":

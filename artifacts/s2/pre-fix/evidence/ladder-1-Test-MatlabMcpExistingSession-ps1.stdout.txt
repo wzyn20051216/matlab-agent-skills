@@ -1,0 +1,7 @@
+Import-Module : 未能加载指定的模块“E:\desktop\MATLAB\artifacts\s2\pre-fix\entry-only\scripts\MatlabAgentSkills.Acceptan
+ce.psm1”，因为在任何模块目录中都没有找到有效模块文件。
+所在位置 E:\desktop\MATLAB\artifacts\s2\pre-fix\entry-only\scripts\Test-MatlabMcpExistingSession.ps1:43 字符: 1
++ Import-Module (Join-Path $scriptDir "MatlabAgentSkills.Acceptance.psm ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   FoundException
+ 

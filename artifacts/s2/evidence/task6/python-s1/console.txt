@@ -1,0 +1,21 @@
+test_isolated_discovery_sanitizes_protocol_stderr_and_listing (test_p58_probe_outputs.ProbeOutputSanitizationTests.test_isolated_discovery_sanitizes_protocol_stderr_and_listing) ... ok
+test_task_probe_sanitizes_events_stderr_and_tail (test_p58_probe_outputs.ProbeOutputSanitizationTests.test_task_probe_sanitizes_events_stderr_and_tail) ... ok
+test_api_key_argv_forms (test_p58_sanitize.SanitizeShapesTest.test_api_key_argv_forms) ... ok
+test_authorization_bearer_and_basic (test_p58_sanitize.SanitizeShapesTest.test_authorization_bearer_and_basic) ... ok
+test_bare_uuid_and_long_hex (test_p58_sanitize.SanitizeShapesTest.test_bare_uuid_and_long_hex) ... ok
+test_control_text_is_byte_identical (test_p58_sanitize.SanitizeShapesTest.test_control_text_is_byte_identical) ... ok
+test_double_encoded_json (test_p58_sanitize.SanitizeShapesTest.test_double_encoded_json) ... ok
+test_env_style_assignment (test_p58_sanitize.SanitizeShapesTest.test_env_style_assignment) ... ok
+test_escaped_and_nested_json_field (test_p58_sanitize.SanitizeShapesTest.test_escaped_and_nested_json_field) ... ok
+test_idempotent (test_p58_sanitize.SanitizeShapesTest.test_idempotent) ... ok
+test_plain_json_field (test_p58_sanitize.SanitizeShapesTest.test_plain_json_field) ... ok
+test_x_api_key_header (test_p58_sanitize.SanitizeShapesTest.test_x_api_key_header) ... ok
+test_dict_keys_are_redacted_recursively (test_p58_sanitize.SanitizeStructureTest.test_dict_keys_are_redacted_recursively) ... ok
+test_jsonl_stays_valid_and_preserves_fields (test_p58_sanitize.SanitizeStructureTest.test_jsonl_stays_valid_and_preserves_fields) ... ok
+test_jsonl_unparseable_line_still_scrubbed (test_p58_sanitize.SanitizeStructureTest.test_jsonl_unparseable_line_still_scrubbed) ... ok
+test_replacement_is_deterministic_and_hashed (test_p58_sanitize.SanitizeStructureTest.test_replacement_is_deterministic_and_hashed) ... ok
+
+----------------------------------------------------------------------
+Ran 16 tests in 0.309s
+
+OK

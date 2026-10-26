@@ -1,0 +1,38 @@
+{
+  "schemaVersion": "1.0.0",
+  "generatedAt": "2026-10-26T19:28:41+08:00",
+  "requestedLayer": "free",
+  "filter": "McpProbe",
+  "pesterVersionRequired": "3.4.0",
+  "pesterVersion": "3.4.0",
+  "pesterSource": "installed",
+  "pesterPath": "C:\\Program Files\\WindowsPowerShell\\Modules\\Pester\\3.4.0\\Pester.psd1",
+  "powerShellVersion": "7.6.9",
+  "powerShellEdition": "Core",
+  "matlabAvailable": false,
+  "matlabRunnable": false,
+  "matlabPath": null,
+  "matlabRelease": null,
+  "matlabRunFailure": null,
+  "layers": [
+    {
+      "layer": "free",
+      "executed": true,
+      "reason": null,
+      "total": 18,
+      "passed": 15,
+      "failed": 3,
+      "durationSec": 12.8
+    }
+  ],
+  "executedLayers": [
+    "free"
+  ],
+  "notExecuted": [],
+  "totals": {
+    "total": 18,
+    "passed": 15,
+    "failed": 3,
+    "skipped": 0
+  }
+}

@@ -1,0 +1,135 @@
+==> 使用 Pester 3.4.0 (C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Pester.psd1) [installed]
+==> 运行 [free] SkillInstallation.Tests.ps1
+
+
+
+
+
+Describing 技能目录解析：客户端共用与运行环境隔离
+ [+] 文件指纹符合 SHA-256 标准向量且不依赖 Get-FileHash 自动加载 686ms
+ [+] Windows 使用本机用户共享目录，CODEX_HOME 仅是旧目录诊断 146ms
+ [+] WSL 使用 Linux 用户目录，不沿用 Windows CODEX_HOME 38ms
+ [+] 原生 Linux 和 WSL 按当前用户分别解析 32ms
+ [+] WSL 不接受误传的 Windows 用户目录 74ms
+ [+] Windows 不接受误传的 Linux 用户目录 45ms
+ [+] 显式 SkillRoot 优先，可兼容经验证的旧客户端目录 56ms
+ [+] 没有 CLI 命令时仍能解析相同共享目录 35ms
+ [+] 显式相对路径以 PowerShell 当前目录解析 46ms
+警告: 未找到 Skill payload 清单，按无附加资源处理: 
+D:\Temp\mas-skill-install-577966bbb00b4cfe9a2c4609179f9b78\repo\config\skill-payloads.json
+==> 同步 skills: D:\Temp\mas-skill-install-577966bbb00b4cfe9a2c4609179f9b78\repo\skills -> D:\Temp\mas-skill-install-577966bbb00b4cfe9a2c4609179f9b78\.agents\skills
+    备份目录（仅在发生变更时创建）: D:\Temp\mas-skill-install-577966bbb00b4cfe9a2c4609179f9b78\backup\20261026-132817-sync-skills
+  install: matlab-runner -> D:\Temp\mas-skill-install-577966bbb00b4cfe9a2c4609179f9b78\.agents\skills\matlab-runner
+ [+] Sync 默认写入当前用户 .agents，不写入 CODEX_HOME 394ms
+Describing 技能安装生命周期与卸载保护
+警告: 未找到 Skill payload 清单，按无附加资源处理: 
+D:\Temp\mas-skill-install-28e8f99a2c32447392824e6f48fe24cb\repo\config\skill-payloads.json
+==> 同步 skills: D:\Temp\mas-skill-install-28e8f99a2c32447392824e6f48fe24cb\repo\skills -> D:\Temp\mas-skill-install-28e8f99a2c32447392824e6f48fe24cb\skills
+    备份目录（仅在发生变更时创建）: D:\Temp\mas-skill-install-28e8f99a2c32447392824e6f48fe24cb\backup\20261026-132818-sync-skills
+  install: matlab-runner -> D:\Temp\mas-skill-install-28e8f99a2c32447392824e6f48fe24cb\skills\matlab-runner
+警告: 未找到 Skill payload 清单，按无附加资源处理: 
+D:\Temp\mas-skill-install-28e8f99a2c32447392824e6f48fe24cb\repo\config\skill-payloads.json
+==> 同步 skills: D:\Temp\mas-skill-install-28e8f99a2c32447392824e6f48fe24cb\repo\skills -> D:\Temp\mas-skill-install-28e8f99a2c32447392824e6f48fe24cb\skills
+    备份目录（仅在发生变更时创建）: D:\Temp\mas-skill-install-28e8f99a2c32447392824e6f48fe24cb\backup\20261026-132818-sync-skills-1
+  update: matlab-runner -> D:\Temp\mas-skill-install-28e8f99a2c32447392824e6f48fe24cb\skills\matlab-runner
+ [+] 首次安装后升级在同一目录更新并保留旧版备份 369ms
+警告: 未找到 Skill payload 清单，按无附加资源处理: 
+D:\Temp\mas-skill-install-b2a8e128722d4f77979b0733b52142e8\repo\config\skill-payloads.json
+==> 同步 skills: D:\Temp\mas-skill-install-b2a8e128722d4f77979b0733b52142e8\repo\skills -> D:\Temp\mas-skill-install-b2a8e128722d4f77979b0733b52142e8\skills
+    备份目录（仅在发生变更时创建）: D:\Temp\mas-skill-install-b2a8e128722d4f77979b0733b52142e8\backup\20261026-132818-sync-skills
+  install: matlab-runner -> D:\Temp\mas-skill-install-b2a8e128722d4f77979b0733b52142e8\skills\matlab-runner
+ [+] 卸载未改动受管技能会备份，保留其他 MATLAB 同名域技能 249ms
+警告: 未找到 Skill payload 清单，按无附加资源处理: 
+D:\Temp\mas-skill-install-ea70bff0ebc24f609bbbf4490c9ec23f\repo\config\skill-payloads.json
+==> 同步 skills: D:\Temp\mas-skill-install-ea70bff0ebc24f609bbbf4490c9ec23f\repo\skills -> D:\Temp\mas-skill-install-ea70bff0ebc24f609bbbf4490c9ec23f\skills
+    备份目录（仅在发生变更时创建）: D:\Temp\mas-skill-install-ea70bff0ebc24f609bbbf4490c9ec23f\backup\20261026-132818-sync-skills
+  install: matlab-runner -> D:\Temp\mas-skill-install-ea70bff0ebc24f609bbbf4490c9ec23f\skills\matlab-runner
+ [+] 卸载保留本地修改和安装记录 158ms
+警告: 未找到 Skill payload 清单，按无附加资源处理: 
+D:\Temp\mas-skill-install-d38e70e71b8143dcbf0e62e90e46aeb9\repo\config\skill-payloads.json
+==> 同步 skills: D:\Temp\mas-skill-install-d38e70e71b8143dcbf0e62e90e46aeb9\repo\skills -> D:\Temp\mas-skill-install-d38e70e71b8143dcbf0e62e90e46aeb9\skills
+    备份目录（仅在发生变更时创建）: D:\Temp\mas-skill-install-d38e70e71b8143dcbf0e62e90e46aeb9\backup\20261026-132818-sync-skills
+  install: matlab-runner -> D:\Temp\mas-skill-install-d38e70e71b8143dcbf0e62e90e46aeb9\skills\matlab-runner
+ [+] 卸载 DryRun 不改技能、清单或备份目录 155ms
+ [+] 没有安装清单时卸载零写入 65ms
+警告: 未找到 Skill payload 清单，按无附加资源处理: 
+D:\Temp\mas-skill-install-03c11fbe14484aa9af74f38735117ef9\repo\config\skill-payloads.json
+==> 同步 skills: D:\Temp\mas-skill-install-03c11fbe14484aa9af74f38735117ef9\repo\skills -> D:\Temp\mas-skill-install-03c11fbe14484aa9af74f38735117ef9\skills
+    备份目录（仅在发生变更时创建）: D:\Temp\mas-skill-install-03c11fbe14484aa9af74f38735117ef9\backup\20261026-132818-sync-skills
+  install: matlab-runner -> D:\Temp\mas-skill-install-03c11fbe14484aa9af74f38735117ef9\skills\matlab-runner
+ [+] 不卸载其他仓库登记的技能 150ms
+警告: 未找到 Skill payload 清单，按无附加资源处理: 
+D:\Temp\mas-skill-install-7225aa10377d46eb997a566992b50ba8\repo\config\skill-payloads.json
+==> 同步 skills: D:\Temp\mas-skill-install-7225aa10377d46eb997a566992b50ba8\repo\skills -> D:\Temp\mas-skill-install-7225aa10377d46eb997a566992b50ba8\skills
+    备份目录（仅在发生变更时创建）: D:\Temp\mas-skill-install-7225aa10377d46eb997a566992b50ba8\backup\20261026-132819-sync-skills
+  install: matlab-runner -> D:\Temp\mas-skill-install-7225aa10377d46eb997a566992b50ba8\skills\matlab-runner
+警告: 未找到 Skill payload 清单，按无附加资源处理: 
+D:\Temp\mas-skill-install-7225aa10377d46eb997a566992b50ba8\other-repo\config\skill-payloads.json
+==> 同步 skills: D:\Temp\mas-skill-install-7225aa10377d46eb997a566992b50ba8\other-repo\skills -> D:\Temp\mas-skill-install-7225aa10377d46eb997a566992b50ba8\skills
+ [+] 第二仓库不能接管共享 root 的非空清单，Force 也不例外 211ms
+警告: 未找到 Skill payload 清单，按无附加资源处理: 
+D:\Temp\mas-skill-install-a57ba13c55334921951ed054e3aedf5f\repo\config\skill-payloads.json
+==> 同步 skills: D:\Temp\mas-skill-install-a57ba13c55334921951ed054e3aedf5f\repo\skills -> D:\Temp\mas-skill-install-a57ba13c55334921951ed054e3aedf5f\skills
+    备份目录（仅在发生变更时创建）: D:\Temp\mas-skill-install-a57ba13c55334921951ed054e3aedf5f\backup\20261026-132819-sync-skills
+  install: matlab-runner -> D:\Temp\mas-skill-install-a57ba13c55334921951ed054e3aedf5f\skills\matlab-runner
+警告: 未找到 Skill payload 清单，按无附加资源处理: 
+D:\Temp\mas-skill-install-a57ba13c55334921951ed054e3aedf5f\repo\config\skill-payloads.json
+==> 同步 skills: D:\Temp\mas-skill-install-a57ba13c55334921951ed054e3aedf5f\repo\skills -> D:\Temp\mas-skill-install-a57ba13c55334921951ed054e3aedf5f\skills
+    备份目录（仅在发生变更时创建）: D:\Temp\mas-skill-install-a57ba13c55334921951ed054e3aedf5f\backup\20261026-132819-sync-skills-1
+    跳过（内容一致）: matlab-runner
+警告: 跳过清理（目录已被本地修改或缺少可信安装指纹）: matlab-foreign
+    技能清单未变化，跳过重写: D:\Temp\mas-skill-install-a57ba13c55334921951ed054e3aedf5f\skills\.matlab-agent-skills-manifest.json
+ [+] Prune 对缺少指纹的合法清单条目保留目录和登记 192ms
+警告: 未找到 Skill payload 清单，按无附加资源处理: 
+D:\Temp\mas-skill-install-5e8071bc86754e1db1a323e27e8ad9b2\repo\config\skill-payloads.json
+==> 同步 skills: D:\Temp\mas-skill-install-5e8071bc86754e1db1a323e27e8ad9b2\repo\skills -> D:\Temp\mas-skill-install-5e8071bc86754e1db1a323e27e8ad9b2\skills
+    备份目录（仅在发生变更时创建）: D:\Temp\mas-skill-install-5e8071bc86754e1db1a323e27e8ad9b2\backup\20261026-132819-sync-skills
+  install: matlab-runner -> D:\Temp\mas-skill-install-5e8071bc86754e1db1a323e27e8ad9b2\skills\matlab-runner
+ [+] 拒绝 manifest 名称路径穿越并保留越界目录 177ms
+警告: 未找到 Skill payload 清单，按无附加资源处理: 
+D:\Temp\mas-skill-install-d8d1b551ffe04914b159b0cb5d4aa4f1\repo\config\skill-payloads.json
+==> 同步 skills: D:\Temp\mas-skill-install-d8d1b551ffe04914b159b0cb5d4aa4f1\repo\skills -> D:\Temp\mas-skill-install-d8d1b551ffe04914b159b0cb5d4aa4f1\skills
+    备份目录（仅在发生变更时创建）: D:\Temp\mas-skill-install-d8d1b551ffe04914b159b0cb5d4aa4f1\backup\20261026-132819-sync-skills
+  install: matlab-runner -> D:\Temp\mas-skill-install-d8d1b551ffe04914b159b0cb5d4aa4f1\skills\matlab-runner
+ [+] 拒绝位于待卸载技能内部的备份位置 125ms
+ [+] 显式校验拒绝链接目录，避免沿 junction 删除外部文件 71ms
+ [+] 同步在根目录是 junction 时提前停止，不经链接写入清单 74ms
+Describing Bootstrap 技能链路
+==> 更新已有仓库
+    [DryRun] git -C E:\desktop\MATLAB pull --ff-only
+==> 解析 MATLAB 安装目录
+    matlabRoot: D:\Temp\mas-skill-install-4a2314dbc33445fe93ecc163db626f88
+==> 准备 MATLAB MCP Server 二进制（固定清单校验）
+    server: E:\desktop\MATLAB\bin\matlab-mcp-server-windows-x64.exe (source=existing, release=v0.15.0, integrity=VERIFIED_AGAINST_MANIFEST)
+==> 同步 Skills
+==> 同步 skills: E:\desktop\MATLAB\skills -> D:\Temp\mas-skill-install-4a2314dbc33445fe93ecc163db626f88\skills
+    [DryRun] 不会写入任何文件
+  install: matlab-codegen-deploy -> D:\Temp\mas-skill-install-4a2314dbc33445fe93ecc163db626f88\skills\matlab-codegen-deploy
+  install: matlab-control-optimization -> D:\Temp\mas-skill-install-4a2314dbc33445fe93ecc163db626f88\skills\matlab-control-optimization
+  install: matlab-data-analysis -> D:\Temp\mas-skill-install-4a2314dbc33445fe93ecc163db626f88\skills\matlab-data-analysis
+  install: matlab-orchestrator -> D:\Temp\mas-skill-install-4a2314dbc33445fe93ecc163db626f88\skills\matlab-orchestrator
+  install: matlab-robotics-autonomy -> D:\Temp\mas-skill-install-4a2314dbc33445fe93ecc163db626f88\skills\matlab-robotics-autonomy
+  install: matlab-runner -> D:\Temp\mas-skill-install-4a2314dbc33445fe93ecc163db626f88\skills\matlab-runner
+  install: matlab-signal-vision-ai -> D:\Temp\mas-skill-install-4a2314dbc33445fe93ecc163db626f88\skills\matlab-signal-vision-ai
+  install: matlab-simulink-modeling -> D:\Temp\mas-skill-install-4a2314dbc33445fe93ecc163db626f88\skills\matlab-simulink-modeling
+  install: matlab-testing-ci -> D:\Temp\mas-skill-install-4a2314dbc33445fe93ecc163db626f88\skills\matlab-testing-ci
+==> [DryRun] 将写入 skills manifest: D:\Temp\mas-skill-install-4a2314dbc33445fe93ecc163db626f88\skills\.matlab-agent-skills-manifest.json
+==> 安装 MCP 客户端接入
+==> 解析 MATLAB MCP Server 可执行文件
+    server: E:\desktop\MATLAB\bin\matlab-mcp-server-windows-x64.exe (source=explicit, release=v0.15.0, integrity=VERIFIED_AGAINST_MANIFEST)
+==> 跳过基础配置（-SkipBaseSetup）
+==> 写入通用 .mcp.json（安全合并）
+==> [DryRun] 将更新 E:\desktop\MATLAB\.mcp.json 中的 mcpServers.matlab-official（其余 0 个条目保持不变）
+ [+] 显式 SkillRoot 传入同步器，DryRun 不写真实或沙箱技能目录 583ms
+==> 更新已有仓库
+    [DryRun] git -C D:\Temp\mas-skill-install-852d60d6dde342bfa71d1415dd28f441\repo pull --ff-only
+==> 解析 MATLAB 安装目录
+    matlabRoot: D:\Temp\mas-skill-install-852d60d6dde342bfa71d1415dd28f441
+==> 准备 MATLAB MCP Server 二进制（固定清单校验）
+ [+] 同步器报告错误时 Bootstrap 停止，不继续客户端注册 131ms
+Tests completed in 4.27s
+Passed: 24 Failed: 0 Skipped: 0 Pending: 0 Inconclusive: 0
+
+==> 汇总: 共 24 个用例，通过 24，失败 0，跳过 0
+    层 free: 已执行 24 个用例，通过 24，失败 0，耗时 4.4s
+==> 层报告: artifacts/s2/evidence/task6/pester-targeted/skill-installation/layer_report.json

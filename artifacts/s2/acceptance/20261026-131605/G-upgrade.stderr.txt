@@ -1,0 +1,9 @@
+����ͬ������ʧ���������� failed �� skills �ֶΣ���ʧ�ܼ����ѳ��Դӱ��ݻָ����븴�˺����ԡ�
+����λ�� D:\Temp\mas-s2-acceptance-e7de31f2477d473da80cc4847fd37bb2\installer-repo\scripts\Sync-Skills.ps1:275 �ַ�: 5
++     throw "����ͬ������ʧ���������� failed �� skills �ֶΣ���ʧ�ܼ����ѳ��Դӱ��ݻָ����븴�˺����ԡ�"
++     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : OperationStopped: (����ͬ������ʧ���������� ...���Դӱ��ݻָ����븴�˺����ԡ�:String) 
+[], RuntimeException
+    + FullyQualifiedErrorId : ����ͬ������ʧ���������� failed �� skills �ֶΣ���ʧ�ܼ����ѳ��Դӱ��ݻָ����븴�˺�
+���ԡ�
+ 

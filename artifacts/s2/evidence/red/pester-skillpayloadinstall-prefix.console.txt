@@ -1,0 +1,221 @@
+==> 使用 Pester 3.4.0 (C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Pester.psd1) [installed]
+==> 运行 [free] SkillPayloadInstall.Tests.ps1
+
+
+
+
+
+Describing S2 installed Skill resource payload
+ [-] installs every declared payload file byte-for-byte into runner and orchestrator 739ms
+   Expected: {True}
+   But was:  {False}
+   187:             (Test-Path -LiteralPath $script:PayloadConfig) | Should Be $true
+   在 Should<End>、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Functions\Assertions\Should.ps1 中: 第 92 行
+   在 <ScriptBlock>、E:\desktop\MATLAB\tests\SkillPayloadInstall.Tests.ps1 中: 第 187 行
+   在 Invoke-Test、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Functions\It.ps1 中: 第 253 行
+   在 ItImpl、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Functions\It.ps1 中: 第 203 行
+   在 It、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Functions\It.ps1 中: 第 117 行
+   在 <ScriptBlock>、E:\desktop\MATLAB\tests\SkillPayloadInstall.Tests.ps1 中: 第 184 行
+   在 Describe、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Functions\Describe.ps1 中: 第 100 行
+   在 <ScriptBlock>、E:\desktop\MATLAB\tests\SkillPayloadInstall.Tests.ps1 中: 第 182 行
+   在 <ScriptBlock>、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Pester.psm1 中: 第 297 行
+   在 Invoke-Pester、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Pester.psm1 中: 第 310 行
+   在 <ScriptBlock>、E:\desktop\MATLAB\tests\Invoke-Tests.ps1 中: 第 177 行
+==> 同步 skills: E:\desktop\MATLAB\skills -> D:\Temp\mas-s2-install-465215046d724120b1828f70b387722b\installed-skills
+    备份目录（仅在发生变更时创建）: D:\Temp\mas-s2-install-465215046d724120b1828f70b387722b\backups\20261026-125733-sync-skills
+  install: matlab-codegen-deploy -> D:\Temp\mas-s2-install-465215046d724120b1828f70b387722b\installed-skills\matlab-codegen-deploy
+  install: matlab-control-optimization -> D:\Temp\mas-s2-install-465215046d724120b1828f70b387722b\installed-skills\matlab-control-optimization
+  install: matlab-data-analysis -> D:\Temp\mas-s2-install-465215046d724120b1828f70b387722b\installed-skills\matlab-data-analysis
+  install: matlab-orchestrator -> D:\Temp\mas-s2-install-465215046d724120b1828f70b387722b\installed-skills\matlab-orchestrator
+  install: matlab-robotics-autonomy -> D:\Temp\mas-s2-install-465215046d724120b1828f70b387722b\installed-skills\matlab-robotics-autonomy
+  install: matlab-runner -> D:\Temp\mas-s2-install-465215046d724120b1828f70b387722b\installed-skills\matlab-runner
+  install: matlab-signal-vision-ai -> D:\Temp\mas-s2-install-465215046d724120b1828f70b387722b\installed-skills\matlab-signal-vision-ai
+  install: matlab-simulink-modeling -> D:\Temp\mas-s2-install-465215046d724120b1828f70b387722b\installed-skills\matlab-simulink-modeling
+  install: matlab-testing-ci -> D:\Temp\mas-s2-install-465215046d724120b1828f70b387722b\installed-skills\matlab-testing-ci
+ [+] does not ship artifacts, session files, certificates, keys, or repository paths inside a Skill 2.9s
+==> 同步 skills: E:\desktop\MATLAB\skills -> D:\Temp\mas-s2-install-d9ae8ba81fb24b348ea65b290ae2ddb1\installed-skills
+    备份目录（仅在发生变更时创建）: D:\Temp\mas-s2-install-d9ae8ba81fb24b348ea65b290ae2ddb1\backups\20261026-125736-sync-skills
+  install: matlab-codegen-deploy -> D:\Temp\mas-s2-install-d9ae8ba81fb24b348ea65b290ae2ddb1\installed-skills\matlab-codegen-deploy
+  install: matlab-control-optimization -> D:\Temp\mas-s2-install-d9ae8ba81fb24b348ea65b290ae2ddb1\installed-skills\matlab-control-optimization
+  install: matlab-data-analysis -> D:\Temp\mas-s2-install-d9ae8ba81fb24b348ea65b290ae2ddb1\installed-skills\matlab-data-analysis
+  install: matlab-orchestrator -> D:\Temp\mas-s2-install-d9ae8ba81fb24b348ea65b290ae2ddb1\installed-skills\matlab-orchestrator
+  install: matlab-robotics-autonomy -> D:\Temp\mas-s2-install-d9ae8ba81fb24b348ea65b290ae2ddb1\installed-skills\matlab-robotics-autonomy
+  install: matlab-runner -> D:\Temp\mas-s2-install-d9ae8ba81fb24b348ea65b290ae2ddb1\installed-skills\matlab-runner
+  install: matlab-signal-vision-ai -> D:\Temp\mas-s2-install-d9ae8ba81fb24b348ea65b290ae2ddb1\installed-skills\matlab-signal-vision-ai
+  install: matlab-simulink-modeling -> D:\Temp\mas-s2-install-d9ae8ba81fb24b348ea65b290ae2ddb1\installed-skills\matlab-simulink-modeling
+  install: matlab-testing-ci -> D:\Temp\mas-s2-install-d9ae8ba81fb24b348ea65b290ae2ddb1\installed-skills\matlab-testing-ci
+==> 同步 skills: E:\desktop\MATLAB\skills -> D:\Temp\mas-s2-install-d9ae8ba81fb24b348ea65b290ae2ddb1\installed-skills
+    备份目录（仅在发生变更时创建）: D:\Temp\mas-s2-install-d9ae8ba81fb24b348ea65b290ae2ddb1\backups\20261026-125738-sync-skills
+    跳过（内容一致）: matlab-codegen-deploy
+    跳过（内容一致）: matlab-control-optimization
+    跳过（内容一致）: matlab-data-analysis
+    跳过（内容一致）: matlab-orchestrator
+    跳过（内容一致）: matlab-robotics-autonomy
+    跳过（内容一致）: matlab-runner
+    跳过（内容一致）: matlab-signal-vision-ai
+    跳过（内容一致）: matlab-simulink-modeling
+    跳过（内容一致）: matlab-testing-ci
+    技能清单未变化，跳过重写: D:\Temp\mas-s2-install-d9ae8ba81fb24b348ea65b290ae2ddb1\installed-skills\.matlab-agent-skills-manifest.json
+ [+] keeps a repeat sync byte-identical, including payload and manifest 2.81s
+==> 同步 skills: E:\desktop\MATLAB\skills -> D:\Temp\mas-s2-install-2e5f18f253df4335ab8751aa9cd441d1\installed-skills
+    [DryRun] 不会写入任何文件
+  install: matlab-codegen-deploy -> D:\Temp\mas-s2-install-2e5f18f253df4335ab8751aa9cd441d1\installed-skills\matlab-codegen-deploy
+  install: matlab-control-optimization -> D:\Temp\mas-s2-install-2e5f18f253df4335ab8751aa9cd441d1\installed-skills\matlab-control-optimization
+  install: matlab-data-analysis -> D:\Temp\mas-s2-install-2e5f18f253df4335ab8751aa9cd441d1\installed-skills\matlab-data-analysis
+  install: matlab-orchestrator -> D:\Temp\mas-s2-install-2e5f18f253df4335ab8751aa9cd441d1\installed-skills\matlab-orchestrator
+  install: matlab-robotics-autonomy -> D:\Temp\mas-s2-install-2e5f18f253df4335ab8751aa9cd441d1\installed-skills\matlab-robotics-autonomy
+  install: matlab-runner -> D:\Temp\mas-s2-install-2e5f18f253df4335ab8751aa9cd441d1\installed-skills\matlab-runner
+  install: matlab-signal-vision-ai -> D:\Temp\mas-s2-install-2e5f18f253df4335ab8751aa9cd441d1\installed-skills\matlab-signal-vision-ai
+  install: matlab-simulink-modeling -> D:\Temp\mas-s2-install-2e5f18f253df4335ab8751aa9cd441d1\installed-skills\matlab-simulink-modeling
+  install: matlab-testing-ci -> D:\Temp\mas-s2-install-2e5f18f253df4335ab8751aa9cd441d1\installed-skills\matlab-testing-ci
+==> [DryRun] 将写入 skills manifest: D:\Temp\mas-s2-install-2e5f18f253df4335ab8751aa9cd441d1\installed-skills\.matlab-agent-skills-manifest.json
+ [+] writes nothing for -DryRun 204ms
+==> 同步 skills: E:\desktop\MATLAB\skills -> D:\Temp\mas-s2-install-67b1587c906b49c4a9b24436936888a2\installed-skills
+    备份目录（仅在发生变更时创建）: D:\Temp\mas-s2-install-67b1587c906b49c4a9b24436936888a2\backups\20261026-125739-sync-skills
+  install: matlab-codegen-deploy -> D:\Temp\mas-s2-install-67b1587c906b49c4a9b24436936888a2\installed-skills\matlab-codegen-deploy
+  install: matlab-control-optimization -> D:\Temp\mas-s2-install-67b1587c906b49c4a9b24436936888a2\installed-skills\matlab-control-optimization
+  install: matlab-data-analysis -> D:\Temp\mas-s2-install-67b1587c906b49c4a9b24436936888a2\installed-skills\matlab-data-analysis
+  install: matlab-orchestrator -> D:\Temp\mas-s2-install-67b1587c906b49c4a9b24436936888a2\installed-skills\matlab-orchestrator
+  install: matlab-robotics-autonomy -> D:\Temp\mas-s2-install-67b1587c906b49c4a9b24436936888a2\installed-skills\matlab-robotics-autonomy
+  install: matlab-runner -> D:\Temp\mas-s2-install-67b1587c906b49c4a9b24436936888a2\installed-skills\matlab-runner
+  install: matlab-signal-vision-ai -> D:\Temp\mas-s2-install-67b1587c906b49c4a9b24436936888a2\installed-skills\matlab-signal-vision-ai
+  install: matlab-simulink-modeling -> D:\Temp\mas-s2-install-67b1587c906b49c4a9b24436936888a2\installed-skills\matlab-simulink-modeling
+  install: matlab-testing-ci -> D:\Temp\mas-s2-install-67b1587c906b49c4a9b24436936888a2\installed-skills\matlab-testing-ci
+ [-] repairs a tampered installed payload and backs up the previous copy 2.16s
+   Expected: {True}
+   But was:  {False}
+   268:             (Test-Path -LiteralPath $payloadPath) | Should Be $true
+   在 Should<End>、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Functions\Assertions\Should.ps1 中: 第 92 行
+   在 <ScriptBlock>、E:\desktop\MATLAB\tests\SkillPayloadInstall.Tests.ps1 中: 第 268 行
+   在 Invoke-Test、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Functions\It.ps1 中: 第 253 行
+   在 ItImpl、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Functions\It.ps1 中: 第 203 行
+   在 It、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Functions\It.ps1 中: 第 117 行
+   在 <ScriptBlock>、E:\desktop\MATLAB\tests\SkillPayloadInstall.Tests.ps1 中: 第 263 行
+   在 Describe、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Functions\Describe.ps1 中: 第 100 行
+   在 <ScriptBlock>、E:\desktop\MATLAB\tests\SkillPayloadInstall.Tests.ps1 中: 第 182 行
+   在 <ScriptBlock>、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Pester.psm1 中: 第 297 行
+   在 Invoke-Pester、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Pester.psm1 中: 第 310 行
+   在 <ScriptBlock>、E:\desktop\MATLAB\tests\Invoke-Tests.ps1 中: 第 177 行
+==> 同步 skills: D:\Temp\mas-s2-install-a52378acd5024a789d3302bd376e41a0\repo\skills -> D:\Temp\mas-s2-install-a52378acd5024a789d3302bd376e41a0\installed-skills
+    备份目录（仅在发生变更时创建）: D:\Temp\mas-s2-install-a52378acd5024a789d3302bd376e41a0\backups\20261026-125741-sync-skills
+  install: matlab-codegen-deploy -> D:\Temp\mas-s2-install-a52378acd5024a789d3302bd376e41a0\installed-skills\matlab-codegen-deploy
+  install: matlab-control-optimization -> D:\Temp\mas-s2-install-a52378acd5024a789d3302bd376e41a0\installed-skills\matlab-control-optimization
+  install: matlab-data-analysis -> D:\Temp\mas-s2-install-a52378acd5024a789d3302bd376e41a0\installed-skills\matlab-data-analysis
+  install: matlab-orchestrator -> D:\Temp\mas-s2-install-a52378acd5024a789d3302bd376e41a0\installed-skills\matlab-orchestrator
+  install: matlab-robotics-autonomy -> D:\Temp\mas-s2-install-a52378acd5024a789d3302bd376e41a0\installed-skills\matlab-robotics-autonomy
+  install: matlab-runner -> D:\Temp\mas-s2-install-a52378acd5024a789d3302bd376e41a0\installed-skills\matlab-runner
+  install: matlab-signal-vision-ai -> D:\Temp\mas-s2-install-a52378acd5024a789d3302bd376e41a0\installed-skills\matlab-signal-vision-ai
+  install: matlab-simulink-modeling -> D:\Temp\mas-s2-install-a52378acd5024a789d3302bd376e41a0\installed-skills\matlab-simulink-modeling
+  install: matlab-testing-ci -> D:\Temp\mas-s2-install-a52378acd5024a789d3302bd376e41a0\installed-skills\matlab-testing-ci
+ [-] restores the pre-upgrade payload when the destination is locked 4.02s
+   Expected: {True}
+   But was:  {False}
+   288:             (Test-Path -LiteralPath $payloadPath) | Should Be $true
+   在 Should<End>、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Functions\Assertions\Should.ps1 中: 第 92 行
+   在 <ScriptBlock>、E:\desktop\MATLAB\tests\SkillPayloadInstall.Tests.ps1 中: 第 288 行
+   在 Invoke-Test、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Functions\It.ps1 中: 第 253 行
+   在 ItImpl、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Functions\It.ps1 中: 第 203 行
+   在 It、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Functions\It.ps1 中: 第 117 行
+   在 <ScriptBlock>、E:\desktop\MATLAB\tests\SkillPayloadInstall.Tests.ps1 中: 第 282 行
+   在 Describe、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Functions\Describe.ps1 中: 第 100 行
+   在 <ScriptBlock>、E:\desktop\MATLAB\tests\SkillPayloadInstall.Tests.ps1 中: 第 182 行
+   在 <ScriptBlock>、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Pester.psm1 中: 第 297 行
+   在 Invoke-Pester、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Pester.psm1 中: 第 310 行
+   在 <ScriptBlock>、E:\desktop\MATLAB\tests\Invoke-Tests.ps1 中: 第 177 行
+==> 同步 skills: E:\desktop\MATLAB\skills -> D:\Temp\mas-s2-install-e068c7a5a3584b8ab78c53f234425864\installed-skills
+    备份目录（仅在发生变更时创建）: D:\Temp\mas-s2-install-e068c7a5a3584b8ab78c53f234425864\backups\20261026-125745-sync-skills
+  install: matlab-codegen-deploy -> D:\Temp\mas-s2-install-e068c7a5a3584b8ab78c53f234425864\installed-skills\matlab-codegen-deploy
+  install: matlab-control-optimization -> D:\Temp\mas-s2-install-e068c7a5a3584b8ab78c53f234425864\installed-skills\matlab-control-optimization
+  install: matlab-data-analysis -> D:\Temp\mas-s2-install-e068c7a5a3584b8ab78c53f234425864\installed-skills\matlab-data-analysis
+  install: matlab-orchestrator -> D:\Temp\mas-s2-install-e068c7a5a3584b8ab78c53f234425864\installed-skills\matlab-orchestrator
+  install: matlab-robotics-autonomy -> D:\Temp\mas-s2-install-e068c7a5a3584b8ab78c53f234425864\installed-skills\matlab-robotics-autonomy
+  install: matlab-runner -> D:\Temp\mas-s2-install-e068c7a5a3584b8ab78c53f234425864\installed-skills\matlab-runner
+  install: matlab-signal-vision-ai -> D:\Temp\mas-s2-install-e068c7a5a3584b8ab78c53f234425864\installed-skills\matlab-signal-vision-ai
+  install: matlab-simulink-modeling -> D:\Temp\mas-s2-install-e068c7a5a3584b8ab78c53f234425864\installed-skills\matlab-simulink-modeling
+  install: matlab-testing-ci -> D:\Temp\mas-s2-install-e068c7a5a3584b8ab78c53f234425864\installed-skills\matlab-testing-ci
+ [+] uninstalls all nine managed Skills without leaving payload residue 2.73s
+Describing S2 installed Skill execution without the source repository
+==> 同步 skills: E:\desktop\MATLAB\skills -> D:\Temp\mas-s2-install-1cda402815b04172ab8eca4aea7175c8\installed-skills
+    备份目录（仅在发生变更时创建）: D:\Temp\mas-s2-install-1cda402815b04172ab8eca4aea7175c8\backups\20261026-125748-sync-skills
+  install: matlab-codegen-deploy -> D:\Temp\mas-s2-install-1cda402815b04172ab8eca4aea7175c8\installed-skills\matlab-codegen-deploy
+  install: matlab-control-optimization -> D:\Temp\mas-s2-install-1cda402815b04172ab8eca4aea7175c8\installed-skills\matlab-control-optimization
+  install: matlab-data-analysis -> D:\Temp\mas-s2-install-1cda402815b04172ab8eca4aea7175c8\installed-skills\matlab-data-analysis
+  install: matlab-orchestrator -> D:\Temp\mas-s2-install-1cda402815b04172ab8eca4aea7175c8\installed-skills\matlab-orchestrator
+  install: matlab-robotics-autonomy -> D:\Temp\mas-s2-install-1cda402815b04172ab8eca4aea7175c8\installed-skills\matlab-robotics-autonomy
+  install: matlab-runner -> D:\Temp\mas-s2-install-1cda402815b04172ab8eca4aea7175c8\installed-skills\matlab-runner
+  install: matlab-signal-vision-ai -> D:\Temp\mas-s2-install-1cda402815b04172ab8eca4aea7175c8\installed-skills\matlab-signal-vision-ai
+  install: matlab-simulink-modeling -> D:\Temp\mas-s2-install-1cda402815b04172ab8eca4aea7175c8\installed-skills\matlab-simulink-modeling
+  install: matlab-testing-ci -> D:\Temp\mas-s2-install-1cda402815b04172ab8eca4aea7175c8\installed-skills\matlab-testing-ci
+ [-] keeps sanitizer behavior in the installed Core module 2.35s
+   Expected: {True}
+   But was:  {False}
+   355:             (Test-Path -LiteralPath $corePath) | Should Be $true
+   在 Should<End>、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Functions\Assertions\Should.ps1 中: 第 92 行
+   在 <ScriptBlock>、E:\desktop\MATLAB\tests\SkillPayloadInstall.Tests.ps1 中: 第 355 行
+   在 Invoke-Test、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Functions\It.ps1 中: 第 253 行
+   在 ItImpl、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Functions\It.ps1 中: 第 203 行
+   在 It、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Functions\It.ps1 中: 第 117 行
+   在 <ScriptBlock>、E:\desktop\MATLAB\tests\SkillPayloadInstall.Tests.ps1 中: 第 350 行
+   在 Describe、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Functions\Describe.ps1 中: 第 100 行
+   在 <ScriptBlock>、E:\desktop\MATLAB\tests\SkillPayloadInstall.Tests.ps1 中: 第 348 行
+   在 <ScriptBlock>、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Pester.psm1 中: 第 297 行
+   在 Invoke-Pester、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Pester.psm1 中: 第 310 行
+   在 <ScriptBlock>、E:\desktop\MATLAB\tests\Invoke-Tests.ps1 中: 第 177 行
+==> 同步 skills: E:\desktop\MATLAB\skills -> D:\Temp\mas-s2-install-4b9a51f755f548709e66fad18d83598e\installed-skills
+    备份目录（仅在发生变更时创建）: D:\Temp\mas-s2-install-4b9a51f755f548709e66fad18d83598e\backups\20261026-125750-sync-skills
+  install: matlab-codegen-deploy -> D:\Temp\mas-s2-install-4b9a51f755f548709e66fad18d83598e\installed-skills\matlab-codegen-deploy
+  install: matlab-control-optimization -> D:\Temp\mas-s2-install-4b9a51f755f548709e66fad18d83598e\installed-skills\matlab-control-optimization
+  install: matlab-data-analysis -> D:\Temp\mas-s2-install-4b9a51f755f548709e66fad18d83598e\installed-skills\matlab-data-analysis
+  install: matlab-orchestrator -> D:\Temp\mas-s2-install-4b9a51f755f548709e66fad18d83598e\installed-skills\matlab-orchestrator
+  install: matlab-robotics-autonomy -> D:\Temp\mas-s2-install-4b9a51f755f548709e66fad18d83598e\installed-skills\matlab-robotics-autonomy
+  install: matlab-runner -> D:\Temp\mas-s2-install-4b9a51f755f548709e66fad18d83598e\installed-skills\matlab-runner
+  install: matlab-signal-vision-ai -> D:\Temp\mas-s2-install-4b9a51f755f548709e66fad18d83598e\installed-skills\matlab-signal-vision-ai
+  install: matlab-simulink-modeling -> D:\Temp\mas-s2-install-4b9a51f755f548709e66fad18d83598e\installed-skills\matlab-simulink-modeling
+  install: matlab-testing-ci -> D:\Temp\mas-s2-install-4b9a51f755f548709e66fad18d83598e\installed-skills\matlab-testing-ci
+ [-] resolves every installed module from inside the Skill root 4.31s
+   Expected: {True}
+   But was:  {False}
+   386:             ($paths.Count -ge 4) | Should Be $true
+   在 Should<End>、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Functions\Assertions\Should.ps1 中: 第 92 行
+   在 <ScriptBlock>、E:\desktop\MATLAB\tests\SkillPayloadInstall.Tests.ps1 中: 第 386 行
+   在 Invoke-Test、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Functions\It.ps1 中: 第 253 行
+   在 ItImpl、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Functions\It.ps1 中: 第 203 行
+   在 It、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Functions\It.ps1 中: 第 117 行
+   在 <ScriptBlock>、E:\desktop\MATLAB\tests\SkillPayloadInstall.Tests.ps1 中: 第 370 行
+   在 Describe、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Functions\Describe.ps1 中: 第 100 行
+   在 <ScriptBlock>、E:\desktop\MATLAB\tests\SkillPayloadInstall.Tests.ps1 中: 第 348 行
+   在 <ScriptBlock>、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Pester.psm1 中: 第 297 行
+   在 Invoke-Pester、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Pester.psm1 中: 第 310 行
+   在 <ScriptBlock>、E:\desktop\MATLAB\tests\Invoke-Tests.ps1 中: 第 177 行
+==> 同步 skills: E:\desktop\MATLAB\skills -> D:\Temp\mas-s2-install-57eddcb44c7a4c4bac9599f2e2813f7f\installed-skills
+    备份目录（仅在发生变更时创建）: D:\Temp\mas-s2-install-57eddcb44c7a4c4bac9599f2e2813f7f\backups\20261026-125755-sync-skills
+  install: matlab-codegen-deploy -> D:\Temp\mas-s2-install-57eddcb44c7a4c4bac9599f2e2813f7f\installed-skills\matlab-codegen-deploy
+  install: matlab-control-optimization -> D:\Temp\mas-s2-install-57eddcb44c7a4c4bac9599f2e2813f7f\installed-skills\matlab-control-optimization
+  install: matlab-data-analysis -> D:\Temp\mas-s2-install-57eddcb44c7a4c4bac9599f2e2813f7f\installed-skills\matlab-data-analysis
+  install: matlab-orchestrator -> D:\Temp\mas-s2-install-57eddcb44c7a4c4bac9599f2e2813f7f\installed-skills\matlab-orchestrator
+  install: matlab-robotics-autonomy -> D:\Temp\mas-s2-install-57eddcb44c7a4c4bac9599f2e2813f7f\installed-skills\matlab-robotics-autonomy
+  install: matlab-runner -> D:\Temp\mas-s2-install-57eddcb44c7a4c4bac9599f2e2813f7f\installed-skills\matlab-runner
+  install: matlab-signal-vision-ai -> D:\Temp\mas-s2-install-57eddcb44c7a4c4bac9599f2e2813f7f\installed-skills\matlab-signal-vision-ai
+  install: matlab-simulink-modeling -> D:\Temp\mas-s2-install-57eddcb44c7a4c4bac9599f2e2813f7f\installed-skills\matlab-simulink-modeling
+  install: matlab-testing-ci -> D:\Temp\mas-s2-install-57eddcb44c7a4c4bac9599f2e2813f7f\installed-skills\matlab-testing-ci
+ [-] runs the installed probe from a project cwd and writes artifacts outside the Skill 2.13s
+   Expected: {True}
+   But was:  {False}
+   399:             (Test-Path -LiteralPath $probePath) | Should Be $true
+   在 Should<End>、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Functions\Assertions\Should.ps1 中: 第 92 行
+   在 <ScriptBlock>、E:\desktop\MATLAB\tests\SkillPayloadInstall.Tests.ps1 中: 第 399 行
+   在 Invoke-Test、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Functions\It.ps1 中: 第 253 行
+   在 ItImpl、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Functions\It.ps1 中: 第 203 行
+   在 It、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Functions\It.ps1 中: 第 117 行
+   在 <ScriptBlock>、E:\desktop\MATLAB\tests\SkillPayloadInstall.Tests.ps1 中: 第 393 行
+   在 Describe、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Functions\Describe.ps1 中: 第 100 行
+   在 <ScriptBlock>、E:\desktop\MATLAB\tests\SkillPayloadInstall.Tests.ps1 中: 第 348 行
+   在 <ScriptBlock>、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Pester.psm1 中: 第 297 行
+   在 Invoke-Pester、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Pester.psm1 中: 第 310 行
+   在 <ScriptBlock>、E:\desktop\MATLAB\tests\Invoke-Tests.ps1 中: 第 177 行
+Tests completed in 24.36s
+Passed: 4 Failed: 6 Skipped: 0 Pending: 0 Inconclusive: 0
+
+==> 汇总: 共 10 个用例，通过 4，失败 6，跳过 0
+    层 free: 已执行 10 个用例，通过 4，失败 6，耗时 24.5s
+==> 层报告: artifacts/s2/evidence/red/pester-skillpayloadinstall-prefix.json

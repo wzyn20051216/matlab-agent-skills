@@ -1,0 +1,13 @@
+
+	Sponsored License -- for use in support of a program or activity sponsored by MathWorks.
+	Not for government, commercial or other non-sponsored organizational use.
+
+ROUTE simulink  decision=ROUTE    expected=matlab-simulink-modeling       present=1 runner=1 primary=matlab-simulink-modeling
+ROUTE signal    decision=ROUTE    expected=matlab-signal-vision-ai        present=1 runner=1 primary=matlab-signal-vision-ai
+ROUTE control   decision=ROUTE    expected=matlab-control-optimization    present=1 runner=1 primary=matlab-control-optimization
+ROUTE data      decision=ROUTE    expected=matlab-data-analysis           present=1 runner=1 primary=matlab-data-analysis
+ROUTE codegen   decision=ROUTE    expected=matlab-codegen-deploy          present=1 runner=1 primary=matlab-codegen-deploy
+ROUTE robotics  decision=ROUTE    expected=matlab-robotics-autonomy       present=1 runner=1 primary=matlab-robotics-autonomy
+ROUTE testing   decision=ROUTE    expected=matlab-testing-ci              present=1 runner=1 primary=matlab-testing-ci
+CAPABILITY ok=1 checks=5 verdict=CONSISTENT
+TASK6_CONSISTENCY PASS

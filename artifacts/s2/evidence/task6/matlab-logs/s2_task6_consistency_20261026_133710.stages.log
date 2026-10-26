@@ -1,0 +1,4 @@
+﻿2026-10-26T13:37:10.636 [launch] E:\matlab\bin\matlab.exe -batch run('E:\desktop\MATLAB\artifacts\s2\evidence\task6\task6_consistency.m')
+2026-10-26T13:37:10.922 [running] pid=5256 timeout=600s
+2026-10-26T13:37:30.531 [exited] exitCode=0
+2026-10-26T13:37:30.607 [classified] CODEGEN_ERROR

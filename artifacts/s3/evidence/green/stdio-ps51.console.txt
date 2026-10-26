@@ -1,0 +1,20 @@
+==> 使用 Pester 3.4.0 (C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Pester.psd1) [installed]
+==> 运行 [free] McpStdio.Tests.ps1
+
+
+
+
+
+Describing stdio 传输在两种宿主都必须能启动服务端
+ [+] Start-McpStdioServer 不依赖 PS7 专有属性，进程保持存活 1.81s
+ [+] initialize 返回真实 result（协议版本与服务端名） 1.7s
+ [+] 握手失败时返回 error 而不是假装成功 1.23s
+Describing JSON-RPC 载荷按 UTF-8 往返
+ [+] 含非 ASCII 的 MATLAB 代码不被代码页损坏 1.5s
+ [+] tools/list 能发现工具名（阶段 4 的前置条件） 1.13s
+Tests completed in 7.36s
+Passed: 5 Failed: 0 Skipped: 0 Pending: 0 Inconclusive: 0
+
+==> 汇总: 共 5 个用例，通过 5，失败 0，跳过 0
+    层 free: 已执行 5 个用例，通过 5，失败 0，耗时 7.6s
+==> 层报告: E:\desktop\MATLAB\artifacts\s3\evidence\green\stdio-ps51.json

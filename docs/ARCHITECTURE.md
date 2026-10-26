@@ -30,7 +30,8 @@
 | `schemas/acceptance-report.schema.json` | 验收报告结构的唯一定义源 |
 | `scripts/MatlabAgentSkills.Acceptance.psm1` | 报告构造、UTF-8 读写、schema 校验、合并、退出码 |
 | `scripts/MatlabAgentSkills.Execution.psm1` | 错误分类、有限重试、进程超时与进程树终止、阶段日志 |
-| `scripts/MatlabAgentSkills.McpProbe.psm1` | MCP 五阶段探测 |
+| `scripts/MatlabAgentSkills.McpProbe.psm1` | MCP 五阶段探测（stdio 优先，HTTPS 仅观测；回环证书固定） |
+| `scripts/MatlabAgentSkills.McpStdio.psm1` | 官方 server 的 JSON-RPC over stdio 客户端（UTF-8 字节流，5.1/7 双宿主） |
 | `matlab/validation/+masacc/` | MATLAB 侧同形状报告生成 |
 | `matlab/validation/+masacc/featureName.m` | 产品名 → license feature 名映射（`license('test')` 的第二个参数是 feature 名） |
 | `matlab/validation/+masacc/licenseState.m` | 三态授权判定（`true` / `false` / 无法判定） |

@@ -1,0 +1,4 @@
+﻿2026-10-26T13:20:06.951 [launch] E:\matlab\bin\matlab.exe -batch run('E:\desktop\MATLAB\artifacts\s2\evidence\task6\run_s2_regression.m')
+2026-10-26T13:20:07.004 [running] pid=50084 timeout=1800s
+2026-10-26T13:25:15.809 [exited] exitCode=0
+2026-10-26T13:25:15.914 [classified] CODEGEN_ERROR

@@ -234,15 +234,32 @@ function Stop-ProcessTree {
     }
 }
 
+function Protect-ExecutionLogDetail {
+    <# .SYNOPSIS 阶段日志落盘前的统一脱敏；脱敏器不可用时失败关闭。 #>
+    param([AllowNull()][AllowEmptyString()][string]$Text)
+    if ([string]::IsNullOrEmpty($Text)) { return "" }
+    if (-not (Get-Command Protect-MasText -ErrorAction SilentlyContinue)) {
+        $corePath = Join-Path $PSScriptRoot "MatlabAgentSkills.Core.psm1"
+        if (Test-Path -LiteralPath $corePath) {
+            Import-Module $corePath -Force -DisableNameChecking -ErrorAction SilentlyContinue
+        }
+    }
+    if (Get-Command Protect-MasText -ErrorAction SilentlyContinue) {
+        return (Protect-MasText -Text $Text)
+    }
+    return "[REDACTED: sanitizer-unavailable]"
+}
+
 function Write-StageLog {
-    <# .SYNOPSIS 追加一条阶段诊断记录。 #>
+    <# .SYNOPSIS 追加一条阶段诊断记录（落盘前脱敏）。 #>
     param(
         [string]$Path,
         [Parameter(Mandatory)][string]$Stage,
         [string]$Detail = ""
     )
     if (-not $Path) { return }
-    $line = "{0} [{1}] {2}" -f (Get-Date).ToString("yyyy-MM-ddTHH:mm:ss.fff"), $Stage, $Detail
+    $safeDetail = Protect-ExecutionLogDetail -Text $Detail
+    $line = "{0} [{1}] {2}" -f (Get-Date).ToString("yyyy-MM-ddTHH:mm:ss.fff"), $Stage, $safeDetail
     try {
         Add-Content -LiteralPath $Path -Value $line -Encoding UTF8
     }

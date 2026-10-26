@@ -1,0 +1,44 @@
+{
+  "layered_on_s1": [
+    "scripts/MatlabAgentSkills.Core.psm1",
+    "scripts/MatlabAgentSkills.McpProbe.psm1",
+    "skills/matlab-runner/SKILL.md"
+  ],
+  "head_based": [
+    "scripts/MatlabAgentSkills.SkillInstallation.psm1",
+    "scripts/Sync-Skills.ps1",
+    "scripts/Test-MatlabMcpExistingSession.ps1",
+    "tests/McpProbe.Tests.ps1"
+  ],
+  "docs": [
+    "skills/matlab-codegen-deploy/SKILL.md",
+    "skills/matlab-control-optimization/SKILL.md",
+    "skills/matlab-data-analysis/SKILL.md",
+    "skills/matlab-orchestrator/SKILL.md",
+    "skills/matlab-robotics-autonomy/SKILL.md",
+    "skills/matlab-signal-vision-ai/SKILL.md",
+    "skills/matlab-simulink-modeling/SKILL.md",
+    "skills/matlab-testing-ci/SKILL.md",
+    "skills/matlab-runner/references/acceptance-levels.md",
+    "skills/matlab-runner/references/mcp-readiness-ladder.md"
+  ],
+  "new_files": [
+    "config/skill-payloads.json",
+    "tests/Invoke-S2Acceptance.ps1",
+    "tests/SkillPayloadContract.Tests.ps1",
+    "tests/SkillPayloadInstall.Tests.ps1"
+  ],
+  "excluded_s1_only_files": [
+    "docs/PHASE5_8_FINAL_ZH.md",
+    "matlab/validation/phase58/p58_codex_isolated_discovery.py",
+    "matlab/validation/phase58/p58_codex_task_probe.py",
+    "scripts/MatlabAgentSkills.Execution.psm1",
+    "scripts/MatlabAgentSkills.McpStdio.psm1",
+    "scripts/Start-MatlabSharedSession.ps1",
+    "matlab/validation/phase58/p58_sanitize.py",
+    "tests/CredentialSanitizer.Tests.ps1",
+    "tests/McpCredentialOutput.Tests.ps1",
+    "tests/test_p58_probe_outputs.py",
+    "tests/test_p58_sanitize.py"
+  ]
+}

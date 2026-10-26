@@ -7,6 +7,37 @@ description: MATLAB agentic workflow router. Use this whenever the user asks for
 
 Use this skill as the entry point for MATLAB work. The goal is to turn a loose engineering request into a closed-loop workflow: select the right specialist skill, run MATLAB when possible, save artifacts, and verify the result before reporting back.
 
+## Skill Root Resolution
+
+This Skill ships its own probe and runtime modules under `scripts/`, the
+acceptance schema under `schemas/`, and the pinned MCP server release manifest under
+`config/`, next to this `SKILL.md`. Commands must never
+depend on the caller's working directory being the Skill root.
+
+`$skillRoot` means the absolute path of the installed Skill directory that contains
+this `SKILL.md`. Set it once per shell session from the path reported by the
+client's Skill loader; do not infer it from the caller cwd and do not require a
+development checkout.
+
+```powershell
+$skillRoot = '<absolute path to the installed matlab-orchestrator Skill directory>'
+$probe = Join-Path $skillRoot 'scripts\Test-MatlabMcpExistingSession.ps1'
+```
+
+The router helper `mas_route` lives in the same root and reads `assets/` there. Add
+it for the current MATLAB session only; never edit `savepath`, `startup.m`, or a
+global MATLAB preference. (`mas_pipeline` is a repository-only benchmark harness and
+is not part of the installed workflow.)
+
+```matlab
+skillRoot = '<absolute path to the installed matlab-orchestrator Skill directory>';
+addpath(fullfile(skillRoot, 'scripts'));
+```
+
+If a shipped file is missing, stop and report the exact missing path. Reinstall the
+Skill through the project installer; never scan the disk for a substitute script and
+never execute an unknown local script.
+
 ## Execution Requirement On This Machine
 
 On this machine, MATLAB and Simulink work should default to the official **MATLAB MCP auto** workflow, not a fresh `matlab -batch` session. Treat the visible MATLAB desktop as the primary and expected execution path for engineering tasks, especially Simulink modeling, iterative control tuning, and repeated read-modify-simulate loops.
@@ -50,10 +81,12 @@ When an official MATLAB MCP auto path is available:
 Never infer MCP readiness from a config file, a recorded `pid`, or a listening port. Run the staged probe first and read the per-stage verdict:
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File .\scripts\Test-MatlabMcpExistingSession.ps1 -Json
+powershell -ExecutionPolicy Bypass -File $skillRoot\scripts\Test-MatlabMcpExistingSession.ps1 -ProjectRoot (Get-Location).Path -Json
 ```
 
-The probe grades install, session config, client registration, protocol handshake, read-only execution, and file read-back as **separate checks**. Consequences you must respect when routing work:
+The probe grades install, session config, client registration, protocol handshake, read-only execution, and file read-back as **separate checks**. It drives the official MATLAB MCP server over **stdio** by default (`-Transport auto`); the `https` path exists only to observe the connector, whose direct `POST /mcp` answers `403` by design. Run it without `-SkipTlsValidation`, and route the SKIP/FAIL reason it reports rather than inventing a fallback.
+
+Consequences you must respect when routing work:
 
 - If `mcp.protocol-handshake` is `FAIL`, do not attempt MCP edits; report the exact blocker (HTTP status plus JSON-RPC error) and ask before switching to batch.
 - If `mcp.readonly-exec` is `SKIP` because the server exposes no evaluation tool, say so — a successful handshake only proves the protocol layer, not that MATLAB can run anything.
@@ -71,7 +104,7 @@ A MATLAB task is complete only when it has:
 
 The acceptance verdict must come from the unified report, not from your impression:
 
-- Report file: `artifacts/validation/acceptance_report.json`, schema `schemas/acceptance-report.schema.json`.
+- Report file: `artifacts/validation/acceptance_report.json` in the user's project, validated against `$skillRoot/schemas/acceptance-report.schema.json`.
 - `overallStatus` is `PASS` only when every check passed. Any `SKIP` makes it `SKIP` (exit code `3`), and `SKIP` is never converted into a pass.
 - `achievedLevel` is the highest **contiguous** level reached: if L2 was skipped, a passing L3 still only yields L1.
 - Route the work so that at least the level the user asked for is genuinely executed. If it cannot be executed here (no license, no toolbox, no board), say that explicitly instead of producing an L1 artifact and calling it done.

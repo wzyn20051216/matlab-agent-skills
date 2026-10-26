@@ -1,0 +1,14 @@
+﻿matlab_path=E:\matlab\bin\matlab.exe
+working_directory=E:\desktop\MATLAB
+started=2026-10-26T13:19:28.7439541+08:00
+finished=2026-10-26T13:19:53.2447603+08:00
+duration_seconds=24.501
+timeout_seconds=1800
+attempts=1
+timed_out=False
+exit_code=1
+error_class=LICENSE_ERROR
+stdout=E:\desktop\MATLAB\artifacts\s2\evidence\task6\matlab-logs\s2_matlab_regression_20261026_131928.stdout.log
+stderr=E:\desktop\MATLAB\artifacts\s2\evidence\task6\matlab-logs\s2_matlab_regression_20261026_131928.stderr.log
+stages=E:\desktop\MATLAB\artifacts\s2\evidence\task6\matlab-logs\s2_matlab_regression_20261026_131928.stages.log
+command=run('E:\desktop\MATLAB\artifacts\s2\evidence\task6\run_s2_regression.m')

@@ -21,8 +21,8 @@ review because the file really is there.
 - **File existence is an L1 claim only.** It never substitutes for L2 compile success.
 - **Generic C codegen is not STM32 deployment.** STM32 additionally needs CubeMX
   registration, visible target hardware, a bound `.ioc`, and a matching Cube firmware
-  package. Verify each separately — see `references/stm32-deployment-chain.md` in
-  `matlab-codegen-deploy` for the full list.
+  package. Verify each separately; the STM32 checklist in `matlab-codegen-deploy`
+  names the products, registration calls, `.ioc` binding, and target data fields.
 - **Every run must edit the acceptance report** (`artifacts/validation/acceptance_report.json`),
   which carries `status`, `command`, `exitCode`, `metrics`, `reason`, `errorClass`
   per check.

@@ -1,0 +1,1213 @@
+==> 使用 Pester 3.4.0 (C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Pester.psd1) [installed]
+==> 运行 [free] Acceptance.Protocol.Tests.ps1
+
+
+
+
+
+Describing 验收 JSON Schema
+ [+] schema 文件存在且是合法 JSON 573ms
+ [+] schema 覆盖任务要求的全部顶层字段 106ms
+ [+] 新建报告能通过 schema 与语义校验 227ms
+ [+] 非法 backend 会被 schema 拒绝 154ms
+ [+] 未知 errorClass 会被 schema 拒绝 176ms
+ [+] 缺少必需字段会被 schema 拒绝 171ms
+ [+] metrics 类型错误会被 schema 拒绝 170ms
+Describing SKIP 语义
+ [+] SKIP 缺少 reason 时构造检查项直接报错 291ms
+ [+] FAIL 缺少 reason 时构造检查项直接报错 40ms
+ [+] 校验器会拦截被外部改坏的 SKIP（reason 为空） 212ms
+ [+] 存在 SKIP 时整体状态不得为 PASS 60ms
+ [+] 全部 PASS 时整体为 PASS 且退出码 0 42ms
+ [+] 任一 FAIL 时整体为 FAIL 且退出码 1 48ms
+Describing 五级验收与连续判定
+ [+] L1 未通过时 achievedLevel 停在 L0 74ms
+ [+] L2 为 SKIP 时即使 L3 通过也只能到 L1 45ms
+ [+] L1~L3 全通过时 achievedLevel 为 L3 44ms
+Describing 报告落盘与合并
+ [+] 写入后可按 UTF-8 读回并通过校验 248ms
+ [+] 覆盖写同一路径是原子替换：不残留临时文件，旧内容被替换 111ms
+ [+] 合并子报告时保留全部检查并处理 id 冲突 310ms
+ [+] 父报告没有工具箱清单时从子报告继承，而不是留一个空数组 185ms
+ [+] 父报告已有工具箱清单时不被子报告覆盖 51ms
+Describing 等级名称与元数据
+ [+] 每个等级都有可读说明 94ms
+ [+] 协议版本是语义化版本号 39ms
+ [+] taskId 只含安全字符 43ms
+Describing 验收范围（capability scope）
+ [+] 四个范围都有定义，且 full 的必选集最大 77ms
+ [+] core 范围不因 Coder 检查 SKIP 而失败 105ms
+ [+] 可选 SKIP 不影响 core，但整体状态仍然是 SKIP（不被改写） 61ms
+ [+] coder 范围内必选检查 SKIP 时判为 SKIP，而不是 PASS 58ms
+ [+] 必选检查 FAIL 时范围判为 FAIL 55ms
+ [+] 必选检查在报告里缺失时判为 SKIP（未产出不等于通过） 58ms
+ [+] 范围退出码与状态一致：PASS=0 / FAIL=1 / SKIP=3 41ms
+ [+] 四个范围可以一次性求值，顺序固定 79ms
+ [+] 范围求值结果能写进报告并通过 schema 校验 692ms
+Describing 报告边界值编码
+ [+] 单条检查的 checks 仍然是数组（不能退化成对象） 212ms
+ [+] exitCode 允许整数与 null，拒绝字符串 410ms
+ [+] durationSeconds 允许数字与 null，拒绝负数 295ms
+ [+] errorClass 只接受约定的 8 个类别（另加 null） 1.2s
+ [+] 空字符串 reason 不能冒充有效原因（SKIP 必须可审计） 47ms
+ [+] artifactPaths 为空数组时仍然合法 189ms
+ [+] 空工具箱清单是合法数组，但缺少 name/version 的条目非法 441ms
+ [+] licensed 允许 null（无法判定授权），但不允许字符串 329ms
+Tests completed in 7.88s
+Passed: 41 Failed: 0 Skipped: 0 Pending: 0 Inconclusive: 0
+==> 运行 [free] Acl.Permission.Tests.ps1
+
+
+
+
+
+Describing ACL 有效权限：纯规则求解
+ [+] 单条 (OI)(CI) FullControl Allow 满足目录与子对象要求 258ms
+ [+] 只读 ACE 不会被当成 FullControl 70ms
+ [+] 只有 Deny ACE 时有效权限为零 63ms
+ [+] Deny 优先于同范围 Allow：Allow F + Deny W 扣掉写权限 83ms
+ [+] 同一 SID 多条 ACE 取并集：R + W + D 仍不等于 FullControl 81ms
+ [+] 多条 Allow 覆盖全部位时并集等于 FullControl 60ms
+ [+] InheritOnly ACE 不作用于目录自身，但作用于子对象 50ms
+ [+] 无继承标志的 ACE 满足目录自身但不满足子对象 45ms
+ [+] 只有 ContainerInherit（缺 ObjectInherit）不满足继承要求 40ms
+Describing ACL 有效权限：真实目录
+ [+] 只读授权被判为权限不足，且原因指出缺失位 304ms
+ [+] 只有 Deny ACE 时被判为无权限，原因点名 Deny 134ms
+ [+] FullControl 但无继承标志时，目录通过、子对象不通过 146ms
+ [+] Allow F 叠加 Deny W 时判为权限不足，且 Deny 掩码被记录 171ms
+ [+] 内置管理员账户（RID 500）在 SDDL 显示为别名时仍能正确判定 156ms
+ [+] Set-DirectoryAclGrant 写后校验通过，并带出可审计的验证结果 145ms
+ [+] 预先存在的 Deny 规则会让 Set-DirectoryAclGrant 拒绝宣告成功 173ms
+ [+] 不存在路径时校验返回 false 而不是抛异常 63ms
+Describing ACL 归一化：真实 ACL 的字段
+ [+] (OI)(CI)F 归一化后带 ContainerInherit 与 ObjectInherit，且不继承自父目录 193ms
+ [+] Deny ACE 的 AccessType 与继承标志被正确区分 126ms
+ [+] 查询其它 SID 时不会把当前用户的 ACE 算进来 128ms
+Tests completed in 2.5s
+Passed: 20 Failed: 0 Skipped: 0 Pending: 0 Inconclusive: 0
+==> 运行 [free] CredentialSanitizer.Tests.ps1
+
+
+
+
+
+Describing 统一脱敏函数覆盖真实泄露形态
+ [+] 普通 JSON 字段值被替换 315ms
+ [+] 转义 / 嵌套 JSON 字段值被替换（Phase 5.8 的泄露形状） 83ms
+ [+] x-api-key 请求头被替换 105ms
+ [+] Authorization Bearer 与 Basic 被替换 55ms
+ [+] --api-key 的两种命令行写法都被替换 44ms
+ [+] 裸 UUID 与长十六进制令牌被替换 36ms
+ [+] 已知密钥字面值（含短值）仍被替换 45ms
+ [+] 无敏感内容的文本逐字节不变 54ms
+ [+] 二次脱敏幂等 52ms
+Describing 既有入口委托到统一实现后不再漏
+ [+] Protect-McpSensitiveText 覆盖转义 JSON / Bearer / argv / 裸 UUID 104ms
+ [+] Protect-MasSecretText 覆盖转义 JSON / Bearer / argv / 裸 UUID 60ms
+Tests completed in 959ms
+Passed: 11 Failed: 0 Skipped: 0 Pending: 0 Inconclusive: 0
+==> 运行 [free] DependencyOrder.Tests.ps1
+
+
+
+
+
+Describing 依赖检查顺序
+ [+] 验证脚本目录存在且包含 .m 脚本 76ms
+   Context matlab_codegen_smoke.m
+    [+] 使用 Coder/Slbuild 的脚本必须先做依赖检测 215ms
+    [+] 首次 Coder 调用（行 58）必须晚于首次依赖检测 39ms
+   Context matlab_compiler_chain_smoke.m
+    [+] 使用 Coder/Slbuild 的脚本必须先做依赖检测 121ms
+    [+] 首次 Coder 调用（行 62）必须晚于首次依赖检测 34ms
+   Context simulink_coder_smoke.m
+    [+] 使用 Coder/Slbuild 的脚本必须先做依赖检测 120ms
+    [+] 首次 Coder 调用（行 232）必须晚于首次依赖检测 31ms
+ [+] matlab_codegen_smoke.m 的参数构造已被移入 try 块 76ms
+Tests completed in 716ms
+Passed: 8 Failed: 0 Skipped: 0 Pending: 0 Inconclusive: 0
+==> 运行 [free] DesktopEvidence.Tests.ps1
+
+
+
+
+
+Describing Desktop 技能证据的客户端与来源边界
+ [+] 从平台注入发现技能，用户消息不进入导出结果 552ms
+ [+] 拒绝把 CLI 会话冒充 Desktop 85ms
+ [+] originator 同为 Codex Desktop 但 source=exec 的 CLI 会话也必须被拒绝 104ms
+ [+] 缺少 app-context 标记的会话不算 Desktop UI 会话 68ms
+ [+] 只把带成功返回正文的读取记为加载 163ms
+ [+] 混合读取只导出哈希与技能名，不复制敏感哨兵或原始输入输出 185ms
+ [+] 失败返回即使出现技能名也不能记为成功观察 107ms
+ [+] 混合输出中的其他已发现技能名必须有对应读取路径 124ms
+ [+] 多轮注入同名技能即使描述变化也只累计一个发现项 106ms
+Tests completed in 1.5s
+Passed: 9 Failed: 0 Skipped: 0 Pending: 0 Inconclusive: 0
+==> 运行 [free] DesktopStartup.Tests.ps1
+
+
+
+
+
+Describing 桌面就绪必须匹配本次运行时
+ [+] 桌面窗口在父进程且启动器与运行时 PID 不同时能正确识别 385ms
+ [+] 旧 launchId 即使 PID 和共享文件一致也不能通过 39ms
+ [+] 启动前就存在的运行时不能计作新启动 41ms
+ [+] 只有 launcher 活着而实际 runtime 消失时不能通过 43ms
+ [+] 共享文件被另一 MATLAB 会话覆盖时不能通过 51ms
+ [+] 有主线程回执但没有桌面窗口时不能通过 60ms
+ [+] 较晚创建的无关窗口父 PID 不能冒充原桌面进程 64ms
+ [+] 已有另一个 MATLAB 时新实例通过但不算冷启动 64ms
+ [+] 同一 PID 且创建时间一致时仍判为启动前已存在 66ms
+ [+] PID 被系统回收时新运行时不能被当成启动前已存在 84ms
+ [+] 共享函数报错的回执不能当成已就绪 51ms
+ [+] 桌面标志必须是布尔值，文本 true 不能冒充探针结果 40ms
+ [+] 新鲜共享文件、实际新进程和指定安装匹配时才通过 40ms
+ [+] PID 相同但共享文件早于本次请求时不能通过 49ms
+ [+] 新鲜回执不能掩盖进程早于启动请求的事实 38ms
+ [+] 其他 MATLAB 安装的新 PID 不能冒充指定安装 40ms
+Describing 桌面启动计划与非敏感会话读取
+ [+] COM 注册只接受官方桌面参数并匹配目标安装，拒绝附加命令 101ms
+ [+] COM 新身份必须有唯一标记和匹配安装；已有 PID 明确返回非新实例 57ms
+ [+] 原生持有进程创建标志脱离 Job、无窗口且不继承标准句柄，测试只编译不启动 283ms
+ [+] COM 共享已有实例时真实执行 holder 逻辑只发只读身份查询且不碰进程或回执 1.58s
+ [+] 新 COM holder 保持强引用直到绑定运行时退出，轮询不向 MATLAB 注入等待或 Quit 2.49s
+ [+] COM 已激活但身份失败时保活本次新候选，报告仍为失败，不执行 bootstrap 225ms
+ [+] Shell 异常诊断有界且不会回显密钥和认证行 52ms
+ [+] 含空格和单引号路径的 MATLAB 命令有正确边界 60ms
+ [+] Shortcut 模式实际 ShellExecute 只有真实 lnk 参数，不注入目录和命令 58ms
+ [+] 共享文件中的密钥和其他未知字段不进入结果对象 61ms
+ [+] 半写入 JSON 或非法端口不返回候选共享会话 114ms
+ [+] 真实 PowerShell 辅助进程失败时保留脱敏 stderr 和退出码，不运行 Shell 或 MATLAB 1.25s
+ [+] 真实 PowerShell 辅助进程退出零也保留 stdout 和 stderr，不运行 Shell 或 MATLAB 1.01s
+Describing 启动器集成控制：所有进程均为模拟
+ [+] COM 新回执须与存活 holder 的 HOLDING 运行时绑定，且不调用 Shell 565ms
+ [+] COM 共享实例返回已有 PID 时明确 NOT_NEW，不能算另开或冷启动 248ms
+ [+] Job 禁止 breakaway 时 ComDesktop 明确报 UNSUPPORTED 并保留归因，不伪装成启动失败 159ms
+ [+] COM holder 已退出时即使存在正确回执也不能报就绪 198ms
+ [+] COM holder 绑定其他运行时不能用正确回执掩盖，超时保留进程 1.45s
+ [+] COM 激活后失败不得自动降级 Shell 再开一个实例 173ms
+ [+] COM 确认也要求 holder 存活且 HOLDING，不能绕过主流程保护 367ms
+ [+] COM DryRun 仅检查注册并显示计划，不创建 holder 或文件 127ms
+ [+] 模拟新启动记录 runtime、父窗口、launcher，并与 MCP 执行证明分开 232ms
+ [+] 已有共享桌面时复用且从不调用启动器 159ms
+ [+] 已有未共享的 MATLAB 时默认保留并不创建重复实例 129ms
+ [+] 显式要求另一套 MATLAB 时不会复用错误安装的已有会话 130ms
+ [+] 明确另开实例时保留已有 PID，报告不记冷启动 204ms
+ [+] 复用路径也拒绝早于当前进程创建时间的旧共享文件 119ms
+ [+] DryRun 不启动进程，也不创建目录 123ms
+ [+] 等待超时写可审查报告，不结束任何 MATLAB 1.3s
+ [+] Shell 启动失败保留诊断报告 187ms
+ [+] Shortcut 新共享桌面只记候选，不能提前报新启动或冷启动通过 213ms
+ [+] 快捷方式候选取得绑定回执后可确认，确认动作不再调用启动器 320ms
+ [+] 快捷方式候选的共享文件过期时确认失败，原候选报告保持未通过 232ms
+Tests completed in 15.15s
+Passed: 49 Failed: 0 Skipped: 0 Pending: 0 Inconclusive: 0
+==> 运行 [free] Execution.Reliability.Tests.ps1
+
+
+
+
+
+Describing 错误分类
+ [+] 许可证失败归类为 LICENSE_ERROR 且不可自动重试 151ms
+ [+] MCP 连接失败归类为 MCP_CONNECTION_ERROR 且可重试 40ms
+ [+] 缺少编译器归类为 ENVIRONMENT_ERROR 36ms
+ [+] 仿真错误归类为 SIMULATION_ERROR 36ms
+ [+] 构建错误归类为 CODEGEN_ERROR 48ms
+ [+] 数值不一致归类为 VALIDATION_ERROR 36ms
+ [+] 普通运行时报错归类为 MATLAB_RUNTIME_ERROR 47ms
+ [+] 超时标记优先于任何日志匹配 66ms
+ [+] 退出码为 0 且无匹配时返回 null 48ms
+ [+] 可恢复集合只包含 TIMEOUT 与 MCP_CONNECTION_ERROR 43ms
+Describing 有限次重试
+ [+] 可恢复错误会重试并最终成功 128ms
+ [+] 不可恢复错误不重试 55ms
+ [+] 非幂等操作未获批准时不重试 45ms
+ [+] 非幂等操作获得批准后允许重试 45ms
+ [+] 最大尝试次数被限制在 1..5，不会无限循环 70ms
+ [+] Action 抛异常时按消息分类 53ms
+Describing 进程超时与清理
+ [+] 超过超时阈值会终止进程并归类 TIMEOUT 2.96s
+ [+] 正常退出的进程返回真实退出码 1.07s
+ [+] 非零退出码会被分类而不是被吞掉 1.19s
+ [+] 可执行文件不存在时抛错而不是静默通过 43ms
+ [+] 超时阈值小于 1 秒会被拒绝（避免无法区分挂起与正常结束） 38ms
+ [+] 调用方不传阶段日志路径时仍然落盘（否则超时排查没有证据） 1.06s
+Describing MATLAB 安装探测
+ [+] 能从合成安装目录读出版本与 release 150ms
+ [+] VersionInfo 缺失时标记不可读而不是抛错 51ms
+ [+] 显式路径不存在时返回 null 45ms
+Describing 短进程超时
+ [+] Invoke-ProcessWithTimeout 能终止超时的外部命令 2.67s
+ [+] Invoke-ProcessWithTimeout 返回标准输出与退出码 954ms
+Tests completed in 11.2s
+Passed: 27 Failed: 0 Skipped: 0 Pending: 0 Inconclusive: 0
+==> 运行 [free] Installer.Scenarios.Tests.ps1
+
+
+
+
+
+Describing Install-MatlabMcpClients：首次安装与安全合并
+警告: SessionMode=existing 不允许 --matlab-display-mode，已自动省略（否则 MCP server 启动即失败）。
+警告: SessionMode=existing 不允许 --matlab-root，已自动省略。
+警告: SessionMode=existing 表示复用已有会话，不会启动新 MATLAB，已自动省略 --initialize-matlab-on-startup。
+==> 解析 MATLAB MCP Server 可执行文件
+    server: D:\Temp\mas-e2e-f98ab06a6aa14b788c642035cc2f649a\fake-mcp-server.cmd (source=explicit, release=v0.15.0, integrity=UNVERIFIED_ACCEPTED_BY_OPERATOR)
+警告: 正在使用未经固定清单校验的 MCP server: 
+D:\Temp\mas-e2e-f98ab06a6aa14b788c642035cc2f649a\fake-mcp-server.cmd（SHA256=8D44F071A98F78308F761D1C01D0187A653CC4280C
+3E699EE02CBAB88E0BFDF6）。 状态记为 UNVERIFIED_ACCEPTED_BY_OPERATOR，安装摘要不会把它标为已验证。
+    备份目录（仅在发生变更时创建）: D:\Temp\mas-e2e-f98ab06a6aa14b788c642035cc2f649a\backups\20261026-212106-install-clients
+==> 跳过基础配置（-SkipBaseSetup）
+==> 写入通用 .mcp.json（安全合并）
+ [+] existing 模式生成的 .mcp.json 不含 --matlab-display-mode 693ms
+==> 解析 MATLAB MCP Server 可执行文件
+    server: D:\Temp\mas-e2e-f7e573d84ed749598f52447f675e1d48\fake-mcp-server.cmd (source=explicit, release=v0.15.0, integrity=UNVERIFIED_ACCEPTED_BY_OPERATOR)
+警告: 正在使用未经固定清单校验的 MCP server: 
+D:\Temp\mas-e2e-f7e573d84ed749598f52447f675e1d48\fake-mcp-server.cmd（SHA256=8D44F071A98F78308F761D1C01D0187A653CC4280C
+3E699EE02CBAB88E0BFDF6）。 状态记为 UNVERIFIED_ACCEPTED_BY_OPERATOR，安装摘要不会把它标为已验证。
+    备份目录（仅在发生变更时创建）: D:\Temp\mas-e2e-f7e573d84ed749598f52447f675e1d48\backups\20261026-212106-install-clients
+==> 跳过基础配置（-SkipBaseSetup）
+==> 写入通用 .mcp.json（安全合并）
+ [+] auto 模式生成的配置包含 display-mode 与 matlab-root 169ms
+==> 解析 MATLAB MCP Server 可执行文件
+    server: D:\Temp\mas-e2e-ee2e6859cda147229d389770be0aa818\fake-mcp-server.cmd (source=explicit, release=v0.15.0, integrity=UNVERIFIED_ACCEPTED_BY_OPERATOR)
+警告: 正在使用未经固定清单校验的 MCP server: 
+D:\Temp\mas-e2e-ee2e6859cda147229d389770be0aa818\fake-mcp-server.cmd（SHA256=8D44F071A98F78308F761D1C01D0187A653CC4280C
+3E699EE02CBAB88E0BFDF6）。 状态记为 UNVERIFIED_ACCEPTED_BY_OPERATOR，安装摘要不会把它标为已验证。
+    备份目录（仅在发生变更时创建）: D:\Temp\mas-e2e-ee2e6859cda147229d389770be0aa818\backups\20261026-212106-install-clients
+==> 跳过基础配置（-SkipBaseSetup）
+==> 写入通用 .mcp.json（安全合并）
+ [+] 保留用户已有的其它 MCP server 配置 257ms
+==> 解析 MATLAB MCP Server 可执行文件
+    server: D:\Temp\mas-e2e-0816291fa47846ceb08c0041925e3380\fake-mcp-server.cmd (source=explicit, release=v0.15.0, integrity=UNVERIFIED_ACCEPTED_BY_OPERATOR)
+警告: 正在使用未经固定清单校验的 MCP server: 
+D:\Temp\mas-e2e-0816291fa47846ceb08c0041925e3380\fake-mcp-server.cmd（SHA256=8D44F071A98F78308F761D1C01D0187A653CC4280C
+3E699EE02CBAB88E0BFDF6）。 状态记为 UNVERIFIED_ACCEPTED_BY_OPERATOR，安装摘要不会把它标为已验证。
+    备份目录（仅在发生变更时创建）: D:\Temp\mas-e2e-0816291fa47846ceb08c0041925e3380\backups\20261026-212106-install-clients
+==> 跳过基础配置（-SkipBaseSetup）
+==> 写入 VS Code MCP 配置（安全合并）
+ [+] VS Code 配置保留其它 server 并带 type=stdio 205ms
+==> 解析 MATLAB MCP Server 可执行文件
+    server: D:\Temp\mas-e2e-1e772471b4d143399c6abbb9141e81b3\fake-mcp-server.cmd (source=explicit, release=v0.15.0, integrity=UNVERIFIED_ACCEPTED_BY_OPERATOR)
+警告: 正在使用未经固定清单校验的 MCP server: 
+D:\Temp\mas-e2e-1e772471b4d143399c6abbb9141e81b3\fake-mcp-server.cmd（SHA256=8D44F071A98F78308F761D1C01D0187A653CC4280C
+3E699EE02CBAB88E0BFDF6）。 状态记为 UNVERIFIED_ACCEPTED_BY_OPERATOR，安装摘要不会把它标为已验证。
+    备份目录（仅在发生变更时创建）: D:\Temp\mas-e2e-1e772471b4d143399c6abbb9141e81b3\backups\20261026-212107-install-clients
+==> 跳过基础配置（-SkipBaseSetup）
+==> 写入通用 .mcp.json（安全合并）
+==> 解析 MATLAB MCP Server 可执行文件
+    server: D:\Temp\mas-e2e-1e772471b4d143399c6abbb9141e81b3\fake-mcp-server.cmd (source=explicit, release=v0.15.0, integrity=UNVERIFIED_ACCEPTED_BY_OPERATOR)
+警告: 正在使用未经固定清单校验的 MCP server: 
+D:\Temp\mas-e2e-1e772471b4d143399c6abbb9141e81b3\fake-mcp-server.cmd（SHA256=8D44F071A98F78308F761D1C01D0187A653CC4280C
+3E699EE02CBAB88E0BFDF6）。 状态记为 UNVERIFIED_ACCEPTED_BY_OPERATOR，安装摘要不会把它标为已验证。
+    备份目录（仅在发生变更时创建）: D:\Temp\mas-e2e-1e772471b4d143399c6abbb9141e81b3\backups\20261026-212107-install-clients
+==> 跳过基础配置（-SkipBaseSetup）
+==> 写入通用 .mcp.json（安全合并）
+ [+] 重复安装是幂等的（第二次全部 unchanged，文件字节不变） 320ms
+==> 解析 MATLAB MCP Server 可执行文件
+    server: D:\Temp\mas-e2e-26e2888d729b4b42a989000d34e7f106\fake-mcp-server.cmd (source=explicit, release=v0.15.0, integrity=UNVERIFIED_ACCEPTED_BY_OPERATOR)
+警告: 正在使用未经固定清单校验的 MCP server: 
+D:\Temp\mas-e2e-26e2888d729b4b42a989000d34e7f106\fake-mcp-server.cmd（SHA256=8D44F071A98F78308F761D1C01D0187A653CC4280C
+3E699EE02CBAB88E0BFDF6）。 状态记为 UNVERIFIED_ACCEPTED_BY_OPERATOR，安装摘要不会把它标为已验证。
+    备份目录（仅在发生变更时创建）: D:\Temp\mas-e2e-26e2888d729b4b42a989000d34e7f106\backups\20261026-212107-install-clients
+==> 跳过基础配置（-SkipBaseSetup）
+==> 写入通用 .mcp.json（安全合并）
+警告: 安装失败，开始回滚: 无法解析 JSON 配置: 
+D:\Temp\mas-e2e-26e2888d729b4b42a989000d34e7f106\work\.mcp.json。为避免破坏你已有的配置，安装器已中止。请先修复该文件的语
+法（含注释的 JSONC 也会导致此错误）。
+ [+] 配置文件 JSON 非法时安装失败且原文件不被破坏 171ms
+==> 解析 MATLAB MCP Server 可执行文件
+    server: D:\Temp\mas-e2e-57abbc7d67c74a5a96bb1ec5f8557408\fake-mcp-server.cmd (source=explicit, release=v0.15.0, integrity=UNVERIFIED_ACCEPTED_BY_OPERATOR)
+==> 跳过基础配置（-SkipBaseSetup）
+==> 写入通用 .mcp.json（安全合并）
+==> [DryRun] 将创建 D:\Temp\mas-e2e-57abbc7d67c74a5a96bb1ec5f8557408\work\.mcp.json 中的 mcpServers.matlab-official（其余 0 个条目保持不变）
+ [+] DryRun 不写 .mcp.json 178ms
+Describing Install-MatlabMcpClients：客户端解耦（P0-2）
+==> 解析 MATLAB MCP Server 可执行文件
+    server: D:\Temp\mas-e2e-9274d40da41f4cac888013ddc1df885e\fake-mcp-server.cmd (source=explicit, release=v0.15.0, integrity=UNVERIFIED_ACCEPTED_BY_OPERATOR)
+警告: 正在使用未经固定清单校验的 MCP server: 
+D:\Temp\mas-e2e-9274d40da41f4cac888013ddc1df885e\fake-mcp-server.cmd（SHA256=8D44F071A98F78308F761D1C01D0187A653CC4280C
+3E699EE02CBAB88E0BFDF6）。 状态记为 UNVERIFIED_ACCEPTED_BY_OPERATOR，安装摘要不会把它标为已验证。
+    备份目录（仅在发生变更时创建）: D:\Temp\mas-e2e-9274d40da41f4cac888013ddc1df885e\backups\20261026-212107-install-clients
+==> 跳过基础配置（-SkipBaseSetup）
+==> 接入 Claude Code
+ [+] 没有 Codex 时也能单独接入 Claude Code 3.54s
+==> 解析 MATLAB MCP Server 可执行文件
+    server: D:\Temp\mas-e2e-78006c23835446b085a1f061cb62d958\fake-mcp-server.cmd (source=explicit, release=v0.15.0, integrity=UNVERIFIED_ACCEPTED_BY_OPERATOR)
+警告: 正在使用未经固定清单校验的 MCP server: 
+D:\Temp\mas-e2e-78006c23835446b085a1f061cb62d958\fake-mcp-server.cmd（SHA256=8D44F071A98F78308F761D1C01D0187A653CC4280C
+3E699EE02CBAB88E0BFDF6）。 状态记为 UNVERIFIED_ACCEPTED_BY_OPERATOR，安装摘要不会把它标为已验证。
+    备份目录（仅在发生变更时创建）: D:\Temp\mas-e2e-78006c23835446b085a1f061cb62d958\backups\20261026-212111-install-clients
+==> 跳过基础配置（-SkipBaseSetup）
+==> 接入 Codex
+警告: 安装失败，开始回滚: 没有检测到 codex 命令，无法接入 Codex。请先安装 Codex CLI，或用 -Clients claude 单独接入 
+Claude Code。
+ [+] 显式要求 Codex 但未安装时给出明确错误 322ms
+==> 解析 MATLAB MCP Server 可执行文件
+    server: D:\Temp\mas-e2e-cf7e7c8b8c514b9f980b39277f7adea8\fake-mcp-server.cmd (source=explicit, release=v0.15.0, integrity=UNVERIFIED_ACCEPTED_BY_OPERATOR)
+警告: 正在使用未经固定清单校验的 MCP server: 
+D:\Temp\mas-e2e-cf7e7c8b8c514b9f980b39277f7adea8\fake-mcp-server.cmd（SHA256=8D44F071A98F78308F761D1C01D0187A653CC4280C
+3E699EE02CBAB88E0BFDF6）。 状态记为 UNVERIFIED_ACCEPTED_BY_OPERATOR，安装摘要不会把它标为已验证。
+    备份目录（仅在发生变更时创建）: D:\Temp\mas-e2e-cf7e7c8b8c514b9f980b39277f7adea8\backups\20261026-212111-install-clients
+==> 跳过基础配置（-SkipBaseSetup）
+==> 接入 Claude Code
+==> 解析 MATLAB MCP Server 可执行文件
+    server: D:\Temp\mas-e2e-cf7e7c8b8c514b9f980b39277f7adea8\fake-mcp-server.cmd (source=explicit, release=v0.15.0, integrity=UNVERIFIED_ACCEPTED_BY_OPERATOR)
+警告: 正在使用未经固定清单校验的 MCP server: 
+D:\Temp\mas-e2e-cf7e7c8b8c514b9f980b39277f7adea8\fake-mcp-server.cmd（SHA256=8D44F071A98F78308F761D1C01D0187A653CC4280C
+3E699EE02CBAB88E0BFDF6）。 状态记为 UNVERIFIED_ACCEPTED_BY_OPERATOR，安装摘要不会把它标为已验证。
+    备份目录（仅在发生变更时创建）: D:\Temp\mas-e2e-cf7e7c8b8c514b9f980b39277f7adea8\backups\20261026-212115-install-clients
+==> 跳过基础配置（-SkipBaseSetup）
+==> 接入 Claude Code
+ [+] Claude 注册重复执行是幂等的 5.65s
+警告: SessionMode=existing 不允许 --matlab-display-mode，已自动省略（否则 MCP server 启动即失败）。
+警告: SessionMode=existing 不允许 --matlab-root，已自动省略。
+警告: SessionMode=existing 表示复用已有会话，不会启动新 MATLAB，已自动省略 --initialize-matlab-on-startup。
+==> 解析 MATLAB MCP Server 可执行文件
+    server: D:\Temp\mas-e2e-8c96add0a01e43599512ccec0944b742\fake-mcp-server.cmd (source=explicit, release=v0.15.0, integrity=UNVERIFIED_ACCEPTED_BY_OPERATOR)
+警告: 正在使用未经固定清单校验的 MCP server: 
+D:\Temp\mas-e2e-8c96add0a01e43599512ccec0944b742\fake-mcp-server.cmd（SHA256=8D44F071A98F78308F761D1C01D0187A653CC4280C
+3E699EE02CBAB88E0BFDF6）。 状态记为 UNVERIFIED_ACCEPTED_BY_OPERATOR，安装摘要不会把它标为已验证。
+    备份目录（仅在发生变更时创建）: D:\Temp\mas-e2e-8c96add0a01e43599512ccec0944b742\backups\20261026-212117-install-clients
+==> 跳过基础配置（-SkipBaseSetup）
+==> 接入 Claude Code
+ [+] existing 模式注册到客户端时也不携带 display-mode 3.28s
+==> 更新已有仓库
+    [DryRun] git -C E:\desktop\MATLAB pull --ff-only
+==> 解析 MATLAB 安装目录
+    matlabRoot: D:\Temp\mas-e2e-f081907a157d49fe8a5c1d1c795b9645\matlab
+==> 准备 MATLAB MCP Server 二进制（固定清单校验）
+    server: E:\desktop\MATLAB\bin\matlab-mcp-server-windows-x64.exe (source=existing, release=v0.15.0, integrity=VERIFIED_AGAINST_MANIFEST)
+==> 安装 MCP 客户端接入
+==> 解析 MATLAB MCP Server 可执行文件
+    server: E:\desktop\MATLAB\bin\matlab-mcp-server-windows-x64.exe (source=explicit, release=v0.15.0, integrity=VERIFIED_AGAINST_MANIFEST)
+==> 跳过基础配置（-SkipBaseSetup）
+==> 写入通用 .mcp.json（安全合并）
+==> [DryRun] 将更新 E:\desktop\MATLAB\.mcp.json 中的 mcpServers.matlab-official（其余 0 个条目保持不变）
+ [+] Bootstrap -DryRun 在已有仓库上不写任何文件（幂等冒烟） 467ms
+==> 解析 MATLAB MCP Server 可执行文件
+    server: D:\Temp\mas-e2e-018fb885d66543feae19910a0d5690f0\fake-mcp-server.cmd (source=explicit, release=v0.15.0, integrity=UNVERIFIED_ACCEPTED_BY_OPERATOR)
+警告: 正在使用未经固定清单校验的 MCP server: 
+D:\Temp\mas-e2e-018fb885d66543feae19910a0d5690f0\fake-mcp-server.cmd（SHA256=8D44F071A98F78308F761D1C01D0187A653CC4280C
+3E699EE02CBAB88E0BFDF6）。 状态记为 UNVERIFIED_ACCEPTED_BY_OPERATOR，安装摘要不会把它标为已验证。
+    备份目录（仅在发生变更时创建）: D:\Temp\mas-e2e-018fb885d66543feae19910a0d5690f0\backups\20261026-212121-install-clients
+==> 跳过基础配置（-SkipBaseSetup）
+==> 接入 Codex
+警告: 安装失败，开始回滚: 注册到 codex 失败（exit=1）：stub: transient add failure 已还原变更前的注册。
+    还原客户端注册: codex matlab-official
+ [+] 注册失败时回滚到变更前的注册（P0-3） 8.4s
+Describing Setup-MatlabMcpExistingSession：失败回滚（P0-6）
+    备份目录（仅在发生变更时创建）: D:\Temp\mas-e2e-c3bef811a0f54ecf9e0b21de6a5b41ab\backups\20261026-212129-setup-mcp
+==> 解析 MATLAB MCP Server 可执行文件
+    server: D:\Temp\mas-e2e-c3bef811a0f54ecf9e0b21de6a5b41ab\fake-mcp-server.cmd (source=explicit, release=v0.15.0, integrity=UNVERIFIED_ACCEPTED_BY_OPERATOR)
+==> 解析 MATLAB 安装目录
+    matlabRoot: D:\Temp\mas-e2e-c3bef811a0f54ecf9e0b21de6a5b41ab\matlab
+==> 安装 MATLAB MCP Server Toolbox
+警告: 正在使用未经固定清单校验的 MCP server: 
+D:\Temp\mas-e2e-c3bef811a0f54ecf9e0b21de6a5b41ab\fake-mcp-server.cmd（SHA256=8D44F071A98F78308F761D1C01D0187A653CC4280C
+3E699EE02CBAB88E0BFDF6）。 状态记为 UNVERIFIED_ACCEPTED_BY_OPERATOR，安装摘要不会把它标为已验证。
+==> 跳过 ACL 修正（-SkipAclFix）
+==> 写入 startup.m 托管块
+    startup.m: appended
+警告: 配置失败，开始回滚: 故障注入：startup 步骤后强制失败
+    还原文件: D:\Temp\mas-e2e-c3bef811a0f54ecf9e0b21de6a5b41ab\matlabuser\startup.m
+ [+] startup 步骤后失败会还原 startup.m 328ms
+警告: SessionMode=existing 不允许 --matlab-display-mode，已自动省略（否则 MCP server 启动即失败）。
+警告: SessionMode=existing 不允许 --matlab-root，已自动省略。
+警告: SessionMode=existing 表示复用已有会话，不会启动新 MATLAB，已自动省略 --initialize-matlab-on-startup。
+    已省略参数: --matlab-display-mode=desktop --matlab-root=D:\Temp\mas-e2e-0c2b4030827444a48494b8c49c36cdb0\matlab --initialize-matlab-on-startup=true
+==> 解析 MATLAB MCP Server 可执行文件
+    server: D:\Temp\mas-e2e-0c2b4030827444a48494b8c49c36cdb0\fake-mcp-server.cmd (source=explicit, release=v0.15.0, integrity=UNVERIFIED_ACCEPTED_BY_OPERATOR)
+==> 解析 MATLAB 安装目录
+    matlabRoot: D:\Temp\mas-e2e-0c2b4030827444a48494b8c49c36cdb0\matlab
+==> 安装 MATLAB MCP Server Toolbox
+    [DryRun] D:\Temp\mas-e2e-0c2b4030827444a48494b8c49c36cdb0\fake-mcp-server.cmd --setup-matlab --matlab-root=D:\Temp\mas-e2e-0c2b4030827444a48494b8c49c36cdb0\matlab
+==> 跳过 ACL 修正（-SkipAclFix）
+==> 写入 startup.m 托管块
+    startup.m: would-created
+==> 跳过客户端注册（基础配置与客户端解耦）
+ [+] DryRun 不创建 startup.m、不改数据目录 135ms
+ [+] 知名 SID 在 SDDL 里显示为别名时不会被误判为授权失败 114ms
+ [+] ACL 授权是追加式且可还原（P0-6） 189ms
+Describing Sync-Skills：冲突检测与备份（P0-5）
+==> 同步 skills: E:\desktop\MATLAB\skills -> D:\Temp\mas-e2e-d69386fdf5ce4199959d73960d6b81de\skills
+    备份目录（仅在发生变更时创建）: D:\Temp\mas-e2e-d69386fdf5ce4199959d73960d6b81de\backups\20261026-212130-sync-skills
+  install: matlab-codegen-deploy -> D:\Temp\mas-e2e-d69386fdf5ce4199959d73960d6b81de\skills\matlab-codegen-deploy
+  install: matlab-control-optimization -> D:\Temp\mas-e2e-d69386fdf5ce4199959d73960d6b81de\skills\matlab-control-optimization
+  install: matlab-data-analysis -> D:\Temp\mas-e2e-d69386fdf5ce4199959d73960d6b81de\skills\matlab-data-analysis
+  install: matlab-orchestrator -> D:\Temp\mas-e2e-d69386fdf5ce4199959d73960d6b81de\skills\matlab-orchestrator
+  install: matlab-robotics-autonomy -> D:\Temp\mas-e2e-d69386fdf5ce4199959d73960d6b81de\skills\matlab-robotics-autonomy
+  install: matlab-runner -> D:\Temp\mas-e2e-d69386fdf5ce4199959d73960d6b81de\skills\matlab-runner
+  install: matlab-signal-vision-ai -> D:\Temp\mas-e2e-d69386fdf5ce4199959d73960d6b81de\skills\matlab-signal-vision-ai
+  install: matlab-simulink-modeling -> D:\Temp\mas-e2e-d69386fdf5ce4199959d73960d6b81de\skills\matlab-simulink-modeling
+  install: matlab-testing-ci -> D:\Temp\mas-e2e-d69386fdf5ce4199959d73960d6b81de\skills\matlab-testing-ci
+ [+] 首次同步安装全部技能并写 manifest 5.1s
+==> 同步 skills: E:\desktop\MATLAB\skills -> D:\Temp\mas-e2e-8602ce0b8d374f6abaf5346b352dedda\skills
+    备份目录（仅在发生变更时创建）: D:\Temp\mas-e2e-8602ce0b8d374f6abaf5346b352dedda\backups\20261026-212135-sync-skills
+  install: matlab-codegen-deploy -> D:\Temp\mas-e2e-8602ce0b8d374f6abaf5346b352dedda\skills\matlab-codegen-deploy
+  install: matlab-control-optimization -> D:\Temp\mas-e2e-8602ce0b8d374f6abaf5346b352dedda\skills\matlab-control-optimization
+  install: matlab-data-analysis -> D:\Temp\mas-e2e-8602ce0b8d374f6abaf5346b352dedda\skills\matlab-data-analysis
+  install: matlab-orchestrator -> D:\Temp\mas-e2e-8602ce0b8d374f6abaf5346b352dedda\skills\matlab-orchestrator
+  install: matlab-robotics-autonomy -> D:\Temp\mas-e2e-8602ce0b8d374f6abaf5346b352dedda\skills\matlab-robotics-autonomy
+  install: matlab-runner -> D:\Temp\mas-e2e-8602ce0b8d374f6abaf5346b352dedda\skills\matlab-runner
+  install: matlab-signal-vision-ai -> D:\Temp\mas-e2e-8602ce0b8d374f6abaf5346b352dedda\skills\matlab-signal-vision-ai
+  install: matlab-simulink-modeling -> D:\Temp\mas-e2e-8602ce0b8d374f6abaf5346b352dedda\skills\matlab-simulink-modeling
+  install: matlab-testing-ci -> D:\Temp\mas-e2e-8602ce0b8d374f6abaf5346b352dedda\skills\matlab-testing-ci
+==> 同步 skills: E:\desktop\MATLAB\skills -> D:\Temp\mas-e2e-8602ce0b8d374f6abaf5346b352dedda\skills
+    备份目录（仅在发生变更时创建）: D:\Temp\mas-e2e-8602ce0b8d374f6abaf5346b352dedda\backups\20261026-212140-sync-skills
+    跳过（内容一致）: matlab-codegen-deploy
+    跳过（内容一致）: matlab-control-optimization
+    跳过（内容一致）: matlab-data-analysis
+    跳过（内容一致）: matlab-orchestrator
+    跳过（内容一致）: matlab-robotics-autonomy
+    跳过（内容一致）: matlab-runner
+    跳过（内容一致）: matlab-signal-vision-ai
+    跳过（内容一致）: matlab-simulink-modeling
+    跳过（内容一致）: matlab-testing-ci
+    技能清单未变化，跳过重写: D:\Temp\mas-e2e-8602ce0b8d374f6abaf5346b352dedda\skills\.matlab-agent-skills-manifest.json
+ [+] 重复同步全部 unchanged 且不新建备份目录 6.52s
+==> 同步 skills: E:\desktop\MATLAB\skills -> D:\Temp\mas-e2e-c6e5704eebed488687de4e11dda0c188\skills
+    备份目录（仅在发生变更时创建）: D:\Temp\mas-e2e-c6e5704eebed488687de4e11dda0c188\backups\20261026-212142-sync-skills
+  install: matlab-codegen-deploy -> D:\Temp\mas-e2e-c6e5704eebed488687de4e11dda0c188\skills\matlab-codegen-deploy
+  install: matlab-control-optimization -> D:\Temp\mas-e2e-c6e5704eebed488687de4e11dda0c188\skills\matlab-control-optimization
+  install: matlab-data-analysis -> D:\Temp\mas-e2e-c6e5704eebed488687de4e11dda0c188\skills\matlab-data-analysis
+  install: matlab-orchestrator -> D:\Temp\mas-e2e-c6e5704eebed488687de4e11dda0c188\skills\matlab-orchestrator
+  install: matlab-robotics-autonomy -> D:\Temp\mas-e2e-c6e5704eebed488687de4e11dda0c188\skills\matlab-robotics-autonomy
+警告: 冲突: matlab-runner -> 
+D:\Temp\mas-e2e-c6e5704eebed488687de4e11dda0c188\skills\matlab-runner；目标目录已存在且内容不同，且不属于本项目管理的技
+能（未在 manifest 中登记）。默认不覆盖；确认后可用 -Force。
+  install: matlab-signal-vision-ai -> D:\Temp\mas-e2e-c6e5704eebed488687de4e11dda0c188\skills\matlab-signal-vision-ai
+  install: matlab-simulink-modeling -> D:\Temp\mas-e2e-c6e5704eebed488687de4e11dda0c188\skills\matlab-simulink-modeling
+  install: matlab-testing-ci -> D:\Temp\mas-e2e-c6e5704eebed488687de4e11dda0c188\skills\matlab-testing-ci
+ [+] 外来同名目录内容不同时不覆盖（冲突） 4.02s
+==> 同步 skills: E:\desktop\MATLAB\skills -> D:\Temp\mas-e2e-b51282ff0d144cb3a2bb0ac01437c0f9\skills
+    备份目录（仅在发生变更时创建）: D:\Temp\mas-e2e-b51282ff0d144cb3a2bb0ac01437c0f9\backups\20261026-212146-sync-skills
+  install: matlab-codegen-deploy -> D:\Temp\mas-e2e-b51282ff0d144cb3a2bb0ac01437c0f9\skills\matlab-codegen-deploy
+  install: matlab-control-optimization -> D:\Temp\mas-e2e-b51282ff0d144cb3a2bb0ac01437c0f9\skills\matlab-control-optimization
+  install: matlab-data-analysis -> D:\Temp\mas-e2e-b51282ff0d144cb3a2bb0ac01437c0f9\skills\matlab-data-analysis
+  install: matlab-orchestrator -> D:\Temp\mas-e2e-b51282ff0d144cb3a2bb0ac01437c0f9\skills\matlab-orchestrator
+  install: matlab-robotics-autonomy -> D:\Temp\mas-e2e-b51282ff0d144cb3a2bb0ac01437c0f9\skills\matlab-robotics-autonomy
+  update: matlab-runner -> D:\Temp\mas-e2e-b51282ff0d144cb3a2bb0ac01437c0f9\skills\matlab-runner
+  install: matlab-signal-vision-ai -> D:\Temp\mas-e2e-b51282ff0d144cb3a2bb0ac01437c0f9\skills\matlab-signal-vision-ai
+  install: matlab-simulink-modeling -> D:\Temp\mas-e2e-b51282ff0d144cb3a2bb0ac01437c0f9\skills\matlab-simulink-modeling
+  install: matlab-testing-ci -> D:\Temp\mas-e2e-b51282ff0d144cb3a2bb0ac01437c0f9\skills\matlab-testing-ci
+ [+] -Force 覆盖外来目录并留下备份 4.56s
+==> 同步 skills: E:\desktop\MATLAB\skills -> D:\Temp\mas-e2e-bd6879e18b52452a8fbcf99c52b011b1\skills
+    备份目录（仅在发生变更时创建）: D:\Temp\mas-e2e-bd6879e18b52452a8fbcf99c52b011b1\backups\20261026-212150-sync-skills
+  install: matlab-codegen-deploy -> D:\Temp\mas-e2e-bd6879e18b52452a8fbcf99c52b011b1\skills\matlab-codegen-deploy
+  install: matlab-control-optimization -> D:\Temp\mas-e2e-bd6879e18b52452a8fbcf99c52b011b1\skills\matlab-control-optimization
+  install: matlab-data-analysis -> D:\Temp\mas-e2e-bd6879e18b52452a8fbcf99c52b011b1\skills\matlab-data-analysis
+  install: matlab-orchestrator -> D:\Temp\mas-e2e-bd6879e18b52452a8fbcf99c52b011b1\skills\matlab-orchestrator
+  install: matlab-robotics-autonomy -> D:\Temp\mas-e2e-bd6879e18b52452a8fbcf99c52b011b1\skills\matlab-robotics-autonomy
+  install: matlab-runner -> D:\Temp\mas-e2e-bd6879e18b52452a8fbcf99c52b011b1\skills\matlab-runner
+  install: matlab-signal-vision-ai -> D:\Temp\mas-e2e-bd6879e18b52452a8fbcf99c52b011b1\skills\matlab-signal-vision-ai
+  install: matlab-simulink-modeling -> D:\Temp\mas-e2e-bd6879e18b52452a8fbcf99c52b011b1\skills\matlab-simulink-modeling
+  install: matlab-testing-ci -> D:\Temp\mas-e2e-bd6879e18b52452a8fbcf99c52b011b1\skills\matlab-testing-ci
+==> 同步 skills: E:\desktop\MATLAB\skills -> D:\Temp\mas-e2e-bd6879e18b52452a8fbcf99c52b011b1\skills
+    备份目录（仅在发生变更时创建）: D:\Temp\mas-e2e-bd6879e18b52452a8fbcf99c52b011b1\backups\20261026-212155-sync-skills
+    跳过（内容一致）: matlab-codegen-deploy
+    跳过（内容一致）: matlab-control-optimization
+    跳过（内容一致）: matlab-data-analysis
+    跳过（内容一致）: matlab-orchestrator
+    跳过（内容一致）: matlab-robotics-autonomy
+  update: matlab-runner -> D:\Temp\mas-e2e-bd6879e18b52452a8fbcf99c52b011b1\skills\matlab-runner
+    跳过（内容一致）: matlab-signal-vision-ai
+    跳过（内容一致）: matlab-simulink-modeling
+    跳过（内容一致）: matlab-testing-ci
+ [+] 托管目录被本地修改后再次同步会更新并备份旧内容 6.79s
+==> 同步 skills: E:\desktop\MATLAB\skills -> D:\Temp\mas-e2e-cec1d60a175c43a6ac4aa26c1b5e9993\skills
+    [DryRun] 不会写入任何文件
+  install: matlab-codegen-deploy -> D:\Temp\mas-e2e-cec1d60a175c43a6ac4aa26c1b5e9993\skills\matlab-codegen-deploy
+  install: matlab-control-optimization -> D:\Temp\mas-e2e-cec1d60a175c43a6ac4aa26c1b5e9993\skills\matlab-control-optimization
+  install: matlab-data-analysis -> D:\Temp\mas-e2e-cec1d60a175c43a6ac4aa26c1b5e9993\skills\matlab-data-analysis
+  install: matlab-orchestrator -> D:\Temp\mas-e2e-cec1d60a175c43a6ac4aa26c1b5e9993\skills\matlab-orchestrator
+  install: matlab-robotics-autonomy -> D:\Temp\mas-e2e-cec1d60a175c43a6ac4aa26c1b5e9993\skills\matlab-robotics-autonomy
+  install: matlab-runner -> D:\Temp\mas-e2e-cec1d60a175c43a6ac4aa26c1b5e9993\skills\matlab-runner
+  install: matlab-signal-vision-ai -> D:\Temp\mas-e2e-cec1d60a175c43a6ac4aa26c1b5e9993\skills\matlab-signal-vision-ai
+  install: matlab-simulink-modeling -> D:\Temp\mas-e2e-cec1d60a175c43a6ac4aa26c1b5e9993\skills\matlab-simulink-modeling
+  install: matlab-testing-ci -> D:\Temp\mas-e2e-cec1d60a175c43a6ac4aa26c1b5e9993\skills\matlab-testing-ci
+==> [DryRun] 将写入 skills manifest: D:\Temp\mas-e2e-cec1d60a175c43a6ac4aa26c1b5e9993\skills\.matlab-agent-skills-manifest.json
+ [+] DryRun 不同步任何文件 519ms
+Tests completed in 51.93s
+Passed: 23 Failed: 0 Skipped: 0 Pending: 0 Inconclusive: 0
+==> 运行 [free] InvokeMcpCode.Tests.ps1
+
+
+
+
+
+Describing MCP 代码执行完成与报告脱敏
+ [+] 只有本次唯一完成回执才允许 PASS，末尾注释与中文保留 1.78s
+ [+] 普通 content 中的 MATLAB 错误即使 isError=false 也失败 1.34s
+ [+] 提前 return 对应缺少末尾回执，不可因传输成功而通过 1.27s
+ [+] 错误回执与重复回执均不能冒充本次唯一完成 2.52s
+ [+] 工具标记 isError 时即使带完成回执也失败 1.29s
+ [+] 短密钥和认证信息不进入 JSON、原始摘要或返回 reason 1.29s
+Tests completed in 9.5s
+Passed: 6 Failed: 0 Skipped: 0 Pending: 0 Inconclusive: 0
+==> 运行 [free] MatlabAgentSkills.Core.Tests.ps1
+
+
+
+
+
+Describing MCP server 参数构造（P0-1：existing 模式非法参数）
+ [+] existing 模式只输出 --matlab-session-mode=existing 126ms
+ [+] existing 模式会显式记录被省略的参数 46ms
+ [+] auto 模式保留 display-mode / root / initialize 三项 75ms
+ [+] new 模式支持 nodesktop 79ms
+ [+] DisplayMode 为空时 auto 模式不输出 display-mode 77ms
+ [+] Test-McpServerArgsCompatible 判定合法 existing 参数无违规 73ms
+ [+] Test-McpServerArgsCompatible 能检出历史错误组合 61ms
+ [+] Get-MatlabMcpServerArgv 保持旧版扁平形状（向后兼容） 77ms
+Describing MCP 配置安全合并（P0-3：破坏性覆盖）
+ [+] 保留用户已有的其它 MCP server 与顶层键 144ms
+ [+] 重复写入相同条目返回 unchanged 且不产生备份 126ms
+ [+] 参数变化时 updated 并生成备份文件 150ms
+ [+] 配置文件 JSON 非法时中止且不改动原文件 67ms
+ [+] 写出的 JSON 不带 BOM 99ms
+==> [DryRun] 将创建 D:\Temp\mas-test-048903c5150849c483883a3399f41f9a\.mcp.json 中的 mcpServers.matlab-official（其余 0 个条目保持不变）
+ [+] DryRun 不写文件且返回 would_ 前缀动作 62ms
+ [+] 单元素 args 仍写成数组（不塌缩成字符串） 61ms
+Describing skills 冲突判定（P0-5：破坏性覆盖）
+ [+] 目标不存在时返回 install 81ms
+ [+] 哈希一致时返回 unchanged 32ms
+ [+] 非托管目录内容不同时返回 conflict 37ms
+ [+] 托管目录内容不同时返回 update 45ms
+ [+] 非托管目录加 -Force 时允许 update 47ms
+ [+] 目录指纹与路径无关，内容变化则变化 80ms
+Describing startup.m 托管块（P0-6：无备份的隐式改写）
+ [+] 首次写入创建托管块并保留用户已有内容 101ms
+ [+] 重复执行返回 unchanged 且内容逐字节不变（幂等） 106ms
+ [+] 用户自己已有 shareMATLABSession 调用时不覆盖 57ms
+ [+] DryRun 不落盘 47ms
+Describing 备份与回滚（P0-6）
+ [+] 文件备份后可逐字节还原 117ms
+ [+] 回滚会删除新建文件 48ms
+ [+] 目录备份后可整体还原 99ms
+ [+] 备份清单 record 数与操作数一致 73ms
+ [+] 无任何变更时不创建备份目录（重复安装零写入） 55ms
+Describing 客户端注册解析与幂等判定
+ [+] 能从 mcp get 输出解析 command 与 args 88ms
+ [+] 参数完全一致时判定为已注册（幂等） 33ms
+ [+] 参数不一致时判定为需要更新 34ms
+Describing 下载安全（P0-6：无校验远程下载）
+ [+] 拒绝非 HTTPS 下载地址 88ms
+ [+] SHA256 比较忽略大小写与分隔符 58ms
+==> [DryRun] 将下载 https://example.com/a.exe -> D:\Temp\mas-test-c170245ee4564bcdbe67f52fa7fe73bb\srv.exe
+ [+] DryRun 下载不产生文件 43ms
+Describing 仓库卫生（P0-7：机器专属路径与编码）
+ [-] 仓库里没有盘符硬编码路径（E 盘 / D 盘） 2.42s
+   Expected string length 0 but was 2212. Strings differ at index 0.
+   Expected: {}
+   But was:  {README.md:13;run_holdout.m:25;scoring_p56_retro.json:59;manifest.json:1;PHASE5_3_PROFESSIONAL_DEPTH_ZH.md:174;PHASE5_3_PROFESSIONAL_DEPTH_ZH.md:206;PHASE5_3_PROFESSIONAL_DEPTH_ZH.md:322;PHASE5_3_PROFESSIONAL_DEPTH_ZH.md:326;PHASE5_3_PROFESSIONAL_DEPTH_ZH.md:327;PHASE5_3_PROFESSIONAL_DEPTH_ZH.md:328;PHASE5_3_PROFESSIONAL_DEPTH_ZH.md:331;PHASE5_4_REAL_EXECUTION_ZH.md:4;PHASE5_4_REAL_EXECUTION_ZH.md:96;PHASE5_4_REAL_EXECUTION_ZH.md:126;PHASE5_4_REAL_EXECUTION_ZH.md:272;PHASE5_5_AUTONOMY_AND_GAIN_ZH.md:67;PHASE5_5_AUTONOMY_AND_GAIN_ZH.md:160;PHASE5_5_AUTONOMY_AND_GAIN_ZH.md:212;PHASE5_6_BENCHMARK_ZH.md:317;PHASE5_6_CODER_CHANNEL_ZH.md:3;PHASE5_6_CODER_CHANNEL_ZH.md:31;PHASE5_6_CODER_CHANNEL_ZH.md:40;PHASE5_6_CODER_CHANNEL_ZH.md:41;PHASE5_6_CODER_CHANNEL_ZH.md:42;PHASE5_6_CODER_CHANNEL_ZH.md:43;PHASE5_6_CODER_CHANNEL_ZH.md:120;PHASE5_6_CODER_CHANNEL_ZH.md:122;PHASE5_6_GAIN_ZH.md:150;PHASE5_6_GAIN_ZH.md:176;PHASE5_6_ISOLATION_ZH.md:4;PHASE5_6_ISOLATION_ZH.md:29;PHASE5_6_ISOLATION_ZH.md:103;PHASE5_6_ISOLATION_ZH.md:104;PHASE5_6_ISOLATION_ZH.md:105;PHASE5_6_ISOLATION_ZH.md:106;PHASE5_6_ISOLATION_ZH.md:107;PHASE5_6_ISOLATION_ZH.md:108;PHASE5_6_ISOLATION_ZH.md:109;PHASE5_6_ISOLATION_ZH.md:110;PHASE5_6_ISOLATION_ZH.md:131;PHASE5_6_PROTOCOL_ZH.md:24;PHASE5_7_CONCURRENCY_ZH.md:126;PHASE5_7_CONCURRENCY_ZH.md:133;PHASE5_7_FINAL_ZH.md:55;PHASE5_7_FINAL_ZH.md:178;PHASE5_7_INSTALL_ZH.md:35;PHASE5_7_INSTALL_ZH.md:37;PHASE5_7_ISOLATION_ZH.md:4;PHASE5_7_ISOLATION_ZH.md:5;PHASE5_7_ISOLATION_ZH.md:6;PHASE5_7_ISOLATION_ZH.md:7;PHASE5_7_ISOLATION_ZH.md:49;PHASE5_7_ISOLATION_ZH.md:74;PHASE5_7_ISOLATION_ZH.md:75;PHASE5_7_ISOLATION_ZH.md:152;PHASE5_7_ISOLATION_ZH.md:165;PHASE5_7_ISOLATION_ZH.md:166;p56_absence_scan.m:4;p56_absence_scan.m:25;p56_coder_channel_probe.m:4;p56_coder_drive_d.m:3;p56_coder_scripttop.m:3;p56_coder_syntax_probe.m:4;p56_session_reset.m:4;p56_session_reset.m:41;p56_stage.m:4;test_p56_session_reset.m:25;test_p56_session_reset.m:39;test_p56_stage.m:25;p57_delivery_audit.m:6;p57_delivery_audit.m:14;p57_grade_v2_replay.m:5;p57_grade_v2_replay.m:12;capability-matrix.json:377;capability-matrix.json:415;install-roots.json:35;SkillSync.Phase57.Tests.ps1:134 [scan=git-tracked; files=449]}
+   -----------^
+   507:         $summary | Should Be ""
+   在 Should<End>、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Functions\Assertions\Should.ps1 中: 第 92 行
+   在 <ScriptBlock>、E:\desktop\MATLAB\tests\MatlabAgentSkills.Core.Tests.ps1 中: 第 507 行
+   在 Invoke-Test、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Functions\It.ps1 中: 第 253 行
+   在 ItImpl、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Functions\It.ps1 中: 第 203 行
+   在 It、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Functions\It.ps1 中: 第 117 行
+   在 <ScriptBlock>、E:\desktop\MATLAB\tests\MatlabAgentSkills.Core.Tests.ps1 中: 第 432 行
+   在 Describe、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Functions\Describe.ps1 中: 第 100 行
+   在 <ScriptBlock>、E:\desktop\MATLAB\tests\MatlabAgentSkills.Core.Tests.ps1 中: 第 427 行
+   在 <ScriptBlock>、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Pester.psm1 中: 第 297 行
+   在 Invoke-Pester、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Pester.psm1 中: 第 310 行
+   在 <ScriptBlock>、E:\desktop\MATLAB\tests\Invoke-Tests.ps1 中: 第 177 行
+ [+] 所有 PowerShell 脚本都能被 Windows PowerShell 5.1 解析 605ms
+ [+] 含非 ASCII 字符的脚本带 UTF-8 BOM（PS5.1 正确解码的前提） 83ms
+Tests completed in 5.82s
+Passed: 38 Failed: 1 Skipped: 0 Pending: 0 Inconclusive: 0
+==> 运行 [free] McpCredentialOutput.Tests.ps1
+
+
+
+
+
+Describing 会话凭据不出现在可序列化对象与报告中
+ [+] Get-McpSessionInfo 只暴露是否存在与长度，序列化后无 apiKey 值 431ms
+ [+] 鉴权仍可用：内部凭据读取函数能取回同一个值 128ms
+ [+] 验收报告只记录会话文件名与指纹，不含绝对路径或凭据 2.5s
+Describing 阶段日志落盘前必须脱敏
+ [+] Authorization / --api-key / 裸 UUID 不会进入阶段日志 85ms
+ [+] 普通启动命令保持可读 54ms
+Tests completed in 3.2s
+Passed: 5 Failed: 0 Skipped: 0 Pending: 0 Inconclusive: 0
+==> 运行 [free] McpProbe.Tests.ps1
+
+
+
+
+
+Describing 阶段 3~5 只有在真实可执行时才 PASS
+ [+] 全套正常时五阶段通过，且整体为 PASS 3.1s
+ [+] 端口不可达时握手 FAIL，后续阶段 SKIP（不冒充成功） 1.13s
+ [+] 只有配置文件没有会话时，握手必须 SKIP 而不是 PASS 101ms
+ [+] 会话文件损坏时配置阶段 FAIL 82ms
+ [+] 证书缺失时按过期会话处理，输出 SKIP 并给出原因 1.2s
+Describing 工具探测与文件回读
+ [+] 服务端没有执行工具时只读阶段 SKIP 并记录工具清单 1.7s
+ [+] 回读内容不一致时文件读写阶段 FAIL 1.77s
+ [+] 握手失败（HTTP 500）时判定 FAIL 且不继续执行 1.49s
+ [+] 鉴权失败（HTTP 401）时握手 FAIL 1.47s
+ [+] 服务端挂起时握手在超时后 FAIL（不会无限等待） 3.19s
+Describing 客户端注册校验
+ [+] existing 模式带 display-mode 会被判为非法注册 169ms
+ [+] 注册指向不存在的 command 会被判为 FAIL 115ms
+ [+] 没有注册时输出 SKIP 并说明检查了哪些客户端 96ms
+Describing JSON 解析保持键名大小写
+ [+] 大小写不同但合法的键不会被当成重复键 93ms
+Describing 回环证书固定取代全量放行
+ [+] 只有回环主机名被认定为可信链路 121ms
+ [+] 从证书文件读出指纹；缺失或私钥文件失败关闭 479ms
+ [+] 校验回调仅在主机为回环且指纹一致时放行 101ms
+ [+] 未提供指纹且未显式跳过校验时，绝不安装全量放行回调 2.1s
+ [+] 有指纹可固定时，-SkipTlsValidation 不能把它降级成全量放行 4.17s
+Describing stdio 通道：安装副本的探测走官方 server 路径
+ [+] Start-McpStdioChannel 拼出官方参数并完成 initialize 1.35s
+ [+] 关闭通道时回收子进程并还原代理环境 1.11s
+ [+] 只接受与固定清单匹配的服务端，绝不下载 127ms
+ [+] 本机已有的官方服务端按清单校验后才被使用 244ms
+Tests completed in 25.52s
+Passed: 23 Failed: 0 Skipped: 0 Pending: 0 Inconclusive: 0
+==> 运行 [free] McpStdio.Tests.ps1
+
+
+
+
+
+Describing stdio 传输在两种宿主都必须能启动服务端
+ [+] Start-McpStdioServer 不依赖 PS7 专有属性，进程保持存活 1.28s
+ [+] initialize 返回真实 result（协议版本与服务端名） 1.18s
+ [+] 握手失败时返回 error 而不是假装成功 1.15s
+Describing JSON-RPC 载荷按 UTF-8 往返
+ [+] 含非 ASCII 的 MATLAB 代码不被代码页损坏 1.17s
+ [+] tools/list 能发现工具名（阶段 4 的前置条件） 1.08s
+Tests completed in 5.85s
+Passed: 5 Failed: 0 Skipped: 0 Pending: 0 Inconclusive: 0
+==> 运行 [free] McpSupplyChain.Tests.ps1
+
+
+
+
+
+Describing MCP server 供应链：固定清单与 fail-closed
+ [+] 仓库清单固定到具体 release tag，且不含 moving latest 114ms
+ [+] 清单缺失时解析器 fail closed，并给出手动安装指引 117ms
+ [+] 平台条目缺失时拒绝猜测下载地址 81ms
+ [+] 清单 URL 与 releaseTag 不一致时判为清单缺陷 137ms
+ [+] 已有二进制哈希不匹配时拒绝使用（可被 -ForceDownload 覆盖） 145ms
+ [+] 完整性与来源验证是两个不同状态 77ms
+ [+] 显式 -AllowUnverifiedServer 才放行，且状态必须记为未验证 122ms
+ [+] Verified=false 时 Assert-McpServerTrusted 拒绝继续 50ms
+ [+] Test-DownloadIntegrity 覆盖截断/大小/哈希/无摘要四种拒绝 100ms
+ [+] 下载被截断（声明长度大于实际）时 Test-DownloadIntegrity 判为 SIZE_MISMATCH 57ms
+ [+] 文件被篡改（哈希不符）时判为 HASH_MISMATCH 60ms
+ [+] 网络不可用时报错且不产生目标文件 2.1s
+Tests completed in 3.17s
+Passed: 12 Failed: 0 Skipped: 0 Pending: 0 Inconclusive: 0
+==> 运行 [free] PesterSelection.Tests.ps1
+
+
+
+
+
+Describing Pester 版本选择
+ [+] 同时存在 3.4.0 与 5.9.0 时必须选 3.4.0 142ms
+ [+] 顺序反过来也必须选 3.4.0（不依赖输入顺序） 66ms
+ [+] 只有 5.x 时返回 null，绝不降级到 5.x 71ms
+ [+] 同主版本不同次版本不匹配（3.3 不能顶替 3.4） 66ms
+ [+] 3.4 与 3.4.0 视为同一版本（版本号缺省段视为 0） 57ms
+ [+] 空候选列表返回 null 而不是抛异常 49ms
+ [+] 无法解析的候选版本会被跳过而不是让整个函数崩掉 73ms
+ [+] 要求版本本身非法时给出可读错误 44ms
+ [+] 版本摘要列出全部候选，便于排障 47ms
+ [+] 无候选时版本摘要显示（无） 62ms
+ [+] 套件默认锁定的 Pester 版本必须是 3.4.0 51ms
+Tests completed in 735ms
+Passed: 11 Failed: 0 Skipped: 0 Pending: 0 Inconclusive: 0
+==> 运行 [free] ProcessCleanup.Tests.ps1
+
+
+
+
+
+Describing 归属判定：五项身份必须全部匹配
+ [+] 本次运行记录的存活替身进程五项一致时判定 ALLOW 803ms
+ [+] 同一 PID 但启动时间不同（PID 回收）时判定 SKIPPED_IDENTITY_MISMATCH 462ms
+ [+] 可执行文件路径与记录不一致时判定 SKIPPED_IDENTITY_MISMATCH 418ms
+ [+] 进程名不是 MATLAB 时判定 SKIPPED_IDENTITY_MISMATCH（默认期望名） 423ms
+ [+] Windows 会话 id 与记录不一致时判定 SKIPPED_IDENTITY_MISMATCH 409ms
+ [+] 记录的可执行文件已不存在时失败关闭为 SKIPPED_EXECUTABLE_MISSING 411ms
+ [+] 进程已经退出时是 NOOP 而不是错误 43ms
+ [+] 旧运行遗留的所有者记录（runId 不同）时判定 SKIPPED_OWNER_RUN_MISMATCH 418ms
+ [+] 同一 runId 但所有者记录超过最大可信年龄时判定 SKIPPED_OWNER_STALE 434ms
+ [+] 所有者记录时间戳在未来时判定 SKIPPED_OWNER_TIMESTAMP_INVALID 400ms
+ [+] 所有者记录缺少必要身份字段时判定 SKIPPED_OWNER_RECORD_INVALID 40ms
+Describing 清理动作只作用于已验证归属的替身进程
+ [+] ALLOW + ReportOnly 只写报告，不结束替身进程 521ms
+ [+] ALLOW + Graceful + AllowForceStop 只结束本次记录的替身进程 750ms
+ [+] 默认 Graceful 不允许强制时即使 ALLOW 也保留进程（LEFT_RUNNING） 451ms
+ [+] PID 回收的替身进程在强制清理模式下仍然存活 439ms
+ [+] 磁盘上的旧运行所有者文件不会被本次运行清理，也不会触发终止 489ms
+ [+] 进程已不存在时清理是 NOOP，不抛异常也不写终止动作 67ms
+ [+] 所有者文件不存在或损坏时清理返回空结果且不报错 76ms
+ [+] 所有者文件读写往返保留身份字段，且只删除本次 run 的文件 79ms
+Describing 凭据不外泄
+ [+] 就绪快照即使会话对象带 apiKey/certificate 也只输出白名单字段 107ms
+ [+] 清理审计日志不包含 apiKey/certificate 文本或已知密钥值 488ms
+ [+] 脱敏函数替换已知密钥值与 apiKey/certificate 字段 47ms
+Describing 脚本入口的回归边界
+ [+] 清理决策函数存在，且不再按 sessionDetails 的 PID 直接强杀 83ms
+ [+] 脚本不把 apiKey/certificate 赋值进输出对象或就绪文件 63ms
+Describing 会话运行时归属：父链允许存根，但每一跳都必须自证
+ [+] 启动器是存根、会话运行时是其孙进程时判定 owned 153ms
+ [+] 会话运行时是启动器直接子进程时仍然判定 owned（不回归旧行为） 43ms
+ [+] 启动器存根已退出时仍可凭"记录在案的启动器 PID"收尾（真实树形状） 53ms
+ [+] 父链不含本次启动器时不判定 owned（不把别人的 MATLAB 记进归属） 61ms
+ [+] 中间跳不是 MATLAB 进程时不判定 owned，即使更上层就是启动器 53ms
+ [+] 中间跳早于本次运行启动（PID 复用）时不判定 owned 48ms
+ [+] 启动器出现在超出有界跳数之后时不判定 owned 55ms
+ [+] 候选自身可执行文件路径与解析出的 MATLAB 路径不符时不判定 owned 65ms
+ [+] 候选与启动器不在同一 Windows 会话时不判定 owned 56ms
+ [+] 候选进程已退出时不判定 owned 且不是错误 60ms
+ [+] 对真实存活进程上溯父链不抛错且返回数组（本机 PS 5.1 的 @($list) 会抛 ArgumentException） 2.88s
+ [+] 主流程改用有界父链判定，不再只认直接父子 60ms
+Tests completed in 11.53s
+Passed: 36 Failed: 0 Skipped: 0 Pending: 0 Inconclusive: 0
+==> 运行 [free] SkillInstallation.Tests.ps1
+
+
+
+
+
+Describing 技能目录解析：客户端共用与运行环境隔离
+ [+] 文件指纹符合 SHA-256 标准向量且不依赖 Get-FileHash 自动加载 135ms
+ [+] Windows 使用本机用户共享目录，CODEX_HOME 仅是旧目录诊断 47ms
+ [+] WSL 使用 Linux 用户目录，不沿用 Windows CODEX_HOME 59ms
+ [+] 原生 Linux 和 WSL 按当前用户分别解析 51ms
+ [+] WSL 不接受误传的 Windows 用户目录 56ms
+ [+] Windows 不接受误传的 Linux 用户目录 62ms
+ [+] 显式 SkillRoot 优先，可兼容经验证的旧客户端目录 52ms
+ [+] 没有 CLI 命令时仍能解析相同共享目录 51ms
+ [+] 显式相对路径以 PowerShell 当前目录解析 70ms
+警告: 未找到 Skill payload 清单，按无附加资源处理: 
+D:\Temp\mas-skill-install-6284b530287d4435bda80a3ad74fccc4\repo\config\skill-payloads.json
+==> 同步 skills: D:\Temp\mas-skill-install-6284b530287d4435bda80a3ad74fccc4\repo\skills -> D:\Temp\mas-skill-install-6284b530287d4435bda80a3ad74fccc4\.agents\skills
+    备份目录（仅在发生变更时创建）: D:\Temp\mas-skill-install-6284b530287d4435bda80a3ad74fccc4\backup\20261026-212304-sync-skills
+  install: matlab-runner -> D:\Temp\mas-skill-install-6284b530287d4435bda80a3ad74fccc4\.agents\skills\matlab-runner
+ [+] Sync 默认写入当前用户 .agents，不写入 CODEX_HOME 238ms
+Describing 技能安装生命周期与卸载保护
+警告: 未找到 Skill payload 清单，按无附加资源处理: 
+D:\Temp\mas-skill-install-90c67adecd304765a6592e478a053d2d\repo\config\skill-payloads.json
+==> 同步 skills: D:\Temp\mas-skill-install-90c67adecd304765a6592e478a053d2d\repo\skills -> D:\Temp\mas-skill-install-90c67adecd304765a6592e478a053d2d\skills
+    备份目录（仅在发生变更时创建）: D:\Temp\mas-skill-install-90c67adecd304765a6592e478a053d2d\backup\20261026-212304-sync-skills
+  install: matlab-runner -> D:\Temp\mas-skill-install-90c67adecd304765a6592e478a053d2d\skills\matlab-runner
+警告: 未找到 Skill payload 清单，按无附加资源处理: 
+D:\Temp\mas-skill-install-90c67adecd304765a6592e478a053d2d\repo\config\skill-payloads.json
+==> 同步 skills: D:\Temp\mas-skill-install-90c67adecd304765a6592e478a053d2d\repo\skills -> D:\Temp\mas-skill-install-90c67adecd304765a6592e478a053d2d\skills
+    备份目录（仅在发生变更时创建）: D:\Temp\mas-skill-install-90c67adecd304765a6592e478a053d2d\backup\20261026-212304-sync-skills-1
+  update: matlab-runner -> D:\Temp\mas-skill-install-90c67adecd304765a6592e478a053d2d\skills\matlab-runner
+ [+] 首次安装后升级在同一目录更新并保留旧版备份 344ms
+警告: 未找到 Skill payload 清单，按无附加资源处理: 
+D:\Temp\mas-skill-install-cab62570a88d4f14905cf692066076e6\repo\config\skill-payloads.json
+==> 同步 skills: D:\Temp\mas-skill-install-cab62570a88d4f14905cf692066076e6\repo\skills -> D:\Temp\mas-skill-install-cab62570a88d4f14905cf692066076e6\skills
+    备份目录（仅在发生变更时创建）: D:\Temp\mas-skill-install-cab62570a88d4f14905cf692066076e6\backup\20261026-212304-sync-skills
+  install: matlab-runner -> D:\Temp\mas-skill-install-cab62570a88d4f14905cf692066076e6\skills\matlab-runner
+ [+] 卸载未改动受管技能会备份，保留其他 MATLAB 同名域技能 396ms
+警告: 未找到 Skill payload 清单，按无附加资源处理: 
+D:\Temp\mas-skill-install-334219998c354564bf6b9ad627e1ef87\repo\config\skill-payloads.json
+==> 同步 skills: D:\Temp\mas-skill-install-334219998c354564bf6b9ad627e1ef87\repo\skills -> D:\Temp\mas-skill-install-334219998c354564bf6b9ad627e1ef87\skills
+    备份目录（仅在发生变更时创建）: D:\Temp\mas-skill-install-334219998c354564bf6b9ad627e1ef87\backup\20261026-212304-sync-skills
+  install: matlab-runner -> D:\Temp\mas-skill-install-334219998c354564bf6b9ad627e1ef87\skills\matlab-runner
+ [+] 卸载保留本地修改和安装记录 279ms
+警告: 未找到 Skill payload 清单，按无附加资源处理: 
+D:\Temp\mas-skill-install-a08cf0a417194010a6d0ee144be1e7fa\repo\config\skill-payloads.json
+==> 同步 skills: D:\Temp\mas-skill-install-a08cf0a417194010a6d0ee144be1e7fa\repo\skills -> D:\Temp\mas-skill-install-a08cf0a417194010a6d0ee144be1e7fa\skills
+    备份目录（仅在发生变更时创建）: D:\Temp\mas-skill-install-a08cf0a417194010a6d0ee144be1e7fa\backup\20261026-212305-sync-skills
+  install: matlab-runner -> D:\Temp\mas-skill-install-a08cf0a417194010a6d0ee144be1e7fa\skills\matlab-runner
+ [+] 卸载 DryRun 不改技能、清单或备份目录 320ms
+ [+] 没有安装清单时卸载零写入 86ms
+警告: 未找到 Skill payload 清单，按无附加资源处理: 
+D:\Temp\mas-skill-install-00b599238e8b4060886800f535551dea\repo\config\skill-payloads.json
+==> 同步 skills: D:\Temp\mas-skill-install-00b599238e8b4060886800f535551dea\repo\skills -> D:\Temp\mas-skill-install-00b599238e8b4060886800f535551dea\skills
+    备份目录（仅在发生变更时创建）: D:\Temp\mas-skill-install-00b599238e8b4060886800f535551dea\backup\20261026-212305-sync-skills
+  install: matlab-runner -> D:\Temp\mas-skill-install-00b599238e8b4060886800f535551dea\skills\matlab-runner
+ [+] 不卸载其他仓库登记的技能 261ms
+警告: 未找到 Skill payload 清单，按无附加资源处理: 
+D:\Temp\mas-skill-install-31bfe712fc464b6ca935f90d046ec6b0\repo\config\skill-payloads.json
+==> 同步 skills: D:\Temp\mas-skill-install-31bfe712fc464b6ca935f90d046ec6b0\repo\skills -> D:\Temp\mas-skill-install-31bfe712fc464b6ca935f90d046ec6b0\skills
+    备份目录（仅在发生变更时创建）: D:\Temp\mas-skill-install-31bfe712fc464b6ca935f90d046ec6b0\backup\20261026-212305-sync-skills
+  install: matlab-runner -> D:\Temp\mas-skill-install-31bfe712fc464b6ca935f90d046ec6b0\skills\matlab-runner
+警告: 未找到 Skill payload 清单，按无附加资源处理: 
+D:\Temp\mas-skill-install-31bfe712fc464b6ca935f90d046ec6b0\other-repo\config\skill-payloads.json
+==> 同步 skills: D:\Temp\mas-skill-install-31bfe712fc464b6ca935f90d046ec6b0\other-repo\skills -> D:\Temp\mas-skill-install-31bfe712fc464b6ca935f90d046ec6b0\skills
+ [+] 第二仓库不能接管共享 root 的非空清单，Force 也不例外 459ms
+警告: 未找到 Skill payload 清单，按无附加资源处理: 
+D:\Temp\mas-skill-install-f9d9d3f24aa54af3963acf0b67217ce0\repo\config\skill-payloads.json
+==> 同步 skills: D:\Temp\mas-skill-install-f9d9d3f24aa54af3963acf0b67217ce0\repo\skills -> D:\Temp\mas-skill-install-f9d9d3f24aa54af3963acf0b67217ce0\skills
+    备份目录（仅在发生变更时创建）: D:\Temp\mas-skill-install-f9d9d3f24aa54af3963acf0b67217ce0\backup\20261026-212306-sync-skills
+  install: matlab-runner -> D:\Temp\mas-skill-install-f9d9d3f24aa54af3963acf0b67217ce0\skills\matlab-runner
+警告: 未找到 Skill payload 清单，按无附加资源处理: 
+D:\Temp\mas-skill-install-f9d9d3f24aa54af3963acf0b67217ce0\repo\config\skill-payloads.json
+==> 同步 skills: D:\Temp\mas-skill-install-f9d9d3f24aa54af3963acf0b67217ce0\repo\skills -> D:\Temp\mas-skill-install-f9d9d3f24aa54af3963acf0b67217ce0\skills
+    备份目录（仅在发生变更时创建）: D:\Temp\mas-skill-install-f9d9d3f24aa54af3963acf0b67217ce0\backup\20261026-212306-sync-skills-1
+    跳过（内容一致）: matlab-runner
+警告: 跳过清理（目录已被本地修改或缺少可信安装指纹）: matlab-foreign
+    技能清单未变化，跳过重写: D:\Temp\mas-skill-install-f9d9d3f24aa54af3963acf0b67217ce0\skills\.matlab-agent-skills-manifest.json
+ [+] Prune 对缺少指纹的合法清单条目保留目录和登记 407ms
+警告: 未找到 Skill payload 清单，按无附加资源处理: 
+D:\Temp\mas-skill-install-9b65b7b0861b43a68130eb92e0d77d79\repo\config\skill-payloads.json
+==> 同步 skills: D:\Temp\mas-skill-install-9b65b7b0861b43a68130eb92e0d77d79\repo\skills -> D:\Temp\mas-skill-install-9b65b7b0861b43a68130eb92e0d77d79\skills
+    备份目录（仅在发生变更时创建）: D:\Temp\mas-skill-install-9b65b7b0861b43a68130eb92e0d77d79\backup\20261026-212306-sync-skills
+  install: matlab-runner -> D:\Temp\mas-skill-install-9b65b7b0861b43a68130eb92e0d77d79\skills\matlab-runner
+ [+] 拒绝 manifest 名称路径穿越并保留越界目录 435ms
+警告: 未找到 Skill payload 清单，按无附加资源处理: 
+D:\Temp\mas-skill-install-7d8deccd165445f0827a4daee8600ff7\repo\config\skill-payloads.json
+==> 同步 skills: D:\Temp\mas-skill-install-7d8deccd165445f0827a4daee8600ff7\repo\skills -> D:\Temp\mas-skill-install-7d8deccd165445f0827a4daee8600ff7\skills
+    备份目录（仅在发生变更时创建）: D:\Temp\mas-skill-install-7d8deccd165445f0827a4daee8600ff7\backup\20261026-212307-sync-skills
+  install: matlab-runner -> D:\Temp\mas-skill-install-7d8deccd165445f0827a4daee8600ff7\skills\matlab-runner
+ [+] 拒绝位于待卸载技能内部的备份位置 272ms
+ [+] 显式校验拒绝链接目录，避免沿 junction 删除外部文件 106ms
+ [+] 同步在根目录是 junction 时提前停止，不经链接写入清单 134ms
+Describing Bootstrap 技能链路
+==> 更新已有仓库
+    [DryRun] git -C E:\desktop\MATLAB pull --ff-only
+==> 解析 MATLAB 安装目录
+    matlabRoot: D:\Temp\mas-skill-install-376713a69d984648b7f64b606d4da196
+==> 准备 MATLAB MCP Server 二进制（固定清单校验）
+    server: E:\desktop\MATLAB\bin\matlab-mcp-server-windows-x64.exe (source=existing, release=v0.15.0, integrity=VERIFIED_AGAINST_MANIFEST)
+==> 同步 Skills
+==> 同步 skills: E:\desktop\MATLAB\skills -> D:\Temp\mas-skill-install-376713a69d984648b7f64b606d4da196\skills
+    [DryRun] 不会写入任何文件
+  install: matlab-codegen-deploy -> D:\Temp\mas-skill-install-376713a69d984648b7f64b606d4da196\skills\matlab-codegen-deploy
+  install: matlab-control-optimization -> D:\Temp\mas-skill-install-376713a69d984648b7f64b606d4da196\skills\matlab-control-optimization
+  install: matlab-data-analysis -> D:\Temp\mas-skill-install-376713a69d984648b7f64b606d4da196\skills\matlab-data-analysis
+  install: matlab-orchestrator -> D:\Temp\mas-skill-install-376713a69d984648b7f64b606d4da196\skills\matlab-orchestrator
+  install: matlab-robotics-autonomy -> D:\Temp\mas-skill-install-376713a69d984648b7f64b606d4da196\skills\matlab-robotics-autonomy
+  install: matlab-runner -> D:\Temp\mas-skill-install-376713a69d984648b7f64b606d4da196\skills\matlab-runner
+  install: matlab-signal-vision-ai -> D:\Temp\mas-skill-install-376713a69d984648b7f64b606d4da196\skills\matlab-signal-vision-ai
+  install: matlab-simulink-modeling -> D:\Temp\mas-skill-install-376713a69d984648b7f64b606d4da196\skills\matlab-simulink-modeling
+  install: matlab-testing-ci -> D:\Temp\mas-skill-install-376713a69d984648b7f64b606d4da196\skills\matlab-testing-ci
+==> [DryRun] 将写入 skills manifest: D:\Temp\mas-skill-install-376713a69d984648b7f64b606d4da196\skills\.matlab-agent-skills-manifest.json
+==> 安装 MCP 客户端接入
+==> 解析 MATLAB MCP Server 可执行文件
+    server: E:\desktop\MATLAB\bin\matlab-mcp-server-windows-x64.exe (source=explicit, release=v0.15.0, integrity=VERIFIED_AGAINST_MANIFEST)
+==> 跳过基础配置（-SkipBaseSetup）
+==> 写入通用 .mcp.json（安全合并）
+==> [DryRun] 将更新 E:\desktop\MATLAB\.mcp.json 中的 mcpServers.matlab-official（其余 0 个条目保持不变）
+ [+] 显式 SkillRoot 传入同步器，DryRun 不写真实或沙箱技能目录 1.28s
+==> 更新已有仓库
+    [DryRun] git -C D:\Temp\mas-skill-install-b3a83d8ca465425ab60c4a40f9e91c01\repo pull --ff-only
+==> 解析 MATLAB 安装目录
+    matlabRoot: D:\Temp\mas-skill-install-b3a83d8ca465425ab60c4a40f9e91c01
+==> 准备 MATLAB MCP Server 二进制（固定清单校验）
+ [+] 同步器报告错误时 Bootstrap 停止，不继续客户端注册 275ms
+Tests completed in 5.89s
+Passed: 24 Failed: 0 Skipped: 0 Pending: 0 Inconclusive: 0
+==> 运行 [free] SkillPayloadContract.Tests.ps1
+
+
+
+
+
+Describing S2 payload manifest contract
+ [+] declares a schema-versioned payload manifest 100ms
+ [+] ships the complete runner probe and batch closure 78ms
+ [+] ships the complete orchestrator probe closure 57ms
+ [+] keeps every payload source inside the repository runtime roots 90ms
+ [+] does not commit a duplicate probe implementation inside skills/ 99ms
+ [+] keeps all nine skills present with SKILL.md 60ms
+Describing S2 skill documentation reference contract
+ [+] uses a skill-root resolution rule instead of caller-cwd scripts for runner and orchestrator 85ms
+ [+] does not present repository-relative PowerShell scripts as installed commands 161ms
+ [+] does not reference the removed STM32 deployment document or repository-only docs 119ms
+ [+] marks repository-only setup and smoke-test scripts as developer operations 90ms
+ [+] resolves every references/, tests/ and scripts/ link inside the skill or its siblings 359ms
+ [+] keeps repository-only build examples out of installed skill instructions 166ms
+Tests completed in 1.47s
+Passed: 12 Failed: 0 Skipped: 0 Pending: 0 Inconclusive: 0
+==> 运行 [free] SkillPayloadInstall.Tests.ps1
+
+
+
+
+
+Describing S2 installed Skill resource payload
+==> 同步 skills: E:\desktop\MATLAB\skills -> D:\Temp\mas-s2-install-6ec8fc2dbe6542cdb8b55889fbf03c80\installed-skills
+    备份目录（仅在发生变更时创建）: D:\Temp\mas-s2-install-6ec8fc2dbe6542cdb8b55889fbf03c80\backups\20261026-212311-sync-skills
+  install: matlab-codegen-deploy -> D:\Temp\mas-s2-install-6ec8fc2dbe6542cdb8b55889fbf03c80\installed-skills\matlab-codegen-deploy
+  install: matlab-control-optimization -> D:\Temp\mas-s2-install-6ec8fc2dbe6542cdb8b55889fbf03c80\installed-skills\matlab-control-optimization
+  install: matlab-data-analysis -> D:\Temp\mas-s2-install-6ec8fc2dbe6542cdb8b55889fbf03c80\installed-skills\matlab-data-analysis
+  install: matlab-orchestrator -> D:\Temp\mas-s2-install-6ec8fc2dbe6542cdb8b55889fbf03c80\installed-skills\matlab-orchestrator
+  install: matlab-robotics-autonomy -> D:\Temp\mas-s2-install-6ec8fc2dbe6542cdb8b55889fbf03c80\installed-skills\matlab-robotics-autonomy
+  install: matlab-runner -> D:\Temp\mas-s2-install-6ec8fc2dbe6542cdb8b55889fbf03c80\installed-skills\matlab-runner
+  install: matlab-signal-vision-ai -> D:\Temp\mas-s2-install-6ec8fc2dbe6542cdb8b55889fbf03c80\installed-skills\matlab-signal-vision-ai
+  install: matlab-simulink-modeling -> D:\Temp\mas-s2-install-6ec8fc2dbe6542cdb8b55889fbf03c80\installed-skills\matlab-simulink-modeling
+  install: matlab-testing-ci -> D:\Temp\mas-s2-install-6ec8fc2dbe6542cdb8b55889fbf03c80\installed-skills\matlab-testing-ci
+ [+] installs every declared payload file byte-for-byte into runner and orchestrator 4.5s
+==> 同步 skills: E:\desktop\MATLAB\skills -> D:\Temp\mas-s2-install-1794f3bb647844f18ed1c53f9120950f\installed-skills
+    备份目录（仅在发生变更时创建）: D:\Temp\mas-s2-install-1794f3bb647844f18ed1c53f9120950f\backups\20261026-212315-sync-skills
+  install: matlab-codegen-deploy -> D:\Temp\mas-s2-install-1794f3bb647844f18ed1c53f9120950f\installed-skills\matlab-codegen-deploy
+  install: matlab-control-optimization -> D:\Temp\mas-s2-install-1794f3bb647844f18ed1c53f9120950f\installed-skills\matlab-control-optimization
+  install: matlab-data-analysis -> D:\Temp\mas-s2-install-1794f3bb647844f18ed1c53f9120950f\installed-skills\matlab-data-analysis
+  install: matlab-orchestrator -> D:\Temp\mas-s2-install-1794f3bb647844f18ed1c53f9120950f\installed-skills\matlab-orchestrator
+  install: matlab-robotics-autonomy -> D:\Temp\mas-s2-install-1794f3bb647844f18ed1c53f9120950f\installed-skills\matlab-robotics-autonomy
+  install: matlab-runner -> D:\Temp\mas-s2-install-1794f3bb647844f18ed1c53f9120950f\installed-skills\matlab-runner
+  install: matlab-signal-vision-ai -> D:\Temp\mas-s2-install-1794f3bb647844f18ed1c53f9120950f\installed-skills\matlab-signal-vision-ai
+  install: matlab-simulink-modeling -> D:\Temp\mas-s2-install-1794f3bb647844f18ed1c53f9120950f\installed-skills\matlab-simulink-modeling
+  install: matlab-testing-ci -> D:\Temp\mas-s2-install-1794f3bb647844f18ed1c53f9120950f\installed-skills\matlab-testing-ci
+ [+] does not ship artifacts, session files, certificates, keys, or repository paths inside a Skill 4.03s
+==> 同步 skills: E:\desktop\MATLAB\skills -> D:\Temp\mas-s2-install-e843e42389bc43658e597d0c1f28c529\installed-skills
+    备份目录（仅在发生变更时创建）: D:\Temp\mas-s2-install-e843e42389bc43658e597d0c1f28c529\backups\20261026-212319-sync-skills
+  install: matlab-codegen-deploy -> D:\Temp\mas-s2-install-e843e42389bc43658e597d0c1f28c529\installed-skills\matlab-codegen-deploy
+  install: matlab-control-optimization -> D:\Temp\mas-s2-install-e843e42389bc43658e597d0c1f28c529\installed-skills\matlab-control-optimization
+  install: matlab-data-analysis -> D:\Temp\mas-s2-install-e843e42389bc43658e597d0c1f28c529\installed-skills\matlab-data-analysis
+  install: matlab-orchestrator -> D:\Temp\mas-s2-install-e843e42389bc43658e597d0c1f28c529\installed-skills\matlab-orchestrator
+  install: matlab-robotics-autonomy -> D:\Temp\mas-s2-install-e843e42389bc43658e597d0c1f28c529\installed-skills\matlab-robotics-autonomy
+  install: matlab-runner -> D:\Temp\mas-s2-install-e843e42389bc43658e597d0c1f28c529\installed-skills\matlab-runner
+  install: matlab-signal-vision-ai -> D:\Temp\mas-s2-install-e843e42389bc43658e597d0c1f28c529\installed-skills\matlab-signal-vision-ai
+  install: matlab-simulink-modeling -> D:\Temp\mas-s2-install-e843e42389bc43658e597d0c1f28c529\installed-skills\matlab-simulink-modeling
+  install: matlab-testing-ci -> D:\Temp\mas-s2-install-e843e42389bc43658e597d0c1f28c529\installed-skills\matlab-testing-ci
+==> 同步 skills: E:\desktop\MATLAB\skills -> D:\Temp\mas-s2-install-e843e42389bc43658e597d0c1f28c529\installed-skills
+    备份目录（仅在发生变更时创建）: D:\Temp\mas-s2-install-e843e42389bc43658e597d0c1f28c529\backups\20261026-212323-sync-skills
+    跳过（内容一致）: matlab-codegen-deploy
+    跳过（内容一致）: matlab-control-optimization
+    跳过（内容一致）: matlab-data-analysis
+    跳过（内容一致）: matlab-orchestrator
+    跳过（内容一致）: matlab-robotics-autonomy
+    跳过（内容一致）: matlab-runner
+    跳过（内容一致）: matlab-signal-vision-ai
+    跳过（内容一致）: matlab-simulink-modeling
+    跳过（内容一致）: matlab-testing-ci
+    技能清单未变化，跳过重写: D:\Temp\mas-s2-install-e843e42389bc43658e597d0c1f28c529\installed-skills\.matlab-agent-skills-manifest.json
+ [+] keeps a repeat sync byte-identical, including payload and manifest 5.68s
+==> 同步 skills: E:\desktop\MATLAB\skills -> D:\Temp\mas-s2-install-eb4d452e80ce49389283c314f37d1998\installed-skills
+    [DryRun] 不会写入任何文件
+  install: matlab-codegen-deploy -> D:\Temp\mas-s2-install-eb4d452e80ce49389283c314f37d1998\installed-skills\matlab-codegen-deploy
+  install: matlab-control-optimization -> D:\Temp\mas-s2-install-eb4d452e80ce49389283c314f37d1998\installed-skills\matlab-control-optimization
+  install: matlab-data-analysis -> D:\Temp\mas-s2-install-eb4d452e80ce49389283c314f37d1998\installed-skills\matlab-data-analysis
+  install: matlab-orchestrator -> D:\Temp\mas-s2-install-eb4d452e80ce49389283c314f37d1998\installed-skills\matlab-orchestrator
+  install: matlab-robotics-autonomy -> D:\Temp\mas-s2-install-eb4d452e80ce49389283c314f37d1998\installed-skills\matlab-robotics-autonomy
+  install: matlab-runner -> D:\Temp\mas-s2-install-eb4d452e80ce49389283c314f37d1998\installed-skills\matlab-runner
+  install: matlab-signal-vision-ai -> D:\Temp\mas-s2-install-eb4d452e80ce49389283c314f37d1998\installed-skills\matlab-signal-vision-ai
+  install: matlab-simulink-modeling -> D:\Temp\mas-s2-install-eb4d452e80ce49389283c314f37d1998\installed-skills\matlab-simulink-modeling
+  install: matlab-testing-ci -> D:\Temp\mas-s2-install-eb4d452e80ce49389283c314f37d1998\installed-skills\matlab-testing-ci
+==> [DryRun] 将写入 skills manifest: D:\Temp\mas-s2-install-eb4d452e80ce49389283c314f37d1998\installed-skills\.matlab-agent-skills-manifest.json
+ [+] writes nothing for -DryRun 600ms
+==> 同步 skills: E:\desktop\MATLAB\skills -> D:\Temp\mas-s2-install-3da9de3f198144c09e15b8668c8149ba\installed-skills
+    备份目录（仅在发生变更时创建）: D:\Temp\mas-s2-install-3da9de3f198144c09e15b8668c8149ba\backups\20261026-212325-sync-skills
+  install: matlab-codegen-deploy -> D:\Temp\mas-s2-install-3da9de3f198144c09e15b8668c8149ba\installed-skills\matlab-codegen-deploy
+  install: matlab-control-optimization -> D:\Temp\mas-s2-install-3da9de3f198144c09e15b8668c8149ba\installed-skills\matlab-control-optimization
+  install: matlab-data-analysis -> D:\Temp\mas-s2-install-3da9de3f198144c09e15b8668c8149ba\installed-skills\matlab-data-analysis
+  install: matlab-orchestrator -> D:\Temp\mas-s2-install-3da9de3f198144c09e15b8668c8149ba\installed-skills\matlab-orchestrator
+  install: matlab-robotics-autonomy -> D:\Temp\mas-s2-install-3da9de3f198144c09e15b8668c8149ba\installed-skills\matlab-robotics-autonomy
+  install: matlab-runner -> D:\Temp\mas-s2-install-3da9de3f198144c09e15b8668c8149ba\installed-skills\matlab-runner
+  install: matlab-signal-vision-ai -> D:\Temp\mas-s2-install-3da9de3f198144c09e15b8668c8149ba\installed-skills\matlab-signal-vision-ai
+  install: matlab-simulink-modeling -> D:\Temp\mas-s2-install-3da9de3f198144c09e15b8668c8149ba\installed-skills\matlab-simulink-modeling
+  install: matlab-testing-ci -> D:\Temp\mas-s2-install-3da9de3f198144c09e15b8668c8149ba\installed-skills\matlab-testing-ci
+==> 同步 skills: E:\desktop\MATLAB\skills -> D:\Temp\mas-s2-install-3da9de3f198144c09e15b8668c8149ba\installed-skills
+    备份目录（仅在发生变更时创建）: D:\Temp\mas-s2-install-3da9de3f198144c09e15b8668c8149ba\backups\20261026-212330-sync-skills
+    跳过（内容一致）: matlab-codegen-deploy
+    跳过（内容一致）: matlab-control-optimization
+    跳过（内容一致）: matlab-data-analysis
+    跳过（内容一致）: matlab-orchestrator
+    跳过（内容一致）: matlab-robotics-autonomy
+  update: matlab-runner -> D:\Temp\mas-s2-install-3da9de3f198144c09e15b8668c8149ba\installed-skills\matlab-runner
+    跳过（内容一致）: matlab-signal-vision-ai
+    跳过（内容一致）: matlab-simulink-modeling
+    跳过（内容一致）: matlab-testing-ci
+ [+] repairs a tampered installed payload and backs up the previous copy 6.58s
+==> 同步 skills: D:\Temp\mas-s2-install-38c7bfd2cbaa4e758d0957e815c752ba\repo\skills -> D:\Temp\mas-s2-install-38c7bfd2cbaa4e758d0957e815c752ba\installed-skills
+    备份目录（仅在发生变更时创建）: D:\Temp\mas-s2-install-38c7bfd2cbaa4e758d0957e815c752ba\backups\20261026-212332-sync-skills
+  install: matlab-codegen-deploy -> D:\Temp\mas-s2-install-38c7bfd2cbaa4e758d0957e815c752ba\installed-skills\matlab-codegen-deploy
+  install: matlab-control-optimization -> D:\Temp\mas-s2-install-38c7bfd2cbaa4e758d0957e815c752ba\installed-skills\matlab-control-optimization
+  install: matlab-data-analysis -> D:\Temp\mas-s2-install-38c7bfd2cbaa4e758d0957e815c752ba\installed-skills\matlab-data-analysis
+  install: matlab-orchestrator -> D:\Temp\mas-s2-install-38c7bfd2cbaa4e758d0957e815c752ba\installed-skills\matlab-orchestrator
+  install: matlab-robotics-autonomy -> D:\Temp\mas-s2-install-38c7bfd2cbaa4e758d0957e815c752ba\installed-skills\matlab-robotics-autonomy
+  install: matlab-runner -> D:\Temp\mas-s2-install-38c7bfd2cbaa4e758d0957e815c752ba\installed-skills\matlab-runner
+  install: matlab-signal-vision-ai -> D:\Temp\mas-s2-install-38c7bfd2cbaa4e758d0957e815c752ba\installed-skills\matlab-signal-vision-ai
+  install: matlab-simulink-modeling -> D:\Temp\mas-s2-install-38c7bfd2cbaa4e758d0957e815c752ba\installed-skills\matlab-simulink-modeling
+  install: matlab-testing-ci -> D:\Temp\mas-s2-install-38c7bfd2cbaa4e758d0957e815c752ba\installed-skills\matlab-testing-ci
+ [+] restores the pre-upgrade payload when the destination is locked 9.96s
+==> 同步 skills: E:\desktop\MATLAB\skills -> D:\Temp\mas-s2-install-3608f79184514c2f9e1a406db51a6e6d\installed-skills
+    备份目录（仅在发生变更时创建）: D:\Temp\mas-s2-install-3608f79184514c2f9e1a406db51a6e6d\backups\20261026-212342-sync-skills
+  install: matlab-codegen-deploy -> D:\Temp\mas-s2-install-3608f79184514c2f9e1a406db51a6e6d\installed-skills\matlab-codegen-deploy
+  install: matlab-control-optimization -> D:\Temp\mas-s2-install-3608f79184514c2f9e1a406db51a6e6d\installed-skills\matlab-control-optimization
+  install: matlab-data-analysis -> D:\Temp\mas-s2-install-3608f79184514c2f9e1a406db51a6e6d\installed-skills\matlab-data-analysis
+  install: matlab-orchestrator -> D:\Temp\mas-s2-install-3608f79184514c2f9e1a406db51a6e6d\installed-skills\matlab-orchestrator
+  install: matlab-robotics-autonomy -> D:\Temp\mas-s2-install-3608f79184514c2f9e1a406db51a6e6d\installed-skills\matlab-robotics-autonomy
+  install: matlab-runner -> D:\Temp\mas-s2-install-3608f79184514c2f9e1a406db51a6e6d\installed-skills\matlab-runner
+  install: matlab-signal-vision-ai -> D:\Temp\mas-s2-install-3608f79184514c2f9e1a406db51a6e6d\installed-skills\matlab-signal-vision-ai
+  install: matlab-simulink-modeling -> D:\Temp\mas-s2-install-3608f79184514c2f9e1a406db51a6e6d\installed-skills\matlab-simulink-modeling
+  install: matlab-testing-ci -> D:\Temp\mas-s2-install-3608f79184514c2f9e1a406db51a6e6d\installed-skills\matlab-testing-ci
+ [+] uninstalls all nine managed Skills without leaving payload residue 4.7s
+Describing S2 installed Skill execution without the source repository
+==> 同步 skills: E:\desktop\MATLAB\skills -> D:\Temp\mas-s2-install-cb040156a6c3436e990ce4286c51f0a4\installed-skills
+    备份目录（仅在发生变更时创建）: D:\Temp\mas-s2-install-cb040156a6c3436e990ce4286c51f0a4\backups\20261026-212347-sync-skills
+  install: matlab-codegen-deploy -> D:\Temp\mas-s2-install-cb040156a6c3436e990ce4286c51f0a4\installed-skills\matlab-codegen-deploy
+  install: matlab-control-optimization -> D:\Temp\mas-s2-install-cb040156a6c3436e990ce4286c51f0a4\installed-skills\matlab-control-optimization
+  install: matlab-data-analysis -> D:\Temp\mas-s2-install-cb040156a6c3436e990ce4286c51f0a4\installed-skills\matlab-data-analysis
+  install: matlab-orchestrator -> D:\Temp\mas-s2-install-cb040156a6c3436e990ce4286c51f0a4\installed-skills\matlab-orchestrator
+  install: matlab-robotics-autonomy -> D:\Temp\mas-s2-install-cb040156a6c3436e990ce4286c51f0a4\installed-skills\matlab-robotics-autonomy
+  install: matlab-runner -> D:\Temp\mas-s2-install-cb040156a6c3436e990ce4286c51f0a4\installed-skills\matlab-runner
+  install: matlab-signal-vision-ai -> D:\Temp\mas-s2-install-cb040156a6c3436e990ce4286c51f0a4\installed-skills\matlab-signal-vision-ai
+  install: matlab-simulink-modeling -> D:\Temp\mas-s2-install-cb040156a6c3436e990ce4286c51f0a4\installed-skills\matlab-simulink-modeling
+  install: matlab-testing-ci -> D:\Temp\mas-s2-install-cb040156a6c3436e990ce4286c51f0a4\installed-skills\matlab-testing-ci
+ [+] keeps sanitizer behavior in the installed Core module 6.66s
+==> 同步 skills: E:\desktop\MATLAB\skills -> D:\Temp\mas-s2-install-99db8201ed7a4992bae38ed0a63d7c75\installed-skills
+    备份目录（仅在发生变更时创建）: D:\Temp\mas-s2-install-99db8201ed7a4992bae38ed0a63d7c75\backups\20261026-212353-sync-skills
+  install: matlab-codegen-deploy -> D:\Temp\mas-s2-install-99db8201ed7a4992bae38ed0a63d7c75\installed-skills\matlab-codegen-deploy
+  install: matlab-control-optimization -> D:\Temp\mas-s2-install-99db8201ed7a4992bae38ed0a63d7c75\installed-skills\matlab-control-optimization
+  install: matlab-data-analysis -> D:\Temp\mas-s2-install-99db8201ed7a4992bae38ed0a63d7c75\installed-skills\matlab-data-analysis
+  install: matlab-orchestrator -> D:\Temp\mas-s2-install-99db8201ed7a4992bae38ed0a63d7c75\installed-skills\matlab-orchestrator
+  install: matlab-robotics-autonomy -> D:\Temp\mas-s2-install-99db8201ed7a4992bae38ed0a63d7c75\installed-skills\matlab-robotics-autonomy
+  install: matlab-runner -> D:\Temp\mas-s2-install-99db8201ed7a4992bae38ed0a63d7c75\installed-skills\matlab-runner
+  install: matlab-signal-vision-ai -> D:\Temp\mas-s2-install-99db8201ed7a4992bae38ed0a63d7c75\installed-skills\matlab-signal-vision-ai
+  install: matlab-simulink-modeling -> D:\Temp\mas-s2-install-99db8201ed7a4992bae38ed0a63d7c75\installed-skills\matlab-simulink-modeling
+  install: matlab-testing-ci -> D:\Temp\mas-s2-install-99db8201ed7a4992bae38ed0a63d7c75\installed-skills\matlab-testing-ci
+ [+] resolves every installed module from inside the Skill root 6.07s
+==> 同步 skills: E:\desktop\MATLAB\skills -> D:\Temp\mas-s2-install-09807e2347874e66afade7ef543a8f96\installed-skills
+    备份目录（仅在发生变更时创建）: D:\Temp\mas-s2-install-09807e2347874e66afade7ef543a8f96\backups\20261026-212359-sync-skills
+  install: matlab-codegen-deploy -> D:\Temp\mas-s2-install-09807e2347874e66afade7ef543a8f96\installed-skills\matlab-codegen-deploy
+  install: matlab-control-optimization -> D:\Temp\mas-s2-install-09807e2347874e66afade7ef543a8f96\installed-skills\matlab-control-optimization
+  install: matlab-data-analysis -> D:\Temp\mas-s2-install-09807e2347874e66afade7ef543a8f96\installed-skills\matlab-data-analysis
+  install: matlab-orchestrator -> D:\Temp\mas-s2-install-09807e2347874e66afade7ef543a8f96\installed-skills\matlab-orchestrator
+  install: matlab-robotics-autonomy -> D:\Temp\mas-s2-install-09807e2347874e66afade7ef543a8f96\installed-skills\matlab-robotics-autonomy
+  install: matlab-runner -> D:\Temp\mas-s2-install-09807e2347874e66afade7ef543a8f96\installed-skills\matlab-runner
+  install: matlab-signal-vision-ai -> D:\Temp\mas-s2-install-09807e2347874e66afade7ef543a8f96\installed-skills\matlab-signal-vision-ai
+  install: matlab-simulink-modeling -> D:\Temp\mas-s2-install-09807e2347874e66afade7ef543a8f96\installed-skills\matlab-simulink-modeling
+  install: matlab-testing-ci -> D:\Temp\mas-s2-install-09807e2347874e66afade7ef543a8f96\installed-skills\matlab-testing-ci
+ [+] runs the installed probe from a project cwd and writes artifacts outside the Skill 6.18s
+Tests completed in 54.94s
+Passed: 10 Failed: 0 Skipped: 0 Pending: 0 Inconclusive: 0
+==> 运行 [free] SkillSync.Phase57.Tests.ps1
+
+
+
+
+
+Describing Phase 5.7 sync: managed upgrade keeps user files
+警告: 未找到 Skill payload 清单，按无附加资源处理: 
+D:\Temp\mas-phase57-sync-8bc9f8f20ac24a989b50a5ccdd00ae4a\repo\config\skill-payloads.json
+==> 同步 skills: D:\Temp\mas-phase57-sync-8bc9f8f20ac24a989b50a5ccdd00ae4a\repo\skills -> D:\Temp\mas-phase57-sync-8bc9f8f20ac24a989b50a5ccdd00ae4a\skills
+    备份目录（仅在发生变更时创建）: D:\Temp\mas-phase57-sync-8bc9f8f20ac24a989b50a5ccdd00ae4a\backups\20261026-212405-sync-skills
+  install: matlab-alpha -> D:\Temp\mas-phase57-sync-8bc9f8f20ac24a989b50a5ccdd00ae4a\skills\matlab-alpha
+  install: matlab-beta -> D:\Temp\mas-phase57-sync-8bc9f8f20ac24a989b50a5ccdd00ae4a\skills\matlab-beta
+警告: 未找到 Skill payload 清单，按无附加资源处理: 
+D:\Temp\mas-phase57-sync-8bc9f8f20ac24a989b50a5ccdd00ae4a\repo\config\skill-payloads.json
+==> 同步 skills: D:\Temp\mas-phase57-sync-8bc9f8f20ac24a989b50a5ccdd00ae4a\repo\skills -> D:\Temp\mas-phase57-sync-8bc9f8f20ac24a989b50a5ccdd00ae4a\skills
+    备份目录（仅在发生变更时创建）: D:\Temp\mas-phase57-sync-8bc9f8f20ac24a989b50a5ccdd00ae4a\backups\20261026-212406-sync-skills
+  update: matlab-alpha -> D:\Temp\mas-phase57-sync-8bc9f8f20ac24a989b50a5ccdd00ae4a\skills\matlab-alpha
+    跳过（内容一致）: matlab-beta
+ [+] upgrades the managed copy and preserves a user-added file 504ms
+警告: 未找到 Skill payload 清单，按无附加资源处理: 
+D:\Temp\mas-phase57-sync-8aafb90cc6414e12972193a505fd59e6\repo\config\skill-payloads.json
+==> 同步 skills: D:\Temp\mas-phase57-sync-8aafb90cc6414e12972193a505fd59e6\repo\skills -> D:\Temp\mas-phase57-sync-8aafb90cc6414e12972193a505fd59e6\skills
+    备份目录（仅在发生变更时创建）: D:\Temp\mas-phase57-sync-8aafb90cc6414e12972193a505fd59e6\backups\20261026-212406-sync-skills
+  install: matlab-alpha -> D:\Temp\mas-phase57-sync-8aafb90cc6414e12972193a505fd59e6\skills\matlab-alpha
+  install: matlab-beta -> D:\Temp\mas-phase57-sync-8aafb90cc6414e12972193a505fd59e6\skills\matlab-beta
+警告: 未找到 Skill payload 清单，按无附加资源处理: 
+D:\Temp\mas-phase57-sync-8aafb90cc6414e12972193a505fd59e6\repo\config\skill-payloads.json
+==> 同步 skills: D:\Temp\mas-phase57-sync-8aafb90cc6414e12972193a505fd59e6\repo\skills -> D:\Temp\mas-phase57-sync-8aafb90cc6414e12972193a505fd59e6\skills
+    备份目录（仅在发生变更时创建）: D:\Temp\mas-phase57-sync-8aafb90cc6414e12972193a505fd59e6\backups\20261026-212406-sync-skills-1
+  update: matlab-alpha -> D:\Temp\mas-phase57-sync-8aafb90cc6414e12972193a505fd59e6\skills\matlab-alpha
+    跳过（内容一致）: matlab-beta
+警告: 未找到 Skill payload 清单，按无附加资源处理: 
+D:\Temp\mas-phase57-sync-8aafb90cc6414e12972193a505fd59e6\repo\config\skill-payloads.json
+==> 同步 skills: D:\Temp\mas-phase57-sync-8aafb90cc6414e12972193a505fd59e6\repo\skills -> D:\Temp\mas-phase57-sync-8aafb90cc6414e12972193a505fd59e6\skills
+    备份目录（仅在发生变更时创建）: D:\Temp\mas-phase57-sync-8aafb90cc6414e12972193a505fd59e6\backups\20261026-212406-sync-skills-2
+    跳过（内容一致）: matlab-alpha
+    跳过（内容一致）: matlab-beta
+    技能清单未变化，跳过重写: D:\Temp\mas-phase57-sync-8aafb90cc6414e12972193a505fd59e6\skills\.matlab-agent-skills-manifest.json
+ [+] still reports unchanged after the upgrade and keeps the custom file 643ms
+Describing Phase 5.7 sync: failed replacement restores the previous version
+警告: 未找到 Skill payload 清单，按无附加资源处理: 
+D:\Temp\mas-phase57-sync-4754c21b09874efba7af8f248b7d27ca\repo\config\skill-payloads.json
+==> 同步 skills: D:\Temp\mas-phase57-sync-4754c21b09874efba7af8f248b7d27ca\repo\skills -> D:\Temp\mas-phase57-sync-4754c21b09874efba7af8f248b7d27ca\skills
+    备份目录（仅在发生变更时创建）: D:\Temp\mas-phase57-sync-4754c21b09874efba7af8f248b7d27ca\backups\20261026-212406-sync-skills
+  install: matlab-alpha -> D:\Temp\mas-phase57-sync-4754c21b09874efba7af8f248b7d27ca\skills\matlab-alpha
+  install: matlab-beta -> D:\Temp\mas-phase57-sync-4754c21b09874efba7af8f248b7d27ca\skills\matlab-beta
+ [+] reports an error and rebuilds missing files from the backup 311ms
+Describing Phase 5.7 sync: manifest ownership fence
+警告: 未找到 Skill payload 清单，按无附加资源处理: 
+D:\Temp\mas-phase57-sync-884a438d49d5487f9ed83d9c0e265e9e\repo\config\skill-payloads.json
+==> 同步 skills: D:\Temp\mas-phase57-sync-884a438d49d5487f9ed83d9c0e265e9e\repo\skills -> D:\Temp\mas-phase57-sync-884a438d49d5487f9ed83d9c0e265e9e\skills
+    备份目录（仅在发生变更时创建）: D:\Temp\mas-phase57-sync-884a438d49d5487f9ed83d9c0e265e9e\backups\20261026-212407-sync-skills
+  install: matlab-alpha -> D:\Temp\mas-phase57-sync-884a438d49d5487f9ed83d9c0e265e9e\skills\matlab-alpha
+  install: matlab-beta -> D:\Temp\mas-phase57-sync-884a438d49d5487f9ed83d9c0e265e9e\skills\matlab-beta
+警告: 未找到 Skill payload 清单，按无附加资源处理: 
+D:\Temp\mas-phase57-sync-884a438d49d5487f9ed83d9c0e265e9e\repo\config\skill-payloads.json
+==> 同步 skills: D:\Temp\mas-phase57-sync-884a438d49d5487f9ed83d9c0e265e9e\repo\skills -> D:\Temp\mas-phase57-sync-884a438d49d5487f9ed83d9c0e265e9e\skills
+ [+] refuses to take over a manifest owned by another repository 298ms
+Tests completed in 1.76s
+Passed: 4 Failed: 0 Skipped: 0 Pending: 0 Inconclusive: 0
+==> 运行 [free] SkillSync.Phase58.Tests.ps1
+
+
+
+
+
+Describing Phase 5.8 sync: linked root boundary
+警告: 未找到 Skill payload 清单，按无附加资源处理: 
+D:\Temp\mas-phase58-sync-a3e0d58c500d422ead35f9a9fcc0ff4b\repo\config\skill-payloads.json
+==> 同步 skills: D:\Temp\mas-phase58-sync-a3e0d58c500d422ead35f9a9fcc0ff4b\repo\skills -> D:\Temp\mas-phase58-sync-a3e0d58c500d422ead35f9a9fcc0ff4b\physical\skills
+    备份目录（仅在发生变更时创建）: D:\Temp\mas-phase58-sync-a3e0d58c500d422ead35f9a9fcc0ff4b\backups\20261026-212407-sync-skills
+  install: matlab-alpha -> D:\Temp\mas-phase58-sync-a3e0d58c500d422ead35f9a9fcc0ff4b\physical\skills\matlab-alpha
+ [+] refuses a SkillRoot below a link and accepts the physical target 323ms
+Describing Phase 5.8 sync: first-time adoption of an unmanaged copy
+警告: 未找到 Skill payload 清单，按无附加资源处理: 
+D:\Temp\mas-phase58-sync-5cbb808a5efe4294802a5b6053dc618f\repo\config\skill-payloads.json
+==> 同步 skills: D:\Temp\mas-phase58-sync-5cbb808a5efe4294802a5b6053dc618f\repo\skills -> D:\Temp\mas-phase58-sync-5cbb808a5efe4294802a5b6053dc618f\skills
+    [DryRun] 不会写入任何文件
+警告: 冲突: matlab-alpha -> 
+D:\Temp\mas-phase58-sync-5cbb808a5efe4294802a5b6053dc618f\skills\matlab-alpha；目标目录已存在且内容不同，且不属于本项目
+管理的技能（未在 manifest 中登记）。默认不覆盖；确认后可用 -Force。
+  install: matlab-beta -> D:\Temp\mas-phase58-sync-5cbb808a5efe4294802a5b6053dc618f\skills\matlab-beta
+==> [DryRun] 将写入 skills manifest: D:\Temp\mas-phase58-sync-5cbb808a5efe4294802a5b6053dc618f\skills\.matlab-agent-skills-manifest.json
+警告: 未找到 Skill payload 清单，按无附加资源处理: 
+D:\Temp\mas-phase58-sync-5cbb808a5efe4294802a5b6053dc618f\repo\config\skill-payloads.json
+==> 同步 skills: D:\Temp\mas-phase58-sync-5cbb808a5efe4294802a5b6053dc618f\repo\skills -> D:\Temp\mas-phase58-sync-5cbb808a5efe4294802a5b6053dc618f\skills
+    备份目录（仅在发生变更时创建）: D:\Temp\mas-phase58-sync-5cbb808a5efe4294802a5b6053dc618f\backups\20261026-212408-sync-skills
+  update: matlab-alpha -> D:\Temp\mas-phase58-sync-5cbb808a5efe4294802a5b6053dc618f\skills\matlab-alpha
+  install: matlab-beta -> D:\Temp\mas-phase58-sync-5cbb808a5efe4294802a5b6053dc618f\skills\matlab-beta
+ [+] conflicts without -Force, then backs up and adopts with -Force while keeping other skills 489ms
+Describing Phase 5.8 sync: repeat sync is zero-write
+警告: 未找到 Skill payload 清单，按无附加资源处理: 
+D:\Temp\mas-phase58-sync-587bdb4b387b4a439eaec493bd9c835a\repo\config\skill-payloads.json
+==> 同步 skills: D:\Temp\mas-phase58-sync-587bdb4b387b4a439eaec493bd9c835a\repo\skills -> D:\Temp\mas-phase58-sync-587bdb4b387b4a439eaec493bd9c835a\skills
+    备份目录（仅在发生变更时创建）: D:\Temp\mas-phase58-sync-587bdb4b387b4a439eaec493bd9c835a\backups\20261026-212408-sync-skills
+  install: matlab-alpha -> D:\Temp\mas-phase58-sync-587bdb4b387b4a439eaec493bd9c835a\skills\matlab-alpha
+  install: matlab-beta -> D:\Temp\mas-phase58-sync-587bdb4b387b4a439eaec493bd9c835a\skills\matlab-beta
+警告: 未找到 Skill payload 清单，按无附加资源处理: 
+D:\Temp\mas-phase58-sync-587bdb4b387b4a439eaec493bd9c835a\repo\config\skill-payloads.json
+==> 同步 skills: D:\Temp\mas-phase58-sync-587bdb4b387b4a439eaec493bd9c835a\repo\skills -> D:\Temp\mas-phase58-sync-587bdb4b387b4a439eaec493bd9c835a\skills
+    备份目录（仅在发生变更时创建）: D:\Temp\mas-phase58-sync-587bdb4b387b4a439eaec493bd9c835a\backups\20261026-212408-sync-skills-1
+    跳过（内容一致）: matlab-alpha
+    跳过（内容一致）: matlab-beta
+    技能清单未变化，跳过重写: D:\Temp\mas-phase58-sync-587bdb4b387b4a439eaec493bd9c835a\skills\.matlab-agent-skills-manifest.json
+ [+] does not rewrite the manifest or create a backup session when nothing changed 380ms
+Describing Phase 5.8 sync: managed update rollback restores the manifest
+警告: 未找到 Skill payload 清单，按无附加资源处理: 
+D:\Temp\mas-phase58-sync-78b0fc2feeb2436992a9e2dd68bdcceb\repo\config\skill-payloads.json
+==> 同步 skills: D:\Temp\mas-phase58-sync-78b0fc2feeb2436992a9e2dd68bdcceb\repo\skills -> D:\Temp\mas-phase58-sync-78b0fc2feeb2436992a9e2dd68bdcceb\skills
+    备份目录（仅在发生变更时创建）: D:\Temp\mas-phase58-sync-78b0fc2feeb2436992a9e2dd68bdcceb\backups\20261026-212408-sync-skills
+  install: matlab-alpha -> D:\Temp\mas-phase58-sync-78b0fc2feeb2436992a9e2dd68bdcceb\skills\matlab-alpha
+  install: matlab-beta -> D:\Temp\mas-phase58-sync-78b0fc2feeb2436992a9e2dd68bdcceb\skills\matlab-beta
+警告: 未找到 Skill payload 清单，按无附加资源处理: 
+D:\Temp\mas-phase58-sync-78b0fc2feeb2436992a9e2dd68bdcceb\repo\config\skill-payloads.json
+==> 同步 skills: D:\Temp\mas-phase58-sync-78b0fc2feeb2436992a9e2dd68bdcceb\repo\skills -> D:\Temp\mas-phase58-sync-78b0fc2feeb2436992a9e2dd68bdcceb\skills
+    备份目录（仅在发生变更时创建）: D:\Temp\mas-phase58-sync-78b0fc2feeb2436992a9e2dd68bdcceb\backups\20261026-212408-sync-skills-1
+  update: matlab-alpha -> D:\Temp\mas-phase58-sync-78b0fc2feeb2436992a9e2dd68bdcceb\skills\matlab-alpha
+    跳过（内容一致）: matlab-beta
+ [+] backs up the manifest before rewriting it and restores both on rollback 485ms
+Tests completed in 1.68s
+Passed: 4 Failed: 0 Skipped: 0 Pending: 0 Inconclusive: 0
+
+==> 汇总: 共 379 个用例，通过 378，失败 1，跳过 0
+    层 free: 已执行 379 个用例，通过 378，失败 1，耗时 223.9s
+==> 层报告: artifacts/s3/evidence/green/free-layer-final.json

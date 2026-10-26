@@ -121,4 +121,166 @@ function Assert-MasManagedSkillPath {
     return $targetPath
 }
 
-Export-ModuleMember -Function Resolve-MasSkillInstallation, Assert-MasManagedSkillPath, Assert-MasSkillRootPath
+function Test-MasSafePayloadRelativePath {
+    <#
+    .SYNOPSIS
+    拒绝绝对路径、驱动器路径、ADS、通配符与任何 .. 片段。
+    #>
+    [CmdletBinding()]
+    param([string]$Value)
+    if ([string]::IsNullOrWhiteSpace($Value)) { return $false }
+    $normalized = $Value -replace '\\', '/'
+    if ($normalized.StartsWith('/')) { return $false }
+    if ($normalized -match '^[A-Za-z]:') { return $false }
+    if ($normalized -match '(^|/)\.\.?(/|$)') { return $false }
+    if ($normalized -match '[<>:"|?*\x00-\x1F]') { return $false }
+    return $true
+}
+
+function Assert-MasContainedPayloadPath {
+    <#
+    .SYNOPSIS
+    把清单里的相对路径解析到仓库内，并拒绝链接跳转。
+    #>
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory)][string]$RepositoryRoot,
+        [Parameter(Mandatory)][string]$RelativePath,
+        [switch]$RequireFile
+    )
+    if (-not (Test-MasSafePayloadRelativePath -Value $RelativePath)) {
+        throw "payload 路径不安全: $RelativePath"
+    }
+    $rootPath = [IO.Path]::GetFullPath($RepositoryRoot).TrimEnd([char[]]'\/')
+    $nativeRelative = ($RelativePath -replace '\\', '/') -replace '/', [IO.Path]::DirectorySeparatorChar
+    $candidate = [IO.Path]::GetFullPath((Join-Path $rootPath $nativeRelative))
+    $comparison = if ([Environment]::OSVersion.Platform -eq [PlatformID]::Win32NT) {
+        [StringComparison]::OrdinalIgnoreCase
+    } else { [StringComparison]::Ordinal }
+    $prefix = $rootPath + [IO.Path]::DirectorySeparatorChar
+    if (-not $candidate.StartsWith($prefix, $comparison)) {
+        throw "payload 路径越出仓库: $RelativePath"
+    }
+    # 只检查仓库根以下的层级，避免把用户主目录的链接误判成 payload 问题。
+    $cursor = $candidate
+    while ($cursor -and $cursor.Length -ge $rootPath.Length) {
+        if (Test-Path -LiteralPath $cursor) {
+            $item = Get-Item -LiteralPath $cursor -Force
+            if ($item.Attributes -band [IO.FileAttributes]::ReparsePoint) {
+                throw "payload 路径包含链接，拒绝安装: $cursor"
+            }
+        }
+        if ([string]::Equals($cursor, $rootPath, $comparison)) { break }
+        $cursor = [IO.Path]::GetDirectoryName($cursor)
+    }
+    if ($RequireFile -and -not (Test-Path -LiteralPath $candidate -PathType Leaf)) {
+        throw "payload 源文件不存在: $RelativePath"
+    }
+    return $candidate
+}
+
+function Get-MasSkillPayloadManifest {
+    <#
+    .SYNOPSIS
+    读取并校验 config/skill-payloads.json，返回 skill 名到文件清单的映射。
+
+    .DESCRIPTION
+    清单只允许把仓库 scripts/、schemas/、config/ 下的文件发布到已安装 Skill 的
+    scripts/、schemas/、config/ 目录。任何绝对路径、..、链接、凭据类文件或与 Skill
+    自带文件冲突的目标都会被拒绝。清单缺失时返回空映射，保持旧仓库检出的兼容性；
+    清单存在但非法时立即失败，绝不半装。
+
+    config/ 必须在内：Core 的 Get-McpServerManifest 固定读 <根>/config/mcp-server-manifest.json，
+    且没有这份清单就拒绝启动官方 stdio server（fail closed）。不把清单发进安装副本，
+    安装后的 Skill 就永远只能报"缺少发布清单"，真实 MCP 路径无法打通。
+    #>
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory)][string]$RepositoryRoot,
+        [string]$ConfigPath
+    )
+    $repositoryPath = [IO.Path]::GetFullPath($RepositoryRoot).TrimEnd([char[]]'\/')
+    if (-not $ConfigPath) { $ConfigPath = Join-Path $repositoryPath 'config/skill-payloads.json' }
+    $result = @{}
+    if (-not (Test-Path -LiteralPath $ConfigPath -PathType Leaf)) {
+        Write-Warning "未找到 Skill payload 清单，按无附加资源处理: $ConfigPath"
+        return $result
+    }
+
+    try {
+        $text = [System.IO.File]::ReadAllText($ConfigPath, (New-Object System.Text.UTF8Encoding($false)))
+        $config = $text | ConvertFrom-Json
+    }
+    catch {
+        throw "Skill payload 清单不是合法 JSON: $ConfigPath；$($_.Exception.Message)"
+    }
+    if ($null -eq $config -or -not ($config.PSObject.Properties.Name -contains 'schemaVersion') -or
+        [int]$config.schemaVersion -ne 1) {
+        throw "Skill payload 清单 schemaVersion 必须为 1: $ConfigPath"
+    }
+    if (-not ($config.PSObject.Properties.Name -contains 'payloads') -or $null -eq $config.payloads) {
+        throw "Skill payload 清单缺少 payloads 对象: $ConfigPath"
+    }
+
+    $secretPattern = '(?i)(^|/)(sessiondetails\.json|\.env|id_rsa|id_ed25519)(/|$)|\.(pem|key|pfx|p12|cer|crt)$'
+    foreach ($entry in @($config.payloads.PSObject.Properties)) {
+        $skillName = $entry.Name
+        if ($skillName -notmatch '^matlab-[a-z0-9]+(?:-[a-z0-9]+)*$') {
+            throw "payload 清单中的 Skill 名称不安全: $skillName"
+        }
+        $skillDirectory = Join-Path (Join-Path $repositoryPath 'skills') $skillName
+        if (-not (Test-Path -LiteralPath $skillDirectory -PathType Container)) {
+            throw "payload 清单引用了不存在的 Skill: $skillName"
+        }
+        $skillDirectory = Assert-MasContainedPayloadPath -RepositoryRoot $repositoryPath `
+            -RelativePath ("skills/" + $skillName)
+
+        $files = @($entry.Value.files)
+        if ($files.Count -eq 0) { throw "Skill payload 清单为空: $skillName" }
+        $targets = New-Object 'System.Collections.Generic.HashSet[string]' ([StringComparer]::OrdinalIgnoreCase)
+        $records = New-Object System.Collections.Generic.List[object]
+        foreach ($file in $files) {
+            $sourceRelative = ([string]$file.source -replace '\\', '/')
+            $targetRelative = ([string]$file.target -replace '\\', '/')
+            if (-not (Test-MasSafePayloadRelativePath -Value $sourceRelative)) {
+                throw "payload 源路径不安全: $skillName -> $sourceRelative"
+            }
+            if (-not (Test-MasSafePayloadRelativePath -Value $targetRelative)) {
+                throw "payload 目标路径不安全: $skillName -> $targetRelative"
+            }
+            if ($sourceRelative -notmatch '^(scripts|schemas|config)/') {
+                throw "payload 源必须位于 scripts/、schemas/ 或 config/ 下: $sourceRelative"
+            }
+            if ($sourceRelative -match '(?i)(^|/)(artifacts|tests|docs|skills)(/|$)') {
+                throw "payload 源不能来自测试或证据目录: $sourceRelative"
+            }
+            if ($targetRelative -notmatch '^(scripts|schemas|config)/') {
+                throw "payload 目标必须位于 Skill 的 scripts/、schemas/ 或 config/ 下: $targetRelative"
+            }
+            if ($sourceRelative -match $secretPattern -or $targetRelative -match $secretPattern) {
+                throw "payload 不得包含会话或凭据文件: $sourceRelative"
+            }
+            if (-not $targets.Add($targetRelative)) {
+                throw "payload 目标重复: $skillName -> $targetRelative"
+            }
+            $sourceFullPath = Assert-MasContainedPayloadPath -RepositoryRoot $repositoryPath `
+                -RelativePath $sourceRelative -RequireFile
+            $targetFullPath = Assert-MasContainedPayloadPath -RepositoryRoot $skillDirectory `
+                -RelativePath $targetRelative
+            if (Test-Path -LiteralPath $targetFullPath) {
+                throw "payload 目标与 Skill 自带文件冲突: $skillName -> $targetRelative"
+            }
+            $records.Add([pscustomobject]@{
+                    SkillName      = $skillName
+                    Source         = $sourceFullPath
+                    SourceRelative = $sourceRelative
+                    Target         = $targetRelative
+                    TargetFullPath = $targetFullPath
+                })
+        }
+        $result[$skillName] = [object[]]$records.ToArray()
+    }
+    return $result
+}
+
+Export-ModuleMember -Function Resolve-MasSkillInstallation, Assert-MasManagedSkillPath, Assert-MasSkillRootPath, Get-MasSkillPayloadManifest

@@ -1,0 +1,2 @@
+    + CategoryInfo          : ResourceUnavailable: (E:\desktop\MATL...s.McpProbe.psm1:String) [Import-Module], FileNot 
+    + FullyQualifiedErrorId : Modules_ModuleNotFound,Microsoft.PowerShell.Commands.ImportModuleCommand

@@ -1,0 +1,22 @@
+ /dev/null => new-tree/config/skill-payloads.json   |  27 +
+ .../scripts/MatlabAgentSkills.Core.psm1            | 101 ++-
+ .../scripts/MatlabAgentSkills.McpProbe.psm1        |  54 +-
+ .../MatlabAgentSkills.SkillInstallation.psm1       | 160 ++++-
+ {old-tree => new-tree}/scripts/Sync-Skills.ps1     |  20 +-
+ .../scripts/Test-MatlabMcpExistingSession.ps1      |  29 +-
+ .../skills/matlab-codegen-deploy/SKILL.md          |  17 +-
+ .../skills/matlab-control-optimization/SKILL.md    |  15 +
+ .../skills/matlab-data-analysis/SKILL.md           |  15 +
+ .../skills/matlab-orchestrator/SKILL.md            |  34 +-
+ .../skills/matlab-robotics-autonomy/SKILL.md       |  15 +
+ .../skills/matlab-runner/SKILL.md                  |  61 +-
+ .../matlab-runner/references/acceptance-levels.md  |   4 +-
+ .../references/mcp-readiness-ladder.md             |  16 +-
+ .../skills/matlab-signal-vision-ai/SKILL.md        |  15 +
+ .../skills/matlab-simulink-modeling/SKILL.md       |  28 +-
+ .../skills/matlab-testing-ci/SKILL.md              |  23 +-
+ .../null => new-tree/tests/Invoke-S2Acceptance.ps1 | 701 +++++++++++++++++++++
+ {old-tree => new-tree}/tests/McpProbe.Tests.ps1    |  13 +
+ .../tests/SkillPayloadContract.Tests.ps1           | 245 +++++++
+ .../tests/SkillPayloadInstall.Tests.ps1            | 440 +++++++++++++
+ 21 files changed, 1974 insertions(+), 59 deletions(-)

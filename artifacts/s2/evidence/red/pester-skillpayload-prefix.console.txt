@@ -1,0 +1,405 @@
+==> 使用 Pester 3.4.0 (C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Pester.psd1) [installed]
+==> 运行 [free] SkillPayloadContract.Tests.ps1
+
+
+
+
+
+Describing S2 payload manifest contract
+ [-] declares a schema-versioned payload manifest 701ms
+   Expected: {True}
+   But was:  {False}
+   70:         (Test-Path -LiteralPath $script:PayloadConfig) | Should Be $true
+   在 Should<End>、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Functions\Assertions\Should.ps1 中: 第 92 行
+   在 <ScriptBlock>、E:\desktop\MATLAB\tests\SkillPayloadContract.Tests.ps1 中: 第 70 行
+   在 Invoke-Test、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Functions\It.ps1 中: 第 253 行
+   在 ItImpl、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Functions\It.ps1 中: 第 203 行
+   在 It、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Functions\It.ps1 中: 第 117 行
+   在 <ScriptBlock>、E:\desktop\MATLAB\tests\SkillPayloadContract.Tests.ps1 中: 第 69 行
+   在 Describe、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Functions\Describe.ps1 中: 第 100 行
+   在 <ScriptBlock>、E:\desktop\MATLAB\tests\SkillPayloadContract.Tests.ps1 中: 第 67 行
+   在 <ScriptBlock>、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Pester.psm1 中: 第 297 行
+   在 Invoke-Pester、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Pester.psm1 中: 第 310 行
+   在 <ScriptBlock>、E:\desktop\MATLAB\tests\Invoke-Tests.ps1 中: 第 177 行
+ [-] ships the complete runner probe and batch closure 191ms
+   Expected: {True}
+   But was:  {False}
+   80:         (Test-Path -LiteralPath $script:PayloadConfig) | Should Be $true
+   在 Should<End>、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Functions\Assertions\Should.ps1 中: 第 92 行
+   在 <ScriptBlock>、E:\desktop\MATLAB\tests\SkillPayloadContract.Tests.ps1 中: 第 80 行
+   在 Invoke-Test、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Functions\It.ps1 中: 第 253 行
+   在 ItImpl、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Functions\It.ps1 中: 第 203 行
+   在 It、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Functions\It.ps1 中: 第 117 行
+   在 <ScriptBlock>、E:\desktop\MATLAB\tests\SkillPayloadContract.Tests.ps1 中: 第 79 行
+   在 Describe、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Functions\Describe.ps1 中: 第 100 行
+   在 <ScriptBlock>、E:\desktop\MATLAB\tests\SkillPayloadContract.Tests.ps1 中: 第 67 行
+   在 <ScriptBlock>、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Pester.psm1 中: 第 297 行
+   在 Invoke-Pester、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Pester.psm1 中: 第 310 行
+   在 <ScriptBlock>、E:\desktop\MATLAB\tests\Invoke-Tests.ps1 中: 第 177 行
+ [-] ships the complete orchestrator probe closure 44ms
+   Expected: {True}
+   But was:  {False}
+   90:         (Test-Path -LiteralPath $script:PayloadConfig) | Should Be $true
+   在 Should<End>、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Functions\Assertions\Should.ps1 中: 第 92 行
+   在 <ScriptBlock>、E:\desktop\MATLAB\tests\SkillPayloadContract.Tests.ps1 中: 第 90 行
+   在 Invoke-Test、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Functions\It.ps1 中: 第 253 行
+   在 ItImpl、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Functions\It.ps1 中: 第 203 行
+   在 It、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Functions\It.ps1 中: 第 117 行
+   在 <ScriptBlock>、E:\desktop\MATLAB\tests\SkillPayloadContract.Tests.ps1 中: 第 89 行
+   在 Describe、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Functions\Describe.ps1 中: 第 100 行
+   在 <ScriptBlock>、E:\desktop\MATLAB\tests\SkillPayloadContract.Tests.ps1 中: 第 67 行
+   在 <ScriptBlock>、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Pester.psm1 中: 第 297 行
+   在 Invoke-Pester、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Pester.psm1 中: 第 310 行
+   在 <ScriptBlock>、E:\desktop\MATLAB\tests\Invoke-Tests.ps1 中: 第 177 行
+ [-] keeps every payload source inside the repository runtime roots 70ms
+   Expected: {True}
+   But was:  {False}
+   100:         (Test-Path -LiteralPath $script:PayloadConfig) | Should Be $true
+   在 Should<End>、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Functions\Assertions\Should.ps1 中: 第 92 行
+   在 <ScriptBlock>、E:\desktop\MATLAB\tests\SkillPayloadContract.Tests.ps1 中: 第 100 行
+   在 Invoke-Test、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Functions\It.ps1 中: 第 253 行
+   在 ItImpl、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Functions\It.ps1 中: 第 203 行
+   在 It、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Functions\It.ps1 中: 第 117 行
+   在 <ScriptBlock>、E:\desktop\MATLAB\tests\SkillPayloadContract.Tests.ps1 中: 第 99 行
+   在 Describe、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Functions\Describe.ps1 中: 第 100 行
+   在 <ScriptBlock>、E:\desktop\MATLAB\tests\SkillPayloadContract.Tests.ps1 中: 第 67 行
+   在 <ScriptBlock>、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Pester.psm1 中: 第 297 行
+   在 Invoke-Pester、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Pester.psm1 中: 第 310 行
+   在 <ScriptBlock>、E:\desktop\MATLAB\tests\Invoke-Tests.ps1 中: 第 177 行
+ [+] does not commit a duplicate probe implementation inside skills/ 64ms
+ [+] keeps all nine skills present with SKILL.md 35ms
+Describing S2 skill documentation reference contract
+ [-] uses a skill-root resolution rule instead of caller-cwd scripts for runner and orchestrator 160ms
+   Expected: {True}
+   But was:  {False}
+   151:         ($runner -match '(?i)skill root') | Should Be $true
+   在 Should<End>、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Functions\Assertions\Should.ps1 中: 第 92 行
+   在 <ScriptBlock>、E:\desktop\MATLAB\tests\SkillPayloadContract.Tests.ps1 中: 第 151 行
+   在 Invoke-Test、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Functions\It.ps1 中: 第 253 行
+   在 ItImpl、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Functions\It.ps1 中: 第 203 行
+   在 It、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Functions\It.ps1 中: 第 117 行
+   在 <ScriptBlock>、E:\desktop\MATLAB\tests\SkillPayloadContract.Tests.ps1 中: 第 148 行
+   在 Describe、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Functions\Describe.ps1 中: 第 100 行
+   在 <ScriptBlock>、E:\desktop\MATLAB\tests\SkillPayloadContract.Tests.ps1 中: 第 146 行
+   在 <ScriptBlock>、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Pester.psm1 中: 第 297 行
+   在 Invoke-Pester、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Pester.psm1 中: 第 310 行
+   在 <ScriptBlock>、E:\desktop\MATLAB\tests\Invoke-Tests.ps1 中: 第 177 行
+ [-] does not present repository-relative PowerShell scripts as installed commands 141ms
+   Expected string length 0 but was 2887. Strings differ at index 0.
+   Expected: {}
+   But was:  {E:\desktop\MATLAB\skills\matlab-orchestrator\SKILL.md:53: powershell -ExecutionPolicy Bypass -File .\scripts\Test-MatlabMcpExistingSession.ps1 -Json\nE:\desktop\MATLAB\skills\matlab-orchestrator\SKILL.md:53: unanchored -File: powershell -ExecutionPolicy Bypass -File .\scripts\Test-MatlabMcpExistingSession.ps1 -Json\nE:\desktop\MATLAB\skills\matlab-runner\SKILL.md:69: powershell -ExecutionPolicy Bypass -File .\scripts\Test-MatlabMcpExistingSession.ps1 -Json\nE:\desktop\MATLAB\skills\matlab-runner\SKILL.md:69: unanchored -File: powershell -ExecutionPolicy Bypass -File .\scripts\Test-MatlabMcpExistingSession.ps1 -Json\nE:\desktop\MATLAB\skills\matlab-runner\SKILL.md:85: powershell -ExecutionPolicy Bypass -File .\scripts\Invoke-MatlabBatch.ps1 -Script .\path\to\script.m -TimeoutSeconds 1800\nE:\desktop\MATLAB\skills\matlab-runner\SKILL.md:85: unanchored -File: powershell -ExecutionPolicy Bypass -File .\scripts\Invoke-MatlabBatch.ps1 -Script .\path\to\script.m -TimeoutSeconds 1800\nE:\desktop\MATLAB\skills\matlab-runner\SKILL.md:93: powershell -ExecutionPolicy Bypass -File .\scripts\Setup-MatlabMcpExistingSession.ps1\nE:\desktop\MATLAB\skills\matlab-runner\SKILL.md:93: unanchored -File: powershell -ExecutionPolicy Bypass -File .\scripts\Setup-MatlabMcpExistingSession.ps1\nE:\desktop\MATLAB\skills\matlab-runner\SKILL.md:94: powershell -ExecutionPolicy Bypass -File .\scripts\Test-MatlabMcpExistingSession.ps1\nE:\desktop\MATLAB\skills\matlab-runner\SKILL.md:94: unanchored -File: powershell -ExecutionPolicy Bypass -File .\scripts\Test-MatlabMcpExistingSession.ps1\nE:\desktop\MATLAB\skills\matlab-runner\SKILL.md:100: powershell -ExecutionPolicy Bypass -File .\scripts\Test-MatlabSkills.ps1\nE:\desktop\MATLAB\skills\matlab-runner\SKILL.md:100: unanchored -File: powershell -ExecutionPolicy Bypass -File .\scripts\Test-MatlabSkills.ps1\nE:\desktop\MATLAB\skills\matlab-runner\references\mcp-readiness-ladder.md:26: powershell -ExecutionPolicy Bypass -File .\scripts\Test-MatlabMcpExistingSession.ps1 -Json\nE:\desktop\MATLAB\skills\matlab-runner\references\mcp-readiness-ladder.md:26: unanchored -File: powershell -ExecutionPolicy Bypass -File .\scripts\Test-MatlabMcpExistingSession.ps1 -Json\nE:\desktop\MATLAB\skills\matlab-runner\references\mcp-readiness-ladder.md:65: powershell -ExecutionPolicy Bypass -File .\scripts\Setup-MatlabMcpExistingSession.ps1\nE:\desktop\MATLAB\skills\matlab-runner\references\mcp-readiness-ladder.md:65: unanchored -File: powershell -ExecutionPolicy Bypass -File .\scripts\Setup-MatlabMcpExistingSession.ps1\nE:\desktop\MATLAB\skills\matlab-runner\references\mcp-readiness-ladder.md:66: powershell -ExecutionPolicy Bypass -File .\scripts\Test-MatlabMcpExistingSession.ps1\nE:\desktop\MATLAB\skills\matlab-runner\references\mcp-readiness-ladder.md:66: unanchored -File: powershell -ExecutionPolicy Bypass -File .\scripts\Test-MatlabMcpExistingSession.ps1}
+   -----------^
+   176:         ($failures -join "`n") | Should Be ''
+   在 Should<End>、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Functions\Assertions\Should.ps1 中: 第 92 行
+   在 <ScriptBlock>、E:\desktop\MATLAB\tests\SkillPayloadContract.Tests.ps1 中: 第 176 行
+   在 Invoke-Test、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Functions\It.ps1 中: 第 253 行
+   在 ItImpl、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Functions\It.ps1 中: 第 203 行
+   在 It、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Functions\It.ps1 中: 第 117 行
+   在 <ScriptBlock>、E:\desktop\MATLAB\tests\SkillPayloadContract.Tests.ps1 中: 第 159 行
+   在 Describe、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Functions\Describe.ps1 中: 第 100 行
+   在 <ScriptBlock>、E:\desktop\MATLAB\tests\SkillPayloadContract.Tests.ps1 中: 第 146 行
+   在 <ScriptBlock>、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Pester.psm1 中: 第 297 行
+   在 Invoke-Pester、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Pester.psm1 中: 第 310 行
+   在 <ScriptBlock>、E:\desktop\MATLAB\tests\Invoke-Tests.ps1 中: 第 177 行
+ [-] does not reference the removed STM32 deployment document or repository-only docs 72ms
+   Expected string length 0 but was 197. Strings differ at index 0.
+   Expected: {}
+   But was:  {E:\desktop\MATLAB\skills\matlab-runner\references\acceptance-levels.md: missing STM32 reference; E:\desktop\MATLAB\skills\matlab-runner\references\mcp-readiness-ladder.md: repository docs reference}
+   -----------^
+   189:         ($failures -join '; ') | Should Be ''
+   在 Should<End>、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Functions\Assertions\Should.ps1 中: 第 92 行
+   在 <ScriptBlock>、E:\desktop\MATLAB\tests\SkillPayloadContract.Tests.ps1 中: 第 189 行
+   在 Invoke-Test、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Functions\It.ps1 中: 第 253 行
+   在 ItImpl、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Functions\It.ps1 中: 第 203 行
+   在 It、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Functions\It.ps1 中: 第 117 行
+   在 <ScriptBlock>、E:\desktop\MATLAB\tests\SkillPayloadContract.Tests.ps1 中: 第 179 行
+   在 Describe、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Functions\Describe.ps1 中: 第 100 行
+   在 <ScriptBlock>、E:\desktop\MATLAB\tests\SkillPayloadContract.Tests.ps1 中: 第 146 行
+   在 <ScriptBlock>、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Pester.psm1 中: 第 297 行
+   在 Invoke-Pester、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Pester.psm1 中: 第 310 行
+   在 <ScriptBlock>、E:\desktop\MATLAB\tests\Invoke-Tests.ps1 中: 第 177 行
+ [-] marks repository-only setup and smoke-test scripts as developer operations 86ms
+   Expected: {True}
+   But was:  {False}
+   195:         (($runner + "`n" + $ladder) -match '(?i)developer') | Should Be $true
+   在 Should<End>、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Functions\Assertions\Should.ps1 中: 第 92 行
+   在 <ScriptBlock>、E:\desktop\MATLAB\tests\SkillPayloadContract.Tests.ps1 中: 第 195 行
+   在 Invoke-Test、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Functions\It.ps1 中: 第 253 行
+   在 ItImpl、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Functions\It.ps1 中: 第 203 行
+   在 It、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Functions\It.ps1 中: 第 117 行
+   在 <ScriptBlock>、E:\desktop\MATLAB\tests\SkillPayloadContract.Tests.ps1 中: 第 192 行
+   在 Describe、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Functions\Describe.ps1 中: 第 100 行
+   在 <ScriptBlock>、E:\desktop\MATLAB\tests\SkillPayloadContract.Tests.ps1 中: 第 146 行
+   在 <ScriptBlock>、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Pester.psm1 中: 第 297 行
+   在 Invoke-Pester、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Pester.psm1 中: 第 310 行
+   在 <ScriptBlock>、E:\desktop\MATLAB\tests\Invoke-Tests.ps1 中: 第 177 行
+ [-] resolves every references/, tests/ and scripts/ link inside the skill or its siblings 156ms
+   Expected string length 0 but was 111. Strings differ at index 0.
+   Expected: {}
+   But was:  {E:\desktop\MATLAB\skills\matlab-runner\references\acceptance-levels.md:24: references/stm32-deployment-chain.md}
+   -----------^
+   228:         ($failures -join "`n") | Should Be ''
+   在 Should<End>、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Functions\Assertions\Should.ps1 中: 第 92 行
+   在 <ScriptBlock>、E:\desktop\MATLAB\tests\SkillPayloadContract.Tests.ps1 中: 第 228 行
+   在 Invoke-Test、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Functions\It.ps1 中: 第 253 行
+   在 ItImpl、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Functions\It.ps1 中: 第 203 行
+   在 It、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Functions\It.ps1 中: 第 117 行
+   在 <ScriptBlock>、E:\desktop\MATLAB\tests\SkillPayloadContract.Tests.ps1 中: 第 200 行
+   在 Describe、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Functions\Describe.ps1 中: 第 100 行
+   在 <ScriptBlock>、E:\desktop\MATLAB\tests\SkillPayloadContract.Tests.ps1 中: 第 146 行
+   在 <ScriptBlock>、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Pester.psm1 中: 第 297 行
+   在 Invoke-Pester、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Pester.psm1 中: 第 310 行
+   在 <ScriptBlock>、E:\desktop\MATLAB\tests\Invoke-Tests.ps1 中: 第 177 行
+ [-] keeps repository-only build examples out of installed skill instructions 96ms
+   Expected string length 0 but was 321. Strings differ at index 0.
+   Expected: {}
+   But was:  {E:\desktop\MATLAB\skills\matlab-codegen-deploy\SKILL.md:77: machine-specific path\nE:\desktop\MATLAB\skills\matlab-runner\SKILL.md:43: repo model example\nE:\desktop\MATLAB\skills\matlab-simulink-modeling\SKILL.md:123: machine-specific path\nE:\desktop\MATLAB\skills\matlab-simulink-modeling\SKILL.md:150: repo model example}
+   -----------^
+   243:         ($failures -join "`n") | Should Be ''
+   在 Should<End>、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Functions\Assertions\Should.ps1 中: 第 92 行
+   在 <ScriptBlock>、E:\desktop\MATLAB\tests\SkillPayloadContract.Tests.ps1 中: 第 243 行
+   在 Invoke-Test、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Functions\It.ps1 中: 第 253 行
+   在 ItImpl、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Functions\It.ps1 中: 第 203 行
+   在 It、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Functions\It.ps1 中: 第 117 行
+   在 <ScriptBlock>、E:\desktop\MATLAB\tests\SkillPayloadContract.Tests.ps1 中: 第 231 行
+   在 Describe、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Functions\Describe.ps1 中: 第 100 行
+   在 <ScriptBlock>、E:\desktop\MATLAB\tests\SkillPayloadContract.Tests.ps1 中: 第 146 行
+   在 <ScriptBlock>、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Pester.psm1 中: 第 297 行
+   在 Invoke-Pester、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Pester.psm1 中: 第 310 行
+   在 <ScriptBlock>、E:\desktop\MATLAB\tests\Invoke-Tests.ps1 中: 第 177 行
+Tests completed in 1.82s
+Passed: 2 Failed: 10 Skipped: 0 Pending: 0 Inconclusive: 0
+==> 运行 [free] SkillPayloadInstall.Tests.ps1
+
+
+
+
+
+Describing S2 installed Skill resource payload
+ [-] installs every declared payload file byte-for-byte into runner and orchestrator 113ms
+   Expected: {True}
+   But was:  {False}
+   187:             (Test-Path -LiteralPath $script:PayloadConfig) | Should Be $true
+   在 Should<End>、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Functions\Assertions\Should.ps1 中: 第 92 行
+   在 <ScriptBlock>、E:\desktop\MATLAB\tests\SkillPayloadInstall.Tests.ps1 中: 第 187 行
+   在 Invoke-Test、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Functions\It.ps1 中: 第 253 行
+   在 ItImpl、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Functions\It.ps1 中: 第 203 行
+   在 It、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Functions\It.ps1 中: 第 117 行
+   在 <ScriptBlock>、E:\desktop\MATLAB\tests\SkillPayloadInstall.Tests.ps1 中: 第 184 行
+   在 Describe、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Functions\Describe.ps1 中: 第 100 行
+   在 <ScriptBlock>、E:\desktop\MATLAB\tests\SkillPayloadInstall.Tests.ps1 中: 第 182 行
+   在 <ScriptBlock>、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Pester.psm1 中: 第 297 行
+   在 Invoke-Pester、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Pester.psm1 中: 第 310 行
+   在 <ScriptBlock>、E:\desktop\MATLAB\tests\Invoke-Tests.ps1 中: 第 177 行
+==> 同步 skills: E:\desktop\MATLAB\skills -> D:\Temp\mas-s2-install-282100c1ecdc48b49627d4e4fc27d9a7\installed-skills
+    备份目录（仅在发生变更时创建）: D:\Temp\mas-s2-install-282100c1ecdc48b49627d4e4fc27d9a7\backups\20261026-125657-sync-skills
+  install: matlab-codegen-deploy -> D:\Temp\mas-s2-install-282100c1ecdc48b49627d4e4fc27d9a7\installed-skills\matlab-codegen-deploy
+  install: matlab-control-optimization -> D:\Temp\mas-s2-install-282100c1ecdc48b49627d4e4fc27d9a7\installed-skills\matlab-control-optimization
+  install: matlab-data-analysis -> D:\Temp\mas-s2-install-282100c1ecdc48b49627d4e4fc27d9a7\installed-skills\matlab-data-analysis
+  install: matlab-orchestrator -> D:\Temp\mas-s2-install-282100c1ecdc48b49627d4e4fc27d9a7\installed-skills\matlab-orchestrator
+  install: matlab-robotics-autonomy -> D:\Temp\mas-s2-install-282100c1ecdc48b49627d4e4fc27d9a7\installed-skills\matlab-robotics-autonomy
+  install: matlab-runner -> D:\Temp\mas-s2-install-282100c1ecdc48b49627d4e4fc27d9a7\installed-skills\matlab-runner
+  install: matlab-signal-vision-ai -> D:\Temp\mas-s2-install-282100c1ecdc48b49627d4e4fc27d9a7\installed-skills\matlab-signal-vision-ai
+  install: matlab-simulink-modeling -> D:\Temp\mas-s2-install-282100c1ecdc48b49627d4e4fc27d9a7\installed-skills\matlab-simulink-modeling
+  install: matlab-testing-ci -> D:\Temp\mas-s2-install-282100c1ecdc48b49627d4e4fc27d9a7\installed-skills\matlab-testing-ci
+ [+] does not ship artifacts, session files, certificates, keys, or repository paths inside a Skill 2.65s
+==> 同步 skills: E:\desktop\MATLAB\skills -> D:\Temp\mas-s2-install-1ec68cb531dd4025bfb6c9a9963547da\installed-skills
+    备份目录（仅在发生变更时创建）: D:\Temp\mas-s2-install-1ec68cb531dd4025bfb6c9a9963547da\backups\20261026-125659-sync-skills
+  install: matlab-codegen-deploy -> D:\Temp\mas-s2-install-1ec68cb531dd4025bfb6c9a9963547da\installed-skills\matlab-codegen-deploy
+  install: matlab-control-optimization -> D:\Temp\mas-s2-install-1ec68cb531dd4025bfb6c9a9963547da\installed-skills\matlab-control-optimization
+  install: matlab-data-analysis -> D:\Temp\mas-s2-install-1ec68cb531dd4025bfb6c9a9963547da\installed-skills\matlab-data-analysis
+  install: matlab-orchestrator -> D:\Temp\mas-s2-install-1ec68cb531dd4025bfb6c9a9963547da\installed-skills\matlab-orchestrator
+  install: matlab-robotics-autonomy -> D:\Temp\mas-s2-install-1ec68cb531dd4025bfb6c9a9963547da\installed-skills\matlab-robotics-autonomy
+  install: matlab-runner -> D:\Temp\mas-s2-install-1ec68cb531dd4025bfb6c9a9963547da\installed-skills\matlab-runner
+  install: matlab-signal-vision-ai -> D:\Temp\mas-s2-install-1ec68cb531dd4025bfb6c9a9963547da\installed-skills\matlab-signal-vision-ai
+  install: matlab-simulink-modeling -> D:\Temp\mas-s2-install-1ec68cb531dd4025bfb6c9a9963547da\installed-skills\matlab-simulink-modeling
+  install: matlab-testing-ci -> D:\Temp\mas-s2-install-1ec68cb531dd4025bfb6c9a9963547da\installed-skills\matlab-testing-ci
+==> 同步 skills: E:\desktop\MATLAB\skills -> D:\Temp\mas-s2-install-1ec68cb531dd4025bfb6c9a9963547da\installed-skills
+    备份目录（仅在发生变更时创建）: D:\Temp\mas-s2-install-1ec68cb531dd4025bfb6c9a9963547da\backups\20261026-125701-sync-skills
+    跳过（内容一致）: matlab-codegen-deploy
+    跳过（内容一致）: matlab-control-optimization
+    跳过（内容一致）: matlab-data-analysis
+    跳过（内容一致）: matlab-orchestrator
+    跳过（内容一致）: matlab-robotics-autonomy
+    跳过（内容一致）: matlab-runner
+    跳过（内容一致）: matlab-signal-vision-ai
+    跳过（内容一致）: matlab-simulink-modeling
+    跳过（内容一致）: matlab-testing-ci
+    技能清单未变化，跳过重写: D:\Temp\mas-s2-install-1ec68cb531dd4025bfb6c9a9963547da\installed-skills\.matlab-agent-skills-manifest.json
+ [+] keeps a repeat sync byte-identical, including payload and manifest 2.65s
+==> 同步 skills: E:\desktop\MATLAB\skills -> D:\Temp\mas-s2-install-5d0bcedf877e4a54ac28d160788e9afb\installed-skills
+    [DryRun] 不会写入任何文件
+  install: matlab-codegen-deploy -> D:\Temp\mas-s2-install-5d0bcedf877e4a54ac28d160788e9afb\installed-skills\matlab-codegen-deploy
+  install: matlab-control-optimization -> D:\Temp\mas-s2-install-5d0bcedf877e4a54ac28d160788e9afb\installed-skills\matlab-control-optimization
+  install: matlab-data-analysis -> D:\Temp\mas-s2-install-5d0bcedf877e4a54ac28d160788e9afb\installed-skills\matlab-data-analysis
+  install: matlab-orchestrator -> D:\Temp\mas-s2-install-5d0bcedf877e4a54ac28d160788e9afb\installed-skills\matlab-orchestrator
+  install: matlab-robotics-autonomy -> D:\Temp\mas-s2-install-5d0bcedf877e4a54ac28d160788e9afb\installed-skills\matlab-robotics-autonomy
+  install: matlab-runner -> D:\Temp\mas-s2-install-5d0bcedf877e4a54ac28d160788e9afb\installed-skills\matlab-runner
+  install: matlab-signal-vision-ai -> D:\Temp\mas-s2-install-5d0bcedf877e4a54ac28d160788e9afb\installed-skills\matlab-signal-vision-ai
+  install: matlab-simulink-modeling -> D:\Temp\mas-s2-install-5d0bcedf877e4a54ac28d160788e9afb\installed-skills\matlab-simulink-modeling
+  install: matlab-testing-ci -> D:\Temp\mas-s2-install-5d0bcedf877e4a54ac28d160788e9afb\installed-skills\matlab-testing-ci
+==> [DryRun] 将写入 skills manifest: D:\Temp\mas-s2-install-5d0bcedf877e4a54ac28d160788e9afb\installed-skills\.matlab-agent-skills-manifest.json
+ [+] writes nothing for -DryRun 203ms
+==> 同步 skills: E:\desktop\MATLAB\skills -> D:\Temp\mas-s2-install-53dcf9b4df4b48f68cfc7923c8dc0eb8\installed-skills
+    备份目录（仅在发生变更时创建）: D:\Temp\mas-s2-install-53dcf9b4df4b48f68cfc7923c8dc0eb8\backups\20261026-125702-sync-skills
+  install: matlab-codegen-deploy -> D:\Temp\mas-s2-install-53dcf9b4df4b48f68cfc7923c8dc0eb8\installed-skills\matlab-codegen-deploy
+  install: matlab-control-optimization -> D:\Temp\mas-s2-install-53dcf9b4df4b48f68cfc7923c8dc0eb8\installed-skills\matlab-control-optimization
+  install: matlab-data-analysis -> D:\Temp\mas-s2-install-53dcf9b4df4b48f68cfc7923c8dc0eb8\installed-skills\matlab-data-analysis
+  install: matlab-orchestrator -> D:\Temp\mas-s2-install-53dcf9b4df4b48f68cfc7923c8dc0eb8\installed-skills\matlab-orchestrator
+  install: matlab-robotics-autonomy -> D:\Temp\mas-s2-install-53dcf9b4df4b48f68cfc7923c8dc0eb8\installed-skills\matlab-robotics-autonomy
+  install: matlab-runner -> D:\Temp\mas-s2-install-53dcf9b4df4b48f68cfc7923c8dc0eb8\installed-skills\matlab-runner
+  install: matlab-signal-vision-ai -> D:\Temp\mas-s2-install-53dcf9b4df4b48f68cfc7923c8dc0eb8\installed-skills\matlab-signal-vision-ai
+  install: matlab-simulink-modeling -> D:\Temp\mas-s2-install-53dcf9b4df4b48f68cfc7923c8dc0eb8\installed-skills\matlab-simulink-modeling
+  install: matlab-testing-ci -> D:\Temp\mas-s2-install-53dcf9b4df4b48f68cfc7923c8dc0eb8\installed-skills\matlab-testing-ci
+ [-] repairs a tampered installed payload and backs up the previous copy 2.18s
+   Expected: {True}
+   But was:  {False}
+   268:             (Test-Path -LiteralPath $payloadPath) | Should Be $true
+   在 Should<End>、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Functions\Assertions\Should.ps1 中: 第 92 行
+   在 <ScriptBlock>、E:\desktop\MATLAB\tests\SkillPayloadInstall.Tests.ps1 中: 第 268 行
+   在 Invoke-Test、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Functions\It.ps1 中: 第 253 行
+   在 ItImpl、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Functions\It.ps1 中: 第 203 行
+   在 It、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Functions\It.ps1 中: 第 117 行
+   在 <ScriptBlock>、E:\desktop\MATLAB\tests\SkillPayloadInstall.Tests.ps1 中: 第 263 行
+   在 Describe、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Functions\Describe.ps1 中: 第 100 行
+   在 <ScriptBlock>、E:\desktop\MATLAB\tests\SkillPayloadInstall.Tests.ps1 中: 第 182 行
+   在 <ScriptBlock>、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Pester.psm1 中: 第 297 行
+   在 Invoke-Pester、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Pester.psm1 中: 第 310 行
+   在 <ScriptBlock>、E:\desktop\MATLAB\tests\Invoke-Tests.ps1 中: 第 177 行
+==> 同步 skills: D:\Temp\mas-s2-install-b4fbcbabe3a1492aabf9b7295bd5f8cb\repo\skills -> D:\Temp\mas-s2-install-b4fbcbabe3a1492aabf9b7295bd5f8cb\installed-skills
+    备份目录（仅在发生变更时创建）: D:\Temp\mas-s2-install-b4fbcbabe3a1492aabf9b7295bd5f8cb\backups\20261026-125704-sync-skills
+  install: matlab-codegen-deploy -> D:\Temp\mas-s2-install-b4fbcbabe3a1492aabf9b7295bd5f8cb\installed-skills\matlab-codegen-deploy
+  install: matlab-control-optimization -> D:\Temp\mas-s2-install-b4fbcbabe3a1492aabf9b7295bd5f8cb\installed-skills\matlab-control-optimization
+  install: matlab-data-analysis -> D:\Temp\mas-s2-install-b4fbcbabe3a1492aabf9b7295bd5f8cb\installed-skills\matlab-data-analysis
+  install: matlab-orchestrator -> D:\Temp\mas-s2-install-b4fbcbabe3a1492aabf9b7295bd5f8cb\installed-skills\matlab-orchestrator
+  install: matlab-robotics-autonomy -> D:\Temp\mas-s2-install-b4fbcbabe3a1492aabf9b7295bd5f8cb\installed-skills\matlab-robotics-autonomy
+  install: matlab-runner -> D:\Temp\mas-s2-install-b4fbcbabe3a1492aabf9b7295bd5f8cb\installed-skills\matlab-runner
+  install: matlab-signal-vision-ai -> D:\Temp\mas-s2-install-b4fbcbabe3a1492aabf9b7295bd5f8cb\installed-skills\matlab-signal-vision-ai
+  install: matlab-simulink-modeling -> D:\Temp\mas-s2-install-b4fbcbabe3a1492aabf9b7295bd5f8cb\installed-skills\matlab-simulink-modeling
+  install: matlab-testing-ci -> D:\Temp\mas-s2-install-b4fbcbabe3a1492aabf9b7295bd5f8cb\installed-skills\matlab-testing-ci
+ [-] restores the pre-upgrade payload when the destination is locked 4.1s
+   Expected: {True}
+   But was:  {False}
+   288:             (Test-Path -LiteralPath $payloadPath) | Should Be $true
+   在 Should<End>、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Functions\Assertions\Should.ps1 中: 第 92 行
+   在 <ScriptBlock>、E:\desktop\MATLAB\tests\SkillPayloadInstall.Tests.ps1 中: 第 288 行
+   在 Invoke-Test、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Functions\It.ps1 中: 第 253 行
+   在 ItImpl、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Functions\It.ps1 中: 第 203 行
+   在 It、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Functions\It.ps1 中: 第 117 行
+   在 <ScriptBlock>、E:\desktop\MATLAB\tests\SkillPayloadInstall.Tests.ps1 中: 第 282 行
+   在 Describe、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Functions\Describe.ps1 中: 第 100 行
+   在 <ScriptBlock>、E:\desktop\MATLAB\tests\SkillPayloadInstall.Tests.ps1 中: 第 182 行
+   在 <ScriptBlock>、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Pester.psm1 中: 第 297 行
+   在 Invoke-Pester、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Pester.psm1 中: 第 310 行
+   在 <ScriptBlock>、E:\desktop\MATLAB\tests\Invoke-Tests.ps1 中: 第 177 行
+==> 同步 skills: E:\desktop\MATLAB\skills -> D:\Temp\mas-s2-install-773adc47962b4a0f93d5e10cf4241f41\installed-skills
+    备份目录（仅在发生变更时创建）: D:\Temp\mas-s2-install-773adc47962b4a0f93d5e10cf4241f41\backups\20261026-125709-sync-skills
+  install: matlab-codegen-deploy -> D:\Temp\mas-s2-install-773adc47962b4a0f93d5e10cf4241f41\installed-skills\matlab-codegen-deploy
+  install: matlab-control-optimization -> D:\Temp\mas-s2-install-773adc47962b4a0f93d5e10cf4241f41\installed-skills\matlab-control-optimization
+  install: matlab-data-analysis -> D:\Temp\mas-s2-install-773adc47962b4a0f93d5e10cf4241f41\installed-skills\matlab-data-analysis
+  install: matlab-orchestrator -> D:\Temp\mas-s2-install-773adc47962b4a0f93d5e10cf4241f41\installed-skills\matlab-orchestrator
+  install: matlab-robotics-autonomy -> D:\Temp\mas-s2-install-773adc47962b4a0f93d5e10cf4241f41\installed-skills\matlab-robotics-autonomy
+  install: matlab-runner -> D:\Temp\mas-s2-install-773adc47962b4a0f93d5e10cf4241f41\installed-skills\matlab-runner
+  install: matlab-signal-vision-ai -> D:\Temp\mas-s2-install-773adc47962b4a0f93d5e10cf4241f41\installed-skills\matlab-signal-vision-ai
+  install: matlab-simulink-modeling -> D:\Temp\mas-s2-install-773adc47962b4a0f93d5e10cf4241f41\installed-skills\matlab-simulink-modeling
+  install: matlab-testing-ci -> D:\Temp\mas-s2-install-773adc47962b4a0f93d5e10cf4241f41\installed-skills\matlab-testing-ci
+ [-] uninstalls all nine managed Skills without leaving payload residue 3.09s
+   Expected: {0}
+   But was:  {1}
+   333:                 @($manifest.skills.PSObject.Properties.Name).Count | Should Be 0
+   在 Should<End>、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Functions\Assertions\Should.ps1 中: 第 92 行
+   在 <ScriptBlock>、E:\desktop\MATLAB\tests\SkillPayloadInstall.Tests.ps1 中: 第 333 行
+   在 Invoke-Test、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Functions\It.ps1 中: 第 253 行
+   在 ItImpl、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Functions\It.ps1 中: 第 203 行
+   在 It、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Functions\It.ps1 中: 第 117 行
+   在 <ScriptBlock>、E:\desktop\MATLAB\tests\SkillPayloadInstall.Tests.ps1 中: 第 320 行
+   在 Describe、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Functions\Describe.ps1 中: 第 100 行
+   在 <ScriptBlock>、E:\desktop\MATLAB\tests\SkillPayloadInstall.Tests.ps1 中: 第 182 行
+   在 <ScriptBlock>、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Pester.psm1 中: 第 297 行
+   在 Invoke-Pester、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Pester.psm1 中: 第 310 行
+   在 <ScriptBlock>、E:\desktop\MATLAB\tests\Invoke-Tests.ps1 中: 第 177 行
+Describing S2 installed Skill execution without the source repository
+==> 同步 skills: E:\desktop\MATLAB\skills -> D:\Temp\mas-s2-install-a5a8310704a243bdb63f0a42f22a72e6\installed-skills
+    备份目录（仅在发生变更时创建）: D:\Temp\mas-s2-install-a5a8310704a243bdb63f0a42f22a72e6\backups\20261026-125711-sync-skills
+  install: matlab-codegen-deploy -> D:\Temp\mas-s2-install-a5a8310704a243bdb63f0a42f22a72e6\installed-skills\matlab-codegen-deploy
+  install: matlab-control-optimization -> D:\Temp\mas-s2-install-a5a8310704a243bdb63f0a42f22a72e6\installed-skills\matlab-control-optimization
+  install: matlab-data-analysis -> D:\Temp\mas-s2-install-a5a8310704a243bdb63f0a42f22a72e6\installed-skills\matlab-data-analysis
+  install: matlab-orchestrator -> D:\Temp\mas-s2-install-a5a8310704a243bdb63f0a42f22a72e6\installed-skills\matlab-orchestrator
+  install: matlab-robotics-autonomy -> D:\Temp\mas-s2-install-a5a8310704a243bdb63f0a42f22a72e6\installed-skills\matlab-robotics-autonomy
+  install: matlab-runner -> D:\Temp\mas-s2-install-a5a8310704a243bdb63f0a42f22a72e6\installed-skills\matlab-runner
+  install: matlab-signal-vision-ai -> D:\Temp\mas-s2-install-a5a8310704a243bdb63f0a42f22a72e6\installed-skills\matlab-signal-vision-ai
+  install: matlab-simulink-modeling -> D:\Temp\mas-s2-install-a5a8310704a243bdb63f0a42f22a72e6\installed-skills\matlab-simulink-modeling
+  install: matlab-testing-ci -> D:\Temp\mas-s2-install-a5a8310704a243bdb63f0a42f22a72e6\installed-skills\matlab-testing-ci
+ [-] keeps sanitizer behavior in the installed Core module 2.22s
+   Expected: {True}
+   But was:  {False}
+   355:             (Test-Path -LiteralPath $corePath) | Should Be $true
+   在 Should<End>、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Functions\Assertions\Should.ps1 中: 第 92 行
+   在 <ScriptBlock>、E:\desktop\MATLAB\tests\SkillPayloadInstall.Tests.ps1 中: 第 355 行
+   在 Invoke-Test、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Functions\It.ps1 中: 第 253 行
+   在 ItImpl、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Functions\It.ps1 中: 第 203 行
+   在 It、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Functions\It.ps1 中: 第 117 行
+   在 <ScriptBlock>、E:\desktop\MATLAB\tests\SkillPayloadInstall.Tests.ps1 中: 第 350 行
+   在 Describe、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Functions\Describe.ps1 中: 第 100 行
+   在 <ScriptBlock>、E:\desktop\MATLAB\tests\SkillPayloadInstall.Tests.ps1 中: 第 348 行
+   在 <ScriptBlock>、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Pester.psm1 中: 第 297 行
+   在 Invoke-Pester、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Pester.psm1 中: 第 310 行
+   在 <ScriptBlock>、E:\desktop\MATLAB\tests\Invoke-Tests.ps1 中: 第 177 行
+==> 同步 skills: E:\desktop\MATLAB\skills -> D:\Temp\mas-s2-install-ac5214ccc386456a831f86b40a293a2f\installed-skills
+    备份目录（仅在发生变更时创建）: D:\Temp\mas-s2-install-ac5214ccc386456a831f86b40a293a2f\backups\20261026-125714-sync-skills
+  install: matlab-codegen-deploy -> D:\Temp\mas-s2-install-ac5214ccc386456a831f86b40a293a2f\installed-skills\matlab-codegen-deploy
+  install: matlab-control-optimization -> D:\Temp\mas-s2-install-ac5214ccc386456a831f86b40a293a2f\installed-skills\matlab-control-optimization
+  install: matlab-data-analysis -> D:\Temp\mas-s2-install-ac5214ccc386456a831f86b40a293a2f\installed-skills\matlab-data-analysis
+  install: matlab-orchestrator -> D:\Temp\mas-s2-install-ac5214ccc386456a831f86b40a293a2f\installed-skills\matlab-orchestrator
+  install: matlab-robotics-autonomy -> D:\Temp\mas-s2-install-ac5214ccc386456a831f86b40a293a2f\installed-skills\matlab-robotics-autonomy
+  install: matlab-runner -> D:\Temp\mas-s2-install-ac5214ccc386456a831f86b40a293a2f\installed-skills\matlab-runner
+  install: matlab-signal-vision-ai -> D:\Temp\mas-s2-install-ac5214ccc386456a831f86b40a293a2f\installed-skills\matlab-signal-vision-ai
+  install: matlab-simulink-modeling -> D:\Temp\mas-s2-install-ac5214ccc386456a831f86b40a293a2f\installed-skills\matlab-simulink-modeling
+  install: matlab-testing-ci -> D:\Temp\mas-s2-install-ac5214ccc386456a831f86b40a293a2f\installed-skills\matlab-testing-ci
+ [-] resolves every installed module from inside the Skill root 4.36s
+   Expected: {True}
+   But was:  {False}
+   386:             ($paths.Count -ge 4) | Should Be $true
+   在 Should<End>、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Functions\Assertions\Should.ps1 中: 第 92 行
+   在 <ScriptBlock>、E:\desktop\MATLAB\tests\SkillPayloadInstall.Tests.ps1 中: 第 386 行
+   在 Invoke-Test、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Functions\It.ps1 中: 第 253 行
+   在 ItImpl、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Functions\It.ps1 中: 第 203 行
+   在 It、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Functions\It.ps1 中: 第 117 行
+   在 <ScriptBlock>、E:\desktop\MATLAB\tests\SkillPayloadInstall.Tests.ps1 中: 第 370 行
+   在 Describe、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Functions\Describe.ps1 中: 第 100 行
+   在 <ScriptBlock>、E:\desktop\MATLAB\tests\SkillPayloadInstall.Tests.ps1 中: 第 348 行
+   在 <ScriptBlock>、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Pester.psm1 中: 第 297 行
+   在 Invoke-Pester、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Pester.psm1 中: 第 310 行
+   在 <ScriptBlock>、E:\desktop\MATLAB\tests\Invoke-Tests.ps1 中: 第 177 行
+==> 同步 skills: E:\desktop\MATLAB\skills -> D:\Temp\mas-s2-install-3994a213a8864460a32bf8400d995f17\installed-skills
+    备份目录（仅在发生变更时创建）: D:\Temp\mas-s2-install-3994a213a8864460a32bf8400d995f17\backups\20261026-125718-sync-skills
+  install: matlab-codegen-deploy -> D:\Temp\mas-s2-install-3994a213a8864460a32bf8400d995f17\installed-skills\matlab-codegen-deploy
+  install: matlab-control-optimization -> D:\Temp\mas-s2-install-3994a213a8864460a32bf8400d995f17\installed-skills\matlab-control-optimization
+  install: matlab-data-analysis -> D:\Temp\mas-s2-install-3994a213a8864460a32bf8400d995f17\installed-skills\matlab-data-analysis
+  install: matlab-orchestrator -> D:\Temp\mas-s2-install-3994a213a8864460a32bf8400d995f17\installed-skills\matlab-orchestrator
+  install: matlab-robotics-autonomy -> D:\Temp\mas-s2-install-3994a213a8864460a32bf8400d995f17\installed-skills\matlab-robotics-autonomy
+  install: matlab-runner -> D:\Temp\mas-s2-install-3994a213a8864460a32bf8400d995f17\installed-skills\matlab-runner
+  install: matlab-signal-vision-ai -> D:\Temp\mas-s2-install-3994a213a8864460a32bf8400d995f17\installed-skills\matlab-signal-vision-ai
+  install: matlab-simulink-modeling -> D:\Temp\mas-s2-install-3994a213a8864460a32bf8400d995f17\installed-skills\matlab-simulink-modeling
+  install: matlab-testing-ci -> D:\Temp\mas-s2-install-3994a213a8864460a32bf8400d995f17\installed-skills\matlab-testing-ci
+ [-] runs the installed probe from a project cwd and writes artifacts outside the Skill 2.11s
+   Expected: {True}
+   But was:  {False}
+   399:             (Test-Path -LiteralPath $probePath) | Should Be $true
+   在 Should<End>、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Functions\Assertions\Should.ps1 中: 第 92 行
+   在 <ScriptBlock>、E:\desktop\MATLAB\tests\SkillPayloadInstall.Tests.ps1 中: 第 399 行
+   在 Invoke-Test、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Functions\It.ps1 中: 第 253 行
+   在 ItImpl、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Functions\It.ps1 中: 第 203 行
+   在 It、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Functions\It.ps1 中: 第 117 行
+   在 <ScriptBlock>、E:\desktop\MATLAB\tests\SkillPayloadInstall.Tests.ps1 中: 第 393 行
+   在 Describe、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Functions\Describe.ps1 中: 第 100 行
+   在 <ScriptBlock>、E:\desktop\MATLAB\tests\SkillPayloadInstall.Tests.ps1 中: 第 348 行
+   在 <ScriptBlock>、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Pester.psm1 中: 第 297 行
+   在 Invoke-Pester、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Pester.psm1 中: 第 310 行
+   在 <ScriptBlock>、E:\desktop\MATLAB\tests\Invoke-Tests.ps1 中: 第 177 行
+Tests completed in 23.68s
+Passed: 3 Failed: 7 Skipped: 0 Pending: 0 Inconclusive: 0
+
+==> 汇总: 共 22 个用例，通过 5，失败 17，跳过 0
+    层 free: 已执行 22 个用例，通过 5，失败 17，耗时 25.7s
+==> 层报告: artifacts/s2/evidence/red/pester-skillpayload-prefix.json

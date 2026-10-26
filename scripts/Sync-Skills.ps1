@@ -53,6 +53,18 @@ if (-not (Test-Path -LiteralPath $sourceRoot)) {
     throw "Skills source folder not found: $sourceRoot"
 }
 
+# 在任何写入之前校验发布清单：清单非法时连一个 Skill 目录都不应被改动。
+try {
+    $payloadManifest = Get-MasSkillPayloadManifest -RepositoryRoot $RepositoryRoot
+}
+catch {
+    throw "Skill payload 清单无效，未写入任何文件: $($_.Exception.Message)"
+}
+$payloadConfigPath = Join-Path $RepositoryRoot "config\skill-payloads.json"
+$payloadConfigSha256 = if (Test-Path -LiteralPath $payloadConfigPath -PathType Leaf) {
+    Get-FileSha256 -Path $payloadConfigPath
+} else { $null }
+
 Write-Step "同步 skills: $sourceRoot -> $SkillRoot"
 if ($DryRun) { Write-Info "[DryRun] 不会写入任何文件" }
 
@@ -103,8 +115,11 @@ try {
 
         try {
             $destination = Assert-MasManagedSkillPath -SkillRoot $SkillRoot -Name $source.Name
+            $payloadFiles = @()
+            if ($payloadManifest.ContainsKey($source.Name)) { $payloadFiles = @($payloadManifest[$source.Name]) }
             $result = Sync-SkillDirectory -Name $source.Name -Source $source.FullName -Destination $destination `
-                -IsManaged $isManaged -Session $session -BackupRoot $BackupRoot -Force:$Force -DryRun:$DryRun
+                -IsManaged $isManaged -Session $session -BackupRoot $BackupRoot -PayloadFiles $payloadFiles `
+                -Force:$Force -DryRun:$DryRun
             # 单技能同步失败已由 Sync-SkillDirectory 就地回滚，这里只把它计入整体失败。
             if ($result.Decision -eq "error") { $failed = $true }
         }
@@ -226,6 +241,8 @@ $summary = [pscustomobject]@{
     sourceRoot    = $sourceRoot
     skillRoot     = $SkillRoot
     skillEnvironment = $installation
+    payloadManifestPath = $payloadConfigPath
+    payloadManifestSha256 = $payloadConfigSha256
     manifestPath  = if ($DryRun) { Join-Path $SkillRoot ".matlab-agent-skills-manifest.json" } else { $manifestPath }
     backupRoot    = if ($session) { $session.Directory } else { $null }
     installed     = @($results | Where-Object { $_.Decision -eq "install" }).Count
@@ -244,6 +261,7 @@ $summary = [pscustomobject]@{
                 preservedUserFiles = @($_.PreservedUserFiles)
                 restoredFromBackup = [bool]$_.RestoredFromBackup
                 recreatedFiles     = [int]$_.RecreatedFiles
+                payloadFileCount   = if ($_.PSObject.Properties.Name -contains 'PayloadFileCount') { [int]$_.PayloadFileCount } else { 0 }
             }
         })
 }

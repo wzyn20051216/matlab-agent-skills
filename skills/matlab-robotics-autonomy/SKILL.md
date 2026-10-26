@@ -10,6 +10,21 @@ that another engineer will act on. A plot of the arm or a smooth estimate trace 
 evidence: a sign error in a Jacobian drives the tip the wrong way, and a filter can be
 smooth, stable and confidently wrong.
 
+## Skill Root
+
+The installed directory containing this `SKILL.md` is the resource root. Add its
+helper folder for the current MATLAB session only — never through `savepath`,
+`startup.m`, or a global path edit:
+
+```matlab
+skillRoot = '<absolute path to the installed matlab-robotics-autonomy Skill directory>';
+addpath(fullfile(skillRoot, 'scripts'));
+```
+
+Resolve `references/`, `tests/`, and helper calls from that root, not from the
+caller's working directory. If a shipped helper or reference is missing, report the
+exact path and reinstall the Skill; do not scan the disk for a substitute.
+
 ## Workflow
 
 1. 任务识别 — Name the frame convention, units, sign convention and the tolerance that

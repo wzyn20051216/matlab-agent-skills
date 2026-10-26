@@ -166,11 +166,26 @@
 | 2 | `mcp.matlab-license` | L1 | 默认 SKIP；只有显式 `-VerifyLicense` 或阶段 4 真实执行成功才升级为 PASS |
 | 2 | `mcp.session-config` | L1 | `sessionDetails.json` 可解析、证书文件存在、端口合法 |
 | 2 | `mcp.client-registration` | L2 | 客户端注册参数中不含 `display-mode`，`command` 真实存在 |
-| 3 | `mcp.protocol-handshake` | L2 | TCP 可连 + `initialize` 返回合法 `result` |
+| 3 | `mcp.protocol-handshake` | L2 | 在所选传输上 `initialize` 返回合法 `result`（默认 stdio 子进程，不是裸 TCP 连通） |
 | 4 | `mcp.readonly-exec` | L3 | 通过 `tools/call` 真实执行只读命令，输出匹配版本号模式 |
 | 5 | `mcp.file-io` | L4 | 在隔离测试目录写入令牌文件再读回，内容一致 |
 
 任何一阶段失败，后续阶段输出 `SKIP` 并写明"上游未通过"，不会假装成功。
+
+### 传输方式 `-Transport auto|stdio|https`
+
+官方 `matlab-mcp-server` 只支持 stdio：探测脚本把它作为子进程启动，按行交换 JSON-RPC 2.0
+消息。R2026a 实测直连 connector 的 `POST /mcp` 对任何鉴权头写法都返回 403，因此 https 只用于
+观测，不能作为"L2 未通过"的结论。
+
+- 二进制查找顺序为 `-ServerExe` → `MATLAB_MCP_SERVER` → 客户端注册的 `command` → Core 固定候选，
+  每一条都必须通过 `config/mcp-server-manifest.json` 的 SHA-256 校验；探测脚本绝不下载。
+  显式指定的二进制校验失败时直接报错，不会退回其他候选——"我指定了 A"与"实际跑了 B"必须能区分。
+- `-Transport stdio` 不退回 https，找不到可用 server 就 SKIP 并写出真实原因。
+- https 通道默认按会话描述符自带的证书做回环指纹固定；`-SkipTlsValidation` 会把整个进程的
+  证书校验关掉，只应在明确需要观测时临时使用，不能作为默认验收配置。
+- 安装副本需要 `config/mcp-server-manifest.json` 与 `scripts/MatlabAgentSkills.McpStdio.psm1`
+  随 Skill 一起发布，否则 `Get-McpServerManifest` 会 fail closed，stdio 路径在用户机上永远打不通。
 
 ## 本机验收
 

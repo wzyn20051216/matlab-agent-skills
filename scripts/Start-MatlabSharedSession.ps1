@@ -34,19 +34,27 @@
       1. 只有**本次运行亲自启动、并在启动时把身份写进本次运行所有者文件**的进程
          才会进入清理流程。sessionDetails.json 里的 pid 只是观测值，
          **永远不能单独作为终止依据**。
-      2. 终止（以及温和关闭）之前必须重新校验全部五项身份：
+      2. 归属判定只有一个入口：Test-MasSessionRuntimeOwnership。
+         允许父链在 SessionRuntimeMaxAncestorDepth 跳内到达启动器 PID，但**每一跳都必须自证**
+         （进程名 MATLAB / 在本次运行时间窗内启动 / 与启动器同一 Windows 会话 / 身份字段齐全）；
+         任何一跳无法自证即在界内失败关闭，判定为不归属。
+         旧实现只认"直接父子 + 存根路径"，而 Windows 真正的会话运行时是 matlab.exe 存根的
+         **孙进程**（bin\win64\MATLAB.exe 再派生引擎），因此自家进程恒被误判为别人的
+         （2026-10-26 S3 实测 51072 → 15392 → 42956 被孤儿化）。多跳只是将判定放宽到
+         真实进程树形状，**不是放宽证据要求**；跳数上限固定，不随清理是否通过而调整。
+      3. 终止（以及温和关闭）之前必须重新校验全部五项身份：
            进程仍存在 / ProcessName=MATLAB / StartTimeUtc 与记录相差 <= 2s /
            可执行文件路径与记录完全一致 / Windows 会话 id 与记录一致。
          任何一项失败 → 不终止，只报告 SKIPPED_IDENTITY_MISMATCH（附观测值）。
-      3. 所有者文件按运行隔离：owner-<runid>.json，内含 runId 与 runStartedAtUtc。
+      4. 所有者文件按运行隔离：owner-<runid>.json，内含 runId 与 runStartedAtUtc。
          旧运行遗留的所有者文件（runId 不匹配、或时间超过 OwnerMaxAgeMinutes）
          一律拒绝，绝不产生终止动作。被中断的运行留下的文件因此不会误杀后续进程。
-      4. 记录的可执行文件已不存在时失败关闭（SKIPPED_EXECUTABLE_MISSING）。
-      5. 默认 CleanupMode=Graceful：只尝试温和关闭（CloseMainWindow），
+      5. 记录的可执行文件已不存在时失败关闭（SKIPPED_EXECUTABLE_MISSING）。
+      6. 默认 CleanupMode=Graceful：只尝试温和关闭（CloseMainWindow），
          不强制结束。只有显式传入 -AllowForceStop，且强制前立即重新做一遍五项校验，
          才会对已验证归属的进程执行 Stop-Process -Force。
          传 -CleanupMode ReportOnly 则完全不终止，只报告。
-      6. 本脚本绝不把 sessionDetails.json 里的 apiKey / certificate 写入日志、报告、
+      7. 本脚本绝不把 sessionDetails.json 里的 apiKey / certificate 写入日志、报告、
          就绪文件或任何 artifact；就绪快照只保留 port / pid 等非敏感字段。
 
 .PARAMETER HoldMinutes
@@ -82,6 +90,12 @@
 .PARAMETER GracefulCloseSeconds
     温和关闭后等待进程退出的秒数。
 
+.PARAMETER SessionRuntimeMaxAncestorDepth
+    会话运行时的父链上溯上限（跳数）。默认 3。
+    Windows 的 bin\matlab.exe 是启动器存根，真正的会话运行时通常是它的孙进程；
+    超过这个跳数仍未见到本次启动器 PID，一律判定为不归属（失败关闭）。
+    放大该值只会扩大"允许被认为是自家进程"的范围，因此不要为了通过清理而调大。
+
 .OUTPUTS
     [pscustomobject] Port / Pid / ReadyFilePath / HoldMinutes / PortProbe / ObservedAt。
     不含 apiKey / certificate。
@@ -110,7 +124,8 @@ param(
     [string]$CleanupMode = 'Graceful',
     [switch]$AllowForceStop,
     [int]$OwnerMaxAgeMinutes = 720,
-    [int]$GracefulCloseSeconds = 10
+    [int]$GracefulCloseSeconds = 10,
+    [int]$SessionRuntimeMaxAncestorDepth = 3
 )
 
 # ============================================================================
@@ -120,6 +135,8 @@ param(
 # tests/ProcessCleanup.Tests.ps1 通过 `. .\scripts\Start-MatlabSharedSession.ps1`
 # 只取函数，不启动 MATLAB、不读写用户配置。
 # ============================================================================
+
+$script:MasScriptDirectory = $PSScriptRoot
 
 function Get-MasPropertyValue {
     <#
@@ -223,8 +240,8 @@ function Get-MasProcessParentId {
     .SYNOPSIS
     读取指定进程的父进程 PID；读取失败返回 $null。
     .DESCRIPTION
-    只在"会话文件记录的 pid 与启动器 pid 不同"时用于确认父子关系。
-    读不到父 PID 时必须失败关闭（不把该 pid 记进所有者文件）。
+    由 Get-MasAncestorChain 逐跳调用，用于向上有限地还原进程树。
+    读不到父 PID 时链在此中断，判定端因此拿不到启动器 → 失败关闭（不把该 pid 记进所有者文件）。
     #>
     param([Parameter(Mandatory)][int]$Id)
     try {
@@ -237,6 +254,173 @@ function Get-MasProcessParentId {
         return $null
     }
     return $null
+}
+
+function Get-MasAncestorChain {
+    <#
+    .SYNOPSIS
+    向上有界地走父进程链，返回每一跳的身份快照（第一跳 = 直接父进程）。
+    .DESCRIPTION
+    Windows 上 bin\matlab.exe 只是启动器存根：它派生 bin\win64\MATLAB.exe 后立即退出，
+    后者再派生会话文件里记录的引擎进程。于是会话运行时永远是启动器的**孙进程**，
+    只认直接父子会恒判"不归属"（2026-10-26 S3 实测：51072 → 15392 → 42956）。
+
+    上溯是有界的：最多 MaxDepth 跳。读不到父 PID 就停止；父进程已退出时只记一个
+    仅含 PID 的占位跳（身份无法自证），由判定端决定接受还是失败关闭。
+    #>
+    param([Parameter(Mandatory)][int]$Id, [int]$MaxDepth = 3)
+
+    $chain = New-Object System.Collections.Generic.List[object]
+    $currentId = $Id
+    $depth = [math]::Abs($MaxDepth)
+    for ($hop = 1; $hop -le $depth; $hop++) {
+        $parentPid = Get-MasProcessParentId -Id $currentId
+        if ($null -eq $parentPid -or [int]$parentPid -le 0) { break }
+        $parentProcess = Get-Process -Id ([int]$parentPid) -ErrorAction SilentlyContinue
+        if ($null -eq $parentProcess) {
+            $chain.Add([pscustomobject][ordered]@{
+                    Pid              = [int]$parentPid
+                    ProcessName      = $null
+                    StartTimeUtc     = $null
+                    ExecutablePath   = $null
+                    WindowsSessionId = $null
+                    HasExited        = $true
+                })
+            break
+        }
+        $snapshot = Get-MasProcessSnapshot -Process $parentProcess
+        $chain.Add($snapshot)
+        $currentId = [int]$parentPid
+        if ($snapshot.HasExited) { break }
+    }
+    return $chain.ToArray()
+}
+
+function Test-MasSessionRuntimeOwnership {
+    <#
+    .SYNOPSIS
+    判定"会话文件里记录的 pid"是否确实归本次运行所有：允许父链在有限跳内到达启动器。
+    .DESCRIPTION
+    这是归属判定的唯一入口，不做任何终止动作。失败关闭：任何一环无法自证都不算归属。
+
+      1. 候选进程存在且身份字段齐全                        -> SKIPPED_CANDIDATE_MISSING
+      2. 候选进程名必须是 MATLAB                           -> SKIPPED_IDENTITY_MISMATCH
+      3. 候选可执行文件必须是本次解析出的 MATLAB 可执行文件  -> SKIPPED_IDENTITY_MISMATCH
+         （允许存根路径与 bin\win64\MATLAB.exe 两个合法形态）
+      4. 候选 Windows 会话 id 必须与启动器一致              -> SKIPPED_IDENTITY_MISMATCH
+      5. 候选启动时间不得早于本次运行（留时钟容差）          -> SKIPPED_IDENTITY_MISMATCH
+      6. 逐跳上溯：跳的 PID 等于启动器 PID 即到达归属根
+      7. 未到达启动器之前的每一跳都必须自证：进程名 MATLAB、
+         在本次运行时间窗内启动、与启动器同一 Windows 会话
+         进程名不符 -> SKIPPED_ANCESTOR_NOT_MATLAB
+         其它不符（已退出/早于运行/会话不同/字段缺失） -> SKIPPED_ANCESTOR_UNTRUSTED
+      8. 有界跳数内未出现启动器                            -> SKIPPED_LAUNCHER_NOT_IN_CHAIN
+
+    .PARAMETER MatlabExecutablePath
+    允许的可执行文件路径，可以是单个路径或数组。调用方应同时给出启动器路径与
+    bin\win64\MATLAB.exe：Windows 的 matlab.exe 存根会派生后者，
+    只比存根路径会把自家孙进程误判成别人的 MATLAB。
+    #>
+    param(
+        [AllowNull()]$Candidate,
+        [AllowNull()]$Ancestors,
+        [Parameter(Mandatory)]$Launcher,
+        [Parameter(Mandatory)][datetime]$RunStartedAtUtc,
+        [AllowNull()][string[]]$MatlabExecutablePath = @(),
+        [int]$StartTimeSlackSeconds = 2,
+        [int]$MaxAncestorDepth = 3
+    )
+
+    $result = [pscustomobject][ordered]@{
+        owned          = $false
+        reason         = 'SKIPPED_CANDIDATE_MISSING'
+        hops           = 0
+        launcherHopPid = 0
+        candidate      = 0
+    }
+
+    $launcherPid = 0
+    try { $launcherPid = [int](Get-MasPropertyValue $Launcher 'pid' 0) } catch { $launcherPid = 0 }
+    $launcherSessionId = Get-MasPropertyValue $Launcher 'windowsSessionId' $null
+    $runStartedUtc = ConvertTo-MasUtc $RunStartedAtUtc
+    if ($null -eq $runStartedUtc) { $runStartedUtc = [datetime]::UtcNow }
+    $slack = [math]::Abs($StartTimeSlackSeconds)
+
+    # ---- 候选自身 ----
+    if ($null -eq $Candidate) { return $result }
+    if ([bool](Get-MasPropertyValue $Candidate 'HasExited' $true)) { return $result }
+    $candidatePid = 0
+    try { $candidatePid = [int](Get-MasPropertyValue $Candidate 'Pid' 0) } catch { $candidatePid = 0 }
+    $candidateName = [string](Get-MasPropertyValue $Candidate 'ProcessName' '')
+    $candidateExe = [string](Get-MasPropertyValue $Candidate 'ExecutablePath' '')
+    $candidateStartUtc = ConvertTo-MasUtc (Get-MasPropertyValue $Candidate 'StartTimeUtc' $null)
+    $candidateSessionId = Get-MasPropertyValue $Candidate 'WindowsSessionId' $null
+    if ($candidatePid -le 0 -or [string]::IsNullOrWhiteSpace($candidateName) -or
+        [string]::IsNullOrWhiteSpace($candidateExe) -or $null -eq $candidateStartUtc -or
+        $null -eq $candidateSessionId) {
+        return $result
+    }
+
+    $acceptedExe = @($MatlabExecutablePath | Where-Object { -not [string]::IsNullOrWhiteSpace([string]$_) })
+    $exeAccepted = $true
+    if ($acceptedExe.Count -gt 0) {
+        $exeAccepted = $false
+        foreach ($accepted in $acceptedExe) {
+            if ([string]::Equals($candidateExe.Trim(), ([string]$accepted).Trim(), [System.StringComparison]::OrdinalIgnoreCase)) {
+                $exeAccepted = $true
+                break
+            }
+        }
+    }
+
+    $candidateOk = ([string]$candidateName -ieq 'MATLAB') -and $exeAccepted -and
+        ($candidateStartUtc -ge $runStartedUtc.AddSeconds(-1 * $slack)) -and
+        ($null -ne $launcherSessionId) -and ([int]$candidateSessionId -eq [int]$launcherSessionId)
+    if (-not $candidateOk) {
+        $result.reason = 'SKIPPED_IDENTITY_MISMATCH'
+        $result.candidate = $candidatePid
+        return $result
+    }
+
+    # ---- 有界上溯 ----
+    $hops = @($Ancestors)
+    $depth = [math]::Min([math]::Abs($MaxAncestorDepth), $hops.Count)
+    for ($i = 0; $i -lt $depth; $i++) {
+        $hop = $hops[$i]
+        $hopPid = 0
+        try { $hopPid = [int](Get-MasPropertyValue $hop 'Pid' 0) } catch { $hopPid = 0 }
+        if ($hopPid -gt 0 -and $hopPid -eq $launcherPid) {
+            $result.owned = $true
+            $result.reason = 'ALLOW'
+            $result.hops = ($i + 1)
+            $result.launcherHopPid = $hopPid
+            $result.candidate = $candidatePid
+            return $result
+        }
+        $hopName = [string](Get-MasPropertyValue $hop 'ProcessName' '')
+        if ([bool](Get-MasPropertyValue $hop 'HasExited' $false) -or [string]::IsNullOrWhiteSpace($hopName)) {
+            $result.reason = 'SKIPPED_ANCESTOR_UNTRUSTED'
+            $result.candidate = $candidatePid
+            return $result
+        }
+        if ([string]$hopName -ine 'MATLAB') {
+            $result.reason = 'SKIPPED_ANCESTOR_NOT_MATLAB'
+            $result.candidate = $candidatePid
+            return $result
+        }
+        $hopStartUtc = ConvertTo-MasUtc (Get-MasPropertyValue $hop 'StartTimeUtc' $null)
+        $hopSessionId = Get-MasPropertyValue $hop 'WindowsSessionId' $null
+        if ($null -eq $hopStartUtc -or $hopStartUtc -lt $runStartedUtc.AddSeconds(-1 * $slack) -or
+            $null -eq $hopSessionId -or [int]$hopSessionId -ne [int]$launcherSessionId) {
+            $result.reason = 'SKIPPED_ANCESTOR_UNTRUSTED'
+            $result.candidate = $candidatePid
+            return $result
+        }
+    }
+
+    $result.reason = 'SKIPPED_LAUNCHER_NOT_IN_CHAIN'
+    $result.candidate = $candidatePid
+    return $result
 }
 
 function New-MasOwnedProcessEntry {
@@ -583,31 +767,29 @@ function Test-MasOwnedProcess {
 function Protect-MasSecretText {
     <#
     .SYNOPSIS
-    从任意文本中去掉已知密钥值与 apiKey/certificate 字段值。
+    从任意文本中去掉已知密钥值与凭据字段（统一委托 Core 的 Protect-MasText）。
     .DESCRIPTION
     防御性最后一层：调用方本来就不应该把凭据放进报告；即使误放，
-    这里也会把已知密钥字面值和 "apiKey": "..."/"certificate": "..." 字段值替换掉。
+    这里也会把已知密钥字面值、明文/转义 JSON 字段、请求头与命令行令牌替换掉。
+    本函数保留独立入口名，是为了让既有调用点与测试不需要感知 Core 的内部实现。
     #>
     param(
         [AllowNull()][string]$Text,
         [string[]]$Secrets = @()
     )
     if ($null -eq $Text) { return "" }
-    $result = $Text
-    foreach ($secret in @($Secrets)) {
-        if ([string]::IsNullOrEmpty($secret) -or $secret.Length -lt 4) { continue }
-        $result = $result.Replace($secret, '[REDACTED]')
+
+    if (-not (Get-Command Protect-MasText -ErrorAction SilentlyContinue)) {
+        $corePath = Join-Path $script:MasScriptDirectory "MatlabAgentSkills.Core.psm1"
+        if (Test-Path -LiteralPath $corePath) {
+            Import-Module $corePath -Force -DisableNameChecking -ErrorAction SilentlyContinue
+        }
     }
-    # 整个字段替换，连字段名一起移除，避免"值没了但字段名还在"仍被当成泄露。
-    $result = [regex]::Replace(
-        $result,
-        '(?i)"(?:api[_-]?key|certificate)"\s*:\s*"(?:[^"\\]|\\.)*"',
-        '"[REDACTED_FIELD]"')
-    $result = [regex]::Replace(
-        $result,
-        '(?i)(?:api[_-]?key|certificate)\s*[:=]\s*[^\s,;"'']+',
-        '[REDACTED_FIELD]')
-    return $result
+    if (Get-Command Protect-MasText -ErrorAction SilentlyContinue) {
+        return (Protect-MasText -Text $Text -Secrets $Secrets)
+    }
+    # 脱敏器不可用时失败关闭：宁可少一段文本，也不把原文写进日志。
+    return "[REDACTED: sanitizer-unavailable]"
 }
 
 function Write-MasAuditEvent {
@@ -963,19 +1145,28 @@ try {
         if ($null -ne $candidateProcess) { $candidateSnapshot = Get-MasProcessSnapshot -Process $candidateProcess }
         $candidateParentPid = Get-MasProcessParentId -Id $sessionPidValue
 
-        $candidateOwned = $false
-        if ($null -ne $candidateSnapshot -and -not $candidateSnapshot.HasExited -and
-            $null -ne $candidateSnapshot.StartTimeUtc -and
-            -not [string]::IsNullOrWhiteSpace([string]$candidateSnapshot.ExecutablePath)) {
-            $candidateOwned =
-                ([string]$candidateSnapshot.ProcessName -ieq 'MATLAB') -and
-                ([string]::Equals([string]$candidateSnapshot.ExecutablePath, $matlabFullPath, [System.StringComparison]::OrdinalIgnoreCase)) -and
-                ($candidateSnapshot.StartTimeUtc -ge $runStartedAtUtc.AddSeconds(-2)) -and
-                ($null -ne $candidateSnapshot.WindowsSessionId) -and
-                ([int]$candidateSnapshot.WindowsSessionId -eq [int]$launcherSnapshot.WindowsSessionId) -and
-                ($null -ne $candidateParentPid) -and
-                ([int]$candidateParentPid -eq $process.Id)
+        # 归属判定：允许启动器存根位于中间跳（Windows 的 matlab.exe 会派生 win64\MATLAB.exe，
+        # 于是会话运行时是启动器的孙进程）。有界上溯 + 每一跳自证，判定见函数注释。
+        $ancestorChain = @(Get-MasAncestorChain -Id $sessionPidValue -MaxDepth $SessionRuntimeMaxAncestorDepth)
+        $acceptedMatlabExe = @($matlabFullPath)
+        $matlabRootDir = Split-Path -Parent (Split-Path -Parent $matlabFullPath)
+        if ($matlabRootDir) {
+            $win64MatlabExe = Join-Path $matlabRootDir 'bin\win64\MATLAB.exe'
+            if (Test-Path -LiteralPath $win64MatlabExe) { $acceptedMatlabExe += $win64MatlabExe }
         }
+        $ownership = Test-MasSessionRuntimeOwnership -Candidate $candidateSnapshot -Ancestors $ancestorChain `
+            -Launcher $launcherEntry -RunStartedAtUtc $runStartedAtUtc `
+            -MatlabExecutablePath $acceptedMatlabExe -MaxAncestorDepth $SessionRuntimeMaxAncestorDepth
+        $candidateOwned = [bool]$ownership.owned
+        $chainHops = @($ancestorChain | ForEach-Object {
+                [pscustomobject][ordered]@{
+                    pid              = $_.Pid
+                    processName      = $_.ProcessName
+                    startTimeUtc     = $(if ($null -ne $_.StartTimeUtc) { $_.StartTimeUtc.ToString('o') } else { $null })
+                    executablePath   = $_.ExecutablePath
+                    windowsSessionId = $_.WindowsSessionId
+                }
+            })
 
         if ($candidateOwned) {
             $sessionEntry = New-MasOwnedProcessEntry -Identity $candidateSnapshot -Role 'session-runtime' -ParentPid $candidateParentPid
@@ -985,17 +1176,24 @@ try {
             Write-MasOwnerRecord -Path $ownerFilePath -OwnerRecord $ownerRecord | Out-Null
             $holderProcess = $candidateProcess
             Write-MasAuditEvent -AuditPath $auditPath -Event 'session_runtime_owned' -Data ([pscustomobject][ordered]@{
-                runId = $runId
-                pid = $sessionPidValue
-                parentPid = $candidateParentPid
+                runId       = $runId
+                pid         = $sessionPidValue
+                parentPid   = $candidateParentPid
+                reason      = $ownership.reason
+                hops        = $ownership.hops
+                launcherPid = $ownership.launcherHopPid
+                chain       = @($chainHops)
             }) | Out-Null
         }
         else {
-            # 不满足父子 + 名称 + 路径 + 会话 + 时间窗：绝不把会话文件里的 pid 记入归属。
+            # 名称 / 路径 / 会话 / 时间窗 / 有界父链任一不通过：绝不把会话文件里的 pid 记入归属。
             Write-MasAuditEvent -AuditPath $auditPath -Event 'session_runtime_not_owned' -Data ([pscustomobject][ordered]@{
-                runId = $runId
-                pid = $sessionPidValue
-                parentPid = $candidateParentPid
+                runId       = $runId
+                pid         = $sessionPidValue
+                parentPid   = $candidateParentPid
+                reason      = $ownership.reason
+                hops        = $ownership.hops
+                chain       = @($chainHops)
                 observed = [pscustomobject][ordered]@{
                     processName = $(if ($null -ne $candidateSnapshot) { $candidateSnapshot.ProcessName } else { $null })
                     startTimeUtc = $(if ($null -ne $candidateSnapshot -and $null -ne $candidateSnapshot.StartTimeUtc) { $candidateSnapshot.StartTimeUtc.ToString('o') } else { $null })

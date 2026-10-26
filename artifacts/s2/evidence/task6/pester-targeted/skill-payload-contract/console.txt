@@ -1,0 +1,27 @@
+==> 使用 Pester 3.4.0 (C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Pester.psd1) [installed]
+==> 运行 [free] SkillPayloadContract.Tests.ps1
+
+
+
+
+
+Describing S2 payload manifest contract
+ [+] declares a schema-versioned payload manifest 603ms
+ [+] ships the complete runner probe and batch closure 154ms
+ [+] ships the complete orchestrator probe closure 27ms
+ [+] keeps every payload source inside the repository runtime roots 48ms
+ [+] does not commit a duplicate probe implementation inside skills/ 73ms
+ [+] keeps all nine skills present with SKILL.md 48ms
+Describing S2 skill documentation reference contract
+ [+] uses a skill-root resolution rule instead of caller-cwd scripts for runner and orchestrator 184ms
+ [+] does not present repository-relative PowerShell scripts as installed commands 72ms
+ [+] does not reference the removed STM32 deployment document or repository-only docs 50ms
+ [+] marks repository-only setup and smoke-test scripts as developer operations 25ms
+ [+] resolves every references/, tests/ and scripts/ link inside the skill or its siblings 145ms
+ [+] keeps repository-only build examples out of installed skill instructions 72ms
+Tests completed in 1.51s
+Passed: 12 Failed: 0 Skipped: 0 Pending: 0 Inconclusive: 0
+
+==> 汇总: 共 12 个用例，通过 12，失败 0，跳过 0
+    层 free: 已执行 12 个用例，通过 12，失败 0，耗时 1.7s
+==> 层报告: artifacts/s2/evidence/task6/pester-targeted/skill-payload-contract/layer_report.json

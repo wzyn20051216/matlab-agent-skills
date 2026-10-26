@@ -1,0 +1,223 @@
+{
+    "schemaVersion":  "1.0.0",
+    "taskId":  "mcp-e2e-20261026-191608",
+    "backend":  "matlab-mcp-existing",
+    "matlabVersion":  "26.1.0.3276743 Update 3",
+    "matlabRelease":  "R2026a",
+    "startedAt":  "2026-10-26T19:16:08+08:00",
+    "finishedAt":  "2026-10-26T19:16:09+08:00",
+    "environment":  {
+                        "os":  "Microsoft Windows NT 10.0.26100.0",
+                        "hostName":  "LIULIYE",
+                        "matlabInstalled":  true,
+                        "matlabExecutable":  "E:\\matlab\\bin\\matlab.exe",
+                        "powerShellVersion":  "5.1.26100.7462"
+                    },
+    "toolboxInventory":  [
+
+                         ],
+    "checks":  [
+                   {
+                       "id":  "mcp.server-start",
+                       "title":  "官方 MCP server 启动成功",
+                       "level":  "L1",
+                       "status":  "FAIL",
+                       "command":  "E:\\desktop\\MATLAB\\bin\\matlab-mcp-server-windows-x64.exe --matlab-session-mode=existing",
+                       "exitCode":  null,
+                       "startedAt":  "2026-10-26T19:16:08+08:00",
+                       "finishedAt":  "2026-10-26T19:16:09+08:00",
+                       "durationSeconds":  1.193,
+                       "metrics":  {
+                                       "serverExe":  "E:\\desktop\\MATLAB\\bin\\matlab-mcp-server-windows-x64.exe",
+                                       "serverSource":  "explicit",
+                                       "serverSha256":  "A1F67DD917C5731F88399E1671EBE4F6959D2FD520C78DCAA1FAF3AD37EA9518",
+                                       "provenanceVerified":  true,
+                                       "serverVersion":  "v0.15.0",
+                                       "requestedSessionMode":  "existing",
+                                       "matlabRoot":  "E:\\matlab",
+                                       "processId":  null
+                                   },
+                       "reason":  "启动服务端进程失败：在此对象上找不到属性“StandardInputEncoding”。请确认该属性存在并且可设置。",
+                       "errorClass":  "MCP_CONNECTION_ERROR",
+                       "artifactPaths":  [
+
+                                         ],
+                       "sourceReport":  null,
+                       "retry":  null
+                   },
+                   {
+                       "id":  "mcp.protocol-handshake",
+                       "title":  "MCP 协议握手（initialize）",
+                       "level":  "L2",
+                       "status":  "FAIL",
+                       "command":  "stdio: initialize",
+                       "exitCode":  null,
+                       "startedAt":  "2026-10-26T19:16:09+08:00",
+                       "finishedAt":  "2026-10-26T19:16:09+08:00",
+                       "durationSeconds":  0,
+                       "metrics":  {
+                                       "transport":  "stdio",
+                                       "protocolVersion":  null,
+                                       "serverName":  null,
+                                       "serverVersion":  null,
+                                       "durationMs":  0
+                                   },
+                       "reason":  "L1 未通过：启动服务端进程失败：在此对象上找不到属性“StandardInputEncoding”。请确认该属性存在并且可设置。",
+                       "errorClass":  "MCP_CONNECTION_ERROR",
+                       "artifactPaths":  [
+
+                                         ],
+                       "sourceReport":  null,
+                       "retry":  null
+                   },
+                   {
+                       "id":  "mcp.tools-list",
+                       "title":  "工具发现（tools/list）",
+                       "level":  "L2",
+                       "status":  "FAIL",
+                       "command":  "stdio: tools/list",
+                       "exitCode":  null,
+                       "startedAt":  "2026-10-26T19:16:09+08:00",
+                       "finishedAt":  "2026-10-26T19:16:09+08:00",
+                       "durationSeconds":  0,
+                       "metrics":  {
+                                       "toolCount":  0,
+                                       "tools":  [
+
+                                                 ],
+                                       "required":  [
+                                                        "evaluate_matlab_code",
+                                                        "run_matlab_file",
+                                                        "check_matlab_code",
+                                                        "detect_matlab_toolboxes"
+                                                    ]
+                                   },
+                       "reason":  "L2 握手未通过，无法列出工具",
+                       "errorClass":  "MCP_CONNECTION_ERROR",
+                       "artifactPaths":  [
+
+                                         ],
+                       "sourceReport":  null,
+                       "retry":  null
+                   },
+                   {
+                       "id":  "mcp.readonly-exec",
+                       "title":  "MATLAB 只读执行（version + 数值）",
+                       "level":  "L3",
+                       "status":  "SKIP",
+                       "command":  "stdio: tools/call evaluate_matlab_code (disp version + sum(1:10))",
+                       "exitCode":  null,
+                       "startedAt":  "2026-10-26T19:16:09+08:00",
+                       "finishedAt":  "2026-10-26T19:16:09+08:00",
+                       "durationSeconds":  0,
+                       "metrics":  {
+                                       "tool":  "evaluate_matlab_code",
+                                       "expectedSum":  55,
+                                       "actualSum":  null,
+                                       "durationMs":  0,
+                                       "outputExcerpt":  ""
+                                   },
+                       "reason":  "L2 工具发现未通过",
+                       "errorClass":  null,
+                       "artifactPaths":  [
+
+                                         ],
+                       "sourceReport":  null,
+                       "retry":  null
+                   },
+                   {
+                       "id":  "mcp.file-io",
+                       "title":  "文件操作（写脚本执行 + 双向回读）",
+                       "level":  "L4",
+                       "status":  "SKIP",
+                       "command":  "stdio: tools/call run_matlab_file + evaluate_matlab_code (write/read)",
+                       "exitCode":  null,
+                       "startedAt":  "2026-10-26T19:16:09+08:00",
+                       "finishedAt":  "2026-10-26T19:16:09+08:00",
+                       "durationSeconds":  0,
+                       "metrics":  {
+                                       "hostScript":  null,
+                                       "runToken":  null,
+                                       "runOutput":  null,
+                                       "matlabWrittenFile":  null,
+                                       "hostReadToken":  null,
+                                       "hostVerified":  false
+                                   },
+                       "reason":  "L3 只读执行未通过",
+                       "errorClass":  null,
+                       "artifactPaths":  [
+                                             "E:\\desktop\\MATLAB\\artifacts\\s3\\evidence\\e2e-existing\\work"
+                                         ],
+                       "sourceReport":  null,
+                       "retry":  null
+                   },
+                   {
+                       "id":  "mcp.simulink-model",
+                       "title":  "Simulink 建模 + 仿真数值（Step→Gain×3）",
+                       "level":  "L5",
+                       "status":  "SKIP",
+                       "command":  "stdio: tools/call evaluate_matlab_code (new_system/add_block/add_line/sim)",
+                       "exitCode":  null,
+                       "startedAt":  "2026-10-26T19:16:09+08:00",
+                       "finishedAt":  "2026-10-26T19:16:09+08:00",
+                       "durationSeconds":  0,
+                       "metrics":  {
+                                       "modelPath":  null,
+                                       "finalValue":  null,
+                                       "expected":  3,
+                                       "samples":  null,
+                                       "modelExists":  false,
+                                       "modelBytes":  null,
+                                       "output":  null
+                                   },
+                       "reason":  "L4 文件操作未通过",
+                       "errorClass":  null,
+                       "artifactPaths":  [
+                                             "E:\\desktop\\MATLAB\\artifacts\\s3\\evidence\\e2e-existing\\work"
+                                         ],
+                       "sourceReport":  null,
+                       "retry":  null
+                   }
+               ],
+    "summary":  {
+                    "total":  6,
+                    "pass":  0,
+                    "fail":  3,
+                    "skip":  3
+                },
+    "overallStatus":  "FAIL",
+    "achievedLevel":  "L0",
+    "limitations":  [
+                        "L1~L5 只证明本机 R2026a + 官方 server v0.15.0 的链路可用，不证明其它版本。",
+                        "会话文件会被任何一次 MATLAB 启动重写（含 -batch），所以 existing 模式必须最后共享会话再跑。",
+                        "官方 server 默认发送匿名遥测；本脚本显式传 --disable-telemetry=true。"
+                    ],
+    "unexecuted":  [
+
+                   ],
+    "mcpSession":  {
+                       "transport":  "stdio",
+                       "requestedMode":  "existing",
+                       "serverExe":  "E:\\desktop\\MATLAB\\bin\\matlab-mcp-server-windows-x64.exe",
+                       "serverVersion":  "v0.15.0",
+                       "serverSelfName":  null,
+                       "serverSelfVersion":  null,
+                       "shutdown":  {
+                                        "Exited":  null,
+                                        "ExitCode":  null,
+                                        "Forced":  false,
+                                        "StdErrTail":  ""
+                                    },
+                       "totalToolCalls":  0,
+                       "totalDurationSeconds":  1.193,
+                       "proxy":  {
+                                     "before":  {
+                                                    "http_proxy":  null,
+                                                    "https_proxy":  null,
+                                                    "no_proxy":  null
+                                                },
+                                     "localhostBypass":  "localhost,127.0.0.1,::1",
+                                     "note":  "官方 server 是 Go 程序；未设置 NO_PROXY 时会把 localhost 也发给代理，导致 403 / 超时"
+                                 }
+                   }
+}

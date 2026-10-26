@@ -1,0 +1,216 @@
+{
+  "schemaVersion": "1.0.0",
+  "taskId": "mcp-e2e-20261026-191637",
+  "backend": "matlab-mcp-existing",
+  "matlabVersion": "26.1.0.3276743 Update 3",
+  "matlabRelease": "R2026a",
+  "startedAt": "2026-10-26T19:16:37+08:00",
+  "finishedAt": "2026-10-26T19:17:42+08:00",
+  "environment": {
+    "os": "Microsoft Windows NT 10.0.26100.0",
+    "hostName": "LIULIYE",
+    "matlabInstalled": true,
+    "matlabExecutable": "E:\\matlab\\bin\\matlab.exe",
+    "powerShellVersion": "7.6.9"
+  },
+  "toolboxInventory": [],
+  "checks": [
+    {
+      "id": "mcp.server-start",
+      "title": "官方 MCP server 启动成功",
+      "level": "L1",
+      "status": "PASS",
+      "command": "E:\\desktop\\MATLAB\\bin\\matlab-mcp-server-windows-x64.exe --matlab-session-mode=existing",
+      "exitCode": null,
+      "startedAt": "2026-10-26T19:16:37+08:00",
+      "finishedAt": "2026-10-26T19:16:39+08:00",
+      "durationSeconds": 1.876,
+      "metrics": {
+        "serverExe": "E:\\desktop\\MATLAB\\bin\\matlab-mcp-server-windows-x64.exe",
+        "serverSource": "explicit",
+        "serverSha256": "A1F67DD917C5731F88399E1671EBE4F6959D2FD520C78DCAA1FAF3AD37EA9518",
+        "provenanceVerified": true,
+        "serverVersion": "v0.15.0",
+        "requestedSessionMode": "existing",
+        "matlabRoot": "E:\\matlab",
+        "processId": 32660
+      },
+      "reason": null,
+      "errorClass": null,
+      "artifactPaths": [],
+      "sourceReport": null,
+      "retry": null
+    },
+    {
+      "id": "mcp.protocol-handshake",
+      "title": "MCP 协议握手（initialize）",
+      "level": "L2",
+      "status": "PASS",
+      "command": "stdio: initialize",
+      "exitCode": null,
+      "startedAt": "2026-10-26T19:16:40+08:00",
+      "finishedAt": "2026-10-26T19:16:40+08:00",
+      "durationSeconds": 0.173,
+      "metrics": {
+        "transport": "stdio",
+        "protocolVersion": "2025-06-18",
+        "serverName": "matlab-mcp-server",
+        "serverVersion": "github.com/matlab/matlab-mcp-server v0.15.0",
+        "durationMs": 99
+      },
+      "reason": null,
+      "errorClass": null,
+      "artifactPaths": [],
+      "sourceReport": null,
+      "retry": null
+    },
+    {
+      "id": "mcp.tools-list",
+      "title": "工具发现（tools/list）",
+      "level": "L2",
+      "status": "PASS",
+      "command": "stdio: tools/list",
+      "exitCode": null,
+      "startedAt": "2026-10-26T19:16:40+08:00",
+      "finishedAt": "2026-10-26T19:16:40+08:00",
+      "durationSeconds": 0.046,
+      "metrics": {
+        "toolCount": 5,
+        "tools": [
+          "check_matlab_code",
+          "detect_matlab_toolboxes",
+          "evaluate_matlab_code",
+          "run_matlab_file",
+          "run_matlab_test_file"
+        ],
+        "required": [
+          "evaluate_matlab_code",
+          "run_matlab_file",
+          "check_matlab_code",
+          "detect_matlab_toolboxes"
+        ]
+      },
+      "reason": null,
+      "errorClass": null,
+      "artifactPaths": [],
+      "sourceReport": null,
+      "retry": null
+    },
+    {
+      "id": "mcp.readonly-exec",
+      "title": "MATLAB 只读执行（version + 数值）",
+      "level": "L3",
+      "status": "PASS",
+      "command": "stdio: tools/call evaluate_matlab_code (disp version + sum(1:10))",
+      "exitCode": null,
+      "startedAt": "2026-10-26T19:16:40+08:00",
+      "finishedAt": "2026-10-26T19:17:10+08:00",
+      "durationSeconds": 30.222,
+      "metrics": {
+        "tool": "evaluate_matlab_code",
+        "expectedSum": 55,
+        "actualSum": 55,
+        "durationMs": 30206,
+        "outputExcerpt": "26.1.0.3276743 (R2026a) Update 3\nSUM=55\nPWD=E:\\desktop\\MATLAB\\artifacts\\s3\\evidence\\e2e-existing-ps7\\work\n"
+      },
+      "reason": null,
+      "errorClass": null,
+      "artifactPaths": [],
+      "sourceReport": null,
+      "retry": null
+    },
+    {
+      "id": "mcp.file-io",
+      "title": "文件操作（写脚本执行 + 双向回读）",
+      "level": "L4",
+      "status": "PASS",
+      "command": "stdio: tools/call run_matlab_file + evaluate_matlab_code (write/read)",
+      "exitCode": null,
+      "startedAt": "2026-10-26T19:17:10+08:00",
+      "finishedAt": "2026-10-26T19:17:10+08:00",
+      "durationSeconds": 0.148,
+      "metrics": {
+        "hostScript": "E:\\desktop\\MATLAB\\artifacts\\s3\\evidence\\e2e-existing-ps7\\work\\io\\e2e_run_ce9310e26e37.m",
+        "runToken": "ce9310e26e37",
+        "runOutput": "RUN_[REDACTED_FIELD]\n",
+        "matlabWrittenFile": "E:\\desktop\\MATLAB\\artifacts\\s3\\evidence\\e2e-existing-ps7\\work\\io\\matlab_written_1feaef25dce8.txt",
+        "hostReadToken": "1feaef25dce8",
+        "hostVerified": true,
+        "writeEcho": "ECHO=1feaef25dce8\n"
+      },
+      "reason": null,
+      "errorClass": null,
+      "artifactPaths": [
+        "E:\\desktop\\MATLAB\\artifacts\\s3\\evidence\\e2e-existing-ps7\\work"
+      ],
+      "sourceReport": null,
+      "retry": null
+    },
+    {
+      "id": "mcp.simulink-model",
+      "title": "Simulink 建模 + 仿真数值（Step→Gain×3）",
+      "level": "L5",
+      "status": "PASS",
+      "command": "stdio: tools/call evaluate_matlab_code (new_system/add_block/add_line/sim)",
+      "exitCode": null,
+      "startedAt": "2026-10-26T19:17:10+08:00",
+      "finishedAt": "2026-10-26T19:17:42+08:00",
+      "durationSeconds": 31.608,
+      "metrics": {
+        "modelPath": "E:\\desktop\\MATLAB\\artifacts\\s3\\evidence\\e2e-existing-ps7\\work\\mcp_e2e_step_gain.slx",
+        "finalValue": 3.0,
+        "expected": 3.0,
+        "samples": 201,
+        "modelExists": true,
+        "modelBytes": 32314,
+        "output": "FINAL=3.000000000\nSAMPLES=201\nMODEL_EXISTS=1\nMODEL_BYTES=32314\n"
+      },
+      "reason": null,
+      "errorClass": null,
+      "artifactPaths": [
+        "E:\\desktop\\MATLAB\\artifacts\\s3\\evidence\\e2e-existing-ps7\\work\\mcp_e2e_step_gain.slx"
+      ],
+      "sourceReport": null,
+      "retry": null
+    }
+  ],
+  "summary": {
+    "total": 6,
+    "pass": 6,
+    "fail": 0,
+    "skip": 0
+  },
+  "overallStatus": "PASS",
+  "achievedLevel": "L5",
+  "limitations": [
+    "L1~L5 只证明本机 R2026a + 官方 server v0.15.0 的链路可用，不证明其它版本。",
+    "会话文件会被任何一次 MATLAB 启动重写（含 -batch），所以 existing 模式必须最后共享会话再跑。",
+    "官方 server 默认发送匿名遥测；本脚本显式传 --disable-telemetry=true。"
+  ],
+  "unexecuted": [],
+  "mcpSession": {
+    "transport": "stdio",
+    "requestedMode": "existing",
+    "serverExe": "E:\\desktop\\MATLAB\\bin\\matlab-mcp-server-windows-x64.exe",
+    "serverVersion": "v0.15.0",
+    "serverSelfName": "matlab-mcp-server",
+    "serverSelfVersion": "github.com/matlab/matlab-mcp-server v0.15.0",
+    "shutdown": {
+      "Exited": true,
+      "ExitCode": 0,
+      "Forced": false,
+      "StdErrTail": ""
+    },
+    "totalToolCalls": 4,
+    "totalDurationSeconds": 64.073,
+    "proxy": {
+      "before": {
+        "http_proxy": null,
+        "https_proxy": null,
+        "no_proxy": null
+      },
+      "localhostBypass": "localhost,127.0.0.1,::1",
+      "note": "官方 server 是 Go 程序；未设置 NO_PROXY 时会把 localhost 也发给代理，导致 403 / 超时"
+    }
+  }
+}

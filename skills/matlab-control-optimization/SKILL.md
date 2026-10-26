@@ -7,6 +7,21 @@ description: MATLAB workflow for control systems, system identification, robust 
 
 Use this skill for control design and optimization workflows.
 
+## Skill Root
+
+The installed directory containing this `SKILL.md` is the resource root. Add its
+helper folder for the current MATLAB session only — never through `savepath`,
+`startup.m`, or a global path edit:
+
+```matlab
+skillRoot = '<absolute path to the installed matlab-control-optimization Skill directory>';
+addpath(fullfile(skillRoot, 'scripts'));
+```
+
+Resolve `references/`, `tests/`, and helper calls from that root, not from the
+caller's working directory. If a shipped helper or reference is missing, report the
+exact path and reinstall the Skill; do not scan the disk for a substitute.
+
 ## Workflow
 
 1. Define plant model, units, sample time, constraints, and performance goals.

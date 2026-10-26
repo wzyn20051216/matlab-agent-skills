@@ -23,7 +23,7 @@ means "usable":
 Run the staged probe and read its verdict, never a file listing:
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File .\scripts\Test-MatlabMcpExistingSession.ps1 -Json
+powershell -ExecutionPolicy Bypass -File $skillRoot\scripts\Test-MatlabMcpExistingSession.ps1 -ProjectRoot (Get-Location).Path -Json
 ```
 
 | Stage | Check id | Level | Proves |
@@ -32,9 +32,35 @@ powershell -ExecutionPolicy Bypass -File .\scripts\Test-MatlabMcpExistingSession
 | 2 | `mcp.matlab-license` | L1 | license usable (SKIP by default, `-VerifyLicense` to force) |
 | 2 | `mcp.session-config` | L1 | session JSON parses, certificate exists, port valid |
 | 2 | `mcp.client-registration` | L2 | client args have no `display-mode`, `command` really exists |
-| 3 | `mcp.protocol-handshake` | L2 | TCP reachable and `initialize` returns a valid `result` |
+| 3 | `mcp.protocol-handshake` | L2 | `initialize` returns a valid `result` on the live channel |
 | 4 | `mcp.readonly-exec` | L3 | a read-only command really executed through `tools/call` |
 | 5 | `mcp.file-io` | L4 | token written to an isolated dir and read back identical |
+
+## Transport
+
+`-Transport` selects how stages 3–5 reach MATLAB: `auto` (default) | `stdio` | `https`.
+
+- **`stdio` is the only path the official server supports.** The probe starts the
+  official `matlab-mcp-server` as a child process and speaks newline-delimited JSON-RPC
+  over its stdin/stdout. The binary must already exist on the machine and must match
+  `config/mcp-server-manifest.json` (SHA-256); the probe never downloads one. Search
+  order: `-ServerExe` (then nothing else — an explicitly named binary that fails
+  verification is reported, not silently replaced) → `MATLAB_MCP_SERVER` → the `command`
+  of a registered client → the fixed candidate paths.
+- **`https` is observation only.** Direct `POST /mcp` against the MATLAB connector
+  returns `403` for every authentication header style on R2026a — that is the
+  connector's design, not a misconfiguration on your side. Do not conclude "the key is
+  wrong" from a 403, and do not treat a 403 as a handshake failure of the Skill.
+- **Never start with `-SkipTlsValidation`.** The connector certificate is self-signed
+  with `CN=127.0.0.1` and no SAN, so a trust-store check fails by construction. The probe
+  pins the certificate fingerprint declared by the session descriptor for loopback only;
+  `-SkipTlsValidation` replaces that with a process-wide accept-all callback, which is
+  why it is opt-in and why a run that needs it is not a pass.
+- `-Transport stdio` does not fall back to `https`. If the stdio channel cannot be
+  built, stages 3–5 are SKIP with the real reason (`missing binary`, `HASH_MISMATCH`,
+  `会话证书无法解析出指纹`, …) — a fallback would describe our own misconfiguration as
+  "the connector returned 403".
+
 
 ## Rules that must not be relaxed
 
@@ -61,20 +87,22 @@ powershell -ExecutionPolicy Bypass -File .\scripts\Test-MatlabMcpExistingSession
 
 ## Setup
 
-```powershell
-powershell -ExecutionPolicy Bypass -File .\scripts\Setup-MatlabMcpExistingSession.ps1
-powershell -ExecutionPolicy Bypass -File .\scripts\Test-MatlabMcpExistingSession.ps1
-```
+`Setup-MatlabMcpExistingSession.ps1` is a repository-only developer operation for
+maintainers of the source repository. It is **not shipped** inside the installed
+Skill. An installed user configures the official MATLAB MCP entry through their MCP
+client and then runs the shipped probe above; do not ask them to find a development
+checkout, and do not scan for a similarly named script elsewhere on disk.
 
 ## 自动打开可见 MATLAB 桌面
 
-先运行仓库的 `scripts/Start-MatlabDesktop.ps1`：优先复用匹配的现有共享运行时及
+仓库开发者辅助脚本 `scripts/Start-MatlabDesktop.ps1`（**不随 Skill 安装**）用于
+维护者复现可见桌面启动流程，不属于安装后流程：优先复用匹配的现有共享运行时及
 桌面窗口；没有 MATLAB 时自动经 Windows Shell 打开可见桌面，等待本次唯一
 receipt，再重建官方 stdio `auto` 连接并用真实工具执行验证。
 如存在未就绪实例，先读报告决定是否用 `-NewSession` 另开，不关闭用户原会话。
 `REUSED_EXISTING` 不计作新启动；仅 `newSessionVerified=true` 且启动前没有
 MATLAB 进程时才可记录 `coldStartVerified=true`。端口、PID 或 receipt 单独成立
-都不能替代 MCP 执行验证。详见 `docs/MATLAB_DESKTOP_STARTUP_ZH.md`。
+都不能替代 MCP 执行验证。
 需要精确复现手动入口时可用 `-LaunchMode Shortcut`；候选返回后，用官方 MCP 执行
 报告指定的 `mcpCodeFile`，再以 `-ConfirmReport` 核对回执。候选本身不算启动成功。
 可显式用 `-LaunchMode ComDesktop` 由独立 STA holder 激活已注册的可见桌面并保留 COM 引用；

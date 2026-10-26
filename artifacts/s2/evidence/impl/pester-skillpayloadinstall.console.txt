@@ -1,0 +1,159 @@
+==> 使用 Pester 3.4.0 (C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Pester.psd1) [installed]
+==> 运行 [free] SkillPayloadInstall.Tests.ps1
+
+
+
+
+
+Describing S2 installed Skill resource payload
+==> 同步 skills: E:\desktop\MATLAB\skills -> D:\Temp\mas-s2-install-db93a451fbb148c5bac92c065abeac01\installed-skills
+    备份目录（仅在发生变更时创建）: D:\Temp\mas-s2-install-db93a451fbb148c5bac92c065abeac01\backups\20261026-130812-sync-skills
+  install: matlab-codegen-deploy -> D:\Temp\mas-s2-install-db93a451fbb148c5bac92c065abeac01\installed-skills\matlab-codegen-deploy
+  install: matlab-control-optimization -> D:\Temp\mas-s2-install-db93a451fbb148c5bac92c065abeac01\installed-skills\matlab-control-optimization
+  install: matlab-data-analysis -> D:\Temp\mas-s2-install-db93a451fbb148c5bac92c065abeac01\installed-skills\matlab-data-analysis
+  install: matlab-orchestrator -> D:\Temp\mas-s2-install-db93a451fbb148c5bac92c065abeac01\installed-skills\matlab-orchestrator
+  install: matlab-robotics-autonomy -> D:\Temp\mas-s2-install-db93a451fbb148c5bac92c065abeac01\installed-skills\matlab-robotics-autonomy
+  install: matlab-runner -> D:\Temp\mas-s2-install-db93a451fbb148c5bac92c065abeac01\installed-skills\matlab-runner
+  install: matlab-signal-vision-ai -> D:\Temp\mas-s2-install-db93a451fbb148c5bac92c065abeac01\installed-skills\matlab-signal-vision-ai
+  install: matlab-simulink-modeling -> D:\Temp\mas-s2-install-db93a451fbb148c5bac92c065abeac01\installed-skills\matlab-simulink-modeling
+  install: matlab-testing-ci -> D:\Temp\mas-s2-install-db93a451fbb148c5bac92c065abeac01\installed-skills\matlab-testing-ci
+ [+] installs every declared payload file byte-for-byte into runner and orchestrator 4.24s
+==> 同步 skills: E:\desktop\MATLAB\skills -> D:\Temp\mas-s2-install-493ce04227274179a1e67c24e505b90c\installed-skills
+    备份目录（仅在发生变更时创建）: D:\Temp\mas-s2-install-493ce04227274179a1e67c24e505b90c\backups\20261026-130816-sync-skills
+  install: matlab-codegen-deploy -> D:\Temp\mas-s2-install-493ce04227274179a1e67c24e505b90c\installed-skills\matlab-codegen-deploy
+  install: matlab-control-optimization -> D:\Temp\mas-s2-install-493ce04227274179a1e67c24e505b90c\installed-skills\matlab-control-optimization
+  install: matlab-data-analysis -> D:\Temp\mas-s2-install-493ce04227274179a1e67c24e505b90c\installed-skills\matlab-data-analysis
+  install: matlab-orchestrator -> D:\Temp\mas-s2-install-493ce04227274179a1e67c24e505b90c\installed-skills\matlab-orchestrator
+  install: matlab-robotics-autonomy -> D:\Temp\mas-s2-install-493ce04227274179a1e67c24e505b90c\installed-skills\matlab-robotics-autonomy
+  install: matlab-runner -> D:\Temp\mas-s2-install-493ce04227274179a1e67c24e505b90c\installed-skills\matlab-runner
+  install: matlab-signal-vision-ai -> D:\Temp\mas-s2-install-493ce04227274179a1e67c24e505b90c\installed-skills\matlab-signal-vision-ai
+  install: matlab-simulink-modeling -> D:\Temp\mas-s2-install-493ce04227274179a1e67c24e505b90c\installed-skills\matlab-simulink-modeling
+  install: matlab-testing-ci -> D:\Temp\mas-s2-install-493ce04227274179a1e67c24e505b90c\installed-skills\matlab-testing-ci
+ [+] does not ship artifacts, session files, certificates, keys, or repository paths inside a Skill 2.97s
+==> 同步 skills: E:\desktop\MATLAB\skills -> D:\Temp\mas-s2-install-bfe44fc67d544256bae17897ea262378\installed-skills
+    备份目录（仅在发生变更时创建）: D:\Temp\mas-s2-install-bfe44fc67d544256bae17897ea262378\backups\20261026-130818-sync-skills
+  install: matlab-codegen-deploy -> D:\Temp\mas-s2-install-bfe44fc67d544256bae17897ea262378\installed-skills\matlab-codegen-deploy
+  install: matlab-control-optimization -> D:\Temp\mas-s2-install-bfe44fc67d544256bae17897ea262378\installed-skills\matlab-control-optimization
+  install: matlab-data-analysis -> D:\Temp\mas-s2-install-bfe44fc67d544256bae17897ea262378\installed-skills\matlab-data-analysis
+  install: matlab-orchestrator -> D:\Temp\mas-s2-install-bfe44fc67d544256bae17897ea262378\installed-skills\matlab-orchestrator
+  install: matlab-robotics-autonomy -> D:\Temp\mas-s2-install-bfe44fc67d544256bae17897ea262378\installed-skills\matlab-robotics-autonomy
+  install: matlab-runner -> D:\Temp\mas-s2-install-bfe44fc67d544256bae17897ea262378\installed-skills\matlab-runner
+  install: matlab-signal-vision-ai -> D:\Temp\mas-s2-install-bfe44fc67d544256bae17897ea262378\installed-skills\matlab-signal-vision-ai
+  install: matlab-simulink-modeling -> D:\Temp\mas-s2-install-bfe44fc67d544256bae17897ea262378\installed-skills\matlab-simulink-modeling
+  install: matlab-testing-ci -> D:\Temp\mas-s2-install-bfe44fc67d544256bae17897ea262378\installed-skills\matlab-testing-ci
+==> 同步 skills: E:\desktop\MATLAB\skills -> D:\Temp\mas-s2-install-bfe44fc67d544256bae17897ea262378\installed-skills
+    备份目录（仅在发生变更时创建）: D:\Temp\mas-s2-install-bfe44fc67d544256bae17897ea262378\backups\20261026-130821-sync-skills
+    跳过（内容一致）: matlab-codegen-deploy
+    跳过（内容一致）: matlab-control-optimization
+    跳过（内容一致）: matlab-data-analysis
+    跳过（内容一致）: matlab-orchestrator
+    跳过（内容一致）: matlab-robotics-autonomy
+    跳过（内容一致）: matlab-runner
+    跳过（内容一致）: matlab-signal-vision-ai
+    跳过（内容一致）: matlab-simulink-modeling
+    跳过（内容一致）: matlab-testing-ci
+    技能清单未变化，跳过重写: D:\Temp\mas-s2-install-bfe44fc67d544256bae17897ea262378\installed-skills\.matlab-agent-skills-manifest.json
+ [+] keeps a repeat sync byte-identical, including payload and manifest 3.32s
+==> 同步 skills: E:\desktop\MATLAB\skills -> D:\Temp\mas-s2-install-dabe71c60f574a5bbc57a5e89a44ea63\installed-skills
+    [DryRun] 不会写入任何文件
+  install: matlab-codegen-deploy -> D:\Temp\mas-s2-install-dabe71c60f574a5bbc57a5e89a44ea63\installed-skills\matlab-codegen-deploy
+  install: matlab-control-optimization -> D:\Temp\mas-s2-install-dabe71c60f574a5bbc57a5e89a44ea63\installed-skills\matlab-control-optimization
+  install: matlab-data-analysis -> D:\Temp\mas-s2-install-dabe71c60f574a5bbc57a5e89a44ea63\installed-skills\matlab-data-analysis
+  install: matlab-orchestrator -> D:\Temp\mas-s2-install-dabe71c60f574a5bbc57a5e89a44ea63\installed-skills\matlab-orchestrator
+  install: matlab-robotics-autonomy -> D:\Temp\mas-s2-install-dabe71c60f574a5bbc57a5e89a44ea63\installed-skills\matlab-robotics-autonomy
+  install: matlab-runner -> D:\Temp\mas-s2-install-dabe71c60f574a5bbc57a5e89a44ea63\installed-skills\matlab-runner
+  install: matlab-signal-vision-ai -> D:\Temp\mas-s2-install-dabe71c60f574a5bbc57a5e89a44ea63\installed-skills\matlab-signal-vision-ai
+  install: matlab-simulink-modeling -> D:\Temp\mas-s2-install-dabe71c60f574a5bbc57a5e89a44ea63\installed-skills\matlab-simulink-modeling
+  install: matlab-testing-ci -> D:\Temp\mas-s2-install-dabe71c60f574a5bbc57a5e89a44ea63\installed-skills\matlab-testing-ci
+==> [DryRun] 将写入 skills manifest: D:\Temp\mas-s2-install-dabe71c60f574a5bbc57a5e89a44ea63\installed-skills\.matlab-agent-skills-manifest.json
+ [+] writes nothing for -DryRun 220ms
+==> 同步 skills: E:\desktop\MATLAB\skills -> D:\Temp\mas-s2-install-bafc08c6b4844e398a6f8995ae9c2bfb\installed-skills
+    备份目录（仅在发生变更时创建）: D:\Temp\mas-s2-install-bafc08c6b4844e398a6f8995ae9c2bfb\backups\20261026-130822-sync-skills
+  install: matlab-codegen-deploy -> D:\Temp\mas-s2-install-bafc08c6b4844e398a6f8995ae9c2bfb\installed-skills\matlab-codegen-deploy
+  install: matlab-control-optimization -> D:\Temp\mas-s2-install-bafc08c6b4844e398a6f8995ae9c2bfb\installed-skills\matlab-control-optimization
+  install: matlab-data-analysis -> D:\Temp\mas-s2-install-bafc08c6b4844e398a6f8995ae9c2bfb\installed-skills\matlab-data-analysis
+  install: matlab-orchestrator -> D:\Temp\mas-s2-install-bafc08c6b4844e398a6f8995ae9c2bfb\installed-skills\matlab-orchestrator
+  install: matlab-robotics-autonomy -> D:\Temp\mas-s2-install-bafc08c6b4844e398a6f8995ae9c2bfb\installed-skills\matlab-robotics-autonomy
+  install: matlab-runner -> D:\Temp\mas-s2-install-bafc08c6b4844e398a6f8995ae9c2bfb\installed-skills\matlab-runner
+  install: matlab-signal-vision-ai -> D:\Temp\mas-s2-install-bafc08c6b4844e398a6f8995ae9c2bfb\installed-skills\matlab-signal-vision-ai
+  install: matlab-simulink-modeling -> D:\Temp\mas-s2-install-bafc08c6b4844e398a6f8995ae9c2bfb\installed-skills\matlab-simulink-modeling
+  install: matlab-testing-ci -> D:\Temp\mas-s2-install-bafc08c6b4844e398a6f8995ae9c2bfb\installed-skills\matlab-testing-ci
+==> 同步 skills: E:\desktop\MATLAB\skills -> D:\Temp\mas-s2-install-bafc08c6b4844e398a6f8995ae9c2bfb\installed-skills
+    备份目录（仅在发生变更时创建）: D:\Temp\mas-s2-install-bafc08c6b4844e398a6f8995ae9c2bfb\backups\20261026-130825-sync-skills
+    跳过（内容一致）: matlab-codegen-deploy
+    跳过（内容一致）: matlab-control-optimization
+    跳过（内容一致）: matlab-data-analysis
+    跳过（内容一致）: matlab-orchestrator
+    跳过（内容一致）: matlab-robotics-autonomy
+  update: matlab-runner -> D:\Temp\mas-s2-install-bafc08c6b4844e398a6f8995ae9c2bfb\installed-skills\matlab-runner
+    跳过（内容一致）: matlab-signal-vision-ai
+    跳过（内容一致）: matlab-simulink-modeling
+    跳过（内容一致）: matlab-testing-ci
+ [+] repairs a tampered installed payload and backs up the previous copy 4.05s
+==> 同步 skills: D:\Temp\mas-s2-install-3d12b165febb483583866e75155e5538\repo\skills -> D:\Temp\mas-s2-install-3d12b165febb483583866e75155e5538\installed-skills
+    备份目录（仅在发生变更时创建）: D:\Temp\mas-s2-install-3d12b165febb483583866e75155e5538\backups\20261026-130826-sync-skills
+  install: matlab-codegen-deploy -> D:\Temp\mas-s2-install-3d12b165febb483583866e75155e5538\installed-skills\matlab-codegen-deploy
+  install: matlab-control-optimization -> D:\Temp\mas-s2-install-3d12b165febb483583866e75155e5538\installed-skills\matlab-control-optimization
+  install: matlab-data-analysis -> D:\Temp\mas-s2-install-3d12b165febb483583866e75155e5538\installed-skills\matlab-data-analysis
+  install: matlab-orchestrator -> D:\Temp\mas-s2-install-3d12b165febb483583866e75155e5538\installed-skills\matlab-orchestrator
+  install: matlab-robotics-autonomy -> D:\Temp\mas-s2-install-3d12b165febb483583866e75155e5538\installed-skills\matlab-robotics-autonomy
+  install: matlab-runner -> D:\Temp\mas-s2-install-3d12b165febb483583866e75155e5538\installed-skills\matlab-runner
+  install: matlab-signal-vision-ai -> D:\Temp\mas-s2-install-3d12b165febb483583866e75155e5538\installed-skills\matlab-signal-vision-ai
+  install: matlab-simulink-modeling -> D:\Temp\mas-s2-install-3d12b165febb483583866e75155e5538\installed-skills\matlab-simulink-modeling
+  install: matlab-testing-ci -> D:\Temp\mas-s2-install-3d12b165febb483583866e75155e5538\installed-skills\matlab-testing-ci
+ [+] restores the pre-upgrade payload when the destination is locked 8s
+==> 同步 skills: E:\desktop\MATLAB\skills -> D:\Temp\mas-s2-install-9108d5c4e4d84a5ca84200d9c02a1e97\installed-skills
+    备份目录（仅在发生变更时创建）: D:\Temp\mas-s2-install-9108d5c4e4d84a5ca84200d9c02a1e97\backups\20261026-130834-sync-skills
+  install: matlab-codegen-deploy -> D:\Temp\mas-s2-install-9108d5c4e4d84a5ca84200d9c02a1e97\installed-skills\matlab-codegen-deploy
+  install: matlab-control-optimization -> D:\Temp\mas-s2-install-9108d5c4e4d84a5ca84200d9c02a1e97\installed-skills\matlab-control-optimization
+  install: matlab-data-analysis -> D:\Temp\mas-s2-install-9108d5c4e4d84a5ca84200d9c02a1e97\installed-skills\matlab-data-analysis
+  install: matlab-orchestrator -> D:\Temp\mas-s2-install-9108d5c4e4d84a5ca84200d9c02a1e97\installed-skills\matlab-orchestrator
+  install: matlab-robotics-autonomy -> D:\Temp\mas-s2-install-9108d5c4e4d84a5ca84200d9c02a1e97\installed-skills\matlab-robotics-autonomy
+  install: matlab-runner -> D:\Temp\mas-s2-install-9108d5c4e4d84a5ca84200d9c02a1e97\installed-skills\matlab-runner
+  install: matlab-signal-vision-ai -> D:\Temp\mas-s2-install-9108d5c4e4d84a5ca84200d9c02a1e97\installed-skills\matlab-signal-vision-ai
+  install: matlab-simulink-modeling -> D:\Temp\mas-s2-install-9108d5c4e4d84a5ca84200d9c02a1e97\installed-skills\matlab-simulink-modeling
+  install: matlab-testing-ci -> D:\Temp\mas-s2-install-9108d5c4e4d84a5ca84200d9c02a1e97\installed-skills\matlab-testing-ci
+ [+] uninstalls all nine managed Skills without leaving payload residue 3.37s
+Describing S2 installed Skill execution without the source repository
+==> 同步 skills: E:\desktop\MATLAB\skills -> D:\Temp\mas-s2-install-09b51100407b4b2c9795535734894de0\installed-skills
+    备份目录（仅在发生变更时创建）: D:\Temp\mas-s2-install-09b51100407b4b2c9795535734894de0\backups\20261026-130837-sync-skills
+  install: matlab-codegen-deploy -> D:\Temp\mas-s2-install-09b51100407b4b2c9795535734894de0\installed-skills\matlab-codegen-deploy
+  install: matlab-control-optimization -> D:\Temp\mas-s2-install-09b51100407b4b2c9795535734894de0\installed-skills\matlab-control-optimization
+  install: matlab-data-analysis -> D:\Temp\mas-s2-install-09b51100407b4b2c9795535734894de0\installed-skills\matlab-data-analysis
+  install: matlab-orchestrator -> D:\Temp\mas-s2-install-09b51100407b4b2c9795535734894de0\installed-skills\matlab-orchestrator
+  install: matlab-robotics-autonomy -> D:\Temp\mas-s2-install-09b51100407b4b2c9795535734894de0\installed-skills\matlab-robotics-autonomy
+  install: matlab-runner -> D:\Temp\mas-s2-install-09b51100407b4b2c9795535734894de0\installed-skills\matlab-runner
+  install: matlab-signal-vision-ai -> D:\Temp\mas-s2-install-09b51100407b4b2c9795535734894de0\installed-skills\matlab-signal-vision-ai
+  install: matlab-simulink-modeling -> D:\Temp\mas-s2-install-09b51100407b4b2c9795535734894de0\installed-skills\matlab-simulink-modeling
+  install: matlab-testing-ci -> D:\Temp\mas-s2-install-09b51100407b4b2c9795535734894de0\installed-skills\matlab-testing-ci
+ [+] keeps sanitizer behavior in the installed Core module 5.01s
+==> 同步 skills: E:\desktop\MATLAB\skills -> D:\Temp\mas-s2-install-5eea914f5c05442d8709e1251d835532\installed-skills
+    备份目录（仅在发生变更时创建）: D:\Temp\mas-s2-install-5eea914f5c05442d8709e1251d835532\backups\20261026-130842-sync-skills
+  install: matlab-codegen-deploy -> D:\Temp\mas-s2-install-5eea914f5c05442d8709e1251d835532\installed-skills\matlab-codegen-deploy
+  install: matlab-control-optimization -> D:\Temp\mas-s2-install-5eea914f5c05442d8709e1251d835532\installed-skills\matlab-control-optimization
+  install: matlab-data-analysis -> D:\Temp\mas-s2-install-5eea914f5c05442d8709e1251d835532\installed-skills\matlab-data-analysis
+  install: matlab-orchestrator -> D:\Temp\mas-s2-install-5eea914f5c05442d8709e1251d835532\installed-skills\matlab-orchestrator
+  install: matlab-robotics-autonomy -> D:\Temp\mas-s2-install-5eea914f5c05442d8709e1251d835532\installed-skills\matlab-robotics-autonomy
+  install: matlab-runner -> D:\Temp\mas-s2-install-5eea914f5c05442d8709e1251d835532\installed-skills\matlab-runner
+  install: matlab-signal-vision-ai -> D:\Temp\mas-s2-install-5eea914f5c05442d8709e1251d835532\installed-skills\matlab-signal-vision-ai
+  install: matlab-simulink-modeling -> D:\Temp\mas-s2-install-5eea914f5c05442d8709e1251d835532\installed-skills\matlab-simulink-modeling
+  install: matlab-testing-ci -> D:\Temp\mas-s2-install-5eea914f5c05442d8709e1251d835532\installed-skills\matlab-testing-ci
+ [+] resolves every installed module from inside the Skill root 4.81s
+==> 同步 skills: E:\desktop\MATLAB\skills -> D:\Temp\mas-s2-install-e13e94ec77ad49fcbdfe96a414b62fc1\installed-skills
+    备份目录（仅在发生变更时创建）: D:\Temp\mas-s2-install-e13e94ec77ad49fcbdfe96a414b62fc1\backups\20261026-130847-sync-skills
+  install: matlab-codegen-deploy -> D:\Temp\mas-s2-install-e13e94ec77ad49fcbdfe96a414b62fc1\installed-skills\matlab-codegen-deploy
+  install: matlab-control-optimization -> D:\Temp\mas-s2-install-e13e94ec77ad49fcbdfe96a414b62fc1\installed-skills\matlab-control-optimization
+  install: matlab-data-analysis -> D:\Temp\mas-s2-install-e13e94ec77ad49fcbdfe96a414b62fc1\installed-skills\matlab-data-analysis
+  install: matlab-orchestrator -> D:\Temp\mas-s2-install-e13e94ec77ad49fcbdfe96a414b62fc1\installed-skills\matlab-orchestrator
+  install: matlab-robotics-autonomy -> D:\Temp\mas-s2-install-e13e94ec77ad49fcbdfe96a414b62fc1\installed-skills\matlab-robotics-autonomy
+  install: matlab-runner -> D:\Temp\mas-s2-install-e13e94ec77ad49fcbdfe96a414b62fc1\installed-skills\matlab-runner
+  install: matlab-signal-vision-ai -> D:\Temp\mas-s2-install-e13e94ec77ad49fcbdfe96a414b62fc1\installed-skills\matlab-signal-vision-ai
+  install: matlab-simulink-modeling -> D:\Temp\mas-s2-install-e13e94ec77ad49fcbdfe96a414b62fc1\installed-skills\matlab-simulink-modeling
+  install: matlab-testing-ci -> D:\Temp\mas-s2-install-e13e94ec77ad49fcbdfe96a414b62fc1\installed-skills\matlab-testing-ci
+ [+] runs the installed probe from a project cwd and writes artifacts outside the Skill 7.17s
+Tests completed in 43.18s
+Passed: 10 Failed: 0 Skipped: 0 Pending: 0 Inconclusive: 0
+
+==> 汇总: 共 10 个用例，通过 10，失败 0，跳过 0
+    层 free: 已执行 10 个用例，通过 10，失败 0，耗时 43.4s
+==> 层报告: artifacts/s2/evidence/impl/pester-skillpayloadinstall.json

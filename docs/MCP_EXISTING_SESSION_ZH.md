@@ -128,7 +128,7 @@ artifacts/validation/acceptance/mcp_probe.json
 | `mcp.matlab-license` | L1 | 默认 SKIP；只有 `-VerifyLicense` 或阶段 4 真实执行成功才升级为 PASS |
 | `mcp.session-config` | L1 | `sessionDetails.json` 可解析、证书文件存在、端口合法 |
 | `mcp.client-registration` | L2 | 客户端注册参数不含 `display-mode`，`command` 真实存在 |
-| `mcp.protocol-handshake` | L2 | TCP 可连且 `initialize` 返回合法 `result` |
+| `mcp.protocol-handshake` | L2 | 在所选传输通道上 `initialize` 返回合法 `result`（默认 stdio 子进程，不是"TCP 端口能连"） |
 | `mcp.readonly-exec` | L3 | 通过 `tools/call` 真实执行只读命令，输出匹配版本号 |
 | `mcp.file-io` | L4 | 在隔离目录写入令牌再读回，内容一致 |
 
@@ -154,9 +154,42 @@ artifacts/validation/acceptance/mcp_probe.json
 shareMATLABSession()
 ```
 
-`mcp.protocol-handshake` 报 `HTTP 401`：密钥不匹配。`reason` 会同时给出状态码和 JSON-RPC 错误体，便于区分"服务没起"（TCP 连不上）和"密钥错"（401）。
+`mcp.protocol-handshake` 的 `reason` 会同时给出状态码和 JSON-RPC 错误体，便于区分"通道没起"和"凭据不对"。
+
+但 **403 不是"密钥错"**：R2026a 实测，直连 connector 的 `POST /mcp` 对任何鉴权头写法都返回 403，
+这是 connector 的设计——它只接受官方 `matlab-mcp-server` 自己建立的连接。因此这条路径只用于观测，
+真正要打通 L2/L3/L4 必须走 stdio（见下一节）。把 403 当成"轮换密钥就能修"会浪费时间。
 
 `mcp.readonly-exec` 为 SKIP 且 `metrics.tools` 里没有执行类工具：服务端只暴露了工作区检查之类的工具，握手成功并不代表能执行 MATLAB 代码。
+
+## 传输方式（`-Transport`）
+
+`-Transport auto|stdio|https`，默认 `auto`：先建 stdio 通道，找不到可用二进制才退回 https，
+并把退回原因写进报告的 `limitations`。
+
+| 传输 | 事实 | 用途 |
+| --- | --- | --- |
+| `stdio` | 探测脚本以子进程启动官方 `matlab-mcp-server`，按行交换 JSON-RPC 2.0 | **唯一受支持的路径**，L2/L3/L4 由它判定 |
+| `https` | 直连 connector 的 `POST /mcp`，R2026a 实测恒 403 | 仅观测，不能据其失败判定 Skill 不可用 |
+
+stdio 通道的建立规则：
+
+- 二进制查找顺序为 `-ServerExe` → `MATLAB_MCP_SERVER` → 客户端注册的 `command` → Core 固定候选路径；
+  每个候选都要通过 `config/mcp-server-manifest.json` 的 SHA-256 校验。**探测脚本绝不下载二进制**——
+  把下载动作塞进只读探测是越权。
+- 显式指定 `-ServerExe` 时只用这一个：校验不过就报错，不会悄悄换成别的文件。
+- `--matlab-session-mode` 取 `-SessionMode`；`existing` 模式下不传 `--matlab-root` 与
+  `--matlab-display-mode`（官方 server 在该模式会拒绝它们）。
+- server 是 Go 程序，会读 `HTTPS_PROXY`；没有 `NO_PROXY` 时它把 127.0.0.1 也发给代理，
+  表现为 403 或 `context deadline exceeded`。探测脚本只在子进程存续期间设置回环绕过，关闭通道时还原。
+
+HTTPS 通道的 TLS 规则：
+
+- connector 自签名证书是 `CN=127.0.0.1` 且**无 SAN**，走系统信任链必然被拒。
+  脚本默认按会话描述符自己声明的那张证书做**回环指纹固定**，而不是关掉校验。
+- `-SkipTlsValidation` 会替换整个进程的证书校验回调。它不是默认值，也不应写进任何验收命令；
+  需要它才能"通过"的一次运行不算通过。
+- 解析不出证书指纹时，脚本不发起未固定证书的握手，直接 SKIP 并写明原因。
 
 ## Skills 默认策略
 

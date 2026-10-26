@@ -1,0 +1,176 @@
+{
+    "schemaVersion":  "mas-s3-live-session-ownership/1",
+    "generatedAtUtc":  "2026-10-26T13:04:04.4041693Z",
+    "powerShellVersion":  "5.1.26100.7462",
+    "purpose":  "复核修复后的父链归属判据在真实进程树上是否成立；ReportOnly，不终止任何进程",
+    "terminatesProcesses":  false,
+    "cleanupMode":  "ReportOnly",
+    "recordedLauncher":  {
+                             "pid":  51072,
+                             "processName":  "matlab",
+                             "startTimeUtc":  "2026-10-26T19:14:16.1192856+08:00",
+                             "executablePath":  "E:\\matlab\\bin\\matlab.exe",
+                             "windowsSessionId":  1,
+                             "recordedAtUtc":  "2026-10-26T11:14:16.3395781Z",
+                             "auditSource":  "E:\\desktop\\MATLAB\\artifacts\\s3\\evidence\\session\\matlab_shared_session_cleanup.jsonl",
+                             "stillAlive":  false
+                         },
+    "runStartedAtUtcBasis":  "取自审计里当时写下的启动器 StartTimeUtc（不臆造、不向未来移动）",
+    "sessionDescriptor":  {
+                              "path":  "C:\\Users\\23201\\AppData\\Roaming\\MathWorks\\MATLAB MCP Server\\v1\\sessionDetails.json",
+                              "port":  31520,
+                              "pid":  42956,
+                              "listenerOwnerPid":  42956,
+                              "secretFieldsRead":  false
+                          },
+    "acceptedExecutablePaths":  [
+                                    "E:\\matlab\\bin\\matlab.exe",
+                                    "E:\\matlab\\bin\\win64\\MATLAB.exe"
+                                ],
+    "maxAncestorDepth":  3,
+    "targets":  [
+                    {
+                        "role":  "session-runtime (named by sessionDetails.json)",
+                        "pid":  42956,
+                        "alive":  true,
+                        "processName":  "MATLAB",
+                        "parentPid":  15392,
+                        "startTimeUtc":  "2026-10-26T11:14:27.8522231Z",
+                        "executablePath":  "E:\\matlab\\bin\\win64\\MATLAB.exe",
+                        "windowsSessionId":  1,
+                        "chain":  [
+                                      {
+                                          "pid":  15392,
+                                          "processName":  "MATLAB",
+                                          "startTimeUtc":  "2026-10-26T11:14:16.2323591Z",
+                                          "executablePath":  "E:\\matlab\\bin\\win64\\MATLAB.exe",
+                                          "windowsSessionId":  1,
+                                          "hasExited":  false
+                                      },
+                                      {
+                                          "pid":  51072,
+                                          "processName":  null,
+                                          "startTimeUtc":  null,
+                                          "executablePath":  null,
+                                          "windowsSessionId":  null,
+                                          "hasExited":  true
+                                      }
+                                  ],
+                        "ownership":  {
+                                          "owned":  true,
+                                          "reason":  "ALLOW",
+                                          "hops":  2,
+                                          "launcherHopPid":  51072
+                                      }
+                    },
+                    {
+                        "role":  "session-head (parent of the runtime)",
+                        "pid":  15392,
+                        "alive":  true,
+                        "processName":  "MATLAB",
+                        "parentPid":  51072,
+                        "startTimeUtc":  "2026-10-26T11:14:16.2323591Z",
+                        "executablePath":  "E:\\matlab\\bin\\win64\\MATLAB.exe",
+                        "windowsSessionId":  1,
+                        "chain":  [
+                                      {
+                                          "pid":  51072,
+                                          "processName":  null,
+                                          "startTimeUtc":  null,
+                                          "executablePath":  null,
+                                          "windowsSessionId":  null,
+                                          "hasExited":  true
+                                      }
+                                  ],
+                        "ownership":  {
+                                          "owned":  true,
+                                          "reason":  "ALLOW",
+                                          "hops":  1,
+                                          "launcherHopPid":  51072
+                                      }
+                    },
+                    {
+                        "role":  "control (MATLAB not started by this run)",
+                        "pid":  6288,
+                        "alive":  true,
+                        "processName":  "MATLAB",
+                        "parentPid":  10040,
+                        "startTimeUtc":  "2026-10-26T03:32:21.5699202Z",
+                        "executablePath":  "E:\\matlab\\bin\\win64\\MATLAB.exe",
+                        "windowsSessionId":  1,
+                        "chain":  [
+                                      {
+                                          "pid":  10040,
+                                          "processName":  "MATLAB",
+                                          "startTimeUtc":  "2026-10-26T03:32:10.6032577Z",
+                                          "executablePath":  "E:\\matlab\\bin\\win64\\MATLAB.exe",
+                                          "windowsSessionId":  1,
+                                          "hasExited":  false
+                                      },
+                                      {
+                                          "pid":  35928,
+                                          "processName":  "matlab-mcp-server-windows-x64",
+                                          "startTimeUtc":  "2026-10-26T03:32:09.3266954Z",
+                                          "executablePath":  "E:\\desktop\\MATLAB\\bin\\matlab-mcp-server-windows-x64.exe",
+                                          "windowsSessionId":  1,
+                                          "hasExited":  false
+                                      },
+                                      {
+                                          "pid":  7412,
+                                          "processName":  "Qoder CN",
+                                          "startTimeUtc":  "2026-10-26T03:32:02.4420791Z",
+                                          "executablePath":  "E:\\Qoder CN\\Qoder CN.exe",
+                                          "windowsSessionId":  1,
+                                          "hasExited":  false
+                                      }
+                                  ],
+                        "ownership":  {
+                                          "owned":  false,
+                                          "reason":  "SKIPPED_IDENTITY_MISMATCH",
+                                          "hops":  0,
+                                          "launcherHopPid":  0
+                                      }
+                    }
+                ],
+    "reportOnlyDecisions":  [
+                                {
+                                    "pid":  51072,
+                                    "decision":  "NOOP_PROCESS_EXITED",
+                                    "action":  "NOOP",
+                                    "processName":  null,
+                                    "executablePath":  null
+                                },
+                                {
+                                    "pid":  42956,
+                                    "decision":  "ALLOW",
+                                    "action":  "REPORT_ONLY",
+                                    "processName":  "MATLAB",
+                                    "executablePath":  "E:\\matlab\\bin\\win64\\MATLAB.exe"
+                                },
+                                {
+                                    "pid":  15392,
+                                    "decision":  "ALLOW",
+                                    "action":  "REPORT_ONLY",
+                                    "processName":  "MATLAB",
+                                    "executablePath":  "E:\\matlab\\bin\\win64\\MATLAB.exe"
+                                }
+                            ],
+    "judgement":  {
+                      "targetCount":  3,
+                      "ownedTargetCount":  2,
+                      "treeMatchesProductionFix":  true,
+                      "controlTargets":  [
+                                             {
+                                                 "pid":  6288,
+                                                 "owned":  false,
+                                                 "reason":  "SKIPPED_IDENTITY_MISMATCH"
+                                             }
+                                         ],
+                      "controlNotOverTrusted":  true,
+                      "oldPredicateWouldSay":  "SKIPPED_LAUNCHER_NOT_IN_CHAIN（旧实现只认直接父子 + 存根路径，孙进程恒判不归属）",
+                      "ownerRecordOnDiskForThatRun":  false,
+                      "ownerRecordNote":  "该轮运行的 owner-\u003crunid\u003e.json 已不在磁盘上（仓库与临时目录全盘检索无命中），不存在可授权终止的原始归属记录",
+                      "decision":  "KEEP（保留并记录）：42956 仍是 sessionDetails.json 对外公布的会话，最终门禁复跑要靠它；且没有该轮原始所有者文件，按失败关闭不得终止",
+                      "stopProcedure":  "需要释放时由人工执行：先用生产入口重建该轮归属（-SessionMode new 自行启动的那轮才会写 owner 文件），或人工在 MATLAB 里 exit；本轮不代替人工决定关闭"
+                  }
+}

@@ -1,0 +1,146 @@
+{
+    "schema":  "mas-s2-prefix-evidence/1",
+    "createdAt":  "2026-10-26T12:51:28.1511627+08:00",
+    "head":  "876a2b0c67dae275c199415752226ed71c9c344f",
+    "originalFromSkill":  {
+                              "label":  "original-from-installed-skill",
+                              "workingDirectory":  "E:\\desktop\\MATLAB\\artifacts\\s2\\pre-fix\\installed\\matlab-runner",
+                              "command":  "powershell -NoProfile -ExecutionPolicy Bypass -File .\\scripts\\Test-MatlabMcpExistingSession.ps1 -Json",
+                              "exitCode":  -196608,
+                              "output":  "-File 形式参数的实际参数“.\\scripts\\Test-MatlabMcpExistingSession.ps1”不存在。请提供现有“.ps1”文件的路径，作为 -File 形式参数的一个实际参数。\nWindows PowerShell\n版权所有（C） Microsoft Corporation。保留所有权利。\n\n安装最新的 PowerShell，了解新功能和改进！https://aka.ms/PSWindows\n"
+                          },
+    "originalFromProjectCwd":  {
+                                   "label":  "original-from-project-cwd",
+                                   "workingDirectory":  "E:\\desktop\\MATLAB\\artifacts\\s2\\pre-fix\\project-cwd",
+                                   "command":  "powershell -NoProfile -ExecutionPolicy Bypass -File E:\\desktop\\MATLAB\\artifacts\\s2\\pre-fix\\installed\\matlab-runner\\scripts\\Test-MatlabMcpExistingSession.ps1 -Json",
+                                   "exitCode":  -196608,
+                                   "output":  "-File 形式参数的实际参数“E:\\desktop\\MATLAB\\artifacts\\s2\\pre-fix\\installed\\matlab-runner\\scripts\\Test-MatlabMcpExistingSession.ps1”不存在。请提供现有“.ps1”文件的路径，作为 -File 形式参数的一个实际参数。\nWindows PowerShell\n版权所有（C） Microsoft Corporation。保留所有权利。\n\n安装最新的 PowerShell，了解新功能和改进！https://aka.ms/PSWindows\n"
+                               },
+    "closureChecks":  [
+                          {
+                              "relative":  "scripts\\Test-MatlabMcpExistingSession.ps1",
+                              "runnerInstalled":  false,
+                              "orchestratorInstalled":  false,
+                              "sourceExists":  true
+                          },
+                          {
+                              "relative":  "scripts\\MatlabAgentSkills.Acceptance.psm1",
+                              "runnerInstalled":  false,
+                              "orchestratorInstalled":  false,
+                              "sourceExists":  true
+                          },
+                          {
+                              "relative":  "scripts\\MatlabAgentSkills.Execution.psm1",
+                              "runnerInstalled":  false,
+                              "orchestratorInstalled":  false,
+                              "sourceExists":  true
+                          },
+                          {
+                              "relative":  "scripts\\MatlabAgentSkills.McpProbe.psm1",
+                              "runnerInstalled":  false,
+                              "orchestratorInstalled":  false,
+                              "sourceExists":  true
+                          },
+                          {
+                              "relative":  "scripts\\MatlabAgentSkills.Core.psm1",
+                              "runnerInstalled":  false,
+                              "orchestratorInstalled":  false,
+                              "sourceExists":  true
+                          },
+                          {
+                              "relative":  "schemas\\acceptance-report.schema.json",
+                              "runnerInstalled":  false,
+                              "orchestratorInstalled":  false,
+                              "sourceExists":  true
+                          }
+                      ],
+    "ladder":  [
+                   {
+                       "step":  1,
+                       "added":  "scripts\\Test-MatlabMcpExistingSession.ps1",
+                       "filesPresent":  [
+                                            "scripts\\Test-MatlabMcpExistingSession.ps1"
+                                        ],
+                       "exitCode":  1,
+                       "reportWritten":  false,
+                       "firstError":  "",
+                       "command":  "powershell -NoProfile -ExecutionPolicy Bypass -File E:\\desktop\\MATLAB\\artifacts\\s2\\pre-fix\\entry-only\\scripts\\Test-MatlabMcpExistingSession.ps1 -SessionFile E:\\desktop\\MATLAB\\artifacts\\s2\\pre-fix\\fake-session.json -OutputPath E:\\desktop\\MATLAB\\artifacts\\s2\\pre-fix\\evidence\\ladder-1-report.json -SkipStage5 -TimeoutSeconds 2 -Json",
+                       "outputTail":  "Import-Module : 未能加载指定的模块“E:\\desktop\\MATLAB\\artifacts\\s2\\pre-fix\\entry-only\\scripts\\MatlabAgentSkills.Acceptan\nce.psm1”，因为在任何模块目录中都没有找到有效模块文件。\n所在位置 E:\\desktop\\MATLAB\\artifacts\\s2\\pre-fix\\entry-only\\scripts\\Test-MatlabMcpExistingSession.ps1:43 字符: 1\n+ Import-Module (Join-Path $scriptDir \"MatlabAgentSkills.Acceptance.psm ...\n+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n    + CategoryInfo          : ResourceUnavailable: (E:\\desktop\\MATL...Acceptance.psm1:String) [Import-Module], FileNot \n   FoundException\n    + FullyQualifiedErrorId : Modules_ModuleNotFound,Microsoft.PowerShell.Commands.ImportModuleCommand\n "
+                   },
+                   {
+                       "step":  2,
+                       "added":  "scripts\\MatlabAgentSkills.Acceptance.psm1",
+                       "filesPresent":  [
+                                            "scripts\\Test-MatlabMcpExistingSession.ps1",
+                                            "scripts\\MatlabAgentSkills.Acceptance.psm1"
+                                        ],
+                       "exitCode":  1,
+                       "reportWritten":  false,
+                       "firstError":  "",
+                       "command":  "powershell -NoProfile -ExecutionPolicy Bypass -File E:\\desktop\\MATLAB\\artifacts\\s2\\pre-fix\\entry-only\\scripts\\Test-MatlabMcpExistingSession.ps1 -SessionFile E:\\desktop\\MATLAB\\artifacts\\s2\\pre-fix\\fake-session.json -OutputPath E:\\desktop\\MATLAB\\artifacts\\s2\\pre-fix\\evidence\\ladder-2-report.json -SkipStage5 -TimeoutSeconds 2 -Json",
+                       "outputTail":  "Import-Module : 未能加载指定的模块“E:\\desktop\\MATLAB\\artifacts\\s2\\pre-fix\\entry-only\\scripts\\MatlabAgentSkills.Executio\nn.psm1”，因为在任何模块目录中都没有找到有效模块文件。\n所在位置 E:\\desktop\\MATLAB\\artifacts\\s2\\pre-fix\\entry-only\\scripts\\Test-MatlabMcpExistingSession.ps1:44 字符: 1\n+ Import-Module (Join-Path $scriptDir \"MatlabAgentSkills.Execution.psm1 ...\n+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n    + CategoryInfo          : ResourceUnavailable: (E:\\desktop\\MATL....Execution.psm1:String) [Import-Module], FileNot \n   FoundException\n    + FullyQualifiedErrorId : Modules_ModuleNotFound,Microsoft.PowerShell.Commands.ImportModuleCommand\n "
+                   },
+                   {
+                       "step":  3,
+                       "added":  "scripts\\MatlabAgentSkills.Execution.psm1",
+                       "filesPresent":  [
+                                            "scripts\\Test-MatlabMcpExistingSession.ps1",
+                                            "scripts\\MatlabAgentSkills.Acceptance.psm1",
+                                            "scripts\\MatlabAgentSkills.Execution.psm1"
+                                        ],
+                       "exitCode":  1,
+                       "reportWritten":  false,
+                       "firstError":  "",
+                       "command":  "powershell -NoProfile -ExecutionPolicy Bypass -File E:\\desktop\\MATLAB\\artifacts\\s2\\pre-fix\\entry-only\\scripts\\Test-MatlabMcpExistingSession.ps1 -SessionFile E:\\desktop\\MATLAB\\artifacts\\s2\\pre-fix\\fake-session.json -OutputPath E:\\desktop\\MATLAB\\artifacts\\s2\\pre-fix\\evidence\\ladder-3-report.json -SkipStage5 -TimeoutSeconds 2 -Json",
+                       "outputTail":  "Import-Module : 未能加载指定的模块“E:\\desktop\\MATLAB\\artifacts\\s2\\pre-fix\\entry-only\\scripts\\MatlabAgentSkills.McpProbe\n.psm1”，因为在任何模块目录中都没有找到有效模块文件。\n所在位置 E:\\desktop\\MATLAB\\artifacts\\s2\\pre-fix\\entry-only\\scripts\\Test-MatlabMcpExistingSession.ps1:45 字符: 1\n+ Import-Module (Join-Path $scriptDir \"MatlabAgentSkills.McpProbe.psm1\" ...\n+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n    + CategoryInfo          : ResourceUnavailable: (E:\\desktop\\MATL...s.McpProbe.psm1:String) [Import-Module], FileNot \n   FoundException\n    + FullyQualifiedErrorId : Modules_ModuleNotFound,Microsoft.PowerShell.Commands.ImportModuleCommand\n "
+                   },
+                   {
+                       "step":  4,
+                       "added":  "scripts\\MatlabAgentSkills.McpProbe.psm1",
+                       "filesPresent":  [
+                                            "scripts\\Test-MatlabMcpExistingSession.ps1",
+                                            "scripts\\MatlabAgentSkills.Acceptance.psm1",
+                                            "scripts\\MatlabAgentSkills.Execution.psm1",
+                                            "scripts\\MatlabAgentSkills.McpProbe.psm1"
+                                        ],
+                       "exitCode":  1,
+                       "reportWritten":  false,
+                       "firstError":  "    + CategoryInfo          : ObjectNotFound: (Get-FileSha256:String) [Invoke-McpStagedProbe], CommandNotFoundExceptio ",
+                       "command":  "powershell -NoProfile -ExecutionPolicy Bypass -File E:\\desktop\\MATLAB\\artifacts\\s2\\pre-fix\\entry-only\\scripts\\Test-MatlabMcpExistingSession.ps1 -SessionFile E:\\desktop\\MATLAB\\artifacts\\s2\\pre-fix\\fake-session.json -OutputPath E:\\desktop\\MATLAB\\artifacts\\s2\\pre-fix\\evidence\\ladder-4-report.json -SkipStage5 -TimeoutSeconds 2 -Json",
+                       "outputTail":  "Invoke-McpStagedProbe : 无法将“Get-FileSha256”项识别为 cmdlet、函数、脚本文件或可运行程序的名称。请检查名称的拼写，如果包\n括路径，请确保路径正确，然后再试一次。\n所在位置 E:\\desktop\\MATLAB\\artifacts\\s2\\pre-fix\\entry-only\\scripts\\Test-MatlabMcpExistingSession.ps1:69 字符: 11\n+ $report = Invoke-McpStagedProbe @probeParams\n+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n    + CategoryInfo          : ObjectNotFound: (Get-FileSha256:String) [Invoke-McpStagedProbe], CommandNotFoundExceptio \n   n\n    + FullyQualifiedErrorId : CommandNotFoundException,Invoke-McpStagedProbe\n "
+                   },
+                   {
+                       "step":  5,
+                       "added":  "scripts\\MatlabAgentSkills.Core.psm1",
+                       "filesPresent":  [
+                                            "scripts\\Test-MatlabMcpExistingSession.ps1",
+                                            "scripts\\MatlabAgentSkills.Acceptance.psm1",
+                                            "scripts\\MatlabAgentSkills.Execution.psm1",
+                                            "scripts\\MatlabAgentSkills.McpProbe.psm1",
+                                            "scripts\\MatlabAgentSkills.Core.psm1"
+                                        ],
+                       "exitCode":  1,
+                       "reportWritten":  true,
+                       "firstError":  "                                       \"missingCommand\":  0,",
+                       "command":  "powershell -NoProfile -ExecutionPolicy Bypass -File E:\\desktop\\MATLAB\\artifacts\\s2\\pre-fix\\entry-only\\scripts\\Test-MatlabMcpExistingSession.ps1 -SessionFile E:\\desktop\\MATLAB\\artifacts\\s2\\pre-fix\\fake-session.json -OutputPath E:\\desktop\\MATLAB\\artifacts\\s2\\pre-fix\\evidence\\ladder-5-report.json -SkipStage5 -TimeoutSeconds 2 -Json",
+                       "outputTail":  "    \"overallStatus\":  \"FAIL\",\n    \"achievedLevel\":  \"L0\",\n    \"limitations\":  [\n                        \"阶段 1b（许可证）默认 SKIP：只有指定 -VerifyLicense 时才启动 MATLAB 校验。\",\n                        \"阶段 3~5 依赖真实 MCP server 的实现细节（端点路径、鉴权头、工具名）；未匹配时输出 FAIL/SKIP 并给出原因，不会偽造 PASS。\"\n                    ],\n    \"unexecuted\":  [\n\n                   ]\n}"
+                   },
+                   {
+                       "step":  6,
+                       "added":  "schemas\\acceptance-report.schema.json",
+                       "filesPresent":  [
+                                            "scripts\\Test-MatlabMcpExistingSession.ps1",
+                                            "scripts\\MatlabAgentSkills.Acceptance.psm1",
+                                            "scripts\\MatlabAgentSkills.Execution.psm1",
+                                            "scripts\\MatlabAgentSkills.McpProbe.psm1",
+                                            "scripts\\MatlabAgentSkills.Core.psm1",
+                                            "schemas\\acceptance-report.schema.json"
+                                        ],
+                       "exitCode":  1,
+                       "reportWritten":  true,
+                       "firstError":  "                                       \"missingCommand\":  0,",
+                       "command":  "powershell -NoProfile -ExecutionPolicy Bypass -File E:\\desktop\\MATLAB\\artifacts\\s2\\pre-fix\\entry-only\\scripts\\Test-MatlabMcpExistingSession.ps1 -SessionFile E:\\desktop\\MATLAB\\artifacts\\s2\\pre-fix\\fake-session.json -OutputPath E:\\desktop\\MATLAB\\artifacts\\s2\\pre-fix\\evidence\\ladder-6-report.json -SkipStage5 -TimeoutSeconds 2 -Json",
+                       "outputTail":  "    \"overallStatus\":  \"FAIL\",\n    \"achievedLevel\":  \"L0\",\n    \"limitations\":  [\n                        \"阶段 1b（许可证）默认 SKIP：只有指定 -VerifyLicense 时才启动 MATLAB 校验。\",\n                        \"阶段 3~5 依赖真实 MCP server 的实现细节（端点路径、鉴权头、工具名）；未匹配时输出 FAIL/SKIP 并给出原因，不会偽造 PASS。\"\n                    ],\n    \"unexecuted\":  [\n\n                   ]\n}"
+                   }
+               ]
+}

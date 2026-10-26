@@ -9,6 +9,21 @@ Use this skill when the deliverable is a validated number: an integral, a soluti
 a fit, a p-value, an uncertainty, or a figure whose axis is backed by arithmetic. The
 plot is never the evidence.
 
+## Skill Root
+
+The installed directory containing this `SKILL.md` is the resource root. Add its
+helper folder for the current MATLAB session only — never through `savepath`,
+`startup.m`, or a global path edit:
+
+```matlab
+skillRoot = '<absolute path to the installed matlab-data-analysis Skill directory>';
+addpath(fullfile(skillRoot, 'scripts'));
+```
+
+Resolve `references/`, `tests/`, and helper calls from that root, not from the
+caller's working directory. If a shipped helper or reference is missing, report the
+exact path and reinstall the Skill; do not scan the disk for a substitute.
+
 ## Workflow
 
 1. 任务识别 — State the quantity, its units, the tolerance that makes it acceptable, and

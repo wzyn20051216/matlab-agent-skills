@@ -7,6 +7,21 @@ description: MATLAB and Simulink workflow for creating, inspecting, modifying, s
 
 Use this skill for model-based design and simulation workflows.
 
+## Skill Root
+
+The installed directory containing this `SKILL.md` is the resource root. Add its
+helper folder for the current MATLAB session only — never through `savepath`,
+`startup.m`, or a global path edit:
+
+```matlab
+skillRoot = '<absolute path to the installed matlab-simulink-modeling Skill directory>';
+addpath(fullfile(skillRoot, 'scripts'));
+```
+
+Resolve `references/`, `tests/`, and helper calls from that root, not from the
+caller's working directory. If a shipped helper or reference is missing, report the
+exact path and reinstall the Skill; do not scan the disk for a substitute.
+
 ## First Checks
 
 1. Confirm the product with the precheck, not by guessing a license string:
@@ -120,7 +135,7 @@ When a Simulink build waits on external tools, diagnose the boundary instead of 
 
 - If the model simulates but build hangs, inspect generated build logs, `STM32CubeMX.log`, temporary script files, and active `java.exe`, compiler, or CubeMX processes.
 - For STM32 builds, verify the `.ioc` is bound through `STM32CubeMX.ProjectFile`; a CubeMX installation alone is not enough.
-- Check whether the project path contains non-ASCII characters, spaces, or very long segments. Copy to a short ASCII scratch path such as `C:\codex_build\project_name` for one isolation run.
+- Check whether the project path contains non-ASCII characters, spaces, or very long segments. Copy to a short ASCII scratch path such as `<short-ascii-scratch>\project_name` for one isolation run.
 - Distinguish direct tool availability from MATLAB registration. MATLAB may fail even when a desktop shortcut launches the tool.
 - Record the exact phase that passed: diagram update, simulation, code generation, CubeMX generation, compiler build, or binary creation.
 
@@ -142,15 +157,16 @@ Always report model path, stop time, solver, changed blocks, logged signals, and
 
 ## Verify A Model By Level, Not By Hope
 
-A saved `.slx` is not a working model. Phase 3B.2 generated a converter model that
-simulated happily while applying a zero duty for the first period, because a Unit
-Delay defaults to 0. Grade the model instead of asserting it works:
+A saved `.slx` is not a working model. A converter model can simulate happily while
+applying a zero duty for the first period, because a Unit Delay defaults to 0. Grade
+the model instead of asserting it works:
 
 ```matlab
-r = mas_model_check('matlab/boost/models/boost_avg.slx', struct('tStop',0.01));
+r = mas_model_check(fullfile(pwd, 'models', 'boost_avg.slx'), struct('tStop',0.01));
 r.level   % L0 missing | L1 loads | L2 updates | L3 simulates with finite signals
 ```
 
 `L3` is the first level that means anything numerically. Toolboxes are checked with
 `mas_precheck('toolbox', ...)`, never by calling `license` with a product name.
-`tests/test_model_check.m` pins a real model at L3 and a missing file at L0.
+The Skill's own `tests/test_model_check.m` pins a real model fixture at L3 and a
+missing file at L0.

@@ -1,0 +1,9 @@
+
+	Sponsored License -- for use in support of a program or activity sponsored by MathWorks.
+	Not for government, commercial or other non-sponsored organizational use.
+
+[警告: 名称不存在或不是目录: E:\desktop\MATLAB\artifacts\s2\evidence\task6\matlab\validation\phase4] 
+[> 位置：path (第 89 行)
+位置: addpath (第 70 行)
+位置: run_s2_regression (第 2 行)
+位置: run (第 100 行)] 

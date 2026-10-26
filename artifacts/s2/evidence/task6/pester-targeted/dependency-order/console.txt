@@ -1,0 +1,25 @@
+==> 使用 Pester 3.4.0 (C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Pester.psd1) [installed]
+==> 运行 [free] DependencyOrder.Tests.ps1
+
+
+
+
+
+Describing 依赖检查顺序
+ [+] 验证脚本目录存在且包含 .m 脚本 647ms
+   Context matlab_codegen_smoke.m
+    [+] 使用 Coder/Slbuild 的脚本必须先做依赖检测 307ms
+    [+] 首次 Coder 调用（行 58）必须晚于首次依赖检测 34ms
+   Context matlab_compiler_chain_smoke.m
+    [+] 使用 Coder/Slbuild 的脚本必须先做依赖检测 83ms
+    [+] 首次 Coder 调用（行 62）必须晚于首次依赖检测 21ms
+   Context simulink_coder_smoke.m
+    [+] 使用 Coder/Slbuild 的脚本必须先做依赖检测 123ms
+    [+] 首次 Coder 调用（行 232）必须晚于首次依赖检测 20ms
+ [+] matlab_codegen_smoke.m 的参数构造已被移入 try 块 71ms
+Tests completed in 1.31s
+Passed: 8 Failed: 0 Skipped: 0 Pending: 0 Inconclusive: 0
+
+==> 汇总: 共 8 个用例，通过 8，失败 0，跳过 0
+    层 free: 已执行 8 个用例，通过 8，失败 0，耗时 1.5s
+==> 层报告: artifacts/s2/evidence/task6/pester-targeted/dependency-order/layer_report.json

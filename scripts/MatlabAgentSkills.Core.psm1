@@ -93,6 +93,85 @@ function Get-FileSha256 {
     }
 }
 
+function Protect-MasText {
+    <#
+    .SYNOPSIS
+    统一凭据脱敏：报告、审计、阶段日志落盘前都必须经过这里。
+
+    .DESCRIPTION
+    真实泄露不是明文 JSON 字段，而是客户端事件流里再次转义的
+    `\"apiKey\": \"...\"`，以及 agent 命令行里的 `--api-key` / Bearer。
+    因此这里一次覆盖六种形态：
+
+      1. 普通 JSON 字段（字段名与值一起移除，避免“值没了但字段名还在”被误判）；
+      2. 转义 / 嵌套 JSON（一层或多层反斜杠）；
+      3. x-api-key 等请求头；
+      4. Authorization: Bearer|Basic；
+      5. --api-key <v> / --api-key=<v>；
+      6. 裸 UUID 或 >=32 位十六进制令牌。
+
+    已知密钥字面值（-Secrets）先做整串替换。最后如果某行仍残留
+    “凭据字段名 + 未脱敏值”，整行替换为 [REDACTED:credential-line]。
+    无敏感内容的文本逐字节返回，避免正常日志被改写。
+    #>
+    [CmdletBinding()]
+    param(
+        [AllowNull()][AllowEmptyString()][string]$Text,
+        [string[]]$Secrets = @()
+    )
+
+    if ([string]::IsNullOrEmpty($Text)) { return "" }
+    $result = $Text
+
+    foreach ($secret in @($Secrets)) {
+        if ([string]::IsNullOrEmpty($secret) -or $secret.Length -lt 4) { continue }
+        $result = $result.Replace($secret, '[REDACTED]')
+    }
+
+    $keyPattern = '(?:api[_-]?key|x-api-key|authorization|proxy-authorization|access[_-]?token|refresh[_-]?token|client[_-]?secret|password|token|certificate)'
+
+    # JSON 字段：保留转义层级（\" / \\\"），字段名替换为不含凭据关键字的唯一名。
+    $jsonFieldPattern = '(?i)((?:\\*"))' + $keyPattern + '((?:\\*")\s*:\s*(?:\\*"))((?:[^"\\]|\\.)*)((?:\\*"))'
+    $fieldState = @{ Count = 0 }
+    $jsonEvaluator = {
+        param($match)
+        $fieldState.Count++
+        $quote = $match.Groups[1].Value
+        return $quote + 'redacted_field_' + $fieldState.Count + $quote + ':' +
+            $quote + '[REDACTED]' + $match.Groups[4].Value
+    }
+    $result = [regex]::Replace($result, $jsonFieldPattern, $jsonEvaluator)
+
+    $result = [regex]::Replace(
+        $result,
+        '(?i)\b(bearer|basic)(\s+)([A-Za-z0-9._~+/=\-]{8,})',
+        '$1$2[REDACTED]')
+    $result = [regex]::Replace(
+        $result,
+        '(?i)(--api[-_]?key(?:=|\s+))([^\s,;"'']+)',
+        '$1[REDACTED]')
+    $result = [regex]::Replace(
+        $result,
+        '(?i)(?<![A-Za-z0-9])' + $keyPattern + '(?![A-Za-z0-9])\s*[:=]\s*(?!\[REDACTED)([^\s,;"'']+)',
+        '[REDACTED_FIELD]')
+    $result = [regex]::Replace(
+        $result,
+        '\b[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}\b',
+        '[REDACTED]')
+    $result = [regex]::Replace($result, '\b[0-9a-fA-F]{32,}\b', '[REDACTED]')
+
+    $residualPattern = '(?i)(?<![A-Za-z0-9])' + $keyPattern + '(?![A-Za-z0-9])\s*[:=](?!\s*\[REDACTED)'
+    if ($result -match $residualPattern) {
+        $lines = $result -split "`r?`n"
+        for ($index = 0; $index -lt $lines.Count; $index++) {
+            if ($lines[$index] -match $residualPattern) { $lines[$index] = '[REDACTED:credential-line]' }
+        }
+        $result = $lines -join "`n"
+    }
+
+    return $result
+}
+
 #endregion
 
 #region MATLAB MCP 参数构造（P0-1）
@@ -1245,7 +1324,13 @@ function Get-DirectoryTreeHash {
     不参与聚合的相对路径（用户自己新增的文件），用于判断"受管内容是否一致"。
     #>
     [CmdletBinding()]
-    param([Parameter(Mandatory)][string]$Path, [string[]]$ExcludeRelative = @())
+    param(
+        [Parameter(Mandatory)][string]$Path,
+        [string[]]$ExcludeRelative = @(),
+        # 安装器把 payload 覆盖到 Skill 目录后再计算物理指纹；同步判定需要用同一算法
+        # 计算“源目录 + payload”的虚拟指纹，否则重复同步会被误判成变更。
+        [object[]]$AdditionalFiles = @()
+    )
 
     if (-not (Test-Path -LiteralPath $Path)) { return $null }
     $resolved = (Resolve-Path -LiteralPath $Path).Path
@@ -1256,14 +1341,51 @@ function Get-DirectoryTreeHash {
     }
 
     $lines = New-Object System.Collections.Generic.List[string]
-    Get-ChildItem -LiteralPath $resolved -Recurse -File -Force -ErrorAction SilentlyContinue |
-        Sort-Object FullName |
-        ForEach-Object {
-            $relative = $_.FullName.Substring($resolved.Length) -replace '^[\\/]+', '' -replace '\\', '/'
-            if ($excluded.Contains($relative)) { return }
-            $fileHash = Get-FileSha256 -Path $_.FullName
-            $lines.Add("$($relative.ToLowerInvariant())|$fileHash")
+    if (@($AdditionalFiles).Count -eq 0) {
+        Get-ChildItem -LiteralPath $resolved -Recurse -File -Force -ErrorAction SilentlyContinue |
+            Sort-Object FullName |
+            ForEach-Object {
+                $relative = $_.FullName.Substring($resolved.Length) -replace '^[\\/]+', '' -replace '\\', '/'
+                if ($excluded.Contains($relative)) { return }
+                $fileHash = Get-FileSha256 -Path $_.FullName
+                $lines.Add("$($relative.ToLowerInvariant())|$fileHash")
+            }
+    }
+    else {
+        $entries = New-Object System.Collections.Generic.List[object]
+        $seen = New-Object 'System.Collections.Generic.HashSet[string]' ([StringComparer]::OrdinalIgnoreCase)
+        Get-ChildItem -LiteralPath $resolved -Recurse -File -Force -ErrorAction SilentlyContinue |
+            ForEach-Object {
+                $relative = $_.FullName.Substring($resolved.Length) -replace '^[\\/]+', '' -replace '\\', '/'
+                if ($excluded.Contains($relative)) { return }
+                [void]$seen.Add($relative)
+                $entries.Add([pscustomobject]@{ SortKey = $_.FullName; FullName = $_.FullName; Relative = $relative })
+            }
+        foreach ($additional in @($AdditionalFiles)) {
+            $sourcePath = [string]$additional.Source
+            $targetPath = ([string]$additional.Target -replace '\\', '/').TrimStart('/')
+            if ([string]::IsNullOrWhiteSpace($sourcePath) -or [string]::IsNullOrWhiteSpace($targetPath)) {
+                throw "附加文件缺少 Source/Target: $targetPath"
+            }
+            if ($targetPath -match '(^|/)\.\.?(/|$)' -or [IO.Path]::IsPathRooted($targetPath)) {
+                throw "附加文件目标路径不安全: $targetPath"
+            }
+            if (-not $seen.Add($targetPath)) { throw "附加文件目标重复: $targetPath" }
+            if (-not (Test-Path -LiteralPath $sourcePath -PathType Leaf)) {
+                throw "附加文件源不存在: $sourcePath"
+            }
+            $nativeTarget = $targetPath -replace '/', [IO.Path]::DirectorySeparatorChar
+            $entries.Add([pscustomobject]@{
+                    SortKey  = Join-Path $resolved $nativeTarget
+                    FullName = $sourcePath
+                    Relative = $targetPath
+                })
         }
+        $entries | Sort-Object SortKey | ForEach-Object {
+            $fileHash = Get-FileSha256 -Path $_.FullName
+            $lines.Add("$($_.Relative.ToLowerInvariant())|$fileHash")
+        }
+    }
 
     $joined = ($lines -join "`n")
     $bytes = [System.Text.Encoding]::UTF8.GetBytes($joined)
@@ -1357,25 +1479,31 @@ function Sync-SkillDirectory {
         [bool]$IsManaged = $false,
         $Session = $null,
         [string]$BackupRoot = "",
+        [object[]]$PayloadFiles = @(),
         [switch]$Force,
         [switch]$DryRun
     )
 
+    $payloadTargets = @($PayloadFiles | ForEach-Object { ([string]$_.Target -replace '\\', '/').TrimStart('/') } |
+            Where-Object { $_ })
     # 用户自己加进技能目录的文件（源目录没有的相对路径）不能在升级时被静默删掉；
     # 同时它们不参与"受管内容是否一致"的判定，否则每次同步都会被判成 update。
+    # payload 虽然不在源目录里，但它属于受管内容，必须计入源侧。
     $localExtras = @()
     if (Test-Path -LiteralPath $Destination) {
         $sourceRelative = New-Object 'System.Collections.Generic.HashSet[string]' ([StringComparer]::OrdinalIgnoreCase)
         foreach ($file in @(Get-ChildItem -LiteralPath $Source -Recurse -File -Force)) {
-            [void]$sourceRelative.Add($file.FullName.Substring($Source.Length).TrimStart([char[]]'\/'))
+            $relative = $file.FullName.Substring($Source.Length).TrimStart([char[]]'\/') -replace '\\', '/'
+            [void]$sourceRelative.Add($relative)
         }
+        foreach ($target in $payloadTargets) { [void]$sourceRelative.Add($target) }
         foreach ($file in @(Get-ChildItem -LiteralPath $Destination -Recurse -File -Force)) {
-            $relative = $file.FullName.Substring($Destination.Length).TrimStart([char[]]'\/')
+            $relative = $file.FullName.Substring($Destination.Length).TrimStart([char[]]'\/') -replace '\\', '/'
             if (-not $sourceRelative.Contains($relative)) { $localExtras += $relative }
         }
     }
 
-    $sourceHash = Get-DirectoryTreeHash -Path $Source
+    $sourceHash = Get-DirectoryTreeHash -Path $Source -AdditionalFiles $PayloadFiles
     $destinationHash = Get-DirectoryTreeHash -Path $Destination -ExcludeRelative $localExtras
     $decision = Get-SkillSyncDecision -SourceHash $sourceHash -DestinationHash $destinationHash `
         -IsManaged $IsManaged -Force:$Force
@@ -1393,6 +1521,7 @@ function Sync-SkillDirectory {
         RestoredFromBackup = $false
         RecreatedFiles  = 0
         MissingAfterRestore = @()
+        PayloadFileCount = $payloadTargets.Count
     }
 
     switch ($decision) {
@@ -1421,6 +1550,21 @@ function Sync-SkillDirectory {
     $staging = "$Destination.__incoming__$([guid]::NewGuid().ToString('N'))"
     try {
         Copy-Item -LiteralPath $Source -Destination $staging -Recurse -Force
+        foreach ($payload in @($PayloadFiles)) {
+            $nativeTarget = ([string]$payload.Target -replace '\\', '/').TrimStart('/') -replace '/', [IO.Path]::DirectorySeparatorChar
+            $stagedTarget = Join-Path $staging $nativeTarget
+            $stagedParent = Split-Path -Parent $stagedTarget
+            if ($stagedParent -and -not (Test-Path -LiteralPath $stagedParent)) {
+                New-Item -ItemType Directory -Force -Path $stagedParent | Out-Null
+            }
+            Copy-Item -LiteralPath $payload.Source -Destination $stagedTarget -Force -ErrorAction Stop
+        }
+        # 暂存目录已经是“最终会安装成什么样”的物理目录；它必须与虚拟源指纹一致，
+        # 否则重复同步会永远判成 update，或把错误内容当成成功安装。
+        $stagingHash = Get-DirectoryTreeHash -Path $staging
+        if ($stagingHash -ne $sourceHash) {
+            throw "PAYLOAD_STAGING_MISMATCH: 暂存目录指纹与源+payload 不一致"
+        }
 
         if (Test-Path -LiteralPath $Destination) {
             if ($null -ne $Session) {
@@ -1440,11 +1584,17 @@ function Sync-SkillDirectory {
         }
 
         Move-Item -LiteralPath $staging -Destination $Destination -ErrorAction Stop
-        # 交换后自检：目标必须包含源目录的全部文件，否则判失败并进入恢复路径。
-        $missingAfterSwap = @(Get-ChildItem -LiteralPath $Source -Recurse -File -Force | Where-Object {
-            $relativeFile = $_.FullName.Substring($Source.Length).TrimStart([char[]]'\/')
-            -not (Test-Path -LiteralPath (Join-Path $Destination $relativeFile))
-        })
+        # 交换后自检：目标必须包含源目录与 payload 的全部文件，否则判失败并进入恢复路径。
+        $expectedRelative = New-Object System.Collections.Generic.List[string]
+        foreach ($file in @(Get-ChildItem -LiteralPath $Source -Recurse -File -Force)) {
+            $expectedRelative.Add($file.FullName.Substring($Source.Length).TrimStart([char[]]'\/'))
+        }
+        foreach ($target in $payloadTargets) {
+            $expectedRelative.Add(($target -replace '/', [IO.Path]::DirectorySeparatorChar))
+        }
+        $missingAfterSwap = @($expectedRelative | Where-Object {
+                -not (Test-Path -LiteralPath (Join-Path $Destination $_))
+            })
         if ($missingAfterSwap.Count -gt 0) {
             throw "SYNC_INCOMPLETE: 交换后缺少 $($missingAfterSwap.Count) 个文件"
         }

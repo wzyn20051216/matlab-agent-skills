@@ -1,0 +1,71 @@
+{
+    "schemaVersion":  "mas-s3-stale-session-ready/1",
+    "generatedAtUtc":  "2026-10-26T13:09:15.1178097Z",
+    "purpose":  "只读核验 2026-10-17 残留的 session_ready.json 是否确属过期证据；不删除、不覆盖",
+    "file":  {
+                 "before":  {
+                                "path":  "E:\\desktop\\MATLAB\\artifacts\\tmp_probe\\session_ready.json",
+                                "sizeBytes":  244,
+                                "lastWriteUtc":  "2026-10-17T12:52:34.3547109Z",
+                                "sha256":  "fbaa0d7a3c95d6fb7ab51e95ac7c143d6afc9cedd12803408df1b743dfd508f6"
+                            },
+                 "after":  {
+                               "path":  "E:\\desktop\\MATLAB\\artifacts\\tmp_probe\\session_ready.json",
+                               "sizeBytes":  244,
+                               "lastWriteUtc":  "2026-10-17T12:52:34.3547109Z",
+                               "sha256":  "fbaa0d7a3c95d6fb7ab51e95ac7c143d6afc9cedd12803408df1b743dfd508f6"
+                           },
+                 "byteForByteUnchanged":  true,
+                 "trackedByGit":  false,
+                 "ignoredBy":  ".gitignore:1:artifacts/\tartifacts/tmp_probe/session_ready.json",
+                 "containsSecretFields":  [
+                                              "certificate",
+                                              "apiKey"
+                                          ]
+             },
+    "fieldEvidence":  {
+                          "port":  31516,
+                          "pid":  38668,
+                          "apiKeyLength":  16,
+                          "apiKeySha16":  "e87d592931843721",
+                          "certificateLength":  69,
+                          "certificateSha16":  "948c030ff56c232e",
+                          "valuesPrinted":  false
+                      },
+    "processEvidence":  {
+                            "recordedPidAlive":  false,
+                            "recordedPidName":  null,
+                            "portStillListening":  true,
+                            "currentListenerPid":  29872,
+                            "currentListenerName":  "MATLAB",
+                            "currentListenerStartUtc":  "2026-10-26T03:32:21.5699177Z",
+                            "listenerIsRecordedPid":  false
+                        },
+    "liveSession":  {
+                        "port":  31520,
+                        "pid":  42956,
+                        "apiKeySha16":  "a1c4d3f5e289147c",
+                        "apiKeyLength":  16
+                    },
+    "crossCheck":  {
+                       "exposedS1CredentialSha16":  "852b6e6d822c1bd9",
+                       "staleFileCredentialSha16":  "e87d592931843721",
+                       "liveDescriptorCredentialSha16":  "a1c4d3f5e289147c",
+                       "staleEqualsExposed":  false,
+                       "staleEqualsLive":  false
+                   },
+    "conclusion":  {
+                       "verdict":  "EXPIRED_INFERRED（可证明惰性，非\"已验证被拒绝\"）",
+                       "basis":  [
+                                     "铸造这份凭据的 MATLAB 进程（pid 38668）已退出：连接器凭据只存活于该进程内部，进程不在则该值不再被任何服务持有",
+                                     "文件里的端口 31516 现在由 pid 29872 监听，与铸造进程不是同一个；该进程自己铸造了另一份凭据（见 liveSession.apiKeySha16），与本文件记录值不同",
+                                     "本文件的凭据哈希既不等于 S1 泄露的那一份，也不等于当前会话描述符里的那一份，是三份互不相同的值"
+                                 ],
+                       "limits":  [
+                                      "没有正向重放测试：拿这份凭据去连当前服务 = 使用发现的凭据，本轮约束明确禁止，因此\"失效\"是推断而非观测",
+                                      "端口被别的进程复用本身不构成\"旧凭据失效\"的证据（S3 §1 已因同类误判撤回过一条依据），这里的依据是\"监听者换了进程、凭据由新进程重新铸造\"",
+                                      "若日后需要确证，唯一正路是由人工在授权环境里对该服务做一次鉴权测试，并只记录接受/拒绝结果"
+                                  ],
+                       "action":  "KEEP_UNCHANGED（保留、不删除、不覆盖）：核验前后 size/mtime/SHA-256 完全一致；该文件未被 git 跟踪且被 .gitignore 忽略，不会随提交外泄"
+                   }
+}

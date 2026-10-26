@@ -1,0 +1,79 @@
+==> 使用 Pester 3.4.0 (C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Pester.psd1) [installed]
+==> 运行 [free] MatlabAgentSkills.Core.Tests.ps1
+
+
+
+
+
+Describing MCP server 参数构造（P0-1：existing 模式非法参数）
+ [+] existing 模式只输出 --matlab-session-mode=existing 234ms
+ [+] existing 模式会显式记录被省略的参数 46ms
+ [+] auto 模式保留 display-mode / root / initialize 三项 6ms
+ [+] new 模式支持 nodesktop 6ms
+ [+] DisplayMode 为空时 auto 模式不输出 display-mode 14ms
+ [+] Test-McpServerArgsCompatible 判定合法 existing 参数无违规 9ms
+ [+] Test-McpServerArgsCompatible 能检出历史错误组合 5ms
+ [+] Get-MatlabMcpServerArgv 保持旧版扁平形状（向后兼容） 8ms
+Describing MCP 配置安全合并（P0-3：破坏性覆盖）
+ [+] 保留用户已有的其它 MCP server 与顶层键 291ms
+ [+] 重复写入相同条目返回 unchanged 且不产生备份 17ms
+ [+] 参数变化时 updated 并生成备份文件 46ms
+ [+] 配置文件 JSON 非法时中止且不改动原文件 19ms
+ [+] 写出的 JSON 不带 BOM 11ms
+==> [DryRun] 将创建 D:\Temp\mas-test-087d729537ab4960a81cba7f522a32a1\.mcp.json 中的 mcpServers.matlab-official（其余 0 个条目保持不变）
+ [+] DryRun 不写文件且返回 would_ 前缀动作 9ms
+ [+] 单元素 args 仍写成数组（不塌缩成字符串） 14ms
+Describing skills 冲突判定（P0-5：破坏性覆盖）
+ [+] 目标不存在时返回 install 19ms
+ [+] 哈希一致时返回 unchanged 4ms
+ [+] 非托管目录内容不同时返回 conflict 4ms
+ [+] 托管目录内容不同时返回 update 4ms
+ [+] 非托管目录加 -Force 时允许 update 3ms
+ [+] 目录指纹与路径无关，内容变化则变化 50ms
+Describing startup.m 托管块（P0-6：无备份的隐式改写）
+ [+] 首次写入创建托管块并保留用户已有内容 50ms
+ [+] 重复执行返回 unchanged 且内容逐字节不变（幂等） 34ms
+ [+] 用户自己已有 shareMATLABSession 调用时不覆盖 12ms
+ [+] DryRun 不落盘 6ms
+Describing 备份与回滚（P0-6）
+ [+] 文件备份后可逐字节还原 43ms
+ [+] 回滚会删除新建文件 13ms
+ [+] 目录备份后可整体还原 27ms
+ [+] 备份清单 record 数与操作数一致 32ms
+ [+] 无任何变更时不创建备份目录（重复安装零写入） 6ms
+Describing 客户端注册解析与幂等判定
+ [+] 能从 mcp get 输出解析 command 与 args 20ms
+ [+] 参数完全一致时判定为已注册（幂等） 8ms
+ [+] 参数不一致时判定为需要更新 17ms
+Describing 下载安全（P0-6：无校验远程下载）
+ [+] 拒绝非 HTTPS 下载地址 32ms
+ [+] SHA256 比较忽略大小写与分隔符 8ms
+==> [DryRun] 将下载 https://example.com/a.exe -> D:\Temp\mas-test-a52dc390a9454a7db7f0807762078634\srv.exe
+ [+] DryRun 下载不产生文件 7ms
+Describing 仓库卫生（P0-7：机器专属路径与编码）
+ [-] 仓库里没有盘符硬编码路径（E 盘 / D 盘） 569ms
+   Expected string length 0 but was 2212. Strings differ at index 0.
+   Expected: {}
+   But was:  {README.md:13;run_holdout.m:25;scoring_p56_retro.json:59;manifest.json:1;PHASE5_3_PROFESSIONAL_DEPTH_ZH.md:174;PHASE5_3_PROFESSIONAL_DEPTH_ZH.md:206;PHASE5_3_PROFESSIONAL_DEPTH_ZH.md:322;PHASE5_3_PROFESSIONAL_DEPTH_ZH.md:326;PHASE5_3_PROFESSIONAL_DEPTH_ZH.md:327;PHASE5_3_PROFESSIONAL_DEPTH_ZH.md:328;PHASE5_3_PROFESSIONAL_DEPTH_ZH.md:331;PHASE5_4_REAL_EXECUTION_ZH.md:4;PHASE5_4_REAL_EXECUTION_ZH.md:96;PHASE5_4_REAL_EXECUTION_ZH.md:126;PHASE5_4_REAL_EXECUTION_ZH.md:272;PHASE5_5_AUTONOMY_AND_GAIN_ZH.md:67;PHASE5_5_AUTONOMY_AND_GAIN_ZH.md:160;PHASE5_5_AUTONOMY_AND_GAIN_ZH.md:212;PHASE5_6_BENCHMARK_ZH.md:317;PHASE5_6_CODER_CHANNEL_ZH.md:3;PHASE5_6_CODER_CHANNEL_ZH.md:31;PHASE5_6_CODER_CHANNEL_ZH.md:40;PHASE5_6_CODER_CHANNEL_ZH.md:41;PHASE5_6_CODER_CHANNEL_ZH.md:42;PHASE5_6_CODER_CHANNEL_ZH.md:43;PHASE5_6_CODER_CHANNEL_ZH.md:120;PHASE5_6_CODER_CHANNEL_ZH.md:122;PHASE5_6_GAIN_ZH.md:150;PHASE5_6_GAIN_ZH.md:176;PHASE5_6_ISOLATION_ZH.md:4;PHASE5_6_ISOLATION_ZH.md:29;PHASE5_6_ISOLATION_ZH.md:103;PHASE5_6_ISOLATION_ZH.md:104;PHASE5_6_ISOLATION_ZH.md:105;PHASE5_6_ISOLATION_ZH.md:106;PHASE5_6_ISOLATION_ZH.md:107;PHASE5_6_ISOLATION_ZH.md:108;PHASE5_6_ISOLATION_ZH.md:109;PHASE5_6_ISOLATION_ZH.md:110;PHASE5_6_ISOLATION_ZH.md:131;PHASE5_6_PROTOCOL_ZH.md:24;PHASE5_7_CONCURRENCY_ZH.md:126;PHASE5_7_CONCURRENCY_ZH.md:133;PHASE5_7_FINAL_ZH.md:55;PHASE5_7_FINAL_ZH.md:178;PHASE5_7_INSTALL_ZH.md:35;PHASE5_7_INSTALL_ZH.md:37;PHASE5_7_ISOLATION_ZH.md:4;PHASE5_7_ISOLATION_ZH.md:5;PHASE5_7_ISOLATION_ZH.md:6;PHASE5_7_ISOLATION_ZH.md:7;PHASE5_7_ISOLATION_ZH.md:49;PHASE5_7_ISOLATION_ZH.md:74;PHASE5_7_ISOLATION_ZH.md:75;PHASE5_7_ISOLATION_ZH.md:152;PHASE5_7_ISOLATION_ZH.md:165;PHASE5_7_ISOLATION_ZH.md:166;p56_absence_scan.m:4;p56_absence_scan.m:25;p56_coder_channel_probe.m:4;p56_coder_drive_d.m:3;p56_coder_scripttop.m:3;p56_coder_syntax_probe.m:4;p56_session_reset.m:4;p56_session_reset.m:41;p56_stage.m:4;test_p56_session_reset.m:25;test_p56_session_reset.m:39;test_p56_stage.m:25;p57_delivery_audit.m:6;p57_delivery_audit.m:14;p57_grade_v2_replay.m:5;p57_grade_v2_replay.m:12;capability-matrix.json:377;capability-matrix.json:415;install-roots.json:35;SkillSync.Phase57.Tests.ps1:134 [scan=git-tracked; files=449]}
+   -----------^
+   507:         $summary | Should Be ""
+   位于 Should<End>，C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Functions\Assertions\Should.ps1: 行 92
+   位于 <ScriptBlock>，E:\desktop\MATLAB\tests\MatlabAgentSkills.Core.Tests.ps1: 行 507
+   位于 Invoke-Test，C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Functions\It.ps1: 行 253
+   位于 ItImpl，C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Functions\It.ps1: 行 203
+   位于 It，C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Functions\It.ps1: 行 117
+   位于 <ScriptBlock>，E:\desktop\MATLAB\tests\MatlabAgentSkills.Core.Tests.ps1: 行 432
+   位于 Describe，C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Functions\Describe.ps1: 行 100
+   位于 <ScriptBlock>，E:\desktop\MATLAB\tests\MatlabAgentSkills.Core.Tests.ps1: 行 427
+   位于 <ScriptBlock>，C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Pester.psm1: 行 297
+   位于 Invoke-Pester，C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Pester.psm1: 行 310
+   位于 <ScriptBlock>，E:\desktop\MATLAB\tests\Invoke-Tests.ps1: 行 177
+   位于 <ScriptBlock>，<No file>: 行 1
+ [+] 所有 PowerShell 脚本都能被 Windows PowerShell 5.1 解析 114ms
+ [+] 含非 ASCII 字符的脚本带 UTF-8 BOM（PS5.1 正确解码的前提） 16ms
+Tests completed in 1.85s
+Passed: 38 Failed: 1 Skipped: 0 Pending: 0 Inconclusive: 0
+
+==> 汇总: 共 39 个用例，通过 38，失败 1，跳过 0
+    层 free: 已执行 39 个用例，通过 38，失败 1，耗时 1.9s
+==> 层报告: E:\desktop\MATLAB\artifacts\s2\evidence\task6\core-suite-final-pwsh7

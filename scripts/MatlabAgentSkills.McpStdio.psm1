@@ -56,9 +56,18 @@ function Start-McpStdioServer {
     # MCP 是 UTF-8 JSON-RPC。不显式设置时，StandardInput 的 StreamWriter 用进程默认
     # 编码（Windows 上是 OEM 代码页），发送含非 ASCII 的 MATLAB 代码会被转码损坏
     # （实测：中文变成 U+FFFD 写进产物）。这里把三个流都钉死为 UTF-8。
-    $psi.StandardInputEncoding = New-Object System.Text.UTF8Encoding($false)
-    $psi.StandardOutputEncoding = New-Object System.Text.UTF8Encoding($false)
-    $psi.StandardErrorEncoding = New-Object System.Text.UTF8Encoding($false)
+    #
+    # 但 ProcessStartInfo.StandardInputEncoding 只存在于 .NET Core / PowerShell 7：
+    # 在 Windows PowerShell 5.1 上赋值会抛"在此对象上找不到属性 StandardInputEncoding"，
+    # 服务端进程因此根本没启动，整条 MCP 验收在 L1 就失败。所以这里按属性是否存在分流，
+    # 并在 5.1 上改用自建 UTF-8 流包装器（见下面的 InputStream / Reader）。
+    $utf8NoBom = New-Object System.Text.UTF8Encoding($false)
+    $supportsStreamEncoding = ($null -ne [System.Diagnostics.ProcessStartInfo].GetProperty("StandardInputEncoding"))
+    if ($supportsStreamEncoding) {
+        $psi.StandardInputEncoding = $utf8NoBom
+        $psi.StandardOutputEncoding = $utf8NoBom
+        $psi.StandardErrorEncoding = $utf8NoBom
+    }
     $psi.CreateNoWindow = $true
     $psi.WorkingDirectory = $WorkingDirectory
 
@@ -68,10 +77,16 @@ function Start-McpStdioServer {
     $startedAt = Get-Date
     $process.Start() | Out-Null
 
+    # 写入端始终由本模块自己持有 UTF-8 StreamWriter：
+    # 在 PS7 上它与 StandardInputEncoding 等价，在 5.1 上是唯一的正确路径。
+    $inputStream = New-Object System.IO.StreamWriter($process.StandardInput.BaseStream, $utf8NoBom)
+    $inputStream.AutoFlush = $true
+
     $session = [pscustomobject]@{
         Label        = $Label
         Process      = $process
-        Reader       = (New-Object System.IO.StreamReader($process.StandardOutput.BaseStream))
+        InputStream  = $inputStream
+        Reader       = (New-Object System.IO.StreamReader($process.StandardOutput.BaseStream, $utf8NoBom))
         ErrTask      = $process.StandardError.ReadToEndAsync()
         NextId       = 0
         StartedAt    = $startedAt
@@ -152,8 +167,8 @@ function Send-McpStdioRequest {
     }
 
     try {
-        $Session.Process.StandardInput.WriteLine($json)
-        $Session.Process.StandardInput.Flush()
+        $Session.InputStream.WriteLine($json)
+        $Session.InputStream.Flush()
         $outcome.RequestBytes = [System.Text.Encoding]::UTF8.GetByteCount($json)
     }
     catch {
@@ -399,14 +414,26 @@ function Protect-McpSensitiveText {
     真实工具输出会带上 "MATLAB 许可证编号: 41305290" 这类信息；
     sessionDetails.json 里的 apiKey 也可能出现在诊断文本里。
     验收报告是会被提交/分享的产物，不应该顺带把凭据带走。
+
+    脱敏规则统一由 Core 的 Protect-MasText 实现：这里只保留入口名与
+    许可证号处理，避免两个模块的凭据正则各自演化后再次漏掉转义 JSON。
     #>
     param([AllowNull()][AllowEmptyString()][string]$Text)
 
     if ([string]::IsNullOrEmpty($Text)) { return "" }
-    $result = $Text
-    $result = [regex]::Replace($result, '(?i)(许可证编号|License\s*Number|License\s*No\.?)\s*[:：=]\s*\d+', '$1: <redacted>')
-    $result = [regex]::Replace($result, '(?i)("?api[_-]?key"?\s*[:=]\s*"?)[A-Za-z0-9\-_]{8,}', '$1<redacted>')
-    return $result
+    $result = [regex]::Replace($Text, '(?i)(许可证编号|License\s*Number|License\s*No\.?)\s*[:：=]\s*\d+', '$1: <redacted>')
+
+    if (-not (Get-Command Protect-MasText -ErrorAction SilentlyContinue)) {
+        $corePath = Join-Path $PSScriptRoot "MatlabAgentSkills.Core.psm1"
+        if (Test-Path -LiteralPath $corePath) {
+            Import-Module $corePath -Force -DisableNameChecking -ErrorAction SilentlyContinue
+        }
+    }
+    if (Get-Command Protect-MasText -ErrorAction SilentlyContinue) {
+        return (Protect-MasText -Text $result)
+    }
+    # 脱敏器不可用时失败关闭：宁可少一段诊断，也不把原文写进报告。
+    return "[REDACTED: sanitizer-unavailable]"
 }
 
 function Get-McpStdioToolText {
@@ -453,6 +480,9 @@ function Stop-McpStdioServer {
 
     try {
         if (-not $Session.Process.HasExited) {
+            try {
+                if ($Session.InputStream) { $Session.InputStream.Flush(); $Session.InputStream.Close() }
+            } catch { }
             try { $Session.Process.StandardInput.Close() } catch { }
             if (-not $Session.Process.WaitForExit($GraceSeconds * 1000)) {
                 try { $Session.Process.Kill() } catch { }

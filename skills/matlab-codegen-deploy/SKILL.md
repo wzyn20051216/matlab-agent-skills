@@ -7,6 +7,21 @@ description: MATLAB code generation and deployment workflow for MATLAB Coder, Si
 
 Use this skill when MATLAB or Simulink algorithms need to become generated code or deployable artifacts.
 
+## Skill Root
+
+The installed directory containing this `SKILL.md` is the resource root. Add its
+helper folder for the current MATLAB session only — never through `savepath`,
+`startup.m`, or a global path edit:
+
+```matlab
+skillRoot = '<absolute path to the installed matlab-codegen-deploy Skill directory>';
+addpath(fullfile(skillRoot, 'scripts'));
+```
+
+Resolve `references/`, `tests/`, and helper calls from that root, not from the
+caller's working directory. If a shipped helper or reference is missing, report the
+exact path and reinstall the Skill; do not scan the disk for a substitute.
+
 ## Workflow
 
 1. Identify target: MEX, C/C++, embedded C, CUDA, HDL, PLC, or packaged app.
@@ -74,7 +89,7 @@ Prefer target data APIs over editing opaque structures:
 
 ```matlab
 tools = stm32cube.hwsetup.stm32Tools();
-tools.updateSTM32CubeMXPath("C:\Users\<user>\AppData\Local\Programs\STM32CubeMX");
+tools.updateSTM32CubeMXPath("<absolute path to the installed STM32CubeMX>");
 
 codertarget.data.setParameterValue(model, "STM32CubeMX.ProjectFile", iocPath);
 codertarget.data.setParameterValue(model, "STM32CubeMX.DeviceId", "STM32F103RBTx");

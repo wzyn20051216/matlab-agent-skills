@@ -1,0 +1,11 @@
+{
+    "schemaVersion":  1,
+    "generatedAt":  "2026-10-26T13:52:31.0669342+08:00",
+    "pattern":  "drive-letter E: or D: followed by slash (case-insensitive, path-start context)",
+    "files":  21,
+    "scanned":  21,
+    "hitCount":  0,
+    "hits":  [
+
+             ]
+}

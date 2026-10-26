@@ -1,0 +1,4 @@
+﻿2026-10-26T13:19:28.721 [launch] E:\matlab\bin\matlab.exe -batch run('E:\desktop\MATLAB\artifacts\s2\evidence\task6\run_s2_regression.m')
+2026-10-26T13:19:28.903 [running] pid=32252 timeout=1800s
+2026-10-26T13:19:53.249 [exited] exitCode=1
+2026-10-26T13:19:53.336 [classified] LICENSE_ERROR

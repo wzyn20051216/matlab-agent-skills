@@ -1,0 +1,77 @@
+{
+    "id":  "566ffde815054017a37112b6c62832f8",
+    "reason":  "sync-skills",
+    "createdAt":  "2026-10-26T12:50:57.8211804+08:00",
+    "records":  [
+                    {
+                        "kind":  "dir-absent",
+                        "target":  "E:\\desktop\\MATLAB\\artifacts\\s2\\pre-fix\\installed\\matlab-codegen-deploy",
+                        "backup":  "",
+                        "existed":  false,
+                        "data":  null
+                    },
+                    {
+                        "kind":  "dir-absent",
+                        "target":  "E:\\desktop\\MATLAB\\artifacts\\s2\\pre-fix\\installed\\matlab-control-optimization",
+                        "backup":  "",
+                        "existed":  false,
+                        "data":  null
+                    },
+                    {
+                        "kind":  "dir-absent",
+                        "target":  "E:\\desktop\\MATLAB\\artifacts\\s2\\pre-fix\\installed\\matlab-data-analysis",
+                        "backup":  "",
+                        "existed":  false,
+                        "data":  null
+                    },
+                    {
+                        "kind":  "dir-absent",
+                        "target":  "E:\\desktop\\MATLAB\\artifacts\\s2\\pre-fix\\installed\\matlab-orchestrator",
+                        "backup":  "",
+                        "existed":  false,
+                        "data":  null
+                    },
+                    {
+                        "kind":  "dir-absent",
+                        "target":  "E:\\desktop\\MATLAB\\artifacts\\s2\\pre-fix\\installed\\matlab-robotics-autonomy",
+                        "backup":  "",
+                        "existed":  false,
+                        "data":  null
+                    },
+                    {
+                        "kind":  "dir-absent",
+                        "target":  "E:\\desktop\\MATLAB\\artifacts\\s2\\pre-fix\\installed\\matlab-runner",
+                        "backup":  "",
+                        "existed":  false,
+                        "data":  null
+                    },
+                    {
+                        "kind":  "dir-absent",
+                        "target":  "E:\\desktop\\MATLAB\\artifacts\\s2\\pre-fix\\installed\\matlab-signal-vision-ai",
+                        "backup":  "",
+                        "existed":  false,
+                        "data":  null
+                    },
+                    {
+                        "kind":  "dir-absent",
+                        "target":  "E:\\desktop\\MATLAB\\artifacts\\s2\\pre-fix\\installed\\matlab-simulink-modeling",
+                        "backup":  "",
+                        "existed":  false,
+                        "data":  null
+                    },
+                    {
+                        "kind":  "dir-absent",
+                        "target":  "E:\\desktop\\MATLAB\\artifacts\\s2\\pre-fix\\installed\\matlab-testing-ci",
+                        "backup":  "",
+                        "existed":  false,
+                        "data":  null
+                    },
+                    {
+                        "kind":  "file-absent",
+                        "target":  "E:\\desktop\\MATLAB\\artifacts\\s2\\pre-fix\\installed\\.matlab-agent-skills-manifest.json",
+                        "backup":  "",
+                        "existed":  false,
+                        "data":  null
+                    }
+                ]
+}

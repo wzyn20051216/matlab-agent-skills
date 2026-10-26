@@ -685,3 +685,230 @@ Describe '脚本入口的回归边界' {
         $text | Should Not Match '\$session\.certificate'
     }
 }
+
+# 父链归属只比较字符串形状，路径全是合成的。根目录取自本测试文件所在盘，
+# 不在源码里写死盘符——仓库有"盘符硬编码"卫生门禁，写死会把自家改动算成新违规（S3-T7 实测踩过）。
+$script:MasFixtureRoot = [System.IO.Path]::GetPathRoot($PSScriptRoot)
+if ([string]::IsNullOrWhiteSpace($script:MasFixtureRoot)) { $script:MasFixtureRoot = [System.IO.Path]::DirectorySeparatorChar + [System.IO.Path]::DirectorySeparatorChar + 'fixture' + [System.IO.Path]::DirectorySeparatorChar }
+
+function New-MasIdentityForTest {
+    <#
+    .SYNOPSIS
+    构造一份合成进程身份（不启动任何真实进程），用于父链归属判定。
+    #>
+    param(
+        [Parameter(Mandatory)][int]$ProcessId,
+        [string]$ProcessName = 'MATLAB',
+        [datetime]$StartTimeUtc = ([datetime]::UtcNow),
+        [string]$ExecutablePath = ($script:MasFixtureRoot + 'matlab\bin\win64\MATLAB.exe'),
+        [int]$WindowsSessionId = 1,
+        [bool]$HasExited = $false
+    )
+    return [pscustomobject][ordered]@{
+        Pid              = $ProcessId
+        ProcessName      = $ProcessName
+        StartTimeUtc     = $StartTimeUtc.ToUniversalTime()
+        ExecutablePath   = $ExecutablePath
+        WindowsSessionId = $WindowsSessionId
+        HasExited        = $HasExited
+    }
+}
+
+Describe '会话运行时归属：父链允许存根，但每一跳都必须自证' {
+    <#
+    .SYNOPSIS
+    Windows 上 bin\matlab.exe 只是一个启动器存根：它派生 bin\win64\MATLAB.exe 后立即退出，
+    后者再派生会话文件里记录的引擎进程。于是会话运行时永远是启动器的**孙进程**。
+    旧实现只接受"启动器的直接子进程"，因此真实环境里恒判 not owned，
+    holder 随即把 MATLAB 丢成孤儿并提前退出（2026-10-26 S3 实测：pid 51072→15392→42956）。
+    修复必须是有界的：允许父链在有限跳数内到达启动器，但每一跳仍要自证是 MATLAB、
+    在本次运行时间窗内启动、且与启动器同一 Windows 会话，否则一律失败关闭。
+    #>
+
+    $runStarted = [datetime]::UtcNow.AddSeconds(-30)
+    $stubExe = $script:MasFixtureRoot + 'matlab\bin\matlab.exe'
+    $realExe = $script:MasFixtureRoot + 'matlab\bin\win64\MATLAB.exe'
+
+    It '启动器是存根、会话运行时是其孙进程时判定 owned' {
+        $launcher = [pscustomobject][ordered]@{
+            pid = 51072; processName = 'matlab'; executablePath = $stubExe; windowsSessionId = 1
+        }
+        $stubChild = New-MasIdentityForTest -ProcessId 15392 -StartTimeUtc $runStarted.AddSeconds(1) `
+            -ExecutablePath $realExe
+        $decision = Test-MasSessionRuntimeOwnership -Candidate (New-MasIdentityForTest -ProcessId 42956 `
+            -StartTimeUtc $runStarted.AddSeconds(11) -ExecutablePath $realExe) `
+            -Ancestors @($stubChild, (New-MasIdentityForTest -ProcessId 51072 -ProcessName 'matlab' `
+                -StartTimeUtc $runStarted -ExecutablePath $stubExe)) `
+            -Launcher $launcher -RunStartedAtUtc $runStarted -MatlabExecutablePath $realExe
+
+        $decision.owned | Should Be $true
+        $decision.reason | Should Be ALLOW
+        $decision.launcherHopPid | Should Be 51072
+    }
+
+    It '会话运行时是启动器直接子进程时仍然判定 owned（不回归旧行为）' {
+        $launcher = [pscustomobject][ordered]@{
+            pid = 51072; processName = 'matlab'; executablePath = $stubExe; windowsSessionId = 1
+        }
+        $decision = Test-MasSessionRuntimeOwnership -Candidate (New-MasIdentityForTest -ProcessId 42956 `
+            -StartTimeUtc $runStarted.AddSeconds(5) -ExecutablePath $realExe) `
+            -Ancestors @(New-MasIdentityForTest -ProcessId 51072 -ProcessName 'matlab' `
+                -StartTimeUtc $runStarted -ExecutablePath $stubExe) `
+            -Launcher $launcher -RunStartedAtUtc $runStarted -MatlabExecutablePath $realExe
+
+        $decision.owned | Should Be $true
+        $decision.hops | Should Be 1
+    }
+
+    It '启动器存根已退出时仍可凭"记录在案的启动器 PID"收尾（真实树形状）' {
+        <#
+        真实形状（2026-10-26 实测）：启动器存根 51072 派生 bin\win64\MATLAB.exe 15392 后立即退出，
+        15392 再派生引擎 42956。父链最后一跳只能观测到 PID（进程已不在），
+        归属根据是"这个 PID 正是启动时写进所有者文件的那个"，不是它自身的身份。
+        #>
+        $launcher = [pscustomobject][ordered]@{
+            pid = 51072; processName = 'matlab'; executablePath = $stubExe; windowsSessionId = 1
+        }
+        $exitedStubHop = [pscustomobject][ordered]@{
+            Pid = 51072; ProcessName = $null; StartTimeUtc = $null
+            ExecutablePath = $null; WindowsSessionId = $null; HasExited = $true
+        }
+        $decision = Test-MasSessionRuntimeOwnership -Candidate (New-MasIdentityForTest -ProcessId 42956 `
+            -StartTimeUtc $runStarted.AddSeconds(11) -ExecutablePath $realExe) `
+            -Ancestors @(
+                (New-MasIdentityForTest -ProcessId 15392 -StartTimeUtc $runStarted.AddSeconds(1) -ExecutablePath $realExe),
+                $exitedStubHop
+            ) `
+            -Launcher $launcher -RunStartedAtUtc $runStarted -MatlabExecutablePath @($stubExe, $realExe)
+
+        $decision.owned | Should Be $true
+        $decision.reason | Should Be ALLOW
+        $decision.hops | Should Be 2
+    }
+
+    It '父链不含本次启动器时不判定 owned（不把别人的 MATLAB 记进归属）' {
+        $launcher = [pscustomobject][ordered]@{
+            pid = 51072; processName = 'matlab'; executablePath = $stubExe; windowsSessionId = 1
+        }
+        $decision = Test-MasSessionRuntimeOwnership -Candidate (New-MasIdentityForTest -ProcessId 42956 `
+            -StartTimeUtc $runStarted.AddSeconds(5) -ExecutablePath $realExe) `
+            -Ancestors @(
+                (New-MasIdentityForTest -ProcessId 99998 -StartTimeUtc $runStarted.AddSeconds(4)),
+                (New-MasIdentityForTest -ProcessId 99999 -StartTimeUtc $runStarted.AddSeconds(3))
+            ) `
+            -Launcher $launcher -RunStartedAtUtc $runStarted -MatlabExecutablePath $realExe
+
+        $decision.owned | Should Be $false
+        $decision.reason | Should Be SKIPPED_LAUNCHER_NOT_IN_CHAIN
+    }
+
+    It '中间跳不是 MATLAB 进程时不判定 owned，即使更上层就是启动器' {
+        $launcher = [pscustomobject][ordered]@{
+            pid = 51072; processName = 'matlab'; executablePath = $stubExe; windowsSessionId = 1
+        }
+        $decision = Test-MasSessionRuntimeOwnership -Candidate (New-MasIdentityForTest -ProcessId 42956 `
+            -StartTimeUtc $runStarted.AddSeconds(5) -ExecutablePath $realExe) `
+            -Ancestors @(
+                (New-MasIdentityForTest -ProcessId 77777 -ProcessName 'notepad' `
+                    -StartTimeUtc $runStarted.AddSeconds(4) -ExecutablePath 'C:\Windows\System32\notepad.exe'),
+                (New-MasIdentityForTest -ProcessId 51072 -ProcessName 'matlab' `
+                    -StartTimeUtc $runStarted -ExecutablePath $stubExe)
+            ) `
+            -Launcher $launcher -RunStartedAtUtc $runStarted -MatlabExecutablePath $realExe
+
+        $decision.owned | Should Be $false
+        $decision.reason | Should Be SKIPPED_ANCESTOR_NOT_MATLAB
+    }
+
+    It '中间跳早于本次运行启动（PID 复用）时不判定 owned' {
+        $launcher = [pscustomobject][ordered]@{
+            pid = 51072; processName = 'matlab'; executablePath = $stubExe; windowsSessionId = 1
+        }
+        $decision = Test-MasSessionRuntimeOwnership -Candidate (New-MasIdentityForTest -ProcessId 42956 `
+            -StartTimeUtc $runStarted.AddSeconds(5) -ExecutablePath $realExe) `
+            -Ancestors @(
+                (New-MasIdentityForTest -ProcessId 15392 -StartTimeUtc $runStarted.AddMinutes(-90) `
+                    -ExecutablePath $realExe),
+                (New-MasIdentityForTest -ProcessId 51072 -ProcessName 'matlab' `
+                    -StartTimeUtc $runStarted -ExecutablePath $stubExe)
+            ) `
+            -Launcher $launcher -RunStartedAtUtc $runStarted -MatlabExecutablePath $realExe
+
+        $decision.owned | Should Be $false
+        $decision.reason | Should Be SKIPPED_ANCESTOR_UNTRUSTED
+    }
+
+    It '启动器出现在超出有界跳数之后时不判定 owned' {
+        $launcher = [pscustomobject][ordered]@{
+            pid = 51072; processName = 'matlab'; executablePath = $stubExe; windowsSessionId = 1
+        }
+        $decision = Test-MasSessionRuntimeOwnership -Candidate (New-MasIdentityForTest -ProcessId 42956 `
+            -StartTimeUtc $runStarted.AddSeconds(5) -ExecutablePath $realExe) `
+            -Ancestors @(
+                (New-MasIdentityForTest -ProcessId 1 -StartTimeUtc $runStarted.AddSeconds(4)),
+                (New-MasIdentityForTest -ProcessId 2 -StartTimeUtc $runStarted.AddSeconds(3)),
+                (New-MasIdentityForTest -ProcessId 51072 -ProcessName 'matlab' `
+                    -StartTimeUtc $runStarted -ExecutablePath $stubExe)
+            ) `
+            -Launcher $launcher -RunStartedAtUtc $runStarted -MatlabExecutablePath $realExe -MaxAncestorDepth 2
+
+        $decision.owned | Should Be $false
+        $decision.reason | Should Be SKIPPED_LAUNCHER_NOT_IN_CHAIN
+    }
+
+    It '候选自身可执行文件路径与解析出的 MATLAB 路径不符时不判定 owned' {
+        $launcher = [pscustomobject][ordered]@{
+            pid = 51072; processName = 'matlab'; executablePath = $stubExe; windowsSessionId = 1
+        }
+        $decision = Test-MasSessionRuntimeOwnership -Candidate (New-MasIdentityForTest -ProcessId 42956 `
+            -StartTimeUtc $runStarted.AddSeconds(5) -ExecutablePath ($script:MasFixtureRoot + 'other-tool\MATLAB.exe')) `
+            -Ancestors @(New-MasIdentityForTest -ProcessId 51072 -ProcessName 'matlab' `
+                -StartTimeUtc $runStarted -ExecutablePath $stubExe) `
+            -Launcher $launcher -RunStartedAtUtc $runStarted -MatlabExecutablePath $realExe
+
+        $decision.owned | Should Be $false
+        $decision.reason | Should Be SKIPPED_IDENTITY_MISMATCH
+    }
+
+    It '候选与启动器不在同一 Windows 会话时不判定 owned' {
+        $launcher = [pscustomobject][ordered]@{
+            pid = 51072; processName = 'matlab'; executablePath = $stubExe; windowsSessionId = 1
+        }
+        $decision = Test-MasSessionRuntimeOwnership -Candidate (New-MasIdentityForTest -ProcessId 42956 `
+            -StartTimeUtc $runStarted.AddSeconds(5) -ExecutablePath $realExe -WindowsSessionId 2) `
+            -Ancestors @(New-MasIdentityForTest -ProcessId 51072 -ProcessName 'matlab' `
+                -StartTimeUtc $runStarted -ExecutablePath $stubExe) `
+            -Launcher $launcher -RunStartedAtUtc $runStarted -MatlabExecutablePath $realExe
+
+        $decision.owned | Should Be $false
+        $decision.reason | Should Be SKIPPED_IDENTITY_MISMATCH
+    }
+
+    It '候选进程已退出时不判定 owned 且不是错误' {
+        $launcher = [pscustomobject][ordered]@{
+            pid = 51072; processName = 'matlab'; executablePath = $stubExe; windowsSessionId = 1
+        }
+        $decision = Test-MasSessionRuntimeOwnership -Candidate (New-MasIdentityForTest -ProcessId 42956 `
+            -StartTimeUtc $runStarted.AddSeconds(5) -ExecutablePath $realExe -HasExited $true) `
+            -Ancestors @() -Launcher $launcher -RunStartedAtUtc $runStarted -MatlabExecutablePath $realExe
+
+        $decision.owned | Should Be $false
+        $decision.reason | Should Be SKIPPED_CANDIDATE_MISSING
+    }
+
+    It '对真实存活进程上溯父链不抛错且返回数组（本机 PS 5.1 的 @($list) 会抛 ArgumentException）' {
+        { Get-MasAncestorChain -Id $PID -MaxDepth 3 } | Should Not Throw
+        $chain = @(Get-MasAncestorChain -Id $PID -MaxDepth 3)
+        $chain -is [array] | Should Be $true
+        foreach ($hop in $chain) { $hop.Pid | Should Not Be $null }
+    }
+
+    It '主流程改用有界父链判定，不再只认直接父子' {
+        (Get-Command Test-MasSessionRuntimeOwnership -ErrorAction SilentlyContinue) | Should Not Be $null
+        (Get-Command Get-MasAncestorChain -ErrorAction SilentlyContinue) | Should Not Be $null
+        $text = [IO.File]::ReadAllText($script:CleanupScriptPath)
+        $text | Should Match 'Test-MasSessionRuntimeOwnership'
+        $text | Should Match 'Get-MasAncestorChain'
+        $text | Should Match 'SKIPPED_LAUNCHER_NOT_IN_CHAIN'
+    }
+}

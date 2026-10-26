@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 1,
+  "description": "Runtime files copied into installed Skills by Sync-Skills.ps1. Source files remain canonical in scripts/ and schemas/; installed copies are build artifacts, never committed duplicates.",
+  "payloads": {
+    "matlab-runner": {
+      "files": [
+        { "source": "scripts/Test-MatlabMcpExistingSession.ps1", "target": "scripts/Test-MatlabMcpExistingSession.ps1" },
+        { "source": "scripts/Invoke-MatlabBatch.ps1", "target": "scripts/Invoke-MatlabBatch.ps1" },
+        { "source": "scripts/MatlabAgentSkills.Core.psm1", "target": "scripts/MatlabAgentSkills.Core.psm1" },
+        { "source": "scripts/MatlabAgentSkills.Acceptance.psm1", "target": "scripts/MatlabAgentSkills.Acceptance.psm1" },
+        { "source": "scripts/MatlabAgentSkills.Execution.psm1", "target": "scripts/MatlabAgentSkills.Execution.psm1" },
+        { "source": "scripts/MatlabAgentSkills.McpProbe.psm1", "target": "scripts/MatlabAgentSkills.McpProbe.psm1" },
+        { "source": "scripts/MatlabAgentSkills.McpStdio.psm1", "target": "scripts/MatlabAgentSkills.McpStdio.psm1" },
+        { "source": "config/mcp-server-manifest.json", "target": "config/mcp-server-manifest.json" },
+        { "source": "schemas/acceptance-report.schema.json", "target": "schemas/acceptance-report.schema.json" }
+      ]
+    },
+    "matlab-orchestrator": {
+      "files": [
+        { "source": "scripts/Test-MatlabMcpExistingSession.ps1", "target": "scripts/Test-MatlabMcpExistingSession.ps1" },
+        { "source": "scripts/MatlabAgentSkills.Core.psm1", "target": "scripts/MatlabAgentSkills.Core.psm1" },
+        { "source": "scripts/MatlabAgentSkills.Acceptance.psm1", "target": "scripts/MatlabAgentSkills.Acceptance.psm1" },
+        { "source": "scripts/MatlabAgentSkills.Execution.psm1", "target": "scripts/MatlabAgentSkills.Execution.psm1" },
+        { "source": "scripts/MatlabAgentSkills.McpProbe.psm1", "target": "scripts/MatlabAgentSkills.McpProbe.psm1" },
+        { "source": "scripts/MatlabAgentSkills.McpStdio.psm1", "target": "scripts/MatlabAgentSkills.McpStdio.psm1" },
+        { "source": "config/mcp-server-manifest.json", "target": "config/mcp-server-manifest.json" },
+        { "source": "schemas/acceptance-report.schema.json", "target": "schemas/acceptance-report.schema.json" }
+      ]
+    }
+  }
+}

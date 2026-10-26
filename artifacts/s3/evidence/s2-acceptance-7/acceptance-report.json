@@ -1,0 +1,98 @@
+{
+  "schemaVersion": 1,
+  "task": "S2 independent acceptance A-J",
+  "startedAt": "2026-10-26T20:26:07.5127948+08:00",
+  "finishedAt": "2026-10-26T20:26:29.4067683+08:00",
+  "repository": "E:\\desktop\\MATLAB",
+  "gitHead": "876a2b0c67dae275c199415752226ed71c9c344f",
+  "gitBranch": "phase5.1-audit",
+  "evidenceRoot": "E:\\desktop\\MATLAB\\artifacts\\s3\\evidence\\s2-acceptance-7",
+  "sandboxRoot": "D:\\Temp\\mas-s2-acceptance-6286adf5edb74ccc882c373c51c07329",
+  "sandboxRemoved": true,
+  "scope": "isolated simulated installation; not a real user-level Skills directory",
+  "realUserRootTouched": false,
+  "overallStatus": "PASS",
+  "summary": {
+    "pass": 10,
+    "fail": 0,
+    "skip": 0,
+    "total": 10
+  },
+  "checks": [
+    {
+      "id": "A",
+      "name": "first install of nine Skills",
+      "status": "PASS",
+      "detail": "exit=0; installed=9; missing=",
+      "evidence": "A-install.stdout.txt; A-install.stderr.txt; A-install.summary.json"
+    },
+    {
+      "id": "B",
+      "name": "installed resource and SHA-256 parity",
+      "status": "PASS",
+      "detail": "files=123; failures=0; forbidden=0; payloadConfigSha256=B73926D4B8EE959FDA78ED854511B071D45CD59F750DBB97397EC63B57E2161F",
+      "evidence": "B-installed-sha256.json"
+    },
+    {
+      "id": "F",
+      "name": "repeat install is zero-write",
+      "status": "PASS",
+      "detail": "exit=0; unchanged=9; diff=0; manifestEqual=True; backupSessions=1->1",
+      "evidence": "F-repeat.stdout.txt; F-repeat.stderr.txt; F-repeat.summary.json"
+    },
+    {
+      "id": "G",
+      "name": "failed upgrade restores the pre-upgrade tree",
+      "status": "PASS",
+      "detail": "exit=1; decision=error; restored=True; diff=0; staging=0",
+      "evidence": "G-upgrade.stdout.txt; G-upgrade.stderr.txt; G-upgrade.summary.json"
+    },
+    {
+      "id": "D",
+      "name": "MCP session check runs from the installed Skill",
+      "status": "PASS",
+      "detail": "probe produced a staged verdict: overall=FAIL, achieved=L0, exit=1",
+      "evidence": "D-probe.stdout.txt; D-probe.stderr.txt; D-probe.report.json; D-probe.verdict.json"
+    },
+    {
+      "id": "C",
+      "name": "commands run outside the repository and Skill root",
+      "status": "PASS",
+      "detail": "module modules=4; outside=0; cwd=D:\\Temp\\mas-s2-acceptance-6286adf5edb74ccc882c373c51c07329\\clean-install\\project",
+      "evidence": "E-module-resolution.stdout.txt; E-module-resolution.stderr.txt; D-probe.stdout.txt"
+    },
+    {
+      "id": "E",
+      "name": "no source-repository fallback",
+      "status": "PASS",
+      "detail": "cleanRootHasRepo=False; moduleOutside=0; fallbackHits=0",
+      "evidence": "E-module-resolution.stdout.txt; D-probe.stdout.txt"
+    },
+    {
+      "id": "H",
+      "name": "S1 credential protection in the installed layout",
+      "status": "PASS",
+      "detail": "sanitizerRedacted=True; sessionPresent=True; keyAvailable=True; scanned=21; leaks=0",
+      "evidence": "H-sanitizer.stdout.txt; H-sanitizer.stderr.txt; H-credential-scan.json"
+    },
+    {
+      "id": "I",
+      "name": "uninstall leaves no payload residue",
+      "status": "PASS",
+      "detail": "exit=0; removed=9; preserved=0; residualSkills=0; residualPayload=0",
+      "evidence": "I-uninstall.stdout.txt; I-uninstall.stderr.txt; I-uninstall.summary.json"
+    },
+    {
+      "id": "J",
+      "name": "sandbox cleanup",
+      "status": "PASS",
+      "detail": "sandboxRemoved=True",
+      "evidence": ""
+    }
+  ],
+  "limitations": [
+    "A passing probe means the staged check produced a verdict; the per-stage PASS/FAIL/SKIP is recorded verbatim.",
+    "No session credential value is written to any evidence file or printed.",
+    "The sandbox is a simulated installation on the temp drive, not a real user machine installation."
+  ]
+}

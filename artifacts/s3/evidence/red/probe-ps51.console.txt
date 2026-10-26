@@ -1,0 +1,69 @@
+==> 使用 Pester 3.4.0 (C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Pester.psd1) [installed]
+==> 运行 [free] McpProbe.Tests.ps1
+
+
+
+
+
+Describing 阶段 3~5 只有在真实可执行时才 PASS
+ [+] 全套正常时五阶段通过，且整体为 PASS 5.13s
+ [+] 端口不可达时握手 FAIL，后续阶段 SKIP（不冒充成功） 1.38s
+ [+] 只有配置文件没有会话时，握手必须 SKIP 而不是 PASS 167ms
+ [+] 会话文件损坏时配置阶段 FAIL 241ms
+ [+] 证书缺失时按过期会话处理，输出 SKIP 并给出原因 1.27s
+Describing 工具探测与文件回读
+ [+] 服务端没有执行工具时只读阶段 SKIP 并记录工具清单 1.9s
+ [+] 回读内容不一致时文件读写阶段 FAIL 1.93s
+ [+] 握手失败（HTTP 500）时判定 FAIL 且不继续执行 1.59s
+ [+] 鉴权失败（HTTP 401）时握手 FAIL 1.39s
+ [+] 服务端挂起时握手在超时后 FAIL（不会无限等待） 3.41s
+Describing 客户端注册校验
+ [+] existing 模式带 display-mode 会被判为非法注册 348ms
+ [+] 注册指向不存在的 command 会被判为 FAIL 170ms
+ [+] 没有注册时输出 SKIP 并说明检查了哪些客户端 138ms
+Describing JSON 解析保持键名大小写
+ [+] 大小写不同但合法的键不会被当成重复键 122ms
+Describing 回环证书固定取代全量放行
+ [-] 只有回环主机名被认定为可信链路 224ms
+   CommandNotFoundException: 无法将“Test-McpLoopbackHostName”项识别为 cmdlet、函数、脚本文件或可运行程序的名称。请检查名称的拼写，如果包括路径，请确保路径正确，然后再试一次。
+   在 <ScriptBlock>、E:\desktop\MATLAB\tests\McpProbe.Tests.ps1 中: 第 324 行
+   在 Invoke-Test、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Functions\It.ps1 中: 第 253 行
+   在 ItImpl、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Functions\It.ps1 中: 第 203 行
+   在 It、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Functions\It.ps1 中: 第 117 行
+   在 <ScriptBlock>、E:\desktop\MATLAB\tests\McpProbe.Tests.ps1 中: 第 323 行
+   在 Describe、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Functions\Describe.ps1 中: 第 100 行
+   在 <ScriptBlock>、E:\desktop\MATLAB\tests\McpProbe.Tests.ps1 中: 第 322 行
+   在 <ScriptBlock>、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Pester.psm1 中: 第 297 行
+   在 Invoke-Pester、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Pester.psm1 中: 第 310 行
+   在 <ScriptBlock>、E:\desktop\MATLAB\tests\Invoke-Tests.ps1 中: 第 177 行
+ [-] 从证书文件读出指纹；缺失或私钥文件失败关闭 403ms
+   RuntimeException: -ireplace 运算符只允许后面包含 2 个元素，而不是 3 个元素。
+   在 <ScriptBlock>、E:\desktop\MATLAB\tests\McpProbe.Tests.ps1 中: 第 339 行
+   在 Invoke-Test、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Functions\It.ps1 中: 第 253 行
+   在 ItImpl、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Functions\It.ps1 中: 第 203 行
+   在 It、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Functions\It.ps1 中: 第 117 行
+   在 <ScriptBlock>、E:\desktop\MATLAB\tests\McpProbe.Tests.ps1 中: 第 333 行
+   在 Describe、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Functions\Describe.ps1 中: 第 100 行
+   在 <ScriptBlock>、E:\desktop\MATLAB\tests\McpProbe.Tests.ps1 中: 第 322 行
+   在 <ScriptBlock>、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Pester.psm1 中: 第 297 行
+   在 Invoke-Pester、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Pester.psm1 中: 第 310 行
+   在 <ScriptBlock>、E:\desktop\MATLAB\tests\Invoke-Tests.ps1 中: 第 177 行
+ [-] 校验回调仅在主机为回环且指纹一致时放行 179ms
+   CommandNotFoundException: 无法将“New-McpCertificatePinValidator”项识别为 cmdlet、函数、脚本文件或可运行程序的名称。请检查名称的拼写，如果包括路径，请确保路径正确，然后再试一次。
+   在 <ScriptBlock>、E:\desktop\MATLAB\tests\McpProbe.Tests.ps1 中: 第 358 行
+   在 Invoke-Test、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Functions\It.ps1 中: 第 253 行
+   在 ItImpl、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Functions\It.ps1 中: 第 203 行
+   在 It、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Functions\It.ps1 中: 第 117 行
+   在 <ScriptBlock>、E:\desktop\MATLAB\tests\McpProbe.Tests.ps1 中: 第 357 行
+   在 Describe、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Functions\Describe.ps1 中: 第 100 行
+   在 <ScriptBlock>、E:\desktop\MATLAB\tests\McpProbe.Tests.ps1 中: 第 322 行
+   在 <ScriptBlock>、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Pester.psm1 中: 第 297 行
+   在 Invoke-Pester、C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Pester.psm1 中: 第 310 行
+   在 <ScriptBlock>、E:\desktop\MATLAB\tests\Invoke-Tests.ps1 中: 第 177 行
+ [+] 未提供指纹且未显式跳过校验时，绝不安装全量放行回调 2.11s
+Tests completed in 22.11s
+Passed: 15 Failed: 3 Skipped: 0 Pending: 0 Inconclusive: 0
+
+==> 汇总: 共 18 个用例，通过 15，失败 3，跳过 0
+    层 free: 已执行 18 个用例，通过 15，失败 3，耗时 22.4s
+==> 层报告: E:\desktop\MATLAB\artifacts\s3\evidence\red\probe-ps51.json

@@ -1,0 +1,1109 @@
+==> Ê¹ÓÃ Pester 3.4.0 (C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Pester.psd1) [installed]
+==> ÔËÐÐ [free] Acceptance.Protocol.Tests.ps1
+
+
+
+
+
+Describing ÑéÊÕ JSON Schema
+ [+] schema ÎÄ¼þ´æÔÚÇÒÊÇºÏ·¨ JSON 265ms
+ [+] schema ¸²¸ÇÈÎÎñÒªÇóµÄÈ«²¿¶¥²ã×Ö¶Î 43ms
+ [+] ÐÂ½¨±¨¸æÄÜÍ¨¹ý schema ÓëÓïÒåÐ£Ñé 154ms
+ [+] ·Ç·¨ backend »á±» schema ¾Ü¾ø 23ms
+ [+] Î´Öª errorClass »á±» schema ¾Ü¾ø 28ms
+ [+] È±ÉÙ±ØÐè×Ö¶Î»á±» schema ¾Ü¾ø 25ms
+ [+] metrics ÀàÐÍ´íÎó»á±» schema ¾Ü¾ø 23ms
+Describing SKIP ÓïÒå
+ [+] SKIP È±ÉÙ reason Ê±¹¹Ôì¼ì²éÏîÖ±½Ó±¨´í 247ms
+ [+] FAIL È±ÉÙ reason Ê±¹¹Ôì¼ì²éÏîÖ±½Ó±¨´í 6ms
+ [+] Ð£ÑéÆ÷»áÀ¹½Ø±»Íâ²¿¸Ä»µµÄ SKIP£¨reason Îª¿Õ£© 37ms
+ [+] ´æÔÚ SKIP Ê±ÕûÌå×´Ì¬²»µÃÎª PASS 11ms
+ [+] È«²¿ PASS Ê±ÕûÌåÎª PASS ÇÒÍË³öÂë 0 5ms
+ [+] ÈÎÒ» FAIL Ê±ÕûÌåÎª FAIL ÇÒÍË³öÂë 1 6ms
+Describing Îå¼¶ÑéÊÕÓëÁ¬ÐøÅÐ¶¨
+ [+] L1 Î´Í¨¹ýÊ± achievedLevel Í£ÔÚ L0 19ms
+ [+] L2 Îª SKIP Ê±¼´Ê¹ L3 Í¨¹ýÒ²Ö»ÄÜµ½ L1 6ms
+ [+] L1~L3 È«Í¨¹ýÊ± achievedLevel Îª L3 10ms
+Describing ±¨¸æÂäÅÌÓëºÏ²¢
+ [+] Ð´Èëºó¿É°´ UTF-8 ¶Á»Ø²¢Í¨¹ýÐ£Ñé 91ms
+ [+] ¸²¸ÇÐ´Í¬Ò»Â·¾¶ÊÇÔ­×ÓÌæ»»£º²»²ÐÁôÁÙÊ±ÎÄ¼þ£¬¾ÉÄÚÈÝ±»Ìæ»» 43ms
+ [+] ºÏ²¢×Ó±¨¸æÊ±±£ÁôÈ«²¿¼ì²é²¢´¦Àí id ³åÍ» 53ms
+ [+] ¸¸±¨¸æÃ»ÓÐ¹¤¾ßÏäÇåµ¥Ê±´Ó×Ó±¨¸æ¼Ì³Ð£¬¶ø²»ÊÇÁôÒ»¸ö¿ÕÊý×é 38ms
+ [+] ¸¸±¨¸æÒÑÓÐ¹¤¾ßÏäÇåµ¥Ê±²»±»×Ó±¨¸æ¸²¸Ç 9ms
+Describing µÈ¼¶Ãû³ÆÓëÔªÊý¾Ý
+ [+] Ã¿¸öµÈ¼¶¶¼ÓÐ¿É¶ÁËµÃ÷ 19ms
+ [+] Ð­Òé°æ±¾ÊÇÓïÒå»¯°æ±¾ºÅ 4ms
+ [+] taskId Ö»º¬°²È«×Ö·û 5ms
+Describing ÑéÊÕ·¶Î§£¨capability scope£©
+ [+] ËÄ¸ö·¶Î§¶¼ÓÐ¶¨Òå£¬ÇÒ full µÄ±ØÑ¡¼¯×î´ó 55ms
+ [+] core ·¶Î§²»Òò Coder ¼ì²é SKIP ¶øÊ§°Ü 34ms
+ [+] ¿ÉÑ¡ SKIP ²»Ó°Ïì core£¬µ«ÕûÌå×´Ì¬ÈÔÈ»ÊÇ SKIP£¨²»±»¸ÄÐ´£© 9ms
+ [+] coder ·¶Î§ÄÚ±ØÑ¡¼ì²é SKIP Ê±ÅÐÎª SKIP£¬¶ø²»ÊÇ PASS 11ms
+ [+] ±ØÑ¡¼ì²é FAIL Ê±·¶Î§ÅÐÎª FAIL 8ms
+ [+] ±ØÑ¡¼ì²éÔÚ±¨¸æÀïÈ±Ê§Ê±ÅÐÎª SKIP£¨Î´²ú³ö²»µÈÓÚÍ¨¹ý£© 13ms
+ [+] ·¶Î§ÍË³öÂëÓë×´Ì¬Ò»ÖÂ£ºPASS=0 / FAIL=1 / SKIP=3 6ms
+ [+] ËÄ¸ö·¶Î§¿ÉÒÔÒ»´ÎÐÔÇóÖµ£¬Ë³Ðò¹Ì¶¨ 16ms
+ [+] ·¶Î§ÇóÖµ½á¹ûÄÜÐ´½ø±¨¸æ²¢Í¨¹ý schema Ð£Ñé 133ms
+Describing ±¨¸æ±ß½çÖµ±àÂë
+ [+] µ¥Ìõ¼ì²éµÄ checks ÈÔÈ»ÊÇÊý×é£¨²»ÄÜÍË»¯³É¶ÔÏó£© 39ms
+ [+] exitCode ÔÊÐíÕûÊýÓë null£¬¾Ü¾ø×Ö·û´® 62ms
+ [+] durationSeconds ÔÊÐíÊý×ÖÓë null£¬¾Ü¾ø¸ºÊý 49ms
+ [+] errorClass Ö»½ÓÊÜÔ¼¶¨µÄ 8 ¸öÀà±ð£¨Áí¼Ó null£© 177ms
+ [+] ¿Õ×Ö·û´® reason ²»ÄÜÃ°³äÓÐÐ§Ô­Òò£¨SKIP ±ØÐë¿ÉÉó¼Æ£© 5ms
+ [+] artifactPaths Îª¿ÕÊý×éÊ±ÈÔÈ»ºÏ·¨ 25ms
+ [+] ¿Õ¹¤¾ßÏäÇåµ¥ÊÇºÏ·¨Êý×é£¬µ«È±ÉÙ name/version µÄÌõÄ¿·Ç·¨ 41ms
+ [+] licensed ÔÊÐí null£¨ÎÞ·¨ÅÐ¶¨ÊÚÈ¨£©£¬µ«²»ÔÊÐí×Ö·û´® 49ms
+Tests completed in 1.92s
+Passed: 41 Failed: 0 Skipped: 0 Pending: 0 Inconclusive: 0
+==> ÔËÐÐ [free] Acl.Permission.Tests.ps1
+
+
+
+
+
+Describing ACL ÓÐÐ§È¨ÏÞ£º´¿¹æÔòÇó½â
+ [+] µ¥Ìõ (OI)(CI) FullControl Allow Âú×ãÄ¿Â¼Óë×Ó¶ÔÏóÒªÇó 72ms
+ [+] Ö»¶Á ACE ²»»á±»µ±³É FullControl 5ms
+ [+] Ö»ÓÐ Deny ACE Ê±ÓÐÐ§È¨ÏÞÎªÁã 4ms
+ [+] Deny ÓÅÏÈÓÚÍ¬·¶Î§ Allow£ºAllow F + Deny W ¿ÛµôÐ´È¨ÏÞ 5ms
+ [+] Í¬Ò» SID ¶àÌõ ACE È¡²¢¼¯£ºR + W + D ÈÔ²»µÈÓÚ FullControl 5ms
+ [+] ¶àÌõ Allow ¸²¸ÇÈ«²¿Î»Ê±²¢¼¯µÈÓÚ FullControl 4ms
+ [+] InheritOnly ACE ²»×÷ÓÃÓÚÄ¿Â¼×ÔÉí£¬µ«×÷ÓÃÓÚ×Ó¶ÔÏó 5ms
+ [+] ÎÞ¼Ì³Ð±êÖ¾µÄ ACE Âú×ãÄ¿Â¼×ÔÉíµ«²»Âú×ã×Ó¶ÔÏó 5ms
+ [+] Ö»ÓÐ ContainerInherit£¨È± ObjectInherit£©²»Âú×ã¼Ì³ÐÒªÇó 4ms
+Describing ACL ÓÐÐ§È¨ÏÞ£ºÕæÊµÄ¿Â¼
+ [+] Ö»¶ÁÊÚÈ¨±»ÅÐÎªÈ¨ÏÞ²»×ã£¬ÇÒÔ­ÒòÖ¸³öÈ±Ê§Î» 120ms
+ [+] Ö»ÓÐ Deny ACE Ê±±»ÅÐÎªÎÞÈ¨ÏÞ£¬Ô­ÒòµãÃû Deny 60ms
+ [+] FullControl µ«ÎÞ¼Ì³Ð±êÖ¾Ê±£¬Ä¿Â¼Í¨¹ý¡¢×Ó¶ÔÏó²»Í¨¹ý 77ms
+ [+] Allow F µþ¼Ó Deny W Ê±ÅÐÎªÈ¨ÏÞ²»×ã£¬ÇÒ Deny ÑÚÂë±»¼ÇÂ¼ 76ms
+ [+] ÄÚÖÃ¹ÜÀíÔ±ÕË»§£¨RID 500£©ÔÚ SDDL ÏÔÊ¾Îª±ðÃûÊ±ÈÔÄÜÕýÈ·ÅÐ¶¨ 81ms
+ [+] Set-DirectoryAclGrant Ð´ºóÐ£ÑéÍ¨¹ý£¬²¢´ø³ö¿ÉÉó¼ÆµÄÑéÖ¤½á¹û 59ms
+ [+] Ô¤ÏÈ´æÔÚµÄ Deny ¹æÔò»áÈÃ Set-DirectoryAclGrant ¾Ü¾øÐû¸æ³É¹¦ 110ms
+ [+] ²»´æÔÚÂ·¾¶Ê±Ð£Ñé·µ»Ø false ¶ø²»ÊÇÅ×Òì³£ 5ms
+Describing ACL ¹éÒ»»¯£ºÕæÊµ ACL µÄ×Ö¶Î
+ [+] (OI)(CI)F ¹éÒ»»¯ºó´ø ContainerInherit Óë ObjectInherit£¬ÇÒ²»¼Ì³Ð×Ô¸¸Ä¿Â¼ 65ms
+ [+] Deny ACE µÄ AccessType Óë¼Ì³Ð±êÖ¾±»ÕýÈ·Çø·Ö 70ms
+ [+] ²éÑ¯ÆäËü SID Ê±²»»á°Ñµ±Ç°ÓÃ»§µÄ ACE Ëã½øÀ´ 63ms
+Tests completed in 905ms
+Passed: 20 Failed: 0 Skipped: 0 Pending: 0 Inconclusive: 0
+==> ÔËÐÐ [free] CredentialSanitizer.Tests.ps1
+
+
+
+
+
+Describing Í³Ò»ÍÑÃôº¯Êý¸²¸ÇÕæÊµÐ¹Â¶ÐÎÌ¬
+ [+] ÆÕÍ¨ JSON ×Ö¶ÎÖµ±»Ìæ»» 87ms
+ [+] ×ªÒå / Ç¶Ì× JSON ×Ö¶ÎÖµ±»Ìæ»»£¨Phase 5.8 µÄÐ¹Â¶ÐÎ×´£© 8ms
+ [+] x-api-key ÇëÇóÍ·±»Ìæ»» 6ms
+ [+] Authorization Bearer Óë Basic ±»Ìæ»» 6ms
+ [+] --api-key µÄÁ½ÖÖÃüÁîÐÐÐ´·¨¶¼±»Ìæ»» 21ms
+ [+] Âã UUID Óë³¤Ê®Áù½øÖÆÁîÅÆ±»Ìæ»» 6ms
+ [+] ÒÑÖªÃÜÔ¿×ÖÃæÖµ£¨º¬¶ÌÖµ£©ÈÔ±»Ìæ»» 7ms
+ [+] ÎÞÃô¸ÐÄÚÈÝµÄÎÄ±¾Öð×Ö½Ú²»±ä 8ms
+ [+] ¶þ´ÎÍÑÃôÃÝµÈ 7ms
+Describing ¼ÈÓÐÈë¿ÚÎ¯ÍÐµ½Í³Ò»ÊµÏÖºó²»ÔÙÂ©
+ [+] Protect-McpSensitiveText ¸²¸Ç×ªÒå JSON / Bearer / argv / Âã UUID 24ms
+ [+] Protect-MasSecretText ¸²¸Ç×ªÒå JSON / Bearer / argv / Âã UUID 9ms
+Tests completed in 192ms
+Passed: 11 Failed: 0 Skipped: 0 Pending: 0 Inconclusive: 0
+==> ÔËÐÐ [free] DependencyOrder.Tests.ps1
+
+
+
+
+
+Describing ÒÀÀµ¼ì²éË³Ðò
+ [+] ÑéÖ¤½Å±¾Ä¿Â¼´æÔÚÇÒ°üº¬ .m ½Å±¾ 29ms
+   Context matlab_codegen_smoke.m
+    [+] Ê¹ÓÃ Coder/Slbuild µÄ½Å±¾±ØÐëÏÈ×öÒÀÀµ¼ì²â 39ms
+    [+] Ê×´Î Coder µ÷ÓÃ£¨ÐÐ 58£©±ØÐëÍíÓÚÊ×´ÎÒÀÀµ¼ì²â 4ms
+   Context matlab_compiler_chain_smoke.m
+    [+] Ê¹ÓÃ Coder/Slbuild µÄ½Å±¾±ØÐëÏÈ×öÒÀÀµ¼ì²â 26ms
+    [+] Ê×´Î Coder µ÷ÓÃ£¨ÐÐ 62£©±ØÐëÍíÓÚÊ×´ÎÒÀÀµ¼ì²â 2ms
+   Context simulink_coder_smoke.m
+    [+] Ê¹ÓÃ Coder/Slbuild µÄ½Å±¾±ØÐëÏÈ×öÒÀÀµ¼ì²â 42ms
+    [+] Ê×´Î Coder µ÷ÓÃ£¨ÐÐ 232£©±ØÐëÍíÓÚÊ×´ÎÒÀÀµ¼ì²â 5ms
+ [+] matlab_codegen_smoke.m µÄ²ÎÊý¹¹ÔìÒÑ±»ÒÆÈë try ¿é 23ms
+Tests completed in 173ms
+Passed: 8 Failed: 0 Skipped: 0 Pending: 0 Inconclusive: 0
+==> ÔËÐÐ [free] DesktopEvidence.Tests.ps1
+
+
+
+
+
+Describing Desktop ¼¼ÄÜÖ¤¾ÝµÄ¿Í»§¶ËÓëÀ´Ô´±ß½ç
+ [+] ´ÓÆ½Ì¨×¢Èë·¢ÏÖ¼¼ÄÜ£¬ÓÃ»§ÏûÏ¢²»½øÈëµ¼³ö½á¹û 156ms
+ [+] ¾Ü¾ø°Ñ CLI »á»°Ã°³ä Desktop 48ms
+ [+] originator Í¬Îª Codex Desktop µ« source=exec µÄ CLI »á»°Ò²±ØÐë±»¾Ü¾ø 35ms
+ [+] È±ÉÙ app-context ±ê¼ÇµÄ»á»°²»Ëã Desktop UI »á»° 31ms
+ [+] Ö»°Ñ´ø³É¹¦·µ»ØÕýÎÄµÄ¶ÁÈ¡¼ÇÎª¼ÓÔØ 67ms
+ [+] »ìºÏ¶ÁÈ¡Ö»µ¼³ö¹þÏ£Óë¼¼ÄÜÃû£¬²»¸´ÖÆÃô¸ÐÉÚ±ø»òÔ­Ê¼ÊäÈëÊä³ö 72ms
+ [+] Ê§°Ü·µ»Ø¼´Ê¹³öÏÖ¼¼ÄÜÃûÒ²²»ÄÜ¼ÇÎª³É¹¦¹Û²ì 44ms
+ [+] »ìºÏÊä³öÖÐµÄÆäËûÒÑ·¢ÏÖ¼¼ÄÜÃû±ØÐëÓÐ¶ÔÓ¦¶ÁÈ¡Â·¾¶ 53ms
+ [+] ¶àÂÖ×¢ÈëÍ¬Ãû¼¼ÄÜ¼´Ê¹ÃèÊö±ä»¯Ò²Ö»ÀÛ¼ÆÒ»¸ö·¢ÏÖÏî 55ms
+Tests completed in 567ms
+Passed: 9 Failed: 0 Skipped: 0 Pending: 0 Inconclusive: 0
+==> ÔËÐÐ [free] DesktopStartup.Tests.ps1
+
+
+
+
+
+Describing ×ÀÃæ¾ÍÐ÷±ØÐëÆ¥Åä±¾´ÎÔËÐÐÊ±
+ [+] ×ÀÃæ´°¿ÚÔÚ¸¸½ø³ÌÇÒÆô¶¯Æ÷ÓëÔËÐÐÊ± PID ²»Í¬Ê±ÄÜÕýÈ·Ê¶±ð 118ms
+ [+] ¾É launchId ¼´Ê¹ PID ºÍ¹²ÏíÎÄ¼þÒ»ÖÂÒ²²»ÄÜÍ¨¹ý 5ms
+ [+] Æô¶¯Ç°¾Í´æÔÚµÄÔËÐÐÊ±²»ÄÜ¼Æ×÷ÐÂÆô¶¯ 6ms
+ [+] Ö»ÓÐ launcher »î×Å¶øÊµ¼Ê runtime ÏûÊ§Ê±²»ÄÜÍ¨¹ý 4ms
+ [+] ¹²ÏíÎÄ¼þ±»ÁíÒ» MATLAB »á»°¸²¸ÇÊ±²»ÄÜÍ¨¹ý 6ms
+ [+] ÓÐÖ÷Ïß³Ì»ØÖ´µ«Ã»ÓÐ×ÀÃæ´°¿ÚÊ±²»ÄÜÍ¨¹ý 8ms
+ [+] ½ÏÍí´´½¨µÄÎÞ¹Ø´°¿Ú¸¸ PID ²»ÄÜÃ°³äÔ­×ÀÃæ½ø³Ì 7ms
+ [+] ÒÑÓÐÁíÒ»¸ö MATLAB Ê±ÐÂÊµÀýÍ¨¹ýµ«²»ËãÀäÆô¶¯ 7ms
+ [+] Í¬Ò» PID ÇÒ´´½¨Ê±¼äÒ»ÖÂÊ±ÈÔÅÐÎªÆô¶¯Ç°ÒÑ´æÔÚ 24ms
+ [+] PID ±»ÏµÍ³»ØÊÕÊ±ÐÂÔËÐÐÊ±²»ÄÜ±»µ±³ÉÆô¶¯Ç°ÒÑ´æÔÚ 19ms
+ [+] ¹²Ïíº¯Êý±¨´íµÄ»ØÖ´²»ÄÜµ±³ÉÒÑ¾ÍÐ÷ 6ms
+ [+] ×ÀÃæ±êÖ¾±ØÐëÊÇ²¼¶ûÖµ£¬ÎÄ±¾ true ²»ÄÜÃ°³äÌ½Õë½á¹û 6ms
+ [+] ÐÂÏÊ¹²ÏíÎÄ¼þ¡¢Êµ¼ÊÐÂ½ø³ÌºÍÖ¸¶¨°²×°Æ¥ÅäÊ±²ÅÍ¨¹ý 5ms
+ [+] PID ÏàÍ¬µ«¹²ÏíÎÄ¼þÔçÓÚ±¾´ÎÇëÇóÊ±²»ÄÜÍ¨¹ý 6ms
+ [+] ÐÂÏÊ»ØÖ´²»ÄÜÑÚ¸Ç½ø³ÌÔçÓÚÆô¶¯ÇëÇóµÄÊÂÊµ 5ms
+ [+] ÆäËû MATLAB °²×°µÄÐÂ PID ²»ÄÜÃ°³äÖ¸¶¨°²×° 5ms
+Describing ×ÀÃæÆô¶¯¼Æ»®Óë·ÇÃô¸Ð»á»°¶ÁÈ¡
+ [+] COM ×¢²áÖ»½ÓÊÜ¹Ù·½×ÀÃæ²ÎÊý²¢Æ¥ÅäÄ¿±ê°²×°£¬¾Ü¾ø¸½¼ÓÃüÁî 33ms
+ [+] COM ÐÂÉí·Ý±ØÐëÓÐÎ¨Ò»±ê¼ÇºÍÆ¥Åä°²×°£»ÒÑÓÐ PID Ã÷È··µ»Ø·ÇÐÂÊµÀý 20ms
+ [+] Ô­Éú³ÖÓÐ½ø³Ì´´½¨±êÖ¾ÍÑÀë Job¡¢ÎÞ´°¿ÚÇÒ²»¼Ì³Ð±ê×¼¾ä±ú£¬²âÊÔÖ»±àÒë²»Æô¶¯ 187ms
+ [+] COM ¹²ÏíÒÑÓÐÊµÀýÊ±ÕæÊµÖ´ÐÐ holder Âß¼­Ö»·¢Ö»¶ÁÉí·Ý²éÑ¯ÇÒ²»Åö½ø³Ì»ò»ØÖ´ 895ms
+ [+] ÐÂ COM holder ±£³ÖÇ¿ÒýÓÃÖ±µ½°ó¶¨ÔËÐÐÊ±ÍË³ö£¬ÂÖÑ¯²»Ïò MATLAB ×¢ÈëµÈ´ý»ò Quit 2.39s
+ [+] COM ÒÑ¼¤»îµ«Éí·ÝÊ§°ÜÊ±±£»î±¾´ÎÐÂºòÑ¡£¬±¨¸æÈÔÎªÊ§°Ü£¬²»Ö´ÐÐ bootstrap 106ms
+ [+] Shell Òì³£Õï¶ÏÓÐ½çÇÒ²»»á»ØÏÔÃÜÔ¿ºÍÈÏÖ¤ÐÐ 8ms
+ [+] º¬¿Õ¸ñºÍµ¥ÒýºÅÂ·¾¶µÄ MATLAB ÃüÁîÓÐÕýÈ·±ß½ç 15ms
+ [+] Shortcut Ä£Ê½Êµ¼Ê ShellExecute Ö»ÓÐÕæÊµ lnk ²ÎÊý£¬²»×¢ÈëÄ¿Â¼ºÍÃüÁî 9ms
+ [+] ¹²ÏíÎÄ¼þÖÐµÄÃÜÔ¿ºÍÆäËûÎ´Öª×Ö¶Î²»½øÈë½á¹û¶ÔÏó 30ms
+ [+] °ëÐ´Èë JSON »ò·Ç·¨¶Ë¿Ú²»·µ»ØºòÑ¡¹²Ïí»á»° 38ms
+ [+] ÕæÊµ PowerShell ¸¨Öú½ø³ÌÊ§°ÜÊ±±£ÁôÍÑÃô stderr ºÍÍË³öÂë£¬²»ÔËÐÐ Shell »ò MATLAB 1.12s
+ [+] ÕæÊµ PowerShell ¸¨Öú½ø³ÌÍË³öÁãÒ²±£Áô stdout ºÍ stderr£¬²»ÔËÐÐ Shell »ò MATLAB 946ms
+Describing Æô¶¯Æ÷¼¯³É¿ØÖÆ£ºËùÓÐ½ø³Ì¾ùÎªÄ£Äâ
+ [+] COM ÐÂ»ØÖ´ÐëÓë´æ»î holder µÄ HOLDING ÔËÐÐÊ±°ó¶¨£¬ÇÒ²»µ÷ÓÃ Shell 246ms
+ [+] COM ¹²ÏíÊµÀý·µ»ØÒÑÓÐ PID Ê±Ã÷È· NOT_NEW£¬²»ÄÜËãÁí¿ª»òÀäÆô¶¯ 80ms
+ [+] Job ½ûÖ¹ breakaway Ê± ComDesktop Ã÷È·±¨ UNSUPPORTED ²¢±£Áô¹éÒò£¬²»Î±×°³ÉÆô¶¯Ê§°Ü 47ms
+ [+] COM holder ÒÑÍË³öÊ±¼´Ê¹´æÔÚÕýÈ·»ØÖ´Ò²²»ÄÜ±¨¾ÍÐ÷ 66ms
+ [+] COM holder °ó¶¨ÆäËûÔËÐÐÊ±²»ÄÜÓÃÕýÈ·»ØÖ´ÑÚ¸Ç£¬³¬Ê±±£Áô½ø³Ì 1.13s
+ [+] COM ¼¤»îºóÊ§°Ü²»µÃ×Ô¶¯½µ¼¶ Shell ÔÙ¿ªÒ»¸öÊµÀý 62ms
+ [+] COM È·ÈÏÒ²ÒªÇó holder ´æ»îÇÒ HOLDING£¬²»ÄÜÈÆ¹ýÖ÷Á÷³Ì±£»¤ 120ms
+ [+] COM DryRun ½ö¼ì²é×¢²á²¢ÏÔÊ¾¼Æ»®£¬²»´´½¨ holder »òÎÄ¼þ 34ms
+ [+] Ä£ÄâÐÂÆô¶¯¼ÇÂ¼ runtime¡¢¸¸´°¿Ú¡¢launcher£¬²¢Óë MCP Ö´ÐÐÖ¤Ã÷·Ö¿ª 84ms
+ [+] ÒÑÓÐ¹²Ïí×ÀÃæÊ±¸´ÓÃÇÒ´Ó²»µ÷ÓÃÆô¶¯Æ÷ 37ms
+ [+] ÒÑÓÐÎ´¹²ÏíµÄ MATLAB Ê±Ä¬ÈÏ±£Áô²¢²»´´½¨ÖØ¸´ÊµÀý 31ms
+ [+] ÏÔÊ½ÒªÇóÁíÒ»Ì× MATLAB Ê±²»»á¸´ÓÃ´íÎó°²×°µÄÒÑÓÐ»á»° 31ms
+ [+] Ã÷È·Áí¿ªÊµÀýÊ±±£ÁôÒÑÓÐ PID£¬±¨¸æ²»¼ÇÀäÆô¶¯ 65ms
+ [+] ¸´ÓÃÂ·¾¶Ò²¾Ü¾øÔçÓÚµ±Ç°½ø³Ì´´½¨Ê±¼äµÄ¾É¹²ÏíÎÄ¼þ 31ms
+ [+] DryRun ²»Æô¶¯½ø³Ì£¬Ò²²»´´½¨Ä¿Â¼ 33ms
+ [+] µÈ´ý³¬Ê±Ð´¿ÉÉó²é±¨¸æ£¬²»½áÊøÈÎºÎ MATLAB 1.07s
+ [+] Shell Æô¶¯Ê§°Ü±£ÁôÕï¶Ï±¨¸æ 66ms
+ [+] Shortcut ÐÂ¹²Ïí×ÀÃæÖ»¼ÇºòÑ¡£¬²»ÄÜÌáÇ°±¨ÐÂÆô¶¯»òÀäÆô¶¯Í¨¹ý 74ms
+ [+] ¿ì½Ý·½Ê½ºòÑ¡È¡µÃ°ó¶¨»ØÖ´ºó¿ÉÈ·ÈÏ£¬È·ÈÏ¶¯×÷²»ÔÙµ÷ÓÃÆô¶¯Æ÷ 122ms
+ [+] ¿ì½Ý·½Ê½ºòÑ¡µÄ¹²ÏíÎÄ¼þ¹ýÆÚÊ±È·ÈÏÊ§°Ü£¬Ô­ºòÑ¡±¨¸æ±£³ÖÎ´Í¨¹ý 83ms
+Tests completed in 9.58s
+Passed: 49 Failed: 0 Skipped: 0 Pending: 0 Inconclusive: 0
+==> ÔËÐÐ [free] Execution.Reliability.Tests.ps1
+
+
+
+
+
+Describing ´íÎó·ÖÀà
+ [+] Ðí¿ÉÖ¤Ê§°Ü¹éÀàÎª LICENSE_ERROR ÇÒ²»¿É×Ô¶¯ÖØÊÔ 55ms
+ [+] MCP Á¬½ÓÊ§°Ü¹éÀàÎª MCP_CONNECTION_ERROR ÇÒ¿ÉÖØÊÔ 6ms
+ [+] È±ÉÙ±àÒëÆ÷¹éÀàÎª ENVIRONMENT_ERROR 4ms
+ [+] ·ÂÕæ´íÎó¹éÀàÎª SIMULATION_ERROR 4ms
+ [+] ¹¹½¨´íÎó¹éÀàÎª CODEGEN_ERROR 4ms
+ [+] ÊýÖµ²»Ò»ÖÂ¹éÀàÎª VALIDATION_ERROR 3ms
+ [+] ÆÕÍ¨ÔËÐÐÊ±±¨´í¹éÀàÎª MATLAB_RUNTIME_ERROR 3ms
+ [+] ³¬Ê±±ê¼ÇÓÅÏÈÓÚÈÎºÎÈÕÖ¾Æ¥Åä 2ms
+ [+] ÍË³öÂëÎª 0 ÇÒÎÞÆ¥ÅäÊ±·µ»Ø null 3ms
+ [+] ¿É»Ö¸´¼¯ºÏÖ»°üº¬ TIMEOUT Óë MCP_CONNECTION_ERROR 3ms
+Describing ÓÐÏÞ´ÎÖØÊÔ
+ [+] ¿É»Ö¸´´íÎó»áÖØÊÔ²¢×îÖÕ³É¹¦ 29ms
+ [+] ²»¿É»Ö¸´´íÎó²»ÖØÊÔ 6ms
+ [+] ·ÇÃÝµÈ²Ù×÷Î´»ñÅú×¼Ê±²»ÖØÊÔ 5ms
+ [+] ·ÇÃÝµÈ²Ù×÷»ñµÃÅú×¼ºóÔÊÐíÖØÊÔ 8ms
+ [+] ×î´ó³¢ÊÔ´ÎÊý±»ÏÞÖÆÔÚ 1..5£¬²»»áÎÞÏÞÑ­»· 6ms
+ [+] Action Å×Òì³£Ê±°´ÏûÏ¢·ÖÀà 5ms
+Describing ½ø³Ì³¬Ê±ÓëÇåÀí
+ [+] ³¬¹ý³¬Ê±ãÐÖµ»áÖÕÖ¹½ø³Ì²¢¹éÀà TIMEOUT 2.62s
+ [+] Õý³£ÍË³öµÄ½ø³Ì·µ»ØÕæÊµÍË³öÂë 577ms
+ [+] ·ÇÁãÍË³öÂë»á±»·ÖÀà¶ø²»ÊÇ±»ÍÌµô 727ms
+ [+] ¿ÉÖ´ÐÐÎÄ¼þ²»´æÔÚÊ±Å×´í¶ø²»ÊÇ¾²Ä¬Í¨¹ý 7ms
+ [+] ³¬Ê±ãÐÖµÐ¡ÓÚ 1 Ãë»á±»¾Ü¾ø£¨±ÜÃâÎÞ·¨Çø·Ö¹ÒÆðÓëÕý³£½áÊø£© 6ms
+ [+] µ÷ÓÃ·½²»´«½×¶ÎÈÕÖ¾Â·¾¶Ê±ÈÔÈ»ÂäÅÌ£¨·ñÔò³¬Ê±ÅÅ²éÃ»ÓÐÖ¤¾Ý£© 588ms
+Describing MATLAB °²×°Ì½²â
+ [+] ÄÜ´ÓºÏ³É°²×°Ä¿Â¼¶Á³ö°æ±¾Óë release 41ms
+ [+] VersionInfo È±Ê§Ê±±ê¼Ç²»¿É¶Á¶ø²»ÊÇÅ×´í 7ms
+ [+] ÏÔÊ½Â·¾¶²»´æÔÚÊ±·µ»Ø null 4ms
+Describing ¶Ì½ø³Ì³¬Ê±
+ [+] Invoke-ProcessWithTimeout ÄÜÖÕÖ¹³¬Ê±µÄÍâ²¿ÃüÁî 2.56s
+ [+] Invoke-ProcessWithTimeout ·µ»Ø±ê×¼Êä³öÓëÍË³öÂë 501ms
+Tests completed in 7.8s
+Passed: 27 Failed: 0 Skipped: 0 Pending: 0 Inconclusive: 0
+==> ÔËÐÐ [free] Installer.Scenarios.Tests.ps1
+
+
+
+
+
+Describing Install-MatlabMcpClients£ºÊ×´Î°²×°Óë°²È«ºÏ²¢
+[33;1m¾¯¸æ: SessionMode=existing ²»ÔÊÐí --matlab-display-mode£¬ÒÑ×Ô¶¯Ê¡ÂÔ£¨·ñÔò MCP server Æô¶¯¼´Ê§°Ü£©¡£[0m
+[33;1m¾¯¸æ: SessionMode=existing ²»ÔÊÐí --matlab-root£¬ÒÑ×Ô¶¯Ê¡ÂÔ¡£[0m
+[33;1m¾¯¸æ: SessionMode=existing ±íÊ¾¸´ÓÃÒÑÓÐ»á»°£¬²»»áÆô¶¯ÐÂ MATLAB£¬ÒÑ×Ô¶¯Ê¡ÂÔ --initialize-matlab-on-startup¡£[0m
+==> ½âÎö MATLAB MCP Server ¿ÉÖ´ÐÐÎÄ¼þ
+    server: D:\Temp\mas-e2e-86248ac5acb14e39bf3fdfc111d1e5ae\fake-mcp-server.cmd (source=explicit, release=v0.15.0, integrity=UNVERIFIED_ACCEPTED_BY_OPERATOR)
+[33;1m¾¯¸æ: ÕýÔÚÊ¹ÓÃÎ´¾­¹Ì¶¨Çåµ¥Ð£ÑéµÄ MCP server: D:\Temp\mas-e2e-86248ac5acb14e39bf3fdfc111d1e5ae\fake-mcp-server.cmd£¨SHA256=8D44F071A98F78308F761D1C01D0187A653CC4280C3E699EE02CBAB88E0BFDF6£©¡£ ×´Ì¬¼ÇÎª UNVERIFIED_ACCEPTED_BY_OPERATOR£¬°²×°ÕªÒª²»»á°ÑËü±êÎªÒÑÑéÖ¤¡£[0m
+    ±¸·ÝÄ¿Â¼£¨½öÔÚ·¢Éú±ä¸üÊ±´´½¨£©: D:\Temp\mas-e2e-86248ac5acb14e39bf3fdfc111d1e5ae\backups\20261026-133456-install-clients
+==> Ìø¹ý»ù´¡ÅäÖÃ£¨-SkipBaseSetup£©
+==> Ð´ÈëÍ¨ÓÃ .mcp.json£¨°²È«ºÏ²¢£©
+ [+] existing Ä£Ê½Éú³ÉµÄ .mcp.json ²»º¬ --matlab-display-mode 177ms
+==> ½âÎö MATLAB MCP Server ¿ÉÖ´ÐÐÎÄ¼þ
+    server: D:\Temp\mas-e2e-9e70353583d746b4a5f2a63b535f4154\fake-mcp-server.cmd (source=explicit, release=v0.15.0, integrity=UNVERIFIED_ACCEPTED_BY_OPERATOR)
+[33;1m¾¯¸æ: ÕýÔÚÊ¹ÓÃÎ´¾­¹Ì¶¨Çåµ¥Ð£ÑéµÄ MCP server: D:\Temp\mas-e2e-9e70353583d746b4a5f2a63b535f4154\fake-mcp-server.cmd£¨SHA256=8D44F071A98F78308F761D1C01D0187A653CC4280C3E699EE02CBAB88E0BFDF6£©¡£ ×´Ì¬¼ÇÎª UNVERIFIED_ACCEPTED_BY_OPERATOR£¬°²×°ÕªÒª²»»á°ÑËü±êÎªÒÑÑéÖ¤¡£[0m
+    ±¸·ÝÄ¿Â¼£¨½öÔÚ·¢Éú±ä¸üÊ±´´½¨£©: D:\Temp\mas-e2e-9e70353583d746b4a5f2a63b535f4154\backups\20261026-133456-install-clients
+==> Ìø¹ý»ù´¡ÅäÖÃ£¨-SkipBaseSetup£©
+==> Ð´ÈëÍ¨ÓÃ .mcp.json£¨°²È«ºÏ²¢£©
+ [+] auto Ä£Ê½Éú³ÉµÄÅäÖÃ°üº¬ display-mode Óë matlab-root 50ms
+==> ½âÎö MATLAB MCP Server ¿ÉÖ´ÐÐÎÄ¼þ
+    server: D:\Temp\mas-e2e-c8dd6b9846cf401e91c4d8b212bd6ca8\fake-mcp-server.cmd (source=explicit, release=v0.15.0, integrity=UNVERIFIED_ACCEPTED_BY_OPERATOR)
+[33;1m¾¯¸æ: ÕýÔÚÊ¹ÓÃÎ´¾­¹Ì¶¨Çåµ¥Ð£ÑéµÄ MCP server: D:\Temp\mas-e2e-c8dd6b9846cf401e91c4d8b212bd6ca8\fake-mcp-server.cmd£¨SHA256=8D44F071A98F78308F761D1C01D0187A653CC4280C3E699EE02CBAB88E0BFDF6£©¡£ ×´Ì¬¼ÇÎª UNVERIFIED_ACCEPTED_BY_OPERATOR£¬°²×°ÕªÒª²»»á°ÑËü±êÎªÒÑÑéÖ¤¡£[0m
+    ±¸·ÝÄ¿Â¼£¨½öÔÚ·¢Éú±ä¸üÊ±´´½¨£©: D:\Temp\mas-e2e-c8dd6b9846cf401e91c4d8b212bd6ca8\backups\20261026-133456-install-clients
+==> Ìø¹ý»ù´¡ÅäÖÃ£¨-SkipBaseSetup£©
+==> Ð´ÈëÍ¨ÓÃ .mcp.json£¨°²È«ºÏ²¢£©
+ [+] ±£ÁôÓÃ»§ÒÑÓÐµÄÆäËü MCP server ÅäÖÃ 91ms
+==> ½âÎö MATLAB MCP Server ¿ÉÖ´ÐÐÎÄ¼þ
+    server: D:\Temp\mas-e2e-a4502a0719c04703b4de72ff003c48ba\fake-mcp-server.cmd (source=explicit, release=v0.15.0, integrity=UNVERIFIED_ACCEPTED_BY_OPERATOR)
+[33;1m¾¯¸æ: ÕýÔÚÊ¹ÓÃÎ´¾­¹Ì¶¨Çåµ¥Ð£ÑéµÄ MCP server: D:\Temp\mas-e2e-a4502a0719c04703b4de72ff003c48ba\fake-mcp-server.cmd£¨SHA256=8D44F071A98F78308F761D1C01D0187A653CC4280C3E699EE02CBAB88E0BFDF6£©¡£ ×´Ì¬¼ÇÎª UNVERIFIED_ACCEPTED_BY_OPERATOR£¬°²×°ÕªÒª²»»á°ÑËü±êÎªÒÑÑéÖ¤¡£[0m
+    ±¸·ÝÄ¿Â¼£¨½öÔÚ·¢Éú±ä¸üÊ±´´½¨£©: D:\Temp\mas-e2e-a4502a0719c04703b4de72ff003c48ba\backups\20261026-133456-install-clients
+==> Ìø¹ý»ù´¡ÅäÖÃ£¨-SkipBaseSetup£©
+==> Ð´Èë VS Code MCP ÅäÖÃ£¨°²È«ºÏ²¢£©
+ [+] VS Code ÅäÖÃ±£ÁôÆäËü server ²¢´ø type=stdio 73ms
+==> ½âÎö MATLAB MCP Server ¿ÉÖ´ÐÐÎÄ¼þ
+    server: D:\Temp\mas-e2e-fac6fd75b5a5470a906dca7a88bc6c3a\fake-mcp-server.cmd (source=explicit, release=v0.15.0, integrity=UNVERIFIED_ACCEPTED_BY_OPERATOR)
+[33;1m¾¯¸æ: ÕýÔÚÊ¹ÓÃÎ´¾­¹Ì¶¨Çåµ¥Ð£ÑéµÄ MCP server: D:\Temp\mas-e2e-fac6fd75b5a5470a906dca7a88bc6c3a\fake-mcp-server.cmd£¨SHA256=8D44F071A98F78308F761D1C01D0187A653CC4280C3E699EE02CBAB88E0BFDF6£©¡£ ×´Ì¬¼ÇÎª UNVERIFIED_ACCEPTED_BY_OPERATOR£¬°²×°ÕªÒª²»»á°ÑËü±êÎªÒÑÑéÖ¤¡£[0m
+    ±¸·ÝÄ¿Â¼£¨½öÔÚ·¢Éú±ä¸üÊ±´´½¨£©: D:\Temp\mas-e2e-fac6fd75b5a5470a906dca7a88bc6c3a\backups\20261026-133456-install-clients
+==> Ìø¹ý»ù´¡ÅäÖÃ£¨-SkipBaseSetup£©
+==> Ð´ÈëÍ¨ÓÃ .mcp.json£¨°²È«ºÏ²¢£©
+==> ½âÎö MATLAB MCP Server ¿ÉÖ´ÐÐÎÄ¼þ
+    server: D:\Temp\mas-e2e-fac6fd75b5a5470a906dca7a88bc6c3a\fake-mcp-server.cmd (source=explicit, release=v0.15.0, integrity=UNVERIFIED_ACCEPTED_BY_OPERATOR)
+[33;1m¾¯¸æ: ÕýÔÚÊ¹ÓÃÎ´¾­¹Ì¶¨Çåµ¥Ð£ÑéµÄ MCP server: D:\Temp\mas-e2e-fac6fd75b5a5470a906dca7a88bc6c3a\fake-mcp-server.cmd£¨SHA256=8D44F071A98F78308F761D1C01D0187A653CC4280C3E699EE02CBAB88E0BFDF6£©¡£ ×´Ì¬¼ÇÎª UNVERIFIED_ACCEPTED_BY_OPERATOR£¬°²×°ÕªÒª²»»á°ÑËü±êÎªÒÑÑéÖ¤¡£[0m
+    ±¸·ÝÄ¿Â¼£¨½öÔÚ·¢Éú±ä¸üÊ±´´½¨£©: D:\Temp\mas-e2e-fac6fd75b5a5470a906dca7a88bc6c3a\backups\20261026-133456-install-clients
+==> Ìø¹ý»ù´¡ÅäÖÃ£¨-SkipBaseSetup£©
+==> Ð´ÈëÍ¨ÓÃ .mcp.json£¨°²È«ºÏ²¢£©
+ [+] ÖØ¸´°²×°ÊÇÃÝµÈµÄ£¨µÚ¶þ´ÎÈ«²¿ unchanged£¬ÎÄ¼þ×Ö½Ú²»±ä£© 78ms
+==> ½âÎö MATLAB MCP Server ¿ÉÖ´ÐÐÎÄ¼þ
+    server: D:\Temp\mas-e2e-4463f582d46543a3bef70f25ba99b39d\fake-mcp-server.cmd (source=explicit, release=v0.15.0, integrity=UNVERIFIED_ACCEPTED_BY_OPERATOR)
+[33;1m¾¯¸æ: ÕýÔÚÊ¹ÓÃÎ´¾­¹Ì¶¨Çåµ¥Ð£ÑéµÄ MCP server: D:\Temp\mas-e2e-4463f582d46543a3bef70f25ba99b39d\fake-mcp-server.cmd£¨SHA256=8D44F071A98F78308F761D1C01D0187A653CC4280C3E699EE02CBAB88E0BFDF6£©¡£ ×´Ì¬¼ÇÎª UNVERIFIED_ACCEPTED_BY_OPERATOR£¬°²×°ÕªÒª²»»á°ÑËü±êÎªÒÑÑéÖ¤¡£[0m
+    ±¸·ÝÄ¿Â¼£¨½öÔÚ·¢Éú±ä¸üÊ±´´½¨£©: D:\Temp\mas-e2e-4463f582d46543a3bef70f25ba99b39d\backups\20261026-133456-install-clients
+==> Ìø¹ý»ù´¡ÅäÖÃ£¨-SkipBaseSetup£©
+==> Ð´ÈëÍ¨ÓÃ .mcp.json£¨°²È«ºÏ²¢£©
+[33;1m¾¯¸æ: °²×°Ê§°Ü£¬¿ªÊ¼»Ø¹ö: ÎÞ·¨½âÎö JSON ÅäÖÃ: D:\Temp\mas-e2e-4463f582d46543a3bef70f25ba99b39d\work\.mcp.json¡£Îª±ÜÃâÆÆ»µÄãÒÑÓÐµÄÅäÖÃ£¬°²×°Æ÷ÒÑÖÐÖ¹¡£ÇëÏÈÐÞ¸´¸ÃÎÄ¼þµÄÓï·¨£¨º¬×¢ÊÍµÄ JSONC Ò²»áµ¼ÖÂ´Ë´íÎó£©¡£[0m
+ [+] ÅäÖÃÎÄ¼þ JSON ·Ç·¨Ê±°²×°Ê§°ÜÇÒÔ­ÎÄ¼þ²»±»ÆÆ»µ 53ms
+==> ½âÎö MATLAB MCP Server ¿ÉÖ´ÐÐÎÄ¼þ
+    server: D:\Temp\mas-e2e-e4300cbb32da4aa4912d3b361f733b33\fake-mcp-server.cmd (source=explicit, release=v0.15.0, integrity=UNVERIFIED_ACCEPTED_BY_OPERATOR)
+==> Ìø¹ý»ù´¡ÅäÖÃ£¨-SkipBaseSetup£©
+==> Ð´ÈëÍ¨ÓÃ .mcp.json£¨°²È«ºÏ²¢£©
+==> [DryRun] ½«´´½¨ D:\Temp\mas-e2e-e4300cbb32da4aa4912d3b361f733b33\work\.mcp.json ÖÐµÄ mcpServers.matlab-official£¨ÆäÓà 0 ¸öÌõÄ¿±£³Ö²»±ä£©
+ [+] DryRun ²»Ð´ .mcp.json 43ms
+Describing Install-MatlabMcpClients£º¿Í»§¶Ë½âñî£¨P0-2£©
+==> ½âÎö MATLAB MCP Server ¿ÉÖ´ÐÐÎÄ¼þ
+    server: D:\Temp\mas-e2e-e56c1b7225d74c33bf4661de1d48c1d8\fake-mcp-server.cmd (source=explicit, release=v0.15.0, integrity=UNVERIFIED_ACCEPTED_BY_OPERATOR)
+[33;1m¾¯¸æ: ÕýÔÚÊ¹ÓÃÎ´¾­¹Ì¶¨Çåµ¥Ð£ÑéµÄ MCP server: D:\Temp\mas-e2e-e56c1b7225d74c33bf4661de1d48c1d8\fake-mcp-server.cmd£¨SHA256=8D44F071A98F78308F761D1C01D0187A653CC4280C3E699EE02CBAB88E0BFDF6£©¡£ ×´Ì¬¼ÇÎª UNVERIFIED_ACCEPTED_BY_OPERATOR£¬°²×°ÕªÒª²»»á°ÑËü±êÎªÒÑÑéÖ¤¡£[0m
+    ±¸·ÝÄ¿Â¼£¨½öÔÚ·¢Éú±ä¸üÊ±´´½¨£©: D:\Temp\mas-e2e-e56c1b7225d74c33bf4661de1d48c1d8\backups\20261026-133456-install-clients
+==> Ìø¹ý»ù´¡ÅäÖÃ£¨-SkipBaseSetup£©
+==> ½ÓÈë Claude Code
+ [+] Ã»ÓÐ Codex Ê±Ò²ÄÜµ¥¶À½ÓÈë Claude Code 3.23s
+==> ½âÎö MATLAB MCP Server ¿ÉÖ´ÐÐÎÄ¼þ
+    server: D:\Temp\mas-e2e-2e9e31bc390d428bbf30468e5e8e3828\fake-mcp-server.cmd (source=explicit, release=v0.15.0, integrity=UNVERIFIED_ACCEPTED_BY_OPERATOR)
+[33;1m¾¯¸æ: ÕýÔÚÊ¹ÓÃÎ´¾­¹Ì¶¨Çåµ¥Ð£ÑéµÄ MCP server: D:\Temp\mas-e2e-2e9e31bc390d428bbf30468e5e8e3828\fake-mcp-server.cmd£¨SHA256=8D44F071A98F78308F761D1C01D0187A653CC4280C3E699EE02CBAB88E0BFDF6£©¡£ ×´Ì¬¼ÇÎª UNVERIFIED_ACCEPTED_BY_OPERATOR£¬°²×°ÕªÒª²»»á°ÑËü±êÎªÒÑÑéÖ¤¡£[0m
+    ±¸·ÝÄ¿Â¼£¨½öÔÚ·¢Éú±ä¸üÊ±´´½¨£©: D:\Temp\mas-e2e-2e9e31bc390d428bbf30468e5e8e3828\backups\20261026-133459-install-clients
+==> Ìø¹ý»ù´¡ÅäÖÃ£¨-SkipBaseSetup£©
+==> ½ÓÈë Codex
+[33;1m¾¯¸æ: °²×°Ê§°Ü£¬¿ªÊ¼»Ø¹ö: Ã»ÓÐ¼ì²âµ½ codex ÃüÁî£¬ÎÞ·¨½ÓÈë Codex¡£ÇëÏÈ°²×° Codex CLI£¬»òÓÃ -Clients claude µ¥¶À½ÓÈë Claude Code¡£[0m
+ [+] ÏÔÊ½ÒªÇó Codex µ«Î´°²×°Ê±¸ø³öÃ÷È·´íÎó 1.58s
+==> ½âÎö MATLAB MCP Server ¿ÉÖ´ÐÐÎÄ¼þ
+    server: D:\Temp\mas-e2e-7e4ca050c4024b4e9df513a1027d2be1\fake-mcp-server.cmd (source=explicit, release=v0.15.0, integrity=UNVERIFIED_ACCEPTED_BY_OPERATOR)
+[33;1m¾¯¸æ: ÕýÔÚÊ¹ÓÃÎ´¾­¹Ì¶¨Çåµ¥Ð£ÑéµÄ MCP server: D:\Temp\mas-e2e-7e4ca050c4024b4e9df513a1027d2be1\fake-mcp-server.cmd£¨SHA256=8D44F071A98F78308F761D1C01D0187A653CC4280C3E699EE02CBAB88E0BFDF6£©¡£ ×´Ì¬¼ÇÎª UNVERIFIED_ACCEPTED_BY_OPERATOR£¬°²×°ÕªÒª²»»á°ÑËü±êÎªÒÑÑéÖ¤¡£[0m
+    ±¸·ÝÄ¿Â¼£¨½öÔÚ·¢Éú±ä¸üÊ±´´½¨£©: D:\Temp\mas-e2e-7e4ca050c4024b4e9df513a1027d2be1\backups\20261026-133501-install-clients
+==> Ìø¹ý»ù´¡ÅäÖÃ£¨-SkipBaseSetup£©
+==> ½ÓÈë Claude Code
+==> ½âÎö MATLAB MCP Server ¿ÉÖ´ÐÐÎÄ¼þ
+    server: D:\Temp\mas-e2e-7e4ca050c4024b4e9df513a1027d2be1\fake-mcp-server.cmd (source=explicit, release=v0.15.0, integrity=UNVERIFIED_ACCEPTED_BY_OPERATOR)
+[33;1m¾¯¸æ: ÕýÔÚÊ¹ÓÃÎ´¾­¹Ì¶¨Çåµ¥Ð£ÑéµÄ MCP server: D:\Temp\mas-e2e-7e4ca050c4024b4e9df513a1027d2be1\fake-mcp-server.cmd£¨SHA256=8D44F071A98F78308F761D1C01D0187A653CC4280C3E699EE02CBAB88E0BFDF6£©¡£ ×´Ì¬¼ÇÎª UNVERIFIED_ACCEPTED_BY_OPERATOR£¬°²×°ÕªÒª²»»á°ÑËü±êÎªÒÑÑéÖ¤¡£[0m
+    ±¸·ÝÄ¿Â¼£¨½öÔÚ·¢Éú±ä¸üÊ±´´½¨£©: D:\Temp\mas-e2e-7e4ca050c4024b4e9df513a1027d2be1\backups\20261026-133504-install-clients
+==> Ìø¹ý»ù´¡ÅäÖÃ£¨-SkipBaseSetup£©
+==> ½ÓÈë Claude Code
+ [+] Claude ×¢²áÖØ¸´Ö´ÐÐÊÇÃÝµÈµÄ 5.16s
+[33;1m¾¯¸æ: SessionMode=existing ²»ÔÊÐí --matlab-display-mode£¬ÒÑ×Ô¶¯Ê¡ÂÔ£¨·ñÔò MCP server Æô¶¯¼´Ê§°Ü£©¡£[0m
+[33;1m¾¯¸æ: SessionMode=existing ²»ÔÊÐí --matlab-root£¬ÒÑ×Ô¶¯Ê¡ÂÔ¡£[0m
+[33;1m¾¯¸æ: SessionMode=existing ±íÊ¾¸´ÓÃÒÑÓÐ»á»°£¬²»»áÆô¶¯ÐÂ MATLAB£¬ÒÑ×Ô¶¯Ê¡ÂÔ --initialize-matlab-on-startup¡£[0m
+==> ½âÎö MATLAB MCP Server ¿ÉÖ´ÐÐÎÄ¼þ
+    server: D:\Temp\mas-e2e-1568e1365bed4e569f253f8235083e75\fake-mcp-server.cmd (source=explicit, release=v0.15.0, integrity=UNVERIFIED_ACCEPTED_BY_OPERATOR)
+[33;1m¾¯¸æ: ÕýÔÚÊ¹ÓÃÎ´¾­¹Ì¶¨Çåµ¥Ð£ÑéµÄ MCP server: D:\Temp\mas-e2e-1568e1365bed4e569f253f8235083e75\fake-mcp-server.cmd£¨SHA256=8D44F071A98F78308F761D1C01D0187A653CC4280C3E699EE02CBAB88E0BFDF6£©¡£ ×´Ì¬¼ÇÎª UNVERIFIED_ACCEPTED_BY_OPERATOR£¬°²×°ÕªÒª²»»á°ÑËü±êÎªÒÑÑéÖ¤¡£[0m
+    ±¸·ÝÄ¿Â¼£¨½öÔÚ·¢Éú±ä¸üÊ±´´½¨£©: D:\Temp\mas-e2e-1568e1365bed4e569f253f8235083e75\backups\20261026-133506-install-clients
+==> Ìø¹ý»ù´¡ÅäÖÃ£¨-SkipBaseSetup£©
+==> ½ÓÈë Claude Code
+ [+] existing Ä£Ê½×¢²áµ½¿Í»§¶ËÊ±Ò²²»Ð¯´ø display-mode 3.12s
+==> ¸üÐÂÒÑÓÐ²Ö¿â
+    [DryRun] git -C E:\desktop\MATLAB pull --ff-only
+==> ½âÎö MATLAB °²×°Ä¿Â¼
+    matlabRoot: D:\Temp\mas-e2e-84666660f7d641d3a52e727e2dddfaae\matlab
+==> ×¼±¸ MATLAB MCP Server ¶þ½øÖÆ£¨¹Ì¶¨Çåµ¥Ð£Ñé£©
+    server: E:\desktop\MATLAB\bin\matlab-mcp-server-windows-x64.exe (source=existing, release=v0.15.0, integrity=VERIFIED_AGAINST_MANIFEST)
+==> °²×° MCP ¿Í»§¶Ë½ÓÈë
+==> ½âÎö MATLAB MCP Server ¿ÉÖ´ÐÐÎÄ¼þ
+    server: E:\desktop\MATLAB\bin\matlab-mcp-server-windows-x64.exe (source=explicit, release=v0.15.0, integrity=VERIFIED_AGAINST_MANIFEST)
+==> Ìø¹ý»ù´¡ÅäÖÃ£¨-SkipBaseSetup£©
+==> Ð´ÈëÍ¨ÓÃ .mcp.json£¨°²È«ºÏ²¢£©
+==> [DryRun] ½«¸üÐÂ E:\desktop\MATLAB\.mcp.json ÖÐµÄ mcpServers.matlab-official£¨ÆäÓà 0 ¸öÌõÄ¿±£³Ö²»±ä£©
+ [+] Bootstrap -DryRun ÔÚÒÑÓÐ²Ö¿âÉÏ²»Ð´ÈÎºÎÎÄ¼þ£¨ÃÝµÈÃ°ÑÌ£© 159ms
+==> ½âÎö MATLAB MCP Server ¿ÉÖ´ÐÐÎÄ¼þ
+    server: D:\Temp\mas-e2e-eefdf3147027486cb6e046960365e2dc\fake-mcp-server.cmd (source=explicit, release=v0.15.0, integrity=UNVERIFIED_ACCEPTED_BY_OPERATOR)
+[33;1m¾¯¸æ: ÕýÔÚÊ¹ÓÃÎ´¾­¹Ì¶¨Çåµ¥Ð£ÑéµÄ MCP server: D:\Temp\mas-e2e-eefdf3147027486cb6e046960365e2dc\fake-mcp-server.cmd£¨SHA256=8D44F071A98F78308F761D1C01D0187A653CC4280C3E699EE02CBAB88E0BFDF6£©¡£ ×´Ì¬¼ÇÎª UNVERIFIED_ACCEPTED_BY_OPERATOR£¬°²×°ÕªÒª²»»á°ÑËü±êÎªÒÑÑéÖ¤¡£[0m
+    ±¸·ÝÄ¿Â¼£¨½öÔÚ·¢Éú±ä¸üÊ±´´½¨£©: D:\Temp\mas-e2e-eefdf3147027486cb6e046960365e2dc\backups\20261026-133509-install-clients
+==> Ìø¹ý»ù´¡ÅäÖÃ£¨-SkipBaseSetup£©
+==> ½ÓÈë Codex
+[33;1m¾¯¸æ: °²×°Ê§°Ü£¬¿ªÊ¼»Ø¹ö: ×¢²áµ½ codex Ê§°Ü£¨exit=3£©£ºstub: transient add failure ÒÑ»¹Ô­±ä¸üÇ°µÄ×¢²á¡£[0m
+    »¹Ô­¿Í»§¶Ë×¢²á: codex matlab-official
+ [+] ×¢²áÊ§°ÜÊ±»Ø¹öµ½±ä¸üÇ°µÄ×¢²á£¨P0-3£© 8.12s
+Describing Setup-MatlabMcpExistingSession£ºÊ§°Ü»Ø¹ö£¨P0-6£©
+    ±¸·ÝÄ¿Â¼£¨½öÔÚ·¢Éú±ä¸üÊ±´´½¨£©: D:\Temp\mas-e2e-b6897a6e20824feeab9aa1e2ad87ad73\backups\20261026-133517-setup-mcp
+==> ½âÎö MATLAB MCP Server ¿ÉÖ´ÐÐÎÄ¼þ
+    server: D:\Temp\mas-e2e-b6897a6e20824feeab9aa1e2ad87ad73\fake-mcp-server.cmd (source=explicit, release=v0.15.0, integrity=UNVERIFIED_ACCEPTED_BY_OPERATOR)
+==> ½âÎö MATLAB °²×°Ä¿Â¼
+    matlabRoot: D:\Temp\mas-e2e-b6897a6e20824feeab9aa1e2ad87ad73\matlab
+==> °²×° MATLAB MCP Server Toolbox
+[33;1m¾¯¸æ: ÕýÔÚÊ¹ÓÃÎ´¾­¹Ì¶¨Çåµ¥Ð£ÑéµÄ MCP server: D:\Temp\mas-e2e-b6897a6e20824feeab9aa1e2ad87ad73\fake-mcp-server.cmd£¨SHA256=8D44F071A98F78308F761D1C01D0187A653CC4280C3E699EE02CBAB88E0BFDF6£©¡£ ×´Ì¬¼ÇÎª UNVERIFIED_ACCEPTED_BY_OPERATOR£¬°²×°ÕªÒª²»»á°ÑËü±êÎªÒÑÑéÖ¤¡£[0m
+==> Ìø¹ý ACL ÐÞÕý£¨-SkipAclFix£©
+==> Ð´Èë startup.m ÍÐ¹Ü¿é
+    startup.m: appended
+[33;1m¾¯¸æ: ÅäÖÃÊ§°Ü£¬¿ªÊ¼»Ø¹ö: ¹ÊÕÏ×¢Èë£ºstartup ²½ÖèºóÇ¿ÖÆÊ§°Ü[0m
+    »¹Ô­ÎÄ¼þ: D:\Temp\mas-e2e-b6897a6e20824feeab9aa1e2ad87ad73\matlabuser\startup.m
+ [+] startup ²½ÖèºóÊ§°Ü»á»¹Ô­ startup.m 162ms
+[33;1m¾¯¸æ: SessionMode=existing ²»ÔÊÐí --matlab-display-mode£¬ÒÑ×Ô¶¯Ê¡ÂÔ£¨·ñÔò MCP server Æô¶¯¼´Ê§°Ü£©¡£[0m
+[33;1m¾¯¸æ: SessionMode=existing ²»ÔÊÐí --matlab-root£¬ÒÑ×Ô¶¯Ê¡ÂÔ¡£[0m
+[33;1m¾¯¸æ: SessionMode=existing ±íÊ¾¸´ÓÃÒÑÓÐ»á»°£¬²»»áÆô¶¯ÐÂ MATLAB£¬ÒÑ×Ô¶¯Ê¡ÂÔ --initialize-matlab-on-startup¡£[0m
+    ÒÑÊ¡ÂÔ²ÎÊý: --matlab-display-mode=desktop --matlab-root=D:\Temp\mas-e2e-a19cf9337a6e4d0ca060995f67f6b5ab\matlab --initialize-matlab-on-startup=true
+==> ½âÎö MATLAB MCP Server ¿ÉÖ´ÐÐÎÄ¼þ
+    server: D:\Temp\mas-e2e-a19cf9337a6e4d0ca060995f67f6b5ab\fake-mcp-server.cmd (source=explicit, release=v0.15.0, integrity=UNVERIFIED_ACCEPTED_BY_OPERATOR)
+==> ½âÎö MATLAB °²×°Ä¿Â¼
+    matlabRoot: D:\Temp\mas-e2e-a19cf9337a6e4d0ca060995f67f6b5ab\matlab
+==> °²×° MATLAB MCP Server Toolbox
+    [DryRun] D:\Temp\mas-e2e-a19cf9337a6e4d0ca060995f67f6b5ab\fake-mcp-server.cmd --setup-matlab --matlab-root=D:\Temp\mas-e2e-a19cf9337a6e4d0ca060995f67f6b5ab\matlab
+==> Ìø¹ý ACL ÐÞÕý£¨-SkipAclFix£©
+==> Ð´Èë startup.m ÍÐ¹Ü¿é
+    startup.m: would-created
+==> Ìø¹ý¿Í»§¶Ë×¢²á£¨»ù´¡ÅäÖÃÓë¿Í»§¶Ë½âñî£©
+ [+] DryRun ²»´´½¨ startup.m¡¢²»¸ÄÊý¾ÝÄ¿Â¼ 32ms
+ [+] ÖªÃû SID ÔÚ SDDL ÀïÏÔÊ¾Îª±ðÃûÊ±²»»á±»ÎóÅÐÎªÊÚÈ¨Ê§°Ü 43ms
+ [+] ACL ÊÚÈ¨ÊÇ×·¼ÓÊ½ÇÒ¿É»¹Ô­£¨P0-6£© 71ms
+Describing Sync-Skills£º³åÍ»¼ì²âÓë±¸·Ý£¨P0-5£©
+==> Í¬²½ skills: E:\desktop\MATLAB\skills -> D:\Temp\mas-e2e-ba43e1742f084a459aac1416349b57b8\skills
+    ±¸·ÝÄ¿Â¼£¨½öÔÚ·¢Éú±ä¸üÊ±´´½¨£©: D:\Temp\mas-e2e-ba43e1742f084a459aac1416349b57b8\backups\20261026-133518-sync-skills
+  install: matlab-codegen-deploy -> D:\Temp\mas-e2e-ba43e1742f084a459aac1416349b57b8\skills\matlab-codegen-deploy
+  install: matlab-control-optimization -> D:\Temp\mas-e2e-ba43e1742f084a459aac1416349b57b8\skills\matlab-control-optimization
+  install: matlab-data-analysis -> D:\Temp\mas-e2e-ba43e1742f084a459aac1416349b57b8\skills\matlab-data-analysis
+  install: matlab-orchestrator -> D:\Temp\mas-e2e-ba43e1742f084a459aac1416349b57b8\skills\matlab-orchestrator
+  install: matlab-robotics-autonomy -> D:\Temp\mas-e2e-ba43e1742f084a459aac1416349b57b8\skills\matlab-robotics-autonomy
+  install: matlab-runner -> D:\Temp\mas-e2e-ba43e1742f084a459aac1416349b57b8\skills\matlab-runner
+  install: matlab-signal-vision-ai -> D:\Temp\mas-e2e-ba43e1742f084a459aac1416349b57b8\skills\matlab-signal-vision-ai
+  install: matlab-simulink-modeling -> D:\Temp\mas-e2e-ba43e1742f084a459aac1416349b57b8\skills\matlab-simulink-modeling
+  install: matlab-testing-ci -> D:\Temp\mas-e2e-ba43e1742f084a459aac1416349b57b8\skills\matlab-testing-ci
+ [+] Ê×´ÎÍ¬²½°²×°È«²¿¼¼ÄÜ²¢Ð´ manifest 3.46s
+==> Í¬²½ skills: E:\desktop\MATLAB\skills -> D:\Temp\mas-e2e-1b53fe50cd074117b4cfe9053db6e54a\skills
+    ±¸·ÝÄ¿Â¼£¨½öÔÚ·¢Éú±ä¸üÊ±´´½¨£©: D:\Temp\mas-e2e-1b53fe50cd074117b4cfe9053db6e54a\backups\20261026-133521-sync-skills
+  install: matlab-codegen-deploy -> D:\Temp\mas-e2e-1b53fe50cd074117b4cfe9053db6e54a\skills\matlab-codegen-deploy
+  install: matlab-control-optimization -> D:\Temp\mas-e2e-1b53fe50cd074117b4cfe9053db6e54a\skills\matlab-control-optimization
+  install: matlab-data-analysis -> D:\Temp\mas-e2e-1b53fe50cd074117b4cfe9053db6e54a\skills\matlab-data-analysis
+  install: matlab-orchestrator -> D:\Temp\mas-e2e-1b53fe50cd074117b4cfe9053db6e54a\skills\matlab-orchestrator
+  install: matlab-robotics-autonomy -> D:\Temp\mas-e2e-1b53fe50cd074117b4cfe9053db6e54a\skills\matlab-robotics-autonomy
+  install: matlab-runner -> D:\Temp\mas-e2e-1b53fe50cd074117b4cfe9053db6e54a\skills\matlab-runner
+  install: matlab-signal-vision-ai -> D:\Temp\mas-e2e-1b53fe50cd074117b4cfe9053db6e54a\skills\matlab-signal-vision-ai
+  install: matlab-simulink-modeling -> D:\Temp\mas-e2e-1b53fe50cd074117b4cfe9053db6e54a\skills\matlab-simulink-modeling
+  install: matlab-testing-ci -> D:\Temp\mas-e2e-1b53fe50cd074117b4cfe9053db6e54a\skills\matlab-testing-ci
+==> Í¬²½ skills: E:\desktop\MATLAB\skills -> D:\Temp\mas-e2e-1b53fe50cd074117b4cfe9053db6e54a\skills
+    ±¸·ÝÄ¿Â¼£¨½öÔÚ·¢Éú±ä¸üÊ±´´½¨£©: D:\Temp\mas-e2e-1b53fe50cd074117b4cfe9053db6e54a\backups\20261026-133524-sync-skills
+    Ìø¹ý£¨ÄÚÈÝÒ»ÖÂ£©: matlab-codegen-deploy
+    Ìø¹ý£¨ÄÚÈÝÒ»ÖÂ£©: matlab-control-optimization
+    Ìø¹ý£¨ÄÚÈÝÒ»ÖÂ£©: matlab-data-analysis
+    Ìø¹ý£¨ÄÚÈÝÒ»ÖÂ£©: matlab-orchestrator
+    Ìø¹ý£¨ÄÚÈÝÒ»ÖÂ£©: matlab-robotics-autonomy
+    Ìø¹ý£¨ÄÚÈÝÒ»ÖÂ£©: matlab-runner
+    Ìø¹ý£¨ÄÚÈÝÒ»ÖÂ£©: matlab-signal-vision-ai
+    Ìø¹ý£¨ÄÚÈÝÒ»ÖÂ£©: matlab-simulink-modeling
+    Ìø¹ý£¨ÄÚÈÝÒ»ÖÂ£©: matlab-testing-ci
+    ¼¼ÄÜÇåµ¥Î´±ä»¯£¬Ìø¹ýÖØÐ´: D:\Temp\mas-e2e-1b53fe50cd074117b4cfe9053db6e54a\skills\.matlab-agent-skills-manifest.json
+ [+] ÖØ¸´Í¬²½È«²¿ unchanged ÇÒ²»ÐÂ½¨±¸·ÝÄ¿Â¼ 3.67s
+==> Í¬²½ skills: E:\desktop\MATLAB\skills -> D:\Temp\mas-e2e-27ef875fe1494810aec8cad65c41ee1d\skills
+    ±¸·ÝÄ¿Â¼£¨½öÔÚ·¢Éú±ä¸üÊ±´´½¨£©: D:\Temp\mas-e2e-27ef875fe1494810aec8cad65c41ee1d\backups\20261026-133525-sync-skills
+  install: matlab-codegen-deploy -> D:\Temp\mas-e2e-27ef875fe1494810aec8cad65c41ee1d\skills\matlab-codegen-deploy
+  install: matlab-control-optimization -> D:\Temp\mas-e2e-27ef875fe1494810aec8cad65c41ee1d\skills\matlab-control-optimization
+  install: matlab-data-analysis -> D:\Temp\mas-e2e-27ef875fe1494810aec8cad65c41ee1d\skills\matlab-data-analysis
+  install: matlab-orchestrator -> D:\Temp\mas-e2e-27ef875fe1494810aec8cad65c41ee1d\skills\matlab-orchestrator
+  install: matlab-robotics-autonomy -> D:\Temp\mas-e2e-27ef875fe1494810aec8cad65c41ee1d\skills\matlab-robotics-autonomy
+[33;1m¾¯¸æ: ³åÍ»: matlab-runner -> D:\Temp\mas-e2e-27ef875fe1494810aec8cad65c41ee1d\skills\matlab-runner£»Ä¿±êÄ¿Â¼ÒÑ´æÔÚÇÒÄÚÈÝ²»Í¬£¬ÇÒ²»ÊôÓÚ±¾ÏîÄ¿¹ÜÀíµÄ¼¼ÄÜ£¨Î´ÔÚ manifest ÖÐµÇ¼Ç£©¡£Ä¬ÈÏ²»¸²¸Ç£»È·ÈÏºó¿ÉÓÃ -Force¡£[0m
+  install: matlab-signal-vision-ai -> D:\Temp\mas-e2e-27ef875fe1494810aec8cad65c41ee1d\skills\matlab-signal-vision-ai
+  install: matlab-simulink-modeling -> D:\Temp\mas-e2e-27ef875fe1494810aec8cad65c41ee1d\skills\matlab-simulink-modeling
+  install: matlab-testing-ci -> D:\Temp\mas-e2e-27ef875fe1494810aec8cad65c41ee1d\skills\matlab-testing-ci
+ [+] ÍâÀ´Í¬ÃûÄ¿Â¼ÄÚÈÝ²»Í¬Ê±²»¸²¸Ç£¨³åÍ»£© 2.79s
+==> Í¬²½ skills: E:\desktop\MATLAB\skills -> D:\Temp\mas-e2e-9fdec81ed5b64e3face476bdba7cb291\skills
+    ±¸·ÝÄ¿Â¼£¨½öÔÚ·¢Éú±ä¸üÊ±´´½¨£©: D:\Temp\mas-e2e-9fdec81ed5b64e3face476bdba7cb291\backups\20261026-133528-sync-skills
+  install: matlab-codegen-deploy -> D:\Temp\mas-e2e-9fdec81ed5b64e3face476bdba7cb291\skills\matlab-codegen-deploy
+  install: matlab-control-optimization -> D:\Temp\mas-e2e-9fdec81ed5b64e3face476bdba7cb291\skills\matlab-control-optimization
+  install: matlab-data-analysis -> D:\Temp\mas-e2e-9fdec81ed5b64e3face476bdba7cb291\skills\matlab-data-analysis
+  install: matlab-orchestrator -> D:\Temp\mas-e2e-9fdec81ed5b64e3face476bdba7cb291\skills\matlab-orchestrator
+  install: matlab-robotics-autonomy -> D:\Temp\mas-e2e-9fdec81ed5b64e3face476bdba7cb291\skills\matlab-robotics-autonomy
+  update: matlab-runner -> D:\Temp\mas-e2e-9fdec81ed5b64e3face476bdba7cb291\skills\matlab-runner
+  install: matlab-signal-vision-ai -> D:\Temp\mas-e2e-9fdec81ed5b64e3face476bdba7cb291\skills\matlab-signal-vision-ai
+  install: matlab-simulink-modeling -> D:\Temp\mas-e2e-9fdec81ed5b64e3face476bdba7cb291\skills\matlab-simulink-modeling
+  install: matlab-testing-ci -> D:\Temp\mas-e2e-9fdec81ed5b64e3face476bdba7cb291\skills\matlab-testing-ci
+ [+] -Force ¸²¸ÇÍâÀ´Ä¿Â¼²¢ÁôÏÂ±¸·Ý 3.25s
+==> Í¬²½ skills: E:\desktop\MATLAB\skills -> D:\Temp\mas-e2e-b79a8bdbf4af453f96c2e531beb25db7\skills
+    ±¸·ÝÄ¿Â¼£¨½öÔÚ·¢Éú±ä¸üÊ±´´½¨£©: D:\Temp\mas-e2e-b79a8bdbf4af453f96c2e531beb25db7\backups\20261026-133531-sync-skills
+  install: matlab-codegen-deploy -> D:\Temp\mas-e2e-b79a8bdbf4af453f96c2e531beb25db7\skills\matlab-codegen-deploy
+  install: matlab-control-optimization -> D:\Temp\mas-e2e-b79a8bdbf4af453f96c2e531beb25db7\skills\matlab-control-optimization
+  install: matlab-data-analysis -> D:\Temp\mas-e2e-b79a8bdbf4af453f96c2e531beb25db7\skills\matlab-data-analysis
+  install: matlab-orchestrator -> D:\Temp\mas-e2e-b79a8bdbf4af453f96c2e531beb25db7\skills\matlab-orchestrator
+  install: matlab-robotics-autonomy -> D:\Temp\mas-e2e-b79a8bdbf4af453f96c2e531beb25db7\skills\matlab-robotics-autonomy
+  install: matlab-runner -> D:\Temp\mas-e2e-b79a8bdbf4af453f96c2e531beb25db7\skills\matlab-runner
+  install: matlab-signal-vision-ai -> D:\Temp\mas-e2e-b79a8bdbf4af453f96c2e531beb25db7\skills\matlab-signal-vision-ai
+  install: matlab-simulink-modeling -> D:\Temp\mas-e2e-b79a8bdbf4af453f96c2e531beb25db7\skills\matlab-simulink-modeling
+  install: matlab-testing-ci -> D:\Temp\mas-e2e-b79a8bdbf4af453f96c2e531beb25db7\skills\matlab-testing-ci
+==> Í¬²½ skills: E:\desktop\MATLAB\skills -> D:\Temp\mas-e2e-b79a8bdbf4af453f96c2e531beb25db7\skills
+    ±¸·ÝÄ¿Â¼£¨½öÔÚ·¢Éú±ä¸üÊ±´´½¨£©: D:\Temp\mas-e2e-b79a8bdbf4af453f96c2e531beb25db7\backups\20261026-133534-sync-skills
+    Ìø¹ý£¨ÄÚÈÝÒ»ÖÂ£©: matlab-codegen-deploy
+    Ìø¹ý£¨ÄÚÈÝÒ»ÖÂ£©: matlab-control-optimization
+    Ìø¹ý£¨ÄÚÈÝÒ»ÖÂ£©: matlab-data-analysis
+    Ìø¹ý£¨ÄÚÈÝÒ»ÖÂ£©: matlab-orchestrator
+    Ìø¹ý£¨ÄÚÈÝÒ»ÖÂ£©: matlab-robotics-autonomy
+  update: matlab-runner -> D:\Temp\mas-e2e-b79a8bdbf4af453f96c2e531beb25db7\skills\matlab-runner
+    Ìø¹ý£¨ÄÚÈÝÒ»ÖÂ£©: matlab-signal-vision-ai
+    Ìø¹ý£¨ÄÚÈÝÒ»ÖÂ£©: matlab-simulink-modeling
+    Ìø¹ý£¨ÄÚÈÝÒ»ÖÂ£©: matlab-testing-ci
+ [+] ÍÐ¹ÜÄ¿Â¼±»±¾µØÐÞ¸ÄºóÔÙ´ÎÍ¬²½»á¸üÐÂ²¢±¸·Ý¾ÉÄÚÈÝ 4.07s
+==> Í¬²½ skills: E:\desktop\MATLAB\skills -> D:\Temp\mas-e2e-1d6d6a9972384252a5df5f90afd34c60\skills
+    [DryRun] ²»»áÐ´ÈëÈÎºÎÎÄ¼þ
+  install: matlab-codegen-deploy -> D:\Temp\mas-e2e-1d6d6a9972384252a5df5f90afd34c60\skills\matlab-codegen-deploy
+  install: matlab-control-optimization -> D:\Temp\mas-e2e-1d6d6a9972384252a5df5f90afd34c60\skills\matlab-control-optimization
+  install: matlab-data-analysis -> D:\Temp\mas-e2e-1d6d6a9972384252a5df5f90afd34c60\skills\matlab-data-analysis
+  install: matlab-orchestrator -> D:\Temp\mas-e2e-1d6d6a9972384252a5df5f90afd34c60\skills\matlab-orchestrator
+  install: matlab-robotics-autonomy -> D:\Temp\mas-e2e-1d6d6a9972384252a5df5f90afd34c60\skills\matlab-robotics-autonomy
+  install: matlab-runner -> D:\Temp\mas-e2e-1d6d6a9972384252a5df5f90afd34c60\skills\matlab-runner
+  install: matlab-signal-vision-ai -> D:\Temp\mas-e2e-1d6d6a9972384252a5df5f90afd34c60\skills\matlab-signal-vision-ai
+  install: matlab-simulink-modeling -> D:\Temp\mas-e2e-1d6d6a9972384252a5df5f90afd34c60\skills\matlab-simulink-modeling
+  install: matlab-testing-ci -> D:\Temp\mas-e2e-1d6d6a9972384252a5df5f90afd34c60\skills\matlab-testing-ci
+==> [DryRun] ½«Ð´Èë skills manifest: D:\Temp\mas-e2e-1d6d6a9972384252a5df5f90afd34c60\skills\.matlab-agent-skills-manifest.json
+ [+] DryRun ²»Í¬²½ÈÎºÎÎÄ¼þ 166ms
+Tests completed in 39.67s
+Passed: 23 Failed: 0 Skipped: 0 Pending: 0 Inconclusive: 0
+==> ÔËÐÐ [free] InvokeMcpCode.Tests.ps1
+
+
+
+
+
+Describing MCP ´úÂëÖ´ÐÐÍê³ÉÓë±¨¸æÍÑÃô
+ [+] Ö»ÓÐ±¾´ÎÎ¨Ò»Íê³É»ØÖ´²ÅÔÊÐí PASS£¬Ä©Î²×¢ÊÍÓëÖÐÎÄ±£Áô 1.22s
+ [+] ÆÕÍ¨ content ÖÐµÄ MATLAB ´íÎó¼´Ê¹ isError=false Ò²Ê§°Ü 829ms
+ [+] ÌáÇ° return ¶ÔÓ¦È±ÉÙÄ©Î²»ØÖ´£¬²»¿ÉÒò´«Êä³É¹¦¶øÍ¨¹ý 867ms
+ [+] ´íÎó»ØÖ´ÓëÖØ¸´»ØÖ´¾ù²»ÄÜÃ°³ä±¾´ÎÎ¨Ò»Íê³É 1.66s
+ [+] ¹¤¾ß±ê¼Ç isError Ê±¼´Ê¹´øÍê³É»ØÖ´Ò²Ê§°Ü 818ms
+ [+] ¶ÌÃÜÔ¿ºÍÈÏÖ¤ÐÅÏ¢²»½øÈë JSON¡¢Ô­Ê¼ÕªÒª»ò·µ»Ø reason 861ms
+Tests completed in 6.25s
+Passed: 6 Failed: 0 Skipped: 0 Pending: 0 Inconclusive: 0
+==> ÔËÐÐ [free] MatlabAgentSkills.Core.Tests.ps1
+
+
+
+
+
+Describing MCP server ²ÎÊý¹¹Ôì£¨P0-1£ºexisting Ä£Ê½·Ç·¨²ÎÊý£©
+ [+] existing Ä£Ê½Ö»Êä³ö --matlab-session-mode=existing 30ms
+ [+] existing Ä£Ê½»áÏÔÊ½¼ÇÂ¼±»Ê¡ÂÔµÄ²ÎÊý 3ms
+ [+] auto Ä£Ê½±£Áô display-mode / root / initialize ÈýÏî 7ms
+ [+] new Ä£Ê½Ö§³Ö nodesktop 3ms
+ [+] DisplayMode Îª¿ÕÊ± auto Ä£Ê½²»Êä³ö display-mode 3ms
+ [+] Test-McpServerArgsCompatible ÅÐ¶¨ºÏ·¨ existing ²ÎÊýÎÞÎ¥¹æ 3ms
+ [+] Test-McpServerArgsCompatible ÄÜ¼ì³öÀúÊ·´íÎó×éºÏ 3ms
+ [+] Get-MatlabMcpServerArgv ±£³Ö¾É°æ±âÆ½ÐÎ×´£¨Ïòºó¼æÈÝ£© 5ms
+Describing MCP ÅäÖÃ°²È«ºÏ²¢£¨P0-3£ºÆÆ»µÐÔ¸²¸Ç£©
+ [+] ±£ÁôÓÃ»§ÒÑÓÐµÄÆäËü MCP server Óë¶¥²ã¼ü 47ms
+ [+] ÖØ¸´Ð´ÈëÏàÍ¬ÌõÄ¿·µ»Ø unchanged ÇÒ²»²úÉú±¸·Ý 23ms
+ [+] ²ÎÊý±ä»¯Ê± updated ²¢Éú³É±¸·ÝÎÄ¼þ 30ms
+ [+] ÅäÖÃÎÄ¼þ JSON ·Ç·¨Ê±ÖÐÖ¹ÇÒ²»¸Ä¶¯Ô­ÎÄ¼þ 21ms
+ [+] Ð´³öµÄ JSON ²»´ø BOM 13ms
+==> [DryRun] ½«´´½¨ D:\Temp\mas-test-3fe4bbd8dad94ba4bfbbdebf4c2d83e1\.mcp.json ÖÐµÄ mcpServers.matlab-official£¨ÆäÓà 0 ¸öÌõÄ¿±£³Ö²»±ä£©
+ [+] DryRun ²»Ð´ÎÄ¼þÇÒ·µ»Ø would_ Ç°×º¶¯×÷ 6ms
+ [+] µ¥ÔªËØ args ÈÔÐ´³ÉÊý×é£¨²»ËúËõ³É×Ö·û´®£© 13ms
+Describing skills ³åÍ»ÅÐ¶¨£¨P0-5£ºÆÆ»µÐÔ¸²¸Ç£©
+ [+] Ä¿±ê²»´æÔÚÊ±·µ»Ø install 10ms
+ [+] ¹þÏ£Ò»ÖÂÊ±·µ»Ø unchanged 2ms
+ [+] ·ÇÍÐ¹ÜÄ¿Â¼ÄÚÈÝ²»Í¬Ê±·µ»Ø conflict 1ms
+ [+] ÍÐ¹ÜÄ¿Â¼ÄÚÈÝ²»Í¬Ê±·µ»Ø update 2ms
+ [+] ·ÇÍÐ¹ÜÄ¿Â¼¼Ó -Force Ê±ÔÊÐí update 1ms
+ [+] Ä¿Â¼Ö¸ÎÆÓëÂ·¾¶ÎÞ¹Ø£¬ÄÚÈÝ±ä»¯Ôò±ä»¯ 49ms
+Describing startup.m ÍÐ¹Ü¿é£¨P0-6£ºÎÞ±¸·ÝµÄÒþÊ½¸ÄÐ´£©
+ [+] Ê×´ÎÐ´Èë´´½¨ÍÐ¹Ü¿é²¢±£ÁôÓÃ»§ÒÑÓÐÄÚÈÝ 55ms
+ [+] ÖØ¸´Ö´ÐÐ·µ»Ø unchanged ÇÒÄÚÈÝÖð×Ö½Ú²»±ä£¨ÃÝµÈ£© 20ms
+ [+] ÓÃ»§×Ô¼ºÒÑÓÐ shareMATLABSession µ÷ÓÃÊ±²»¸²¸Ç 22ms
+ [+] DryRun ²»ÂäÅÌ 5ms
+Describing ±¸·ÝÓë»Ø¹ö£¨P0-6£©
+ [+] ÎÄ¼þ±¸·Ýºó¿ÉÖð×Ö½Ú»¹Ô­ 51ms
+ [+] »Ø¹ö»áÉ¾³ýÐÂ½¨ÎÄ¼þ 7ms
+ [+] Ä¿Â¼±¸·Ýºó¿ÉÕûÌå»¹Ô­ 21ms
+ [+] ±¸·ÝÇåµ¥ record ÊýÓë²Ù×÷ÊýÒ»ÖÂ 26ms
+ [+] ÎÞÈÎºÎ±ä¸üÊ±²»´´½¨±¸·ÝÄ¿Â¼£¨ÖØ¸´°²×°ÁãÐ´Èë£© 5ms
+Describing ¿Í»§¶Ë×¢²á½âÎöÓëÃÝµÈÅÐ¶¨
+ [+] ÄÜ´Ó mcp get Êä³ö½âÎö command Óë args 12ms
+ [+] ²ÎÊýÍêÈ«Ò»ÖÂÊ±ÅÐ¶¨ÎªÒÑ×¢²á£¨ÃÝµÈ£© 2ms
+ [+] ²ÎÊý²»Ò»ÖÂÊ±ÅÐ¶¨ÎªÐèÒª¸üÐÂ 2ms
+Describing ÏÂÔØ°²È«£¨P0-6£ºÎÞÐ£ÑéÔ¶³ÌÏÂÔØ£©
+ [+] ¾Ü¾ø·Ç HTTPS ÏÂÔØµØÖ· 22ms
+ [+] SHA256 ±È½ÏºöÂÔ´óÐ¡Ð´Óë·Ö¸ô·û 4ms
+==> [DryRun] ½«ÏÂÔØ https://example.com/a.exe -> D:\Temp\mas-test-33ecafcf474b4124829cd05023be0270\srv.exe
+ [+] DryRun ÏÂÔØ²»²úÉúÎÄ¼þ 7ms
+Describing ²Ö¿âÎÀÉú£¨P0-7£º»úÆ÷×¨ÊôÂ·¾¶Óë±àÂë£©
+ [-] ²Ö¿âÀïÃ»ÓÐÅÌ·ûÓ²±àÂëÂ·¾¶£¨E ÅÌ / D ÅÌ£© 337ms
+   Expected string length 0 but was 2212. Strings differ at index 0.
+   Expected: {}
+   But was:  {README.md:13;run_holdout.m:25;scoring_p56_retro.json:59;manifest.json:1;PHASE5_3_PROFESSIONAL_DEPTH_ZH.md:174;PHASE5_3_PROFESSIONAL_DEPTH_ZH.md:206;PHASE5_3_PROFESSIONAL_DEPTH_ZH.md:322;PHASE5_3_PROFESSIONAL_DEPTH_ZH.md:326;PHASE5_3_PROFESSIONAL_DEPTH_ZH.md:327;PHASE5_3_PROFESSIONAL_DEPTH_ZH.md:328;PHASE5_3_PROFESSIONAL_DEPTH_ZH.md:331;PHASE5_4_REAL_EXECUTION_ZH.md:4;PHASE5_4_REAL_EXECUTION_ZH.md:96;PHASE5_4_REAL_EXECUTION_ZH.md:126;PHASE5_4_REAL_EXECUTION_ZH.md:272;PHASE5_5_AUTONOMY_AND_GAIN_ZH.md:67;PHASE5_5_AUTONOMY_AND_GAIN_ZH.md:160;PHASE5_5_AUTONOMY_AND_GAIN_ZH.md:212;PHASE5_6_BENCHMARK_ZH.md:317;PHASE5_6_CODER_CHANNEL_ZH.md:3;PHASE5_6_CODER_CHANNEL_ZH.md:31;PHASE5_6_CODER_CHANNEL_ZH.md:40;PHASE5_6_CODER_CHANNEL_ZH.md:41;PHASE5_6_CODER_CHANNEL_ZH.md:42;PHASE5_6_CODER_CHANNEL_ZH.md:43;PHASE5_6_CODER_CHANNEL_ZH.md:120;PHASE5_6_CODER_CHANNEL_ZH.md:122;PHASE5_6_GAIN_ZH.md:150;PHASE5_6_GAIN_ZH.md:176;PHASE5_6_ISOLATION_ZH.md:4;PHASE5_6_ISOLATION_ZH.md:29;PHASE5_6_ISOLATION_ZH.md:103;PHASE5_6_ISOLATION_ZH.md:104;PHASE5_6_ISOLATION_ZH.md:105;PHASE5_6_ISOLATION_ZH.md:106;PHASE5_6_ISOLATION_ZH.md:107;PHASE5_6_ISOLATION_ZH.md:108;PHASE5_6_ISOLATION_ZH.md:109;PHASE5_6_ISOLATION_ZH.md:110;PHASE5_6_ISOLATION_ZH.md:131;PHASE5_6_PROTOCOL_ZH.md:24;PHASE5_7_CONCURRENCY_ZH.md:126;PHASE5_7_CONCURRENCY_ZH.md:133;PHASE5_7_FINAL_ZH.md:55;PHASE5_7_FINAL_ZH.md:178;PHASE5_7_INSTALL_ZH.md:35;PHASE5_7_INSTALL_ZH.md:37;PHASE5_7_ISOLATION_ZH.md:4;PHASE5_7_ISOLATION_ZH.md:5;PHASE5_7_ISOLATION_ZH.md:6;PHASE5_7_ISOLATION_ZH.md:7;PHASE5_7_ISOLATION_ZH.md:49;PHASE5_7_ISOLATION_ZH.md:74;PHASE5_7_ISOLATION_ZH.md:75;PHASE5_7_ISOLATION_ZH.md:152;PHASE5_7_ISOLATION_ZH.md:165;PHASE5_7_ISOLATION_ZH.md:166;p56_absence_scan.m:4;p56_absence_scan.m:25;p56_coder_channel_probe.m:4;p56_coder_drive_d.m:3;p56_coder_scripttop.m:3;p56_coder_syntax_probe.m:4;p56_session_reset.m:4;p56_session_reset.m:41;p56_stage.m:4;test_p56_session_reset.m:25;test_p56_session_reset.m:39;test_p56_stage.m:25;p57_delivery_audit.m:6;p57_delivery_audit.m:14;p57_grade_v2_replay.m:5;p57_grade_v2_replay.m:12;capability-matrix.json:377;capability-matrix.json:415;install-roots.json:35;SkillSync.Phase57.Tests.ps1:134 [scan=git-tracked; files=449]}
+   -----------^
+   507:         $summary | Should Be ""
+   Î»ÓÚ Should<End>£¬C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Functions\Assertions\Should.ps1: ÐÐ 92
+   Î»ÓÚ <ScriptBlock>£¬E:\desktop\MATLAB\tests\MatlabAgentSkills.Core.Tests.ps1: ÐÐ 507
+   Î»ÓÚ Invoke-Test£¬C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Functions\It.ps1: ÐÐ 253
+   Î»ÓÚ ItImpl£¬C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Functions\It.ps1: ÐÐ 203
+   Î»ÓÚ It£¬C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Functions\It.ps1: ÐÐ 117
+   Î»ÓÚ <ScriptBlock>£¬E:\desktop\MATLAB\tests\MatlabAgentSkills.Core.Tests.ps1: ÐÐ 432
+   Î»ÓÚ Describe£¬C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Functions\Describe.ps1: ÐÐ 100
+   Î»ÓÚ <ScriptBlock>£¬E:\desktop\MATLAB\tests\MatlabAgentSkills.Core.Tests.ps1: ÐÐ 427
+   Î»ÓÚ <ScriptBlock>£¬C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Pester.psm1: ÐÐ 297
+   Î»ÓÚ Invoke-Pester£¬C:\Program Files\WindowsPowerShell\Modules\Pester\3.4.0\Pester.psm1: ÐÐ 310
+   Î»ÓÚ <ScriptBlock>£¬E:\desktop\MATLAB\tests\Invoke-Tests.ps1: ÐÐ 177
+ [+] ËùÓÐ PowerShell ½Å±¾¶¼ÄÜ±» Windows PowerShell 5.1 ½âÎö 74ms
+ [+] º¬·Ç ASCII ×Ö·ûµÄ½Å±¾´ø UTF-8 BOM£¨PS5.1 ÕýÈ·½âÂëµÄÇ°Ìá£© 11ms
+Tests completed in 978ms
+Passed: 38 Failed: 1 Skipped: 0 Pending: 0 Inconclusive: 0
+==> ÔËÐÐ [free] McpCredentialOutput.Tests.ps1
+
+
+
+
+
+Describing »á»°Æ¾¾Ý²»³öÏÖÔÚ¿ÉÐòÁÐ»¯¶ÔÏóÓë±¨¸æÖÐ
+ [+] Get-McpSessionInfo Ö»±©Â¶ÊÇ·ñ´æÔÚÓë³¤¶È£¬ÐòÁÐ»¯ºóÎÞ apiKey Öµ 109ms
+ [+] ¼øÈ¨ÈÔ¿ÉÓÃ£ºÄÚ²¿Æ¾¾Ý¶ÁÈ¡º¯ÊýÄÜÈ¡»ØÍ¬Ò»¸öÖµ 29ms
+ [+] ÑéÊÕ±¨¸æÖ»¼ÇÂ¼»á»°ÎÄ¼þÃûÓëÖ¸ÎÆ£¬²»º¬¾ø¶ÔÂ·¾¶»òÆ¾¾Ý 1.08s
+Describing ½×¶ÎÈÕÖ¾ÂäÅÌÇ°±ØÐëÍÑÃô
+ [+] Authorization / --api-key / Âã UUID ²»»á½øÈë½×¶ÎÈÕÖ¾ 32ms
+ [+] ÆÕÍ¨Æô¶¯ÃüÁî±£³Ö¿É¶Á 17ms
+Tests completed in 1.27s
+Passed: 5 Failed: 0 Skipped: 0 Pending: 0 Inconclusive: 0
+==> ÔËÐÐ [free] McpProbe.Tests.ps1
+
+
+
+
+
+Describing ½×¶Î 3~5 Ö»ÓÐÔÚÕæÊµ¿ÉÖ´ÐÐÊ±²Å PASS
+ [+] È«Ì×Õý³£Ê±Îå½×¶ÎÍ¨¹ý£¬ÇÒÕûÌåÎª PASS 0.99s
+ [+] ¶Ë¿Ú²»¿É´ïÊ±ÎÕÊÖ FAIL£¬ºóÐø½×¶Î SKIP£¨²»Ã°³ä³É¹¦£© 1.04s
+ [+] Ö»ÓÐÅäÖÃÎÄ¼þÃ»ÓÐ»á»°Ê±£¬ÎÕÊÖ±ØÐë SKIP ¶ø²»ÊÇ PASS 27ms
+ [+] »á»°ÎÄ¼þËð»µÊ±ÅäÖÃ½×¶Î FAIL 26ms
+ [+] Ö¤ÊéÈ±Ê§Ê±°´¹ýÆÚ»á»°´¦Àí£¬Êä³ö SKIP ²¢¸ø³öÔ­Òò 514ms
+Describing ¹¤¾ßÌ½²âÓëÎÄ¼þ»Ø¶Á
+ [+] ·þÎñ¶ËÃ»ÓÐÖ´ÐÐ¹¤¾ßÊ±Ö»¶Á½×¶Î SKIP ²¢¼ÇÂ¼¹¤¾ßÇåµ¥ 669ms
+ [+] »Ø¶ÁÄÚÈÝ²»Ò»ÖÂÊ±ÎÄ¼þ¶ÁÐ´½×¶Î FAIL 774ms
+ [+] ÎÕÊÖÊ§°Ü£¨HTTP 500£©Ê±ÅÐ¶¨ FAIL ÇÒ²»¼ÌÐøÖ´ÐÐ 600ms
+ [+] ¼øÈ¨Ê§°Ü£¨HTTP 401£©Ê±ÎÕÊÖ FAIL 620ms
+ [+] ·þÎñ¶Ë¹ÒÆðÊ±ÎÕÊÖÔÚ³¬Ê±ºó FAIL£¨²»»áÎÞÏÞµÈ´ý£© 2.57s
+Describing ¿Í»§¶Ë×¢²áÐ£Ñé
+ [+] existing Ä£Ê½´ø display-mode »á±»ÅÐÎª·Ç·¨×¢²á 43ms
+ [+] ×¢²áÖ¸Ïò²»´æÔÚµÄ command »á±»ÅÐÎª FAIL 32ms
+ [+] Ã»ÓÐ×¢²áÊ±Êä³ö SKIP ²¢ËµÃ÷¼ì²éÁËÄÄÐ©¿Í»§¶Ë 16ms
+Tests completed in 7.93s
+Passed: 13 Failed: 0 Skipped: 0 Pending: 0 Inconclusive: 0
+==> ÔËÐÐ [free] McpSupplyChain.Tests.ps1
+
+
+
+
+
+Describing MCP server ¹©Ó¦Á´£º¹Ì¶¨Çåµ¥Óë fail-closed
+ [+] ²Ö¿âÇåµ¥¹Ì¶¨µ½¾ßÌå release tag£¬ÇÒ²»º¬ moving latest 39ms
+ [+] Çåµ¥È±Ê§Ê±½âÎöÆ÷ fail closed£¬²¢¸ø³öÊÖ¶¯°²×°Ö¸Òý 11ms
+ [+] Æ½Ì¨ÌõÄ¿È±Ê§Ê±¾Ü¾ø²Â²âÏÂÔØµØÖ· 25ms
+ [+] Çåµ¥ URL Óë releaseTag ²»Ò»ÖÂÊ±ÅÐÎªÇåµ¥È±ÏÝ 35ms
+ [+] ÒÑÓÐ¶þ½øÖÆ¹þÏ£²»Æ¥ÅäÊ±¾Ü¾øÊ¹ÓÃ£¨¿É±» -ForceDownload ¸²¸Ç£© 40ms
+ [+] ÍêÕûÐÔÓëÀ´Ô´ÑéÖ¤ÊÇÁ½¸ö²»Í¬×´Ì¬ 27ms
+ [+] ÏÔÊ½ -AllowUnverifiedServer ²Å·ÅÐÐ£¬ÇÒ×´Ì¬±ØÐë¼ÇÎªÎ´ÑéÖ¤ 41ms
+ [+] Verified=false Ê± Assert-McpServerTrusted ¾Ü¾ø¼ÌÐø 4ms
+ [+] Test-DownloadIntegrity ¸²¸Ç½Ø¶Ï/´óÐ¡/¹þÏ£/ÎÞÕªÒªËÄÖÖ¾Ü¾ø 11ms
+ [+] ÏÂÔØ±»½Ø¶Ï£¨ÉùÃ÷³¤¶È´óÓÚÊµ¼Ê£©Ê± Test-DownloadIntegrity ÅÐÎª SIZE_MISMATCH 4ms
+ [+] ÎÄ¼þ±»´Û¸Ä£¨¹þÏ£²»·û£©Ê±ÅÐÎª HASH_MISMATCH 3ms
+ [+] ÍøÂç²»¿ÉÓÃÊ±±¨´íÇÒ²»²úÉúÄ¿±êÎÄ¼þ 2.05s
+Tests completed in 2.3s
+Passed: 12 Failed: 0 Skipped: 0 Pending: 0 Inconclusive: 0
+==> ÔËÐÐ [free] PesterSelection.Tests.ps1
+
+
+
+
+
+Describing Pester °æ±¾Ñ¡Ôñ
+ [+] Í¬Ê±´æÔÚ 3.4.0 Óë 5.9.0 Ê±±ØÐëÑ¡ 3.4.0 28ms
+ [+] Ë³Ðò·´¹ýÀ´Ò²±ØÐëÑ¡ 3.4.0£¨²»ÒÀÀµÊäÈëË³Ðò£© 2ms
+ [+] Ö»ÓÐ 5.x Ê±·µ»Ø null£¬¾ø²»½µ¼¶µ½ 5.x 1ms
+ [+] Í¬Ö÷°æ±¾²»Í¬´Î°æ±¾²»Æ¥Åä£¨3.3 ²»ÄÜ¶¥Ìæ 3.4£© 2ms
+ [+] 3.4 Óë 3.4.0 ÊÓÎªÍ¬Ò»°æ±¾£¨°æ±¾ºÅÈ±Ê¡¶ÎÊÓÎª 0£© 2ms
+ [+] ¿ÕºòÑ¡ÁÐ±í·µ»Ø null ¶ø²»ÊÇÅ×Òì³£ 1ms
+ [+] ÎÞ·¨½âÎöµÄºòÑ¡°æ±¾»á±»Ìø¹ý¶ø²»ÊÇÈÃÕû¸öº¯Êý±Àµô 2ms
+ [+] ÒªÇó°æ±¾±¾Éí·Ç·¨Ê±¸ø³ö¿É¶Á´íÎó 2ms
+ [+] °æ±¾ÕªÒªÁÐ³öÈ«²¿ºòÑ¡£¬±ãÓÚÅÅÕÏ 3ms
+ [+] ÎÞºòÑ¡Ê±°æ±¾ÕªÒªÏÔÊ¾£¨ÎÞ£© 2ms
+ [+] Ì×¼þÄ¬ÈÏËø¶¨µÄ Pester °æ±¾±ØÐëÊÇ 3.4.0 2ms
+Tests completed in 52ms
+Passed: 11 Failed: 0 Skipped: 0 Pending: 0 Inconclusive: 0
+==> ÔËÐÐ [free] ProcessCleanup.Tests.ps1
+
+
+
+
+
+Describing ¹éÊôÅÐ¶¨£ºÎåÏîÉí·Ý±ØÐëÈ«²¿Æ¥Åä
+ [+] ±¾´ÎÔËÐÐ¼ÇÂ¼µÄ´æ»îÌæÉí½ø³ÌÎåÏîÒ»ÖÂÊ±ÅÐ¶¨ ALLOW 477ms
+ [+] Í¬Ò» PID µ«Æô¶¯Ê±¼ä²»Í¬£¨PID »ØÊÕ£©Ê±ÅÐ¶¨ SKIPPED_IDENTITY_MISMATCH 341ms
+ [+] ¿ÉÖ´ÐÐÎÄ¼þÂ·¾¶Óë¼ÇÂ¼²»Ò»ÖÂÊ±ÅÐ¶¨ SKIPPED_IDENTITY_MISMATCH 346ms
+ [+] ½ø³ÌÃû²»ÊÇ MATLAB Ê±ÅÐ¶¨ SKIPPED_IDENTITY_MISMATCH£¨Ä¬ÈÏÆÚÍûÃû£© 355ms
+ [+] Windows »á»° id Óë¼ÇÂ¼²»Ò»ÖÂÊ±ÅÐ¶¨ SKIPPED_IDENTITY_MISMATCH 350ms
+ [+] ¼ÇÂ¼µÄ¿ÉÖ´ÐÐÎÄ¼þÒÑ²»´æÔÚÊ±Ê§°Ü¹Ø±ÕÎª SKIPPED_EXECUTABLE_MISSING 343ms
+ [+] ½ø³ÌÒÑ¾­ÍË³öÊ±ÊÇ NOOP ¶ø²»ÊÇ´íÎó 6ms
+ [+] ¾ÉÔËÐÐÒÅÁôµÄËùÓÐÕß¼ÇÂ¼£¨runId ²»Í¬£©Ê±ÅÐ¶¨ SKIPPED_OWNER_RUN_MISMATCH 342ms
+ [+] Í¬Ò» runId µ«ËùÓÐÕß¼ÇÂ¼³¬¹ý×î´ó¿ÉÐÅÄêÁäÊ±ÅÐ¶¨ SKIPPED_OWNER_STALE 344ms
+ [+] ËùÓÐÕß¼ÇÂ¼Ê±¼ä´ÁÔÚÎ´À´Ê±ÅÐ¶¨ SKIPPED_OWNER_TIMESTAMP_INVALID 335ms
+ [+] ËùÓÐÕß¼ÇÂ¼È±ÉÙ±ØÒªÉí·Ý×Ö¶ÎÊ±ÅÐ¶¨ SKIPPED_OWNER_RECORD_INVALID 3ms
+Describing ÇåÀí¶¯×÷Ö»×÷ÓÃÓÚÒÑÑéÖ¤¹éÊôµÄÌæÉí½ø³Ì
+ [+] ALLOW + ReportOnly Ö»Ð´±¨¸æ£¬²»½áÊøÌæÉí½ø³Ì 392ms
+ [+] ALLOW + Graceful + AllowForceStop Ö»½áÊø±¾´Î¼ÇÂ¼µÄÌæÉí½ø³Ì 690ms
+ [+] Ä¬ÈÏ Graceful ²»ÔÊÐíÇ¿ÖÆÊ±¼´Ê¹ ALLOW Ò²±£Áô½ø³Ì£¨LEFT_RUNNING£© 373ms
+ [+] PID »ØÊÕµÄÌæÉí½ø³ÌÔÚÇ¿ÖÆÇåÀíÄ£Ê½ÏÂÈÔÈ»´æ»î 360ms
+ [+] ´ÅÅÌÉÏµÄ¾ÉÔËÐÐËùÓÐÕßÎÄ¼þ²»»á±»±¾´ÎÔËÐÐÇåÀí£¬Ò²²»»á´¥·¢ÖÕÖ¹ 390ms
+ [+] ½ø³ÌÒÑ²»´æÔÚÊ±ÇåÀíÊÇ NOOP£¬²»Å×Òì³£Ò²²»Ð´ÖÕÖ¹¶¯×÷ 26ms
+ [+] ËùÓÐÕßÎÄ¼þ²»´æÔÚ»òËð»µÊ±ÇåÀí·µ»Ø¿Õ½á¹ûÇÒ²»±¨´í 21ms
+ [+] ËùÓÐÕßÎÄ¼þ¶ÁÐ´Íù·µ±£ÁôÉí·Ý×Ö¶Î£¬ÇÒÖ»É¾³ý±¾´Î run µÄÎÄ¼þ 25ms
+Describing Æ¾¾Ý²»ÍâÐ¹
+ [+] ¾ÍÐ÷¿ìÕÕ¼´Ê¹»á»°¶ÔÏó´ø apiKey/certificate Ò²Ö»Êä³ö°×Ãûµ¥×Ö¶Î 15ms
+ [+] ÇåÀíÉó¼ÆÈÕÖ¾²»°üº¬ apiKey/certificate ÎÄ±¾»òÒÑÖªÃÜÔ¿Öµ 373ms
+ [+] ÍÑÃôº¯ÊýÌæ»»ÒÑÖªÃÜÔ¿ÖµÓë apiKey/certificate ×Ö¶Î 4ms
+Describing ½Å±¾Èë¿ÚµÄ»Ø¹é±ß½ç
+ [+] ÇåÀí¾ö²ßº¯Êý´æÔÚ£¬ÇÒ²»ÔÙ°´ sessionDetails µÄ PID Ö±½ÓÇ¿É± 11ms
+ [+] ½Å±¾²»°Ñ apiKey/certificate ¸³Öµ½øÊä³ö¶ÔÏó»ò¾ÍÐ÷ÎÄ¼þ 3ms
+Tests completed in 5.94s
+Passed: 24 Failed: 0 Skipped: 0 Pending: 0 Inconclusive: 0
+==> ÔËÐÐ [free] SkillInstallation.Tests.ps1
+
+
+
+
+
+Describing ¼¼ÄÜÄ¿Â¼½âÎö£º¿Í»§¶Ë¹²ÓÃÓëÔËÐÐ»·¾³¸ôÀë
+ [+] ÎÄ¼þÖ¸ÎÆ·ûºÏ SHA-256 ±ê×¼ÏòÁ¿ÇÒ²»ÒÀÀµ Get-FileHash ×Ô¶¯¼ÓÔØ 40ms
+ [+] Windows Ê¹ÓÃ±¾»úÓÃ»§¹²ÏíÄ¿Â¼£¬CODEX_HOME ½öÊÇ¾ÉÄ¿Â¼Õï¶Ï 3ms
+ [+] WSL Ê¹ÓÃ Linux ÓÃ»§Ä¿Â¼£¬²»ÑØÓÃ Windows CODEX_HOME 2ms
+ [+] Ô­Éú Linux ºÍ WSL °´µ±Ç°ÓÃ»§·Ö±ð½âÎö 2ms
+ [+] WSL ²»½ÓÊÜÎó´«µÄ Windows ÓÃ»§Ä¿Â¼ 7ms
+ [+] Windows ²»½ÓÊÜÎó´«µÄ Linux ÓÃ»§Ä¿Â¼ 3ms
+ [+] ÏÔÊ½ SkillRoot ÓÅÏÈ£¬¿É¼æÈÝ¾­ÑéÖ¤µÄ¾É¿Í»§¶ËÄ¿Â¼ 7ms
+ [+] Ã»ÓÐ CLI ÃüÁîÊ±ÈÔÄÜ½âÎöÏàÍ¬¹²ÏíÄ¿Â¼ 3ms
+ [+] ÏÔÊ½Ïà¶ÔÂ·¾¶ÒÔ PowerShell µ±Ç°Ä¿Â¼½âÎö 8ms
+[33;1m¾¯¸æ: Î´ÕÒµ½ Skill payload Çåµ¥£¬°´ÎÞ¸½¼Ó×ÊÔ´´¦Àí: D:\Temp\mas-skill-install-afa92b29c3e4441c99c13fea8f0fb938\repo\config\skill-payloads.json[0m
+==> Í¬²½ skills: D:\Temp\mas-skill-install-afa92b29c3e4441c99c13fea8f0fb938\repo\skills -> D:\Temp\mas-skill-install-afa92b29c3e4441c99c13fea8f0fb938\.agents\skills
+    ±¸·ÝÄ¿Â¼£¨½öÔÚ·¢Éú±ä¸üÊ±´´½¨£©: D:\Temp\mas-skill-install-afa92b29c3e4441c99c13fea8f0fb938\backup\20261026-133600-sync-skills
+  install: matlab-runner -> D:\Temp\mas-skill-install-afa92b29c3e4441c99c13fea8f0fb938\.agents\skills\matlab-runner
+ [+] Sync Ä¬ÈÏÐ´Èëµ±Ç°ÓÃ»§ .agents£¬²»Ð´Èë CODEX_HOME 64ms
+Describing ¼¼ÄÜ°²×°ÉúÃüÖÜÆÚÓëÐ¶ÔØ±£»¤
+[33;1m¾¯¸æ: Î´ÕÒµ½ Skill payload Çåµ¥£¬°´ÎÞ¸½¼Ó×ÊÔ´´¦Àí: D:\Temp\mas-skill-install-ca08b8b305194d098b16785526b763fc\repo\config\skill-payloads.json[0m
+==> Í¬²½ skills: D:\Temp\mas-skill-install-ca08b8b305194d098b16785526b763fc\repo\skills -> D:\Temp\mas-skill-install-ca08b8b305194d098b16785526b763fc\skills
+    ±¸·ÝÄ¿Â¼£¨½öÔÚ·¢Éú±ä¸üÊ±´´½¨£©: D:\Temp\mas-skill-install-ca08b8b305194d098b16785526b763fc\backup\20261026-133600-sync-skills
+  install: matlab-runner -> D:\Temp\mas-skill-install-ca08b8b305194d098b16785526b763fc\skills\matlab-runner
+[33;1m¾¯¸æ: Î´ÕÒµ½ Skill payload Çåµ¥£¬°´ÎÞ¸½¼Ó×ÊÔ´´¦Àí: D:\Temp\mas-skill-install-ca08b8b305194d098b16785526b763fc\repo\config\skill-payloads.json[0m
+==> Í¬²½ skills: D:\Temp\mas-skill-install-ca08b8b305194d098b16785526b763fc\repo\skills -> D:\Temp\mas-skill-install-ca08b8b305194d098b16785526b763fc\skills
+    ±¸·ÝÄ¿Â¼£¨½öÔÚ·¢Éú±ä¸üÊ±´´½¨£©: D:\Temp\mas-skill-install-ca08b8b305194d098b16785526b763fc\backup\20261026-133600-sync-skills-1
+  update: matlab-runner -> D:\Temp\mas-skill-install-ca08b8b305194d098b16785526b763fc\skills\matlab-runner
+ [+] Ê×´Î°²×°ºóÉý¼¶ÔÚÍ¬Ò»Ä¿Â¼¸üÐÂ²¢±£Áô¾É°æ±¸·Ý 160ms
+[33;1m¾¯¸æ: Î´ÕÒµ½ Skill payload Çåµ¥£¬°´ÎÞ¸½¼Ó×ÊÔ´´¦Àí: D:\Temp\mas-skill-install-ab170248ad8d4627b5b906b83ad8b849\repo\config\skill-payloads.json[0m
+==> Í¬²½ skills: D:\Temp\mas-skill-install-ab170248ad8d4627b5b906b83ad8b849\repo\skills -> D:\Temp\mas-skill-install-ab170248ad8d4627b5b906b83ad8b849\skills
+    ±¸·ÝÄ¿Â¼£¨½öÔÚ·¢Éú±ä¸üÊ±´´½¨£©: D:\Temp\mas-skill-install-ab170248ad8d4627b5b906b83ad8b849\backup\20261026-133600-sync-skills
+  install: matlab-runner -> D:\Temp\mas-skill-install-ab170248ad8d4627b5b906b83ad8b849\skills\matlab-runner
+ [+] Ð¶ÔØÎ´¸Ä¶¯ÊÜ¹Ü¼¼ÄÜ»á±¸·Ý£¬±£ÁôÆäËû MATLAB Í¬ÃûÓò¼¼ÄÜ 149ms
+[33;1m¾¯¸æ: Î´ÕÒµ½ Skill payload Çåµ¥£¬°´ÎÞ¸½¼Ó×ÊÔ´´¦Àí: D:\Temp\mas-skill-install-63febdda1a2542cfa80c31a8597937ad\repo\config\skill-payloads.json[0m
+==> Í¬²½ skills: D:\Temp\mas-skill-install-63febdda1a2542cfa80c31a8597937ad\repo\skills -> D:\Temp\mas-skill-install-63febdda1a2542cfa80c31a8597937ad\skills
+    ±¸·ÝÄ¿Â¼£¨½öÔÚ·¢Éú±ä¸üÊ±´´½¨£©: D:\Temp\mas-skill-install-63febdda1a2542cfa80c31a8597937ad\backup\20261026-133600-sync-skills
+  install: matlab-runner -> D:\Temp\mas-skill-install-63febdda1a2542cfa80c31a8597937ad\skills\matlab-runner
+ [+] Ð¶ÔØ±£Áô±¾µØÐÞ¸ÄºÍ°²×°¼ÇÂ¼ 116ms
+[33;1m¾¯¸æ: Î´ÕÒµ½ Skill payload Çåµ¥£¬°´ÎÞ¸½¼Ó×ÊÔ´´¦Àí: D:\Temp\mas-skill-install-a45984e9c3af4a99a629a460e8e8d426\repo\config\skill-payloads.json[0m
+==> Í¬²½ skills: D:\Temp\mas-skill-install-a45984e9c3af4a99a629a460e8e8d426\repo\skills -> D:\Temp\mas-skill-install-a45984e9c3af4a99a629a460e8e8d426\skills
+    ±¸·ÝÄ¿Â¼£¨½öÔÚ·¢Éú±ä¸üÊ±´´½¨£©: D:\Temp\mas-skill-install-a45984e9c3af4a99a629a460e8e8d426\backup\20261026-133600-sync-skills
+  install: matlab-runner -> D:\Temp\mas-skill-install-a45984e9c3af4a99a629a460e8e8d426\skills\matlab-runner
+ [+] Ð¶ÔØ DryRun ²»¸Ä¼¼ÄÜ¡¢Çåµ¥»ò±¸·ÝÄ¿Â¼ 119ms
+ [+] Ã»ÓÐ°²×°Çåµ¥Ê±Ð¶ÔØÁãÐ´Èë 31ms
+[33;1m¾¯¸æ: Î´ÕÒµ½ Skill payload Çåµ¥£¬°´ÎÞ¸½¼Ó×ÊÔ´´¦Àí: D:\Temp\mas-skill-install-ed43f2e969184250951f791040b2f3d1\repo\config\skill-payloads.json[0m
+==> Í¬²½ skills: D:\Temp\mas-skill-install-ed43f2e969184250951f791040b2f3d1\repo\skills -> D:\Temp\mas-skill-install-ed43f2e969184250951f791040b2f3d1\skills
+    ±¸·ÝÄ¿Â¼£¨½öÔÚ·¢Éú±ä¸üÊ±´´½¨£©: D:\Temp\mas-skill-install-ed43f2e969184250951f791040b2f3d1\backup\20261026-133601-sync-skills
+  install: matlab-runner -> D:\Temp\mas-skill-install-ed43f2e969184250951f791040b2f3d1\skills\matlab-runner
+ [+] ²»Ð¶ÔØÆäËû²Ö¿âµÇ¼ÇµÄ¼¼ÄÜ 96ms
+[33;1m¾¯¸æ: Î´ÕÒµ½ Skill payload Çåµ¥£¬°´ÎÞ¸½¼Ó×ÊÔ´´¦Àí: D:\Temp\mas-skill-install-5986eb15c13945a0b2ff74a2212b25af\repo\config\skill-payloads.json[0m
+==> Í¬²½ skills: D:\Temp\mas-skill-install-5986eb15c13945a0b2ff74a2212b25af\repo\skills -> D:\Temp\mas-skill-install-5986eb15c13945a0b2ff74a2212b25af\skills
+    ±¸·ÝÄ¿Â¼£¨½öÔÚ·¢Éú±ä¸üÊ±´´½¨£©: D:\Temp\mas-skill-install-5986eb15c13945a0b2ff74a2212b25af\backup\20261026-133601-sync-skills
+  install: matlab-runner -> D:\Temp\mas-skill-install-5986eb15c13945a0b2ff74a2212b25af\skills\matlab-runner
+[33;1m¾¯¸æ: Î´ÕÒµ½ Skill payload Çåµ¥£¬°´ÎÞ¸½¼Ó×ÊÔ´´¦Àí: D:\Temp\mas-skill-install-5986eb15c13945a0b2ff74a2212b25af\other-repo\config\skill-payloads.json[0m
+==> Í¬²½ skills: D:\Temp\mas-skill-install-5986eb15c13945a0b2ff74a2212b25af\other-repo\skills -> D:\Temp\mas-skill-install-5986eb15c13945a0b2ff74a2212b25af\skills
+ [+] µÚ¶þ²Ö¿â²»ÄÜ½Ó¹Ü¹²Ïí root µÄ·Ç¿ÕÇåµ¥£¬Force Ò²²»ÀýÍâ 152ms
+[33;1m¾¯¸æ: Î´ÕÒµ½ Skill payload Çåµ¥£¬°´ÎÞ¸½¼Ó×ÊÔ´´¦Àí: D:\Temp\mas-skill-install-aa2cb2d5fe234ec1ac86decd682cf632\repo\config\skill-payloads.json[0m
+==> Í¬²½ skills: D:\Temp\mas-skill-install-aa2cb2d5fe234ec1ac86decd682cf632\repo\skills -> D:\Temp\mas-skill-install-aa2cb2d5fe234ec1ac86decd682cf632\skills
+    ±¸·ÝÄ¿Â¼£¨½öÔÚ·¢Éú±ä¸üÊ±´´½¨£©: D:\Temp\mas-skill-install-aa2cb2d5fe234ec1ac86decd682cf632\backup\20261026-133601-sync-skills
+  install: matlab-runner -> D:\Temp\mas-skill-install-aa2cb2d5fe234ec1ac86decd682cf632\skills\matlab-runner
+[33;1m¾¯¸æ: Î´ÕÒµ½ Skill payload Çåµ¥£¬°´ÎÞ¸½¼Ó×ÊÔ´´¦Àí: D:\Temp\mas-skill-install-aa2cb2d5fe234ec1ac86decd682cf632\repo\config\skill-payloads.json[0m
+==> Í¬²½ skills: D:\Temp\mas-skill-install-aa2cb2d5fe234ec1ac86decd682cf632\repo\skills -> D:\Temp\mas-skill-install-aa2cb2d5fe234ec1ac86decd682cf632\skills
+    ±¸·ÝÄ¿Â¼£¨½öÔÚ·¢Éú±ä¸üÊ±´´½¨£©: D:\Temp\mas-skill-install-aa2cb2d5fe234ec1ac86decd682cf632\backup\20261026-133601-sync-skills-1
+    Ìø¹ý£¨ÄÚÈÝÒ»ÖÂ£©: matlab-runner
+[33;1m¾¯¸æ: Ìø¹ýÇåÀí£¨Ä¿Â¼ÒÑ±»±¾µØÐÞ¸Ä»òÈ±ÉÙ¿ÉÐÅ°²×°Ö¸ÎÆ£©: matlab-foreign[0m
+    ¼¼ÄÜÇåµ¥Î´±ä»¯£¬Ìø¹ýÖØÐ´: D:\Temp\mas-skill-install-aa2cb2d5fe234ec1ac86decd682cf632\skills\.matlab-agent-skills-manifest.json
+ [+] Prune ¶ÔÈ±ÉÙÖ¸ÎÆµÄºÏ·¨Çåµ¥ÌõÄ¿±£ÁôÄ¿Â¼ºÍµÇ¼Ç 167ms
+[33;1m¾¯¸æ: Î´ÕÒµ½ Skill payload Çåµ¥£¬°´ÎÞ¸½¼Ó×ÊÔ´´¦Àí: D:\Temp\mas-skill-install-397abf1d79c7433d97e40b795841cfa7\repo\config\skill-payloads.json[0m
+==> Í¬²½ skills: D:\Temp\mas-skill-install-397abf1d79c7433d97e40b795841cfa7\repo\skills -> D:\Temp\mas-skill-install-397abf1d79c7433d97e40b795841cfa7\skills
+    ±¸·ÝÄ¿Â¼£¨½öÔÚ·¢Éú±ä¸üÊ±´´½¨£©: D:\Temp\mas-skill-install-397abf1d79c7433d97e40b795841cfa7\backup\20261026-133601-sync-skills
+  install: matlab-runner -> D:\Temp\mas-skill-install-397abf1d79c7433d97e40b795841cfa7\skills\matlab-runner
+ [+] ¾Ü¾ø manifest Ãû³ÆÂ·¾¶´©Ô½²¢±£ÁôÔ½½çÄ¿Â¼ 152ms
+[33;1m¾¯¸æ: Î´ÕÒµ½ Skill payload Çåµ¥£¬°´ÎÞ¸½¼Ó×ÊÔ´´¦Àí: D:\Temp\mas-skill-install-4b6415410c084213ad3c3dc8a5cb6332\repo\config\skill-payloads.json[0m
+==> Í¬²½ skills: D:\Temp\mas-skill-install-4b6415410c084213ad3c3dc8a5cb6332\repo\skills -> D:\Temp\mas-skill-install-4b6415410c084213ad3c3dc8a5cb6332\skills
+    ±¸·ÝÄ¿Â¼£¨½öÔÚ·¢Éú±ä¸üÊ±´´½¨£©: D:\Temp\mas-skill-install-4b6415410c084213ad3c3dc8a5cb6332\backup\20261026-133601-sync-skills
+  install: matlab-runner -> D:\Temp\mas-skill-install-4b6415410c084213ad3c3dc8a5cb6332\skills\matlab-runner
+ [+] ¾Ü¾øÎ»ÓÚ´ýÐ¶ÔØ¼¼ÄÜÄÚ²¿µÄ±¸·ÝÎ»ÖÃ 99ms
+ [+] ÏÔÊ½Ð£Ñé¾Ü¾øÁ´½ÓÄ¿Â¼£¬±ÜÃâÑØ junction É¾³ýÍâ²¿ÎÄ¼þ 16ms
+ [+] Í¬²½ÔÚ¸ùÄ¿Â¼ÊÇ junction Ê±ÌáÇ°Í£Ö¹£¬²»¾­Á´½ÓÐ´ÈëÇåµ¥ 34ms
+Describing Bootstrap ¼¼ÄÜÁ´Â·
+==> ¸üÐÂÒÑÓÐ²Ö¿â
+    [DryRun] git -C E:\desktop\MATLAB pull --ff-only
+==> ½âÎö MATLAB °²×°Ä¿Â¼
+    matlabRoot: D:\Temp\mas-skill-install-ab0304d5000a40368ca1ba1d77434e33
+==> ×¼±¸ MATLAB MCP Server ¶þ½øÖÆ£¨¹Ì¶¨Çåµ¥Ð£Ñé£©
+    server: E:\desktop\MATLAB\bin\matlab-mcp-server-windows-x64.exe (source=existing, release=v0.15.0, integrity=VERIFIED_AGAINST_MANIFEST)
+==> Í¬²½ Skills
+==> Í¬²½ skills: E:\desktop\MATLAB\skills -> D:\Temp\mas-skill-install-ab0304d5000a40368ca1ba1d77434e33\skills
+    [DryRun] ²»»áÐ´ÈëÈÎºÎÎÄ¼þ
+  install: matlab-codegen-deploy -> D:\Temp\mas-skill-install-ab0304d5000a40368ca1ba1d77434e33\skills\matlab-codegen-deploy
+  install: matlab-control-optimization -> D:\Temp\mas-skill-install-ab0304d5000a40368ca1ba1d77434e33\skills\matlab-control-optimization
+  install: matlab-data-analysis -> D:\Temp\mas-skill-install-ab0304d5000a40368ca1ba1d77434e33\skills\matlab-data-analysis
+  install: matlab-orchestrator -> D:\Temp\mas-skill-install-ab0304d5000a40368ca1ba1d77434e33\skills\matlab-orchestrator
+  install: matlab-robotics-autonomy -> D:\Temp\mas-skill-install-ab0304d5000a40368ca1ba1d77434e33\skills\matlab-robotics-autonomy
+  install: matlab-runner -> D:\Temp\mas-skill-install-ab0304d5000a40368ca1ba1d77434e33\skills\matlab-runner
+  install: matlab-signal-vision-ai -> D:\Temp\mas-skill-install-ab0304d5000a40368ca1ba1d77434e33\skills\matlab-signal-vision-ai
+  install: matlab-simulink-modeling -> D:\Temp\mas-skill-install-ab0304d5000a40368ca1ba1d77434e33\skills\matlab-simulink-modeling
+  install: matlab-testing-ci -> D:\Temp\mas-skill-install-ab0304d5000a40368ca1ba1d77434e33\skills\matlab-testing-ci
+==> [DryRun] ½«Ð´Èë skills manifest: D:\Temp\mas-skill-install-ab0304d5000a40368ca1ba1d77434e33\skills\.matlab-agent-skills-manifest.json
+==> °²×° MCP ¿Í»§¶Ë½ÓÈë
+==> ½âÎö MATLAB MCP Server ¿ÉÖ´ÐÐÎÄ¼þ
+    server: E:\desktop\MATLAB\bin\matlab-mcp-server-windows-x64.exe (source=explicit, release=v0.15.0, integrity=VERIFIED_AGAINST_MANIFEST)
+==> Ìø¹ý»ù´¡ÅäÖÃ£¨-SkipBaseSetup£©
+==> Ð´ÈëÍ¨ÓÃ .mcp.json£¨°²È«ºÏ²¢£©
+==> [DryRun] ½«¸üÐÂ E:\desktop\MATLAB\.mcp.json ÖÐµÄ mcpServers.matlab-official£¨ÆäÓà 0 ¸öÌõÄ¿±£³Ö²»±ä£©
+ [+] ÏÔÊ½ SkillRoot ´«ÈëÍ¬²½Æ÷£¬DryRun ²»Ð´ÕæÊµ»òÉ³Ïä¼¼ÄÜÄ¿Â¼ 319ms
+==> ¸üÐÂÒÑÓÐ²Ö¿â
+    [DryRun] git -C D:\Temp\mas-skill-install-adfd424c3bf648b3971630d0ebbb59a6\repo pull --ff-only
+==> ½âÎö MATLAB °²×°Ä¿Â¼
+    matlabRoot: D:\Temp\mas-skill-install-adfd424c3bf648b3971630d0ebbb59a6
+==> ×¼±¸ MATLAB MCP Server ¶þ½øÖÆ£¨¹Ì¶¨Çåµ¥Ð£Ñé£©
+ [+] Í¬²½Æ÷±¨¸æ´íÎóÊ± Bootstrap Í£Ö¹£¬²»¼ÌÐø¿Í»§¶Ë×¢²á 82ms
+Tests completed in 1.84s
+Passed: 24 Failed: 0 Skipped: 0 Pending: 0 Inconclusive: 0
+==> ÔËÐÐ [free] SkillPayloadContract.Tests.ps1
+
+
+
+
+
+Describing S2 payload manifest contract
+ [+] declares a schema-versioned payload manifest 23ms
+ [+] ships the complete runner probe and batch closure 18ms
+ [+] ships the complete orchestrator probe closure 4ms
+ [+] keeps every payload source inside the repository runtime roots 9ms
+ [+] does not commit a duplicate probe implementation inside skills/ 12ms
+ [+] keeps all nine skills present with SKILL.md 4ms
+Describing S2 skill documentation reference contract
+ [+] uses a skill-root resolution rule instead of caller-cwd scripts for runner and orchestrator 13ms
+ [+] does not present repository-relative PowerShell scripts as installed commands 85ms
+ [+] does not reference the removed STM32 deployment document or repository-only docs 25ms
+ [+] marks repository-only setup and smoke-test scripts as developer operations 4ms
+ [+] resolves every references/, tests/ and scripts/ link inside the skill or its siblings 99ms
+ [+] keeps repository-only build examples out of installed skill instructions 36ms
+Tests completed in 338ms
+Passed: 12 Failed: 0 Skipped: 0 Pending: 0 Inconclusive: 0
+==> ÔËÐÐ [free] SkillPayloadInstall.Tests.ps1
+
+
+
+
+
+Describing S2 installed Skill resource payload
+==> Í¬²½ skills: E:\desktop\MATLAB\skills -> D:\Temp\mas-s2-install-e606da19f4954d25a66a66d46b5df964\installed-skills
+    ±¸·ÝÄ¿Â¼£¨½öÔÚ·¢Éú±ä¸üÊ±´´½¨£©: D:\Temp\mas-s2-install-e606da19f4954d25a66a66d46b5df964\backups\20261026-133602-sync-skills
+  install: matlab-codegen-deploy -> D:\Temp\mas-s2-install-e606da19f4954d25a66a66d46b5df964\installed-skills\matlab-codegen-deploy
+  install: matlab-control-optimization -> D:\Temp\mas-s2-install-e606da19f4954d25a66a66d46b5df964\installed-skills\matlab-control-optimization
+  install: matlab-data-analysis -> D:\Temp\mas-s2-install-e606da19f4954d25a66a66d46b5df964\installed-skills\matlab-data-analysis
+  install: matlab-orchestrator -> D:\Temp\mas-s2-install-e606da19f4954d25a66a66d46b5df964\installed-skills\matlab-orchestrator
+  install: matlab-robotics-autonomy -> D:\Temp\mas-s2-install-e606da19f4954d25a66a66d46b5df964\installed-skills\matlab-robotics-autonomy
+  install: matlab-runner -> D:\Temp\mas-s2-install-e606da19f4954d25a66a66d46b5df964\installed-skills\matlab-runner
+  install: matlab-signal-vision-ai -> D:\Temp\mas-s2-install-e606da19f4954d25a66a66d46b5df964\installed-skills\matlab-signal-vision-ai
+  install: matlab-simulink-modeling -> D:\Temp\mas-s2-install-e606da19f4954d25a66a66d46b5df964\installed-skills\matlab-simulink-modeling
+  install: matlab-testing-ci -> D:\Temp\mas-s2-install-e606da19f4954d25a66a66d46b5df964\installed-skills\matlab-testing-ci
+ [+] installs every declared payload file byte-for-byte into runner and orchestrator 3.26s
+==> Í¬²½ skills: E:\desktop\MATLAB\skills -> D:\Temp\mas-s2-install-8fee50f6973f496c861cf70e57a24866\installed-skills
+    ±¸·ÝÄ¿Â¼£¨½öÔÚ·¢Éú±ä¸üÊ±´´½¨£©: D:\Temp\mas-s2-install-8fee50f6973f496c861cf70e57a24866\backups\20261026-133605-sync-skills
+  install: matlab-codegen-deploy -> D:\Temp\mas-s2-install-8fee50f6973f496c861cf70e57a24866\installed-skills\matlab-codegen-deploy
+  install: matlab-control-optimization -> D:\Temp\mas-s2-install-8fee50f6973f496c861cf70e57a24866\installed-skills\matlab-control-optimization
+  install: matlab-data-analysis -> D:\Temp\mas-s2-install-8fee50f6973f496c861cf70e57a24866\installed-skills\matlab-data-analysis
+  install: matlab-orchestrator -> D:\Temp\mas-s2-install-8fee50f6973f496c861cf70e57a24866\installed-skills\matlab-orchestrator
+  install: matlab-robotics-autonomy -> D:\Temp\mas-s2-install-8fee50f6973f496c861cf70e57a24866\installed-skills\matlab-robotics-autonomy
+  install: matlab-runner -> D:\Temp\mas-s2-install-8fee50f6973f496c861cf70e57a24866\installed-skills\matlab-runner
+  install: matlab-signal-vision-ai -> D:\Temp\mas-s2-install-8fee50f6973f496c861cf70e57a24866\installed-skills\matlab-signal-vision-ai
+  install: matlab-simulink-modeling -> D:\Temp\mas-s2-install-8fee50f6973f496c861cf70e57a24866\installed-skills\matlab-simulink-modeling
+  install: matlab-testing-ci -> D:\Temp\mas-s2-install-8fee50f6973f496c861cf70e57a24866\installed-skills\matlab-testing-ci
+ [+] does not ship artifacts, session files, certificates, keys, or repository paths inside a Skill 3.17s
+==> Í¬²½ skills: E:\desktop\MATLAB\skills -> D:\Temp\mas-s2-install-05cb599e946b4f3b834c1b39d15d3fe0\installed-skills
+    ±¸·ÝÄ¿Â¼£¨½öÔÚ·¢Éú±ä¸üÊ±´´½¨£©: D:\Temp\mas-s2-install-05cb599e946b4f3b834c1b39d15d3fe0\backups\20261026-133609-sync-skills
+  install: matlab-codegen-deploy -> D:\Temp\mas-s2-install-05cb599e946b4f3b834c1b39d15d3fe0\installed-skills\matlab-codegen-deploy
+  install: matlab-control-optimization -> D:\Temp\mas-s2-install-05cb599e946b4f3b834c1b39d15d3fe0\installed-skills\matlab-control-optimization
+  install: matlab-data-analysis -> D:\Temp\mas-s2-install-05cb599e946b4f3b834c1b39d15d3fe0\installed-skills\matlab-data-analysis
+  install: matlab-orchestrator -> D:\Temp\mas-s2-install-05cb599e946b4f3b834c1b39d15d3fe0\installed-skills\matlab-orchestrator
+  install: matlab-robotics-autonomy -> D:\Temp\mas-s2-install-05cb599e946b4f3b834c1b39d15d3fe0\installed-skills\matlab-robotics-autonomy
+  install: matlab-runner -> D:\Temp\mas-s2-install-05cb599e946b4f3b834c1b39d15d3fe0\installed-skills\matlab-runner
+  install: matlab-signal-vision-ai -> D:\Temp\mas-s2-install-05cb599e946b4f3b834c1b39d15d3fe0\installed-skills\matlab-signal-vision-ai
+  install: matlab-simulink-modeling -> D:\Temp\mas-s2-install-05cb599e946b4f3b834c1b39d15d3fe0\installed-skills\matlab-simulink-modeling
+  install: matlab-testing-ci -> D:\Temp\mas-s2-install-05cb599e946b4f3b834c1b39d15d3fe0\installed-skills\matlab-testing-ci
+==> Í¬²½ skills: E:\desktop\MATLAB\skills -> D:\Temp\mas-s2-install-05cb599e946b4f3b834c1b39d15d3fe0\installed-skills
+    ±¸·ÝÄ¿Â¼£¨½öÔÚ·¢Éú±ä¸üÊ±´´½¨£©: D:\Temp\mas-s2-install-05cb599e946b4f3b834c1b39d15d3fe0\backups\20261026-133612-sync-skills
+    Ìø¹ý£¨ÄÚÈÝÒ»ÖÂ£©: matlab-codegen-deploy
+    Ìø¹ý£¨ÄÚÈÝÒ»ÖÂ£©: matlab-control-optimization
+    Ìø¹ý£¨ÄÚÈÝÒ»ÖÂ£©: matlab-data-analysis
+    Ìø¹ý£¨ÄÚÈÝÒ»ÖÂ£©: matlab-orchestrator
+    Ìø¹ý£¨ÄÚÈÝÒ»ÖÂ£©: matlab-robotics-autonomy
+    Ìø¹ý£¨ÄÚÈÝÒ»ÖÂ£©: matlab-runner
+    Ìø¹ý£¨ÄÚÈÝÒ»ÖÂ£©: matlab-signal-vision-ai
+    Ìø¹ý£¨ÄÚÈÝÒ»ÖÂ£©: matlab-simulink-modeling
+    Ìø¹ý£¨ÄÚÈÝÒ»ÖÂ£©: matlab-testing-ci
+    ¼¼ÄÜÇåµ¥Î´±ä»¯£¬Ìø¹ýÖØÐ´: D:\Temp\mas-s2-install-05cb599e946b4f3b834c1b39d15d3fe0\installed-skills\.matlab-agent-skills-manifest.json
+ [+] keeps a repeat sync byte-identical, including payload and manifest 3.77s
+==> Í¬²½ skills: E:\desktop\MATLAB\skills -> D:\Temp\mas-s2-install-e3527ff9087a4c929698c543d86c83d4\installed-skills
+    [DryRun] ²»»áÐ´ÈëÈÎºÎÎÄ¼þ
+  install: matlab-codegen-deploy -> D:\Temp\mas-s2-install-e3527ff9087a4c929698c543d86c83d4\installed-skills\matlab-codegen-deploy
+  install: matlab-control-optimization -> D:\Temp\mas-s2-install-e3527ff9087a4c929698c543d86c83d4\installed-skills\matlab-control-optimization
+  install: matlab-data-analysis -> D:\Temp\mas-s2-install-e3527ff9087a4c929698c543d86c83d4\installed-skills\matlab-data-analysis
+  install: matlab-orchestrator -> D:\Temp\mas-s2-install-e3527ff9087a4c929698c543d86c83d4\installed-skills\matlab-orchestrator
+  install: matlab-robotics-autonomy -> D:\Temp\mas-s2-install-e3527ff9087a4c929698c543d86c83d4\installed-skills\matlab-robotics-autonomy
+  install: matlab-runner -> D:\Temp\mas-s2-install-e3527ff9087a4c929698c543d86c83d4\installed-skills\matlab-runner
+  install: matlab-signal-vision-ai -> D:\Temp\mas-s2-install-e3527ff9087a4c929698c543d86c83d4\installed-skills\matlab-signal-vision-ai
+  install: matlab-simulink-modeling -> D:\Temp\mas-s2-install-e3527ff9087a4c929698c543d86c83d4\installed-skills\matlab-simulink-modeling
+  install: matlab-testing-ci -> D:\Temp\mas-s2-install-e3527ff9087a4c929698c543d86c83d4\installed-skills\matlab-testing-ci
+==> [DryRun] ½«Ð´Èë skills manifest: D:\Temp\mas-s2-install-e3527ff9087a4c929698c543d86c83d4\installed-skills\.matlab-agent-skills-manifest.json
+ [+] writes nothing for -DryRun 170ms
+==> Í¬²½ skills: E:\desktop\MATLAB\skills -> D:\Temp\mas-s2-install-23926d88c10f464ca6976de3021cc668\installed-skills
+    ±¸·ÝÄ¿Â¼£¨½öÔÚ·¢Éú±ä¸üÊ±´´½¨£©: D:\Temp\mas-s2-install-23926d88c10f464ca6976de3021cc668\backups\20261026-133613-sync-skills
+  install: matlab-codegen-deploy -> D:\Temp\mas-s2-install-23926d88c10f464ca6976de3021cc668\installed-skills\matlab-codegen-deploy
+  install: matlab-control-optimization -> D:\Temp\mas-s2-install-23926d88c10f464ca6976de3021cc668\installed-skills\matlab-control-optimization
+  install: matlab-data-analysis -> D:\Temp\mas-s2-install-23926d88c10f464ca6976de3021cc668\installed-skills\matlab-data-analysis
+  install: matlab-orchestrator -> D:\Temp\mas-s2-install-23926d88c10f464ca6976de3021cc668\installed-skills\matlab-orchestrator
+  install: matlab-robotics-autonomy -> D:\Temp\mas-s2-install-23926d88c10f464ca6976de3021cc668\installed-skills\matlab-robotics-autonomy
+  install: matlab-runner -> D:\Temp\mas-s2-install-23926d88c10f464ca6976de3021cc668\installed-skills\matlab-runner
+  install: matlab-signal-vision-ai -> D:\Temp\mas-s2-install-23926d88c10f464ca6976de3021cc668\installed-skills\matlab-signal-vision-ai
+  install: matlab-simulink-modeling -> D:\Temp\mas-s2-install-23926d88c10f464ca6976de3021cc668\installed-skills\matlab-simulink-modeling
+  install: matlab-testing-ci -> D:\Temp\mas-s2-install-23926d88c10f464ca6976de3021cc668\installed-skills\matlab-testing-ci
+==> Í¬²½ skills: E:\desktop\MATLAB\skills -> D:\Temp\mas-s2-install-23926d88c10f464ca6976de3021cc668\installed-skills
+    ±¸·ÝÄ¿Â¼£¨½öÔÚ·¢Éú±ä¸üÊ±´´½¨£©: D:\Temp\mas-s2-install-23926d88c10f464ca6976de3021cc668\backups\20261026-133616-sync-skills
+    Ìø¹ý£¨ÄÚÈÝÒ»ÖÂ£©: matlab-codegen-deploy
+    Ìø¹ý£¨ÄÚÈÝÒ»ÖÂ£©: matlab-control-optimization
+    Ìø¹ý£¨ÄÚÈÝÒ»ÖÂ£©: matlab-data-analysis
+    Ìø¹ý£¨ÄÚÈÝÒ»ÖÂ£©: matlab-orchestrator
+    Ìø¹ý£¨ÄÚÈÝÒ»ÖÂ£©: matlab-robotics-autonomy
+  update: matlab-runner -> D:\Temp\mas-s2-install-23926d88c10f464ca6976de3021cc668\installed-skills\matlab-runner
+    Ìø¹ý£¨ÄÚÈÝÒ»ÖÂ£©: matlab-signal-vision-ai
+    Ìø¹ý£¨ÄÚÈÝÒ»ÖÂ£©: matlab-simulink-modeling
+    Ìø¹ý£¨ÄÚÈÝÒ»ÖÂ£©: matlab-testing-ci
+ [+] repairs a tampered installed payload and backs up the previous copy 4.58s
+==> Í¬²½ skills: D:\Temp\mas-s2-install-28189b9a1bbc4658b49892296e0916af\repo\skills -> D:\Temp\mas-s2-install-28189b9a1bbc4658b49892296e0916af\installed-skills
+    ±¸·ÝÄ¿Â¼£¨½öÔÚ·¢Éú±ä¸üÊ±´´½¨£©: D:\Temp\mas-s2-install-28189b9a1bbc4658b49892296e0916af\backups\20261026-133617-sync-skills
+  install: matlab-codegen-deploy -> D:\Temp\mas-s2-install-28189b9a1bbc4658b49892296e0916af\installed-skills\matlab-codegen-deploy
+  install: matlab-control-optimization -> D:\Temp\mas-s2-install-28189b9a1bbc4658b49892296e0916af\installed-skills\matlab-control-optimization
+  install: matlab-data-analysis -> D:\Temp\mas-s2-install-28189b9a1bbc4658b49892296e0916af\installed-skills\matlab-data-analysis
+  install: matlab-orchestrator -> D:\Temp\mas-s2-install-28189b9a1bbc4658b49892296e0916af\installed-skills\matlab-orchestrator
+  install: matlab-robotics-autonomy -> D:\Temp\mas-s2-install-28189b9a1bbc4658b49892296e0916af\installed-skills\matlab-robotics-autonomy
+  install: matlab-runner -> D:\Temp\mas-s2-install-28189b9a1bbc4658b49892296e0916af\installed-skills\matlab-runner
+  install: matlab-signal-vision-ai -> D:\Temp\mas-s2-install-28189b9a1bbc4658b49892296e0916af\installed-skills\matlab-signal-vision-ai
+  install: matlab-simulink-modeling -> D:\Temp\mas-s2-install-28189b9a1bbc4658b49892296e0916af\installed-skills\matlab-simulink-modeling
+  install: matlab-testing-ci -> D:\Temp\mas-s2-install-28189b9a1bbc4658b49892296e0916af\installed-skills\matlab-testing-ci
+ [+] restores the pre-upgrade payload when the destination is locked 8.89s
+==> Í¬²½ skills: E:\desktop\MATLAB\skills -> D:\Temp\mas-s2-install-373a860f09484f39a16a1336f4ee09e6\installed-skills
+    ±¸·ÝÄ¿Â¼£¨½öÔÚ·¢Éú±ä¸üÊ±´´½¨£©: D:\Temp\mas-s2-install-373a860f09484f39a16a1336f4ee09e6\backups\20261026-133626-sync-skills
+  install: matlab-codegen-deploy -> D:\Temp\mas-s2-install-373a860f09484f39a16a1336f4ee09e6\installed-skills\matlab-codegen-deploy
+  install: matlab-control-optimization -> D:\Temp\mas-s2-install-373a860f09484f39a16a1336f4ee09e6\installed-skills\matlab-control-optimization
+  install: matlab-data-analysis -> D:\Temp\mas-s2-install-373a860f09484f39a16a1336f4ee09e6\installed-skills\matlab-data-analysis
+  install: matlab-orchestrator -> D:\Temp\mas-s2-install-373a860f09484f39a16a1336f4ee09e6\installed-skills\matlab-orchestrator
+  install: matlab-robotics-autonomy -> D:\Temp\mas-s2-install-373a860f09484f39a16a1336f4ee09e6\installed-skills\matlab-robotics-autonomy
+  install: matlab-runner -> D:\Temp\mas-s2-install-373a860f09484f39a16a1336f4ee09e6\installed-skills\matlab-runner
+  install: matlab-signal-vision-ai -> D:\Temp\mas-s2-install-373a860f09484f39a16a1336f4ee09e6\installed-skills\matlab-signal-vision-ai
+  install: matlab-simulink-modeling -> D:\Temp\mas-s2-install-373a860f09484f39a16a1336f4ee09e6\installed-skills\matlab-simulink-modeling
+  install: matlab-testing-ci -> D:\Temp\mas-s2-install-373a860f09484f39a16a1336f4ee09e6\installed-skills\matlab-testing-ci
+ [+] uninstalls all nine managed Skills without leaving payload residue 3.87s
+Describing S2 installed Skill execution without the source repository
+==> Í¬²½ skills: E:\desktop\MATLAB\skills -> D:\Temp\mas-s2-install-4e31ebfee3194f5daa80c56f6a95f212\installed-skills
+    ±¸·ÝÄ¿Â¼£¨½öÔÚ·¢Éú±ä¸üÊ±´´½¨£©: D:\Temp\mas-s2-install-4e31ebfee3194f5daa80c56f6a95f212\backups\20261026-133630-sync-skills
+  install: matlab-codegen-deploy -> D:\Temp\mas-s2-install-4e31ebfee3194f5daa80c56f6a95f212\installed-skills\matlab-codegen-deploy
+  install: matlab-control-optimization -> D:\Temp\mas-s2-install-4e31ebfee3194f5daa80c56f6a95f212\installed-skills\matlab-control-optimization
+  install: matlab-data-analysis -> D:\Temp\mas-s2-install-4e31ebfee3194f5daa80c56f6a95f212\installed-skills\matlab-data-analysis
+  install: matlab-orchestrator -> D:\Temp\mas-s2-install-4e31ebfee3194f5daa80c56f6a95f212\installed-skills\matlab-orchestrator
+  install: matlab-robotics-autonomy -> D:\Temp\mas-s2-install-4e31ebfee3194f5daa80c56f6a95f212\installed-skills\matlab-robotics-autonomy
+  install: matlab-runner -> D:\Temp\mas-s2-install-4e31ebfee3194f5daa80c56f6a95f212\installed-skills\matlab-runner
+  install: matlab-signal-vision-ai -> D:\Temp\mas-s2-install-4e31ebfee3194f5daa80c56f6a95f212\installed-skills\matlab-signal-vision-ai
+  install: matlab-simulink-modeling -> D:\Temp\mas-s2-install-4e31ebfee3194f5daa80c56f6a95f212\installed-skills\matlab-simulink-modeling
+  install: matlab-testing-ci -> D:\Temp\mas-s2-install-4e31ebfee3194f5daa80c56f6a95f212\installed-skills\matlab-testing-ci
+ [+] keeps sanitizer behavior in the installed Core module 3.91s
+==> Í¬²½ skills: E:\desktop\MATLAB\skills -> D:\Temp\mas-s2-install-873ec5500ec142339e4d6f2600d4f631\installed-skills
+    ±¸·ÝÄ¿Â¼£¨½öÔÚ·¢Éú±ä¸üÊ±´´½¨£©: D:\Temp\mas-s2-install-873ec5500ec142339e4d6f2600d4f631\backups\20261026-133634-sync-skills
+  install: matlab-codegen-deploy -> D:\Temp\mas-s2-install-873ec5500ec142339e4d6f2600d4f631\installed-skills\matlab-codegen-deploy
+  install: matlab-control-optimization -> D:\Temp\mas-s2-install-873ec5500ec142339e4d6f2600d4f631\installed-skills\matlab-control-optimization
+  install: matlab-data-analysis -> D:\Temp\mas-s2-install-873ec5500ec142339e4d6f2600d4f631\installed-skills\matlab-data-analysis
+  install: matlab-orchestrator -> D:\Temp\mas-s2-install-873ec5500ec142339e4d6f2600d4f631\installed-skills\matlab-orchestrator
+  install: matlab-robotics-autonomy -> D:\Temp\mas-s2-install-873ec5500ec142339e4d6f2600d4f631\installed-skills\matlab-robotics-autonomy
+  install: matlab-runner -> D:\Temp\mas-s2-install-873ec5500ec142339e4d6f2600d4f631\installed-skills\matlab-runner
+  install: matlab-signal-vision-ai -> D:\Temp\mas-s2-install-873ec5500ec142339e4d6f2600d4f631\installed-skills\matlab-signal-vision-ai
+  install: matlab-simulink-modeling -> D:\Temp\mas-s2-install-873ec5500ec142339e4d6f2600d4f631\installed-skills\matlab-simulink-modeling
+  install: matlab-testing-ci -> D:\Temp\mas-s2-install-873ec5500ec142339e4d6f2600d4f631\installed-skills\matlab-testing-ci
+ [+] resolves every installed module from inside the Skill root 3.94s
+==> Í¬²½ skills: E:\desktop\MATLAB\skills -> D:\Temp\mas-s2-install-00bb6bf5088248bdb7cf47453ce8c895\installed-skills
+    ±¸·ÝÄ¿Â¼£¨½öÔÚ·¢Éú±ä¸üÊ±´´½¨£©: D:\Temp\mas-s2-install-00bb6bf5088248bdb7cf47453ce8c895\backups\20261026-133638-sync-skills
+  install: matlab-codegen-deploy -> D:\Temp\mas-s2-install-00bb6bf5088248bdb7cf47453ce8c895\installed-skills\matlab-codegen-deploy
+  install: matlab-control-optimization -> D:\Temp\mas-s2-install-00bb6bf5088248bdb7cf47453ce8c895\installed-skills\matlab-control-optimization
+  install: matlab-data-analysis -> D:\Temp\mas-s2-install-00bb6bf5088248bdb7cf47453ce8c895\installed-skills\matlab-data-analysis
+  install: matlab-orchestrator -> D:\Temp\mas-s2-install-00bb6bf5088248bdb7cf47453ce8c895\installed-skills\matlab-orchestrator
+  install: matlab-robotics-autonomy -> D:\Temp\mas-s2-install-00bb6bf5088248bdb7cf47453ce8c895\installed-skills\matlab-robotics-autonomy
+  install: matlab-runner -> D:\Temp\mas-s2-install-00bb6bf5088248bdb7cf47453ce8c895\installed-skills\matlab-runner
+  install: matlab-signal-vision-ai -> D:\Temp\mas-s2-install-00bb6bf5088248bdb7cf47453ce8c895\installed-skills\matlab-signal-vision-ai
+  install: matlab-simulink-modeling -> D:\Temp\mas-s2-install-00bb6bf5088248bdb7cf47453ce8c895\installed-skills\matlab-simulink-modeling
+  install: matlab-testing-ci -> D:\Temp\mas-s2-install-00bb6bf5088248bdb7cf47453ce8c895\installed-skills\matlab-testing-ci
+ [+] runs the installed probe from a project cwd and writes artifacts outside the Skill 5.48s
+Tests completed in 41.04s
+Passed: 10 Failed: 0 Skipped: 0 Pending: 0 Inconclusive: 0
+==> ÔËÐÐ [free] SkillSync.Phase57.Tests.ps1
+
+
+
+
+
+Describing Phase 5.7 sync: managed upgrade keeps user files
+[33;1m¾¯¸æ: Î´ÕÒµ½ Skill payload Çåµ¥£¬°´ÎÞ¸½¼Ó×ÊÔ´´¦Àí: D:\Temp\mas-phase57-sync-1150f20d0a694d2db7eb9e058f343b7d\repo\config\skill-payloads.json[0m
+==> Í¬²½ skills: D:\Temp\mas-phase57-sync-1150f20d0a694d2db7eb9e058f343b7d\repo\skills -> D:\Temp\mas-phase57-sync-1150f20d0a694d2db7eb9e058f343b7d\skills
+    ±¸·ÝÄ¿Â¼£¨½öÔÚ·¢Éú±ä¸üÊ±´´½¨£©: D:\Temp\mas-phase57-sync-1150f20d0a694d2db7eb9e058f343b7d\backups\20261026-133643-sync-skills
+  install: matlab-alpha -> D:\Temp\mas-phase57-sync-1150f20d0a694d2db7eb9e058f343b7d\skills\matlab-alpha
+  install: matlab-beta -> D:\Temp\mas-phase57-sync-1150f20d0a694d2db7eb9e058f343b7d\skills\matlab-beta
+[33;1m¾¯¸æ: Î´ÕÒµ½ Skill payload Çåµ¥£¬°´ÎÞ¸½¼Ó×ÊÔ´´¦Àí: D:\Temp\mas-phase57-sync-1150f20d0a694d2db7eb9e058f343b7d\repo\config\skill-payloads.json[0m
+==> Í¬²½ skills: D:\Temp\mas-phase57-sync-1150f20d0a694d2db7eb9e058f343b7d\repo\skills -> D:\Temp\mas-phase57-sync-1150f20d0a694d2db7eb9e058f343b7d\skills
+    ±¸·ÝÄ¿Â¼£¨½öÔÚ·¢Éú±ä¸üÊ±´´½¨£©: D:\Temp\mas-phase57-sync-1150f20d0a694d2db7eb9e058f343b7d\backups\20261026-133643-sync-skills-1
+  update: matlab-alpha -> D:\Temp\mas-phase57-sync-1150f20d0a694d2db7eb9e058f343b7d\skills\matlab-alpha
+    Ìø¹ý£¨ÄÚÈÝÒ»ÖÂ£©: matlab-beta
+ [+] upgrades the managed copy and preserves a user-added file 221ms
+[33;1m¾¯¸æ: Î´ÕÒµ½ Skill payload Çåµ¥£¬°´ÎÞ¸½¼Ó×ÊÔ´´¦Àí: D:\Temp\mas-phase57-sync-e8c51d66b087496a9c3f3ded61fe3c29\repo\config\skill-payloads.json[0m
+==> Í¬²½ skills: D:\Temp\mas-phase57-sync-e8c51d66b087496a9c3f3ded61fe3c29\repo\skills -> D:\Temp\mas-phase57-sync-e8c51d66b087496a9c3f3ded61fe3c29\skills
+    ±¸·ÝÄ¿Â¼£¨½öÔÚ·¢Éú±ä¸üÊ±´´½¨£©: D:\Temp\mas-phase57-sync-e8c51d66b087496a9c3f3ded61fe3c29\backups\20261026-133643-sync-skills
+  install: matlab-alpha -> D:\Temp\mas-phase57-sync-e8c51d66b087496a9c3f3ded61fe3c29\skills\matlab-alpha
+  install: matlab-beta -> D:\Temp\mas-phase57-sync-e8c51d66b087496a9c3f3ded61fe3c29\skills\matlab-beta
+[33;1m¾¯¸æ: Î´ÕÒµ½ Skill payload Çåµ¥£¬°´ÎÞ¸½¼Ó×ÊÔ´´¦Àí: D:\Temp\mas-phase57-sync-e8c51d66b087496a9c3f3ded61fe3c29\repo\config\skill-payloads.json[0m
+==> Í¬²½ skills: D:\Temp\mas-phase57-sync-e8c51d66b087496a9c3f3ded61fe3c29\repo\skills -> D:\Temp\mas-phase57-sync-e8c51d66b087496a9c3f3ded61fe3c29\skills
+    ±¸·ÝÄ¿Â¼£¨½öÔÚ·¢Éú±ä¸üÊ±´´½¨£©: D:\Temp\mas-phase57-sync-e8c51d66b087496a9c3f3ded61fe3c29\backups\20261026-133643-sync-skills-1
+  update: matlab-alpha -> D:\Temp\mas-phase57-sync-e8c51d66b087496a9c3f3ded61fe3c29\skills\matlab-alpha
+    Ìø¹ý£¨ÄÚÈÝÒ»ÖÂ£©: matlab-beta
+[33;1m¾¯¸æ: Î´ÕÒµ½ Skill payload Çåµ¥£¬°´ÎÞ¸½¼Ó×ÊÔ´´¦Àí: D:\Temp\mas-phase57-sync-e8c51d66b087496a9c3f3ded61fe3c29\repo\config\skill-payloads.json[0m
+==> Í¬²½ skills: D:\Temp\mas-phase57-sync-e8c51d66b087496a9c3f3ded61fe3c29\repo\skills -> D:\Temp\mas-phase57-sync-e8c51d66b087496a9c3f3ded61fe3c29\skills
+    ±¸·ÝÄ¿Â¼£¨½öÔÚ·¢Éú±ä¸üÊ±´´½¨£©: D:\Temp\mas-phase57-sync-e8c51d66b087496a9c3f3ded61fe3c29\backups\20261026-133644-sync-skills
+    Ìø¹ý£¨ÄÚÈÝÒ»ÖÂ£©: matlab-alpha
+    Ìø¹ý£¨ÄÚÈÝÒ»ÖÂ£©: matlab-beta
+    ¼¼ÄÜÇåµ¥Î´±ä»¯£¬Ìø¹ýÖØÐ´: D:\Temp\mas-phase57-sync-e8c51d66b087496a9c3f3ded61fe3c29\skills\.matlab-agent-skills-manifest.json
+ [+] still reports unchanged after the upgrade and keeps the custom file 255ms
+Describing Phase 5.7 sync: failed replacement restores the previous version
+[33;1m¾¯¸æ: Î´ÕÒµ½ Skill payload Çåµ¥£¬°´ÎÞ¸½¼Ó×ÊÔ´´¦Àí: D:\Temp\mas-phase57-sync-b2b7798b9dff446dabea729eb2e215f5\repo\config\skill-payloads.json[0m
+==> Í¬²½ skills: D:\Temp\mas-phase57-sync-b2b7798b9dff446dabea729eb2e215f5\repo\skills -> D:\Temp\mas-phase57-sync-b2b7798b9dff446dabea729eb2e215f5\skills
+    ±¸·ÝÄ¿Â¼£¨½öÔÚ·¢Éú±ä¸üÊ±´´½¨£©: D:\Temp\mas-phase57-sync-b2b7798b9dff446dabea729eb2e215f5\backups\20261026-133644-sync-skills
+  install: matlab-alpha -> D:\Temp\mas-phase57-sync-b2b7798b9dff446dabea729eb2e215f5\skills\matlab-alpha
+  install: matlab-beta -> D:\Temp\mas-phase57-sync-b2b7798b9dff446dabea729eb2e215f5\skills\matlab-beta
+ [+] reports an error and rebuilds missing files from the backup 132ms
+Describing Phase 5.7 sync: manifest ownership fence
+[33;1m¾¯¸æ: Î´ÕÒµ½ Skill payload Çåµ¥£¬°´ÎÞ¸½¼Ó×ÊÔ´´¦Àí: D:\Temp\mas-phase57-sync-4fd615c5a58445fb81b8db1be885d2da\repo\config\skill-payloads.json[0m
+==> Í¬²½ skills: D:\Temp\mas-phase57-sync-4fd615c5a58445fb81b8db1be885d2da\repo\skills -> D:\Temp\mas-phase57-sync-4fd615c5a58445fb81b8db1be885d2da\skills
+    ±¸·ÝÄ¿Â¼£¨½öÔÚ·¢Éú±ä¸üÊ±´´½¨£©: D:\Temp\mas-phase57-sync-4fd615c5a58445fb81b8db1be885d2da\backups\20261026-133644-sync-skills
+  install: matlab-alpha -> D:\Temp\mas-phase57-sync-4fd615c5a58445fb81b8db1be885d2da\skills\matlab-alpha
+  install: matlab-beta -> D:\Temp\mas-phase57-sync-4fd615c5a58445fb81b8db1be885d2da\skills\matlab-beta
+[33;1m¾¯¸æ: Î´ÕÒµ½ Skill payload Çåµ¥£¬°´ÎÞ¸½¼Ó×ÊÔ´´¦Àí: D:\Temp\mas-phase57-sync-4fd615c5a58445fb81b8db1be885d2da\repo\config\skill-payloads.json[0m
+==> Í¬²½ skills: D:\Temp\mas-phase57-sync-4fd615c5a58445fb81b8db1be885d2da\repo\skills -> D:\Temp\mas-phase57-sync-4fd615c5a58445fb81b8db1be885d2da\skills
+ [+] refuses to take over a manifest owned by another repository 149ms
+Tests completed in 757ms
+Passed: 4 Failed: 0 Skipped: 0 Pending: 0 Inconclusive: 0
+==> ÔËÐÐ [free] SkillSync.Phase58.Tests.ps1
+
+
+
+
+
+Describing Phase 5.8 sync: linked root boundary
+[33;1m¾¯¸æ: Î´ÕÒµ½ Skill payload Çåµ¥£¬°´ÎÞ¸½¼Ó×ÊÔ´´¦Àí: D:\Temp\mas-phase58-sync-597fede1fdbf4089a7ca47e11ec600f8\repo\config\skill-payloads.json[0m
+==> Í¬²½ skills: D:\Temp\mas-phase58-sync-597fede1fdbf4089a7ca47e11ec600f8\repo\skills -> D:\Temp\mas-phase58-sync-597fede1fdbf4089a7ca47e11ec600f8\physical\skills
+    ±¸·ÝÄ¿Â¼£¨½öÔÚ·¢Éú±ä¸üÊ±´´½¨£©: D:\Temp\mas-phase58-sync-597fede1fdbf4089a7ca47e11ec600f8\backups\20261026-133644-sync-skills
+  install: matlab-alpha -> D:\Temp\mas-phase58-sync-597fede1fdbf4089a7ca47e11ec600f8\physical\skills\matlab-alpha
+ [+] refuses a SkillRoot below a link and accepts the physical target 150ms
+Describing Phase 5.8 sync: first-time adoption of an unmanaged copy
+[33;1m¾¯¸æ: Î´ÕÒµ½ Skill payload Çåµ¥£¬°´ÎÞ¸½¼Ó×ÊÔ´´¦Àí: D:\Temp\mas-phase58-sync-e1acd8fcf337479b91f45ba2e811c773\repo\config\skill-payloads.json[0m
+==> Í¬²½ skills: D:\Temp\mas-phase58-sync-e1acd8fcf337479b91f45ba2e811c773\repo\skills -> D:\Temp\mas-phase58-sync-e1acd8fcf337479b91f45ba2e811c773\skills
+    [DryRun] ²»»áÐ´ÈëÈÎºÎÎÄ¼þ
+[33;1m¾¯¸æ: ³åÍ»: matlab-alpha -> D:\Temp\mas-phase58-sync-e1acd8fcf337479b91f45ba2e811c773\skills\matlab-alpha£»Ä¿±êÄ¿Â¼ÒÑ´æÔÚÇÒÄÚÈÝ²»Í¬£¬ÇÒ²»ÊôÓÚ±¾ÏîÄ¿¹ÜÀíµÄ¼¼ÄÜ£¨Î´ÔÚ manifest ÖÐµÇ¼Ç£©¡£Ä¬ÈÏ²»¸²¸Ç£»È·ÈÏºó¿ÉÓÃ -Force¡£[0m
+  install: matlab-beta -> D:\Temp\mas-phase58-sync-e1acd8fcf337479b91f45ba2e811c773\skills\matlab-beta
+==> [DryRun] ½«Ð´Èë skills manifest: D:\Temp\mas-phase58-sync-e1acd8fcf337479b91f45ba2e811c773\skills\.matlab-agent-skills-manifest.json
+[33;1m¾¯¸æ: Î´ÕÒµ½ Skill payload Çåµ¥£¬°´ÎÞ¸½¼Ó×ÊÔ´´¦Àí: D:\Temp\mas-phase58-sync-e1acd8fcf337479b91f45ba2e811c773\repo\config\skill-payloads.json[0m
+==> Í¬²½ skills: D:\Temp\mas-phase58-sync-e1acd8fcf337479b91f45ba2e811c773\repo\skills -> D:\Temp\mas-phase58-sync-e1acd8fcf337479b91f45ba2e811c773\skills
+    ±¸·ÝÄ¿Â¼£¨½öÔÚ·¢Éú±ä¸üÊ±´´½¨£©: D:\Temp\mas-phase58-sync-e1acd8fcf337479b91f45ba2e811c773\backups\20261026-133644-sync-skills
+  update: matlab-alpha -> D:\Temp\mas-phase58-sync-e1acd8fcf337479b91f45ba2e811c773\skills\matlab-alpha
+  install: matlab-beta -> D:\Temp\mas-phase58-sync-e1acd8fcf337479b91f45ba2e811c773\skills\matlab-beta
+ [+] conflicts without -Force, then backs up and adopts with -Force while keeping other skills 224ms
+Describing Phase 5.8 sync: repeat sync is zero-write
+[33;1m¾¯¸æ: Î´ÕÒµ½ Skill payload Çåµ¥£¬°´ÎÞ¸½¼Ó×ÊÔ´´¦Àí: D:\Temp\mas-phase58-sync-30cd1164528d4411ab0f697e4bf78284\repo\config\skill-payloads.json[0m
+==> Í¬²½ skills: D:\Temp\mas-phase58-sync-30cd1164528d4411ab0f697e4bf78284\repo\skills -> D:\Temp\mas-phase58-sync-30cd1164528d4411ab0f697e4bf78284\skills
+    ±¸·ÝÄ¿Â¼£¨½öÔÚ·¢Éú±ä¸üÊ±´´½¨£©: D:\Temp\mas-phase58-sync-30cd1164528d4411ab0f697e4bf78284\backups\20261026-133644-sync-skills
+  install: matlab-alpha -> D:\Temp\mas-phase58-sync-30cd1164528d4411ab0f697e4bf78284\skills\matlab-alpha
+  install: matlab-beta -> D:\Temp\mas-phase58-sync-30cd1164528d4411ab0f697e4bf78284\skills\matlab-beta
+[33;1m¾¯¸æ: Î´ÕÒµ½ Skill payload Çåµ¥£¬°´ÎÞ¸½¼Ó×ÊÔ´´¦Àí: D:\Temp\mas-phase58-sync-30cd1164528d4411ab0f697e4bf78284\repo\config\skill-payloads.json[0m
+==> Í¬²½ skills: D:\Temp\mas-phase58-sync-30cd1164528d4411ab0f697e4bf78284\repo\skills -> D:\Temp\mas-phase58-sync-30cd1164528d4411ab0f697e4bf78284\skills
+    ±¸·ÝÄ¿Â¼£¨½öÔÚ·¢Éú±ä¸üÊ±´´½¨£©: D:\Temp\mas-phase58-sync-30cd1164528d4411ab0f697e4bf78284\backups\20261026-133644-sync-skills-1
+    Ìø¹ý£¨ÄÚÈÝÒ»ÖÂ£©: matlab-alpha
+    Ìø¹ý£¨ÄÚÈÝÒ»ÖÂ£©: matlab-beta
+    ¼¼ÄÜÇåµ¥Î´±ä»¯£¬Ìø¹ýÖØÐ´: D:\Temp\mas-phase58-sync-30cd1164528d4411ab0f697e4bf78284\skills\.matlab-agent-skills-manifest.json
+ [+] does not rewrite the manifest or create a backup session when nothing changed 173ms
+Describing Phase 5.8 sync: managed update rollback restores the manifest
+[33;1m¾¯¸æ: Î´ÕÒµ½ Skill payload Çåµ¥£¬°´ÎÞ¸½¼Ó×ÊÔ´´¦Àí: D:\Temp\mas-phase58-sync-fc7afb2d37d0465db150815cd9bfc880\repo\config\skill-payloads.json[0m
+==> Í¬²½ skills: D:\Temp\mas-phase58-sync-fc7afb2d37d0465db150815cd9bfc880\repo\skills -> D:\Temp\mas-phase58-sync-fc7afb2d37d0465db150815cd9bfc880\skills
+    ±¸·ÝÄ¿Â¼£¨½öÔÚ·¢Éú±ä¸üÊ±´´½¨£©: D:\Temp\mas-phase58-sync-fc7afb2d37d0465db150815cd9bfc880\backups\20261026-133644-sync-skills
+  install: matlab-alpha -> D:\Temp\mas-phase58-sync-fc7afb2d37d0465db150815cd9bfc880\skills\matlab-alpha
+  install: matlab-beta -> D:\Temp\mas-phase58-sync-fc7afb2d37d0465db150815cd9bfc880\skills\matlab-beta
+[33;1m¾¯¸æ: Î´ÕÒµ½ Skill payload Çåµ¥£¬°´ÎÞ¸½¼Ó×ÊÔ´´¦Àí: D:\Temp\mas-phase58-sync-fc7afb2d37d0465db150815cd9bfc880\repo\config\skill-payloads.json[0m
+==> Í¬²½ skills: D:\Temp\mas-phase58-sync-fc7afb2d37d0465db150815cd9bfc880\repo\skills -> D:\Temp\mas-phase58-sync-fc7afb2d37d0465db150815cd9bfc880\skills
+    ±¸·ÝÄ¿Â¼£¨½öÔÚ·¢Éú±ä¸üÊ±´´½¨£©: D:\Temp\mas-phase58-sync-fc7afb2d37d0465db150815cd9bfc880\backups\20261026-133645-sync-skills
+  update: matlab-alpha -> D:\Temp\mas-phase58-sync-fc7afb2d37d0465db150815cd9bfc880\skills\matlab-alpha
+    Ìø¹ý£¨ÄÚÈÝÒ»ÖÂ£©: matlab-beta
+ [+] backs up the manifest before rewriting it and restores both on rollback 228ms
+Tests completed in 776ms
+Passed: 4 Failed: 0 Skipped: 0 Pending: 0 Inconclusive: 0
+
+==> »ã×Ü: ¹² 352 ¸öÓÃÀý£¬Í¨¹ý 351£¬Ê§°Ü 1£¬Ìø¹ý 0
+    ²ã free: ÒÑÖ´ÐÐ 352 ¸öÓÃÀý£¬Í¨¹ý 351£¬Ê§°Ü 1£¬ºÄÊ± 130.5s
+==> ²ã±¨¸æ: artifacts/s2/evidence/task6/free-pwsh7/layer_report.json

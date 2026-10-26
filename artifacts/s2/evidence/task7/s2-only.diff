@@ -1,0 +1,2457 @@
+diff --git a/config/skill-payloads.json b/config/skill-payloads.json
+new file mode 100644
+index 0000000..c727a33
+--- /dev/null
++++ b/config/skill-payloads.json
+@@ -0,0 +1,27 @@
++{
++  "schemaVersion": 1,
++  "description": "Runtime files copied into installed Skills by Sync-Skills.ps1. Source files remain canonical in scripts/ and schemas/; installed copies are build artifacts, never committed duplicates.",
++  "payloads": {
++    "matlab-runner": {
++      "files": [
++        { "source": "scripts/Test-MatlabMcpExistingSession.ps1", "target": "scripts/Test-MatlabMcpExistingSession.ps1" },
++        { "source": "scripts/Invoke-MatlabBatch.ps1", "target": "scripts/Invoke-MatlabBatch.ps1" },
++        { "source": "scripts/MatlabAgentSkills.Core.psm1", "target": "scripts/MatlabAgentSkills.Core.psm1" },
++        { "source": "scripts/MatlabAgentSkills.Acceptance.psm1", "target": "scripts/MatlabAgentSkills.Acceptance.psm1" },
++        { "source": "scripts/MatlabAgentSkills.Execution.psm1", "target": "scripts/MatlabAgentSkills.Execution.psm1" },
++        { "source": "scripts/MatlabAgentSkills.McpProbe.psm1", "target": "scripts/MatlabAgentSkills.McpProbe.psm1" },
++        { "source": "schemas/acceptance-report.schema.json", "target": "schemas/acceptance-report.schema.json" }
++      ]
++    },
++    "matlab-orchestrator": {
++      "files": [
++        { "source": "scripts/Test-MatlabMcpExistingSession.ps1", "target": "scripts/Test-MatlabMcpExistingSession.ps1" },
++        { "source": "scripts/MatlabAgentSkills.Core.psm1", "target": "scripts/MatlabAgentSkills.Core.psm1" },
++        { "source": "scripts/MatlabAgentSkills.Acceptance.psm1", "target": "scripts/MatlabAgentSkills.Acceptance.psm1" },
++        { "source": "scripts/MatlabAgentSkills.Execution.psm1", "target": "scripts/MatlabAgentSkills.Execution.psm1" },
++        { "source": "scripts/MatlabAgentSkills.McpProbe.psm1", "target": "scripts/MatlabAgentSkills.McpProbe.psm1" },
++        { "source": "schemas/acceptance-report.schema.json", "target": "schemas/acceptance-report.schema.json" }
++      ]
++    }
++  }
++}
+diff --git a/scripts/MatlabAgentSkills.Core.psm1 b/scripts/MatlabAgentSkills.Core.psm1
+index 1752365..fa5c3b9 100644
+--- a/scripts/MatlabAgentSkills.Core.psm1
++++ b/scripts/MatlabAgentSkills.Core.psm1
+@@ -1324,7 +1324,13 @@ function Get-DirectoryTreeHash {
+     不参与聚合的相对路径（用户自己新增的文件），用于判断"受管内容是否一致"。
+     #>
+     [CmdletBinding()]
+-    param([Parameter(Mandatory)][string]$Path, [string[]]$ExcludeRelative = @())
++    param(
++        [Parameter(Mandatory)][string]$Path,
++        [string[]]$ExcludeRelative = @(),
++        # 安装器把 payload 覆盖到 Skill 目录后再计算物理指纹；同步判定需要用同一算法
++        # 计算“源目录 + payload”的虚拟指纹，否则重复同步会被误判成变更。
++        [object[]]$AdditionalFiles = @()
++    )
+ 
+     if (-not (Test-Path -LiteralPath $Path)) { return $null }
+     $resolved = (Resolve-Path -LiteralPath $Path).Path
+@@ -1335,14 +1341,51 @@ function Get-DirectoryTreeHash {
+     }
+ 
+     $lines = New-Object System.Collections.Generic.List[string]
+-    Get-ChildItem -LiteralPath $resolved -Recurse -File -Force -ErrorAction SilentlyContinue |
+-        Sort-Object FullName |
+-        ForEach-Object {
+-            $relative = $_.FullName.Substring($resolved.Length) -replace '^[\\/]+', '' -replace '\\', '/'
+-            if ($excluded.Contains($relative)) { return }
++    if (@($AdditionalFiles).Count -eq 0) {
++        Get-ChildItem -LiteralPath $resolved -Recurse -File -Force -ErrorAction SilentlyContinue |
++            Sort-Object FullName |
++            ForEach-Object {
++                $relative = $_.FullName.Substring($resolved.Length) -replace '^[\\/]+', '' -replace '\\', '/'
++                if ($excluded.Contains($relative)) { return }
++                $fileHash = Get-FileSha256 -Path $_.FullName
++                $lines.Add("$($relative.ToLowerInvariant())|$fileHash")
++            }
++    }
++    else {
++        $entries = New-Object System.Collections.Generic.List[object]
++        $seen = New-Object 'System.Collections.Generic.HashSet[string]' ([StringComparer]::OrdinalIgnoreCase)
++        Get-ChildItem -LiteralPath $resolved -Recurse -File -Force -ErrorAction SilentlyContinue |
++            ForEach-Object {
++                $relative = $_.FullName.Substring($resolved.Length) -replace '^[\\/]+', '' -replace '\\', '/'
++                if ($excluded.Contains($relative)) { return }
++                [void]$seen.Add($relative)
++                $entries.Add([pscustomobject]@{ SortKey = $_.FullName; FullName = $_.FullName; Relative = $relative })
++            }
++        foreach ($additional in @($AdditionalFiles)) {
++            $sourcePath = [string]$additional.Source
++            $targetPath = ([string]$additional.Target -replace '\\', '/').TrimStart('/')
++            if ([string]::IsNullOrWhiteSpace($sourcePath) -or [string]::IsNullOrWhiteSpace($targetPath)) {
++                throw "附加文件缺少 Source/Target: $targetPath"
++            }
++            if ($targetPath -match '(^|/)\.\.?(/|$)' -or [IO.Path]::IsPathRooted($targetPath)) {
++                throw "附加文件目标路径不安全: $targetPath"
++            }
++            if (-not $seen.Add($targetPath)) { throw "附加文件目标重复: $targetPath" }
++            if (-not (Test-Path -LiteralPath $sourcePath -PathType Leaf)) {
++                throw "附加文件源不存在: $sourcePath"
++            }
++            $nativeTarget = $targetPath -replace '/', [IO.Path]::DirectorySeparatorChar
++            $entries.Add([pscustomobject]@{
++                    SortKey  = Join-Path $resolved $nativeTarget
++                    FullName = $sourcePath
++                    Relative = $targetPath
++                })
++        }
++        $entries | Sort-Object SortKey | ForEach-Object {
+             $fileHash = Get-FileSha256 -Path $_.FullName
+-            $lines.Add("$($relative.ToLowerInvariant())|$fileHash")
++            $lines.Add("$($_.Relative.ToLowerInvariant())|$fileHash")
+         }
++    }
+ 
+     $joined = ($lines -join "`n")
+     $bytes = [System.Text.Encoding]::UTF8.GetBytes($joined)
+@@ -1436,25 +1479,31 @@ function Sync-SkillDirectory {
+         [bool]$IsManaged = $false,
+         $Session = $null,
+         [string]$BackupRoot = "",
++        [object[]]$PayloadFiles = @(),
+         [switch]$Force,
+         [switch]$DryRun
+     )
+ 
++    $payloadTargets = @($PayloadFiles | ForEach-Object { ([string]$_.Target -replace '\\', '/').TrimStart('/') } |
++            Where-Object { $_ })
+     # 用户自己加进技能目录的文件（源目录没有的相对路径）不能在升级时被静默删掉；
+     # 同时它们不参与"受管内容是否一致"的判定，否则每次同步都会被判成 update。
++    # payload 虽然不在源目录里，但它属于受管内容，必须计入源侧。
+     $localExtras = @()
+     if (Test-Path -LiteralPath $Destination) {
+         $sourceRelative = New-Object 'System.Collections.Generic.HashSet[string]' ([StringComparer]::OrdinalIgnoreCase)
+         foreach ($file in @(Get-ChildItem -LiteralPath $Source -Recurse -File -Force)) {
+-            [void]$sourceRelative.Add($file.FullName.Substring($Source.Length).TrimStart([char[]]'\/'))
++            $relative = $file.FullName.Substring($Source.Length).TrimStart([char[]]'\/') -replace '\\', '/'
++            [void]$sourceRelative.Add($relative)
+         }
++        foreach ($target in $payloadTargets) { [void]$sourceRelative.Add($target) }
+         foreach ($file in @(Get-ChildItem -LiteralPath $Destination -Recurse -File -Force)) {
+-            $relative = $file.FullName.Substring($Destination.Length).TrimStart([char[]]'\/')
++            $relative = $file.FullName.Substring($Destination.Length).TrimStart([char[]]'\/') -replace '\\', '/'
+             if (-not $sourceRelative.Contains($relative)) { $localExtras += $relative }
+         }
+     }
+ 
+-    $sourceHash = Get-DirectoryTreeHash -Path $Source
++    $sourceHash = Get-DirectoryTreeHash -Path $Source -AdditionalFiles $PayloadFiles
+     $destinationHash = Get-DirectoryTreeHash -Path $Destination -ExcludeRelative $localExtras
+     $decision = Get-SkillSyncDecision -SourceHash $sourceHash -DestinationHash $destinationHash `
+         -IsManaged $IsManaged -Force:$Force
+@@ -1472,6 +1521,7 @@ function Sync-SkillDirectory {
+         RestoredFromBackup = $false
+         RecreatedFiles  = 0
+         MissingAfterRestore = @()
++        PayloadFileCount = $payloadTargets.Count
+     }
+ 
+     switch ($decision) {
+@@ -1500,6 +1550,21 @@ function Sync-SkillDirectory {
+     $staging = "$Destination.__incoming__$([guid]::NewGuid().ToString('N'))"
+     try {
+         Copy-Item -LiteralPath $Source -Destination $staging -Recurse -Force
++        foreach ($payload in @($PayloadFiles)) {
++            $nativeTarget = ([string]$payload.Target -replace '\\', '/').TrimStart('/') -replace '/', [IO.Path]::DirectorySeparatorChar
++            $stagedTarget = Join-Path $staging $nativeTarget
++            $stagedParent = Split-Path -Parent $stagedTarget
++            if ($stagedParent -and -not (Test-Path -LiteralPath $stagedParent)) {
++                New-Item -ItemType Directory -Force -Path $stagedParent | Out-Null
++            }
++            Copy-Item -LiteralPath $payload.Source -Destination $stagedTarget -Force -ErrorAction Stop
++        }
++        # 暂存目录已经是“最终会安装成什么样”的物理目录；它必须与虚拟源指纹一致，
++        # 否则重复同步会永远判成 update，或把错误内容当成成功安装。
++        $stagingHash = Get-DirectoryTreeHash -Path $staging
++        if ($stagingHash -ne $sourceHash) {
++            throw "PAYLOAD_STAGING_MISMATCH: 暂存目录指纹与源+payload 不一致"
++        }
+ 
+         if (Test-Path -LiteralPath $Destination) {
+             if ($null -ne $Session) {
+@@ -1519,11 +1584,17 @@ function Sync-SkillDirectory {
+         }
+ 
+         Move-Item -LiteralPath $staging -Destination $Destination -ErrorAction Stop
+-        # 交换后自检：目标必须包含源目录的全部文件，否则判失败并进入恢复路径。
+-        $missingAfterSwap = @(Get-ChildItem -LiteralPath $Source -Recurse -File -Force | Where-Object {
+-            $relativeFile = $_.FullName.Substring($Source.Length).TrimStart([char[]]'\/')
+-            -not (Test-Path -LiteralPath (Join-Path $Destination $relativeFile))
+-        })
++        # 交换后自检：目标必须包含源目录与 payload 的全部文件，否则判失败并进入恢复路径。
++        $expectedRelative = New-Object System.Collections.Generic.List[string]
++        foreach ($file in @(Get-ChildItem -LiteralPath $Source -Recurse -File -Force)) {
++            $expectedRelative.Add($file.FullName.Substring($Source.Length).TrimStart([char[]]'\/'))
++        }
++        foreach ($target in $payloadTargets) {
++            $expectedRelative.Add(($target -replace '/', [IO.Path]::DirectorySeparatorChar))
++        }
++        $missingAfterSwap = @($expectedRelative | Where-Object {
++                -not (Test-Path -LiteralPath (Join-Path $Destination $_))
++            })
+         if ($missingAfterSwap.Count -gt 0) {
+             throw "SYNC_INCOMPLETE: 交换后缺少 $($missingAfterSwap.Count) 个文件"
+         }
+diff --git a/scripts/MatlabAgentSkills.McpProbe.psm1 b/scripts/MatlabAgentSkills.McpProbe.psm1
+index c75fdcb..f215b7c 100644
+--- a/scripts/MatlabAgentSkills.McpProbe.psm1
++++ b/scripts/MatlabAgentSkills.McpProbe.psm1
+@@ -32,6 +32,44 @@ function Get-McpDefaultSessionFile {
+     return (Join-Path $env:APPDATA $defaultSessionRelative)
+ }
+ 
++function ConvertFrom-JsonElement {
++    <#
++    .SYNOPSIS
++    把 System.Text.Json 元素转成 PowerShell 对象，保留键名大小写。
++    .DESCRIPTION
++    仅用于 PowerShell 7 缺少 System.Web.Extensions 时的回退路径。对象一律转成
++    Ordinal 字典，因为 PSCustomObject 的属性名不区分大小写，会把 "C:/Windows"
++    与 "C:/WINDOWS" 合并成一个属性。
++    #>
++    param([System.Text.Json.JsonElement]$Element)
++
++    switch ($Element.ValueKind.ToString()) {
++        'Object' {
++            $dictionary = [System.Collections.Generic.Dictionary[string, object]]::new([System.StringComparer]::Ordinal)
++            foreach ($property in $Element.EnumerateObject()) {
++                $dictionary[$property.Name] = ConvertFrom-JsonElement -Element $property.Value
++            }
++            return , $dictionary
++        }
++        'Array' {
++            $items = New-Object System.Collections.Generic.List[object]
++            foreach ($item in $Element.EnumerateArray()) {
++                $items.Add((ConvertFrom-JsonElement -Element $item))
++            }
++            return , $items.ToArray()
++        }
++        'String' { return $Element.GetString() }
++        'Number' {
++            $asLong = [long]0
++            if ($Element.TryGetInt64([ref]$asLong)) { return $asLong }
++            return $Element.GetDouble()
++        }
++        'True' { return $true }
++        'False' { return $false }
++        default { return $null }
++    }
++}
++
+ function ConvertFrom-JsonCaseSensitive {
+     <#
+     .SYNOPSIS
+@@ -39,7 +77,8 @@ function ConvertFrom-JsonCaseSensitive {
+     .DESCRIPTION
+     Windows PowerShell 5.1 的 ConvertFrom-Json 用大小写不敏感的字典，遇到同时存在
+     "C:/Windows" 与 "C:/WINDOWS" 这类键会直接抛“重复的键”，把合法 JSON 误判为损坏。
+-    这里优先用 JavaScriptSerializer（字典大小写敏感），不可用时回退到 ConvertFrom-Json。
++    这里优先用 JavaScriptSerializer（字典大小写敏感）；PowerShell 7 没有
++    System.Web.Extensions，改用 System.Text.Json 构造同样大小写敏感的字典。
+     #>
+     param([Parameter(Mandatory)][string]$Text)
+ 
+@@ -54,7 +93,18 @@ function ConvertFrom-JsonCaseSensitive {
+         return ,$parsed
+     }
+     catch {
+-        return ($Text | ConvertFrom-Json)
++        try {
++            $document = [System.Text.Json.JsonDocument]::Parse($Text)
++        }
++        catch {
++            return ($Text | ConvertFrom-Json)
++        }
++        try {
++            return , (ConvertFrom-JsonElement -Element $document.RootElement)
++        }
++        finally {
++            $document.Dispose()
++        }
+     }
+ }
+ 
+diff --git a/scripts/MatlabAgentSkills.SkillInstallation.psm1 b/scripts/MatlabAgentSkills.SkillInstallation.psm1
+index fc83433..1a2ae9f 100644
+--- a/scripts/MatlabAgentSkills.SkillInstallation.psm1
++++ b/scripts/MatlabAgentSkills.SkillInstallation.psm1
+@@ -121,4 +121,162 @@ function Assert-MasManagedSkillPath {
+     return $targetPath
+ }
+ 
+-Export-ModuleMember -Function Resolve-MasSkillInstallation, Assert-MasManagedSkillPath, Assert-MasSkillRootPath
++function Test-MasSafePayloadRelativePath {
++    <#
++    .SYNOPSIS
++    拒绝绝对路径、驱动器路径、ADS、通配符与任何 .. 片段。
++    #>
++    [CmdletBinding()]
++    param([string]$Value)
++    if ([string]::IsNullOrWhiteSpace($Value)) { return $false }
++    $normalized = $Value -replace '\\', '/'
++    if ($normalized.StartsWith('/')) { return $false }
++    if ($normalized -match '^[A-Za-z]:') { return $false }
++    if ($normalized -match '(^|/)\.\.?(/|$)') { return $false }
++    if ($normalized -match '[<>:"|?*\x00-\x1F]') { return $false }
++    return $true
++}
++
++function Assert-MasContainedPayloadPath {
++    <#
++    .SYNOPSIS
++    把清单里的相对路径解析到仓库内，并拒绝链接跳转。
++    #>
++    [CmdletBinding()]
++    param(
++        [Parameter(Mandatory)][string]$RepositoryRoot,
++        [Parameter(Mandatory)][string]$RelativePath,
++        [switch]$RequireFile
++    )
++    if (-not (Test-MasSafePayloadRelativePath -Value $RelativePath)) {
++        throw "payload 路径不安全: $RelativePath"
++    }
++    $rootPath = [IO.Path]::GetFullPath($RepositoryRoot).TrimEnd([char[]]'\/')
++    $nativeRelative = ($RelativePath -replace '\\', '/') -replace '/', [IO.Path]::DirectorySeparatorChar
++    $candidate = [IO.Path]::GetFullPath((Join-Path $rootPath $nativeRelative))
++    $comparison = if ([Environment]::OSVersion.Platform -eq [PlatformID]::Win32NT) {
++        [StringComparison]::OrdinalIgnoreCase
++    } else { [StringComparison]::Ordinal }
++    $prefix = $rootPath + [IO.Path]::DirectorySeparatorChar
++    if (-not $candidate.StartsWith($prefix, $comparison)) {
++        throw "payload 路径越出仓库: $RelativePath"
++    }
++    # 只检查仓库根以下的层级，避免把用户主目录的链接误判成 payload 问题。
++    $cursor = $candidate
++    while ($cursor -and $cursor.Length -ge $rootPath.Length) {
++        if (Test-Path -LiteralPath $cursor) {
++            $item = Get-Item -LiteralPath $cursor -Force
++            if ($item.Attributes -band [IO.FileAttributes]::ReparsePoint) {
++                throw "payload 路径包含链接，拒绝安装: $cursor"
++            }
++        }
++        if ([string]::Equals($cursor, $rootPath, $comparison)) { break }
++        $cursor = [IO.Path]::GetDirectoryName($cursor)
++    }
++    if ($RequireFile -and -not (Test-Path -LiteralPath $candidate -PathType Leaf)) {
++        throw "payload 源文件不存在: $RelativePath"
++    }
++    return $candidate
++}
++
++function Get-MasSkillPayloadManifest {
++    <#
++    .SYNOPSIS
++    读取并校验 config/skill-payloads.json，返回 skill 名到文件清单的映射。
++
++    .DESCRIPTION
++    清单只允许把仓库 scripts/、schemas/、config/ 下的文件发布到已安装 Skill 的
++    scripts/、schemas/ 目录。任何绝对路径、..、链接、凭据类文件或与 Skill
++    自带文件冲突的目标都会被拒绝。清单缺失时返回空映射，保持旧仓库检出的兼容性；
++    清单存在但非法时立即失败，绝不半装。
++    #>
++    [CmdletBinding()]
++    param(
++        [Parameter(Mandatory)][string]$RepositoryRoot,
++        [string]$ConfigPath
++    )
++    $repositoryPath = [IO.Path]::GetFullPath($RepositoryRoot).TrimEnd([char[]]'\/')
++    if (-not $ConfigPath) { $ConfigPath = Join-Path $repositoryPath 'config/skill-payloads.json' }
++    $result = @{}
++    if (-not (Test-Path -LiteralPath $ConfigPath -PathType Leaf)) {
++        Write-Warning "未找到 Skill payload 清单，按无附加资源处理: $ConfigPath"
++        return $result
++    }
++
++    try {
++        $text = [System.IO.File]::ReadAllText($ConfigPath, (New-Object System.Text.UTF8Encoding($false)))
++        $config = $text | ConvertFrom-Json
++    }
++    catch {
++        throw "Skill payload 清单不是合法 JSON: $ConfigPath；$($_.Exception.Message)"
++    }
++    if ($null -eq $config -or -not ($config.PSObject.Properties.Name -contains 'schemaVersion') -or
++        [int]$config.schemaVersion -ne 1) {
++        throw "Skill payload 清单 schemaVersion 必须为 1: $ConfigPath"
++    }
++    if (-not ($config.PSObject.Properties.Name -contains 'payloads') -or $null -eq $config.payloads) {
++        throw "Skill payload 清单缺少 payloads 对象: $ConfigPath"
++    }
++
++    $secretPattern = '(?i)(^|/)(sessiondetails\.json|\.env|id_rsa|id_ed25519)(/|$)|\.(pem|key|pfx|p12|cer|crt)$'
++    foreach ($entry in @($config.payloads.PSObject.Properties)) {
++        $skillName = $entry.Name
++        if ($skillName -notmatch '^matlab-[a-z0-9]+(?:-[a-z0-9]+)*$') {
++            throw "payload 清单中的 Skill 名称不安全: $skillName"
++        }
++        $skillDirectory = Join-Path (Join-Path $repositoryPath 'skills') $skillName
++        if (-not (Test-Path -LiteralPath $skillDirectory -PathType Container)) {
++            throw "payload 清单引用了不存在的 Skill: $skillName"
++        }
++        $skillDirectory = Assert-MasContainedPayloadPath -RepositoryRoot $repositoryPath `
++            -RelativePath ("skills/" + $skillName)
++
++        $files = @($entry.Value.files)
++        if ($files.Count -eq 0) { throw "Skill payload 清单为空: $skillName" }
++        $targets = New-Object 'System.Collections.Generic.HashSet[string]' ([StringComparer]::OrdinalIgnoreCase)
++        $records = New-Object System.Collections.Generic.List[object]
++        foreach ($file in $files) {
++            $sourceRelative = ([string]$file.source -replace '\\', '/')
++            $targetRelative = ([string]$file.target -replace '\\', '/')
++            if (-not (Test-MasSafePayloadRelativePath -Value $sourceRelative)) {
++                throw "payload 源路径不安全: $skillName -> $sourceRelative"
++            }
++            if (-not (Test-MasSafePayloadRelativePath -Value $targetRelative)) {
++                throw "payload 目标路径不安全: $skillName -> $targetRelative"
++            }
++            if ($sourceRelative -notmatch '^(scripts|schemas|config)/') {
++                throw "payload 源必须位于 scripts/、schemas/ 或 config/ 下: $sourceRelative"
++            }
++            if ($sourceRelative -match '(?i)(^|/)(artifacts|tests|docs|skills)(/|$)') {
++                throw "payload 源不能来自测试或证据目录: $sourceRelative"
++            }
++            if ($targetRelative -notmatch '^(scripts|schemas)/') {
++                throw "payload 目标必须位于 Skill 的 scripts/ 或 schemas/ 下: $targetRelative"
++            }
++            if ($sourceRelative -match $secretPattern -or $targetRelative -match $secretPattern) {
++                throw "payload 不得包含会话或凭据文件: $sourceRelative"
++            }
++            if (-not $targets.Add($targetRelative)) {
++                throw "payload 目标重复: $skillName -> $targetRelative"
++            }
++            $sourceFullPath = Assert-MasContainedPayloadPath -RepositoryRoot $repositoryPath `
++                -RelativePath $sourceRelative -RequireFile
++            $targetFullPath = Assert-MasContainedPayloadPath -RepositoryRoot $skillDirectory `
++                -RelativePath $targetRelative
++            if (Test-Path -LiteralPath $targetFullPath) {
++                throw "payload 目标与 Skill 自带文件冲突: $skillName -> $targetRelative"
++            }
++            $records.Add([pscustomobject]@{
++                    SkillName      = $skillName
++                    Source         = $sourceFullPath
++                    SourceRelative = $sourceRelative
++                    Target         = $targetRelative
++                    TargetFullPath = $targetFullPath
++                })
++        }
++        $result[$skillName] = [object[]]$records.ToArray()
++    }
++    return $result
++}
++
++Export-ModuleMember -Function Resolve-MasSkillInstallation, Assert-MasManagedSkillPath, Assert-MasSkillRootPath, Get-MasSkillPayloadManifest
+diff --git a/scripts/Sync-Skills.ps1 b/scripts/Sync-Skills.ps1
+index 3512c77..c832f78 100644
+--- a/scripts/Sync-Skills.ps1
++++ b/scripts/Sync-Skills.ps1
+@@ -53,6 +53,18 @@ if (-not (Test-Path -LiteralPath $sourceRoot)) {
+     throw "Skills source folder not found: $sourceRoot"
+ }
+ 
++# 在任何写入之前校验发布清单：清单非法时连一个 Skill 目录都不应被改动。
++try {
++    $payloadManifest = Get-MasSkillPayloadManifest -RepositoryRoot $RepositoryRoot
++}
++catch {
++    throw "Skill payload 清单无效，未写入任何文件: $($_.Exception.Message)"
++}
++$payloadConfigPath = Join-Path $RepositoryRoot "config\skill-payloads.json"
++$payloadConfigSha256 = if (Test-Path -LiteralPath $payloadConfigPath -PathType Leaf) {
++    Get-FileSha256 -Path $payloadConfigPath
++} else { $null }
++
+ Write-Step "同步 skills: $sourceRoot -> $SkillRoot"
+ if ($DryRun) { Write-Info "[DryRun] 不会写入任何文件" }
+ 
+@@ -103,8 +115,11 @@ try {
+ 
+         try {
+             $destination = Assert-MasManagedSkillPath -SkillRoot $SkillRoot -Name $source.Name
++            $payloadFiles = @()
++            if ($payloadManifest.ContainsKey($source.Name)) { $payloadFiles = @($payloadManifest[$source.Name]) }
+             $result = Sync-SkillDirectory -Name $source.Name -Source $source.FullName -Destination $destination `
+-                -IsManaged $isManaged -Session $session -BackupRoot $BackupRoot -Force:$Force -DryRun:$DryRun
++                -IsManaged $isManaged -Session $session -BackupRoot $BackupRoot -PayloadFiles $payloadFiles `
++                -Force:$Force -DryRun:$DryRun
+             # 单技能同步失败已由 Sync-SkillDirectory 就地回滚，这里只把它计入整体失败。
+             if ($result.Decision -eq "error") { $failed = $true }
+         }
+@@ -226,6 +241,8 @@ $summary = [pscustomobject]@{
+     sourceRoot    = $sourceRoot
+     skillRoot     = $SkillRoot
+     skillEnvironment = $installation
++    payloadManifestPath = $payloadConfigPath
++    payloadManifestSha256 = $payloadConfigSha256
+     manifestPath  = if ($DryRun) { Join-Path $SkillRoot ".matlab-agent-skills-manifest.json" } else { $manifestPath }
+     backupRoot    = if ($session) { $session.Directory } else { $null }
+     installed     = @($results | Where-Object { $_.Decision -eq "install" }).Count
+@@ -244,6 +261,7 @@ $summary = [pscustomobject]@{
+                 preservedUserFiles = @($_.PreservedUserFiles)
+                 restoredFromBackup = [bool]$_.RestoredFromBackup
+                 recreatedFiles     = [int]$_.RecreatedFiles
++                payloadFileCount   = if ($_.PSObject.Properties.Name -contains 'PayloadFileCount') { [int]$_.PayloadFileCount } else { 0 }
+             }
+         })
+ }
+diff --git a/scripts/Test-MatlabMcpExistingSession.ps1 b/scripts/Test-MatlabMcpExistingSession.ps1
+index 1b44d91..910e26e 100644
+--- a/scripts/Test-MatlabMcpExistingSession.ps1
++++ b/scripts/Test-MatlabMcpExistingSession.ps1
+@@ -14,9 +14,15 @@ MATLAB MCP 分级探测：安装/许可证 → 配置 → 协议握手 → 只
+ 
+ 阶段 3~5 未通过时，后续阶段输出 SKIP 并写明原因，绝不臆造 PASS。
+ 
++.DESCRIPTION
++脚本自身只依赖同目录模块与 Skill 根下的 schemas/；产物默认写到调用者项目目录，
++不写回 Skill 安装目录。安装后的推荐调用方式见 matlab-runner / matlab-orchestrator
++的 SKILL.md（先解析 skill root，再用 Join-Path 定位本脚本）。
++
+ .EXAMPLE
+-powershell -ExecutionPolicy Bypass -File .\scripts\Test-MatlabMcpExistingSession.ps1
+-powershell -ExecutionPolicy Bypass -File .\scripts\Test-MatlabMcpExistingSession.ps1 -VerifyLicense -Json
++powershell -ExecutionPolicy Bypass -File $skillRoot\scripts\Test-MatlabMcpExistingSession.ps1
++powershell -ExecutionPolicy Bypass -File $skillRoot\scripts\Test-MatlabMcpExistingSession.ps1 -VerifyLicense -Json
++powershell -ExecutionPolicy Bypass -File $skillRoot\scripts\Test-MatlabMcpExistingSession.ps1 -ProjectRoot (Get-Location).Path -Json
+ #>
+ [CmdletBinding()]
+ param(
+@@ -24,12 +30,17 @@ param(
+     [string]$SessionFile,
+     [string]$MatlabPath = $env:MATLAB_EXE,
+     [string]$OutputPath,
++    # 项目根只影响客户端注册扫描与产物位置；资源解析始终相对本脚本/Skill 根。
++    [string]$ProjectRoot = (Get-Location).Path,
++    [string]$ArtifactsRoot,
+     [ValidateSet("static", "matlab-batch", "matlab-mcp-auto", "matlab-mcp-existing", "matlab-mcp-new")]
+     [string]$Backend = "matlab-mcp-existing",
+     [int]$TimeoutSeconds = 20,
+     [switch]$VerifyLicense,
+     [switch]$SkipStage5,
+     [switch]$SkipTlsValidation,
++    [switch]$SkipCodexCli,
++    [switch]$SkipUserConfigs,
+     [string]$EvalTool = "",
+     [switch]$Json,
+     [switch]$Quiet
+@@ -38,13 +49,19 @@ param(
+ $ErrorActionPreference = "Stop"
+ 
+ $scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
+-$repoRoot = Split-Path -Parent $scriptDir
+ 
+ Import-Module (Join-Path $scriptDir "MatlabAgentSkills.Acceptance.psm1") -Force -DisableNameChecking
+ Import-Module (Join-Path $scriptDir "MatlabAgentSkills.Execution.psm1") -Force -DisableNameChecking
+ Import-Module (Join-Path $scriptDir "MatlabAgentSkills.McpProbe.psm1") -Force -DisableNameChecking
+ 
+-$validationDir = Join-Path $repoRoot "artifacts\validation"
++$ProjectRoot = $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($ProjectRoot)
++if (-not $ArtifactsRoot) {
++    $ArtifactsRoot = Join-Path $ProjectRoot "artifacts"
++}
++else {
++    $ArtifactsRoot = $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($ArtifactsRoot)
++}
++$validationDir = Join-Path $ArtifactsRoot "validation"
+ if (-not (Test-Path -LiteralPath $validationDir)) {
+     New-Item -ItemType Directory -Force -Path $validationDir | Out-Null
+ }
+@@ -55,7 +72,7 @@ if (-not $OutputPath) {
+ $probeParams = @{
+     ServerName         = $McpServerName
+     MatlabPath         = $MatlabPath
+-    RepositoryRoot     = $repoRoot
++    RepositoryRoot     = $ProjectRoot
+     Backend            = $Backend
+     TimeoutSeconds     = $TimeoutSeconds
+     VerifyLicense      = [bool]$VerifyLicense
+@@ -65,6 +82,8 @@ $probeParams = @{
+ }
+ if ($SessionFile) { $probeParams["SessionFile"] = $SessionFile }
+ if ($EvalTool) { $probeParams["EvalTool"] = $EvalTool }
++if ($SkipCodexCli) { $probeParams["SkipCodexCli"] = $true }
++if ($SkipUserConfigs) { $probeParams["SkipUserConfigs"] = $true }
+ 
+ $report = Invoke-McpStagedProbe @probeParams
+ 
+diff --git a/skills/matlab-codegen-deploy/SKILL.md b/skills/matlab-codegen-deploy/SKILL.md
+index 6b6d392..e2f4f01 100644
+--- a/skills/matlab-codegen-deploy/SKILL.md
++++ b/skills/matlab-codegen-deploy/SKILL.md
+@@ -7,6 +7,21 @@ description: MATLAB code generation and deployment workflow for MATLAB Coder, Si
+ 
+ Use this skill when MATLAB or Simulink algorithms need to become generated code or deployable artifacts.
+ 
++## Skill Root
++
++The installed directory containing this `SKILL.md` is the resource root. Add its
++helper folder for the current MATLAB session only — never through `savepath`,
++`startup.m`, or a global path edit:
++
++```matlab
++skillRoot = '<absolute path to the installed matlab-codegen-deploy Skill directory>';
++addpath(fullfile(skillRoot, 'scripts'));
++```
++
++Resolve `references/`, `tests/`, and helper calls from that root, not from the
++caller's working directory. If a shipped helper or reference is missing, report the
++exact path and reinstall the Skill; do not scan the disk for a substitute.
++
+ ## Workflow
+ 
+ 1. Identify target: MEX, C/C++, embedded C, CUDA, HDL, PLC, or packaged app.
+@@ -74,7 +89,7 @@ Prefer target data APIs over editing opaque structures:
+ 
+ ```matlab
+ tools = stm32cube.hwsetup.stm32Tools();
+-tools.updateSTM32CubeMXPath("C:\Users\<user>\AppData\Local\Programs\STM32CubeMX");
++tools.updateSTM32CubeMXPath("<absolute path to the installed STM32CubeMX>");
+ 
+ codertarget.data.setParameterValue(model, "STM32CubeMX.ProjectFile", iocPath);
+ codertarget.data.setParameterValue(model, "STM32CubeMX.DeviceId", "STM32F103RBTx");
+diff --git a/skills/matlab-control-optimization/SKILL.md b/skills/matlab-control-optimization/SKILL.md
+index c7b9f11..6195f94 100644
+--- a/skills/matlab-control-optimization/SKILL.md
++++ b/skills/matlab-control-optimization/SKILL.md
+@@ -7,6 +7,21 @@ description: MATLAB workflow for control systems, system identification, robust
+ 
+ Use this skill for control design and optimization workflows.
+ 
++## Skill Root
++
++The installed directory containing this `SKILL.md` is the resource root. Add its
++helper folder for the current MATLAB session only — never through `savepath`,
++`startup.m`, or a global path edit:
++
++```matlab
++skillRoot = '<absolute path to the installed matlab-control-optimization Skill directory>';
++addpath(fullfile(skillRoot, 'scripts'));
++```
++
++Resolve `references/`, `tests/`, and helper calls from that root, not from the
++caller's working directory. If a shipped helper or reference is missing, report the
++exact path and reinstall the Skill; do not scan the disk for a substitute.
++
+ ## Workflow
+ 
+ 1. Define plant model, units, sample time, constraints, and performance goals.
+diff --git a/skills/matlab-data-analysis/SKILL.md b/skills/matlab-data-analysis/SKILL.md
+index e3aece8..02b60f3 100644
+--- a/skills/matlab-data-analysis/SKILL.md
++++ b/skills/matlab-data-analysis/SKILL.md
+@@ -9,6 +9,21 @@ Use this skill when the deliverable is a validated number: an integral, a soluti
+ a fit, a p-value, an uncertainty, or a figure whose axis is backed by arithmetic. The
+ plot is never the evidence.
+ 
++## Skill Root
++
++The installed directory containing this `SKILL.md` is the resource root. Add its
++helper folder for the current MATLAB session only — never through `savepath`,
++`startup.m`, or a global path edit:
++
++```matlab
++skillRoot = '<absolute path to the installed matlab-data-analysis Skill directory>';
++addpath(fullfile(skillRoot, 'scripts'));
++```
++
++Resolve `references/`, `tests/`, and helper calls from that root, not from the
++caller's working directory. If a shipped helper or reference is missing, report the
++exact path and reinstall the Skill; do not scan the disk for a substitute.
++
+ ## Workflow
+ 
+ 1. 任务识别 — State the quantity, its units, the tolerance that makes it acceptable, and
+diff --git a/skills/matlab-orchestrator/SKILL.md b/skills/matlab-orchestrator/SKILL.md
+index d9cabf9..dc0fc08 100644
+--- a/skills/matlab-orchestrator/SKILL.md
++++ b/skills/matlab-orchestrator/SKILL.md
+@@ -7,6 +7,36 @@ description: MATLAB agentic workflow router. Use this whenever the user asks for
+ 
+ Use this skill as the entry point for MATLAB work. The goal is to turn a loose engineering request into a closed-loop workflow: select the right specialist skill, run MATLAB when possible, save artifacts, and verify the result before reporting back.
+ 
++## Skill Root Resolution
++
++This Skill ships its own probe and runtime modules under `scripts/`, and the
++acceptance schema under `schemas/`, next to this `SKILL.md`. Commands must never
++depend on the caller's working directory being the Skill root.
++
++`$skillRoot` means the absolute path of the installed Skill directory that contains
++this `SKILL.md`. Set it once per shell session from the path reported by the
++client's Skill loader; do not infer it from the caller cwd and do not require a
++development checkout.
++
++```powershell
++$skillRoot = '<absolute path to the installed matlab-orchestrator Skill directory>'
++$probe = Join-Path $skillRoot 'scripts\Test-MatlabMcpExistingSession.ps1'
++```
++
++The router helper `mas_route` lives in the same root and reads `assets/` there. Add
++it for the current MATLAB session only; never edit `savepath`, `startup.m`, or a
++global MATLAB preference. (`mas_pipeline` is a repository-only benchmark harness and
++is not part of the installed workflow.)
++
++```matlab
++skillRoot = '<absolute path to the installed matlab-orchestrator Skill directory>';
++addpath(fullfile(skillRoot, 'scripts'));
++```
++
++If a shipped file is missing, stop and report the exact missing path. Reinstall the
++Skill through the project installer; never scan the disk for a substitute script and
++never execute an unknown local script.
++
+ ## Execution Requirement On This Machine
+ 
+ On this machine, MATLAB and Simulink work should default to the official **MATLAB MCP auto** workflow, not a fresh `matlab -batch` session. Treat the visible MATLAB desktop as the primary and expected execution path for engineering tasks, especially Simulink modeling, iterative control tuning, and repeated read-modify-simulate loops.
+@@ -50,7 +80,7 @@ When an official MATLAB MCP auto path is available:
+ Never infer MCP readiness from a config file, a recorded `pid`, or a listening port. Run the staged probe first and read the per-stage verdict:
+ 
+ ```powershell
+-powershell -ExecutionPolicy Bypass -File .\scripts\Test-MatlabMcpExistingSession.ps1 -Json
++powershell -ExecutionPolicy Bypass -File $skillRoot\scripts\Test-MatlabMcpExistingSession.ps1 -ProjectRoot (Get-Location).Path -Json
+ ```
+ 
+ The probe grades install, session config, client registration, protocol handshake, read-only execution, and file read-back as **separate checks**. Consequences you must respect when routing work:
+@@ -71,7 +101,7 @@ A MATLAB task is complete only when it has:
+ 
+ The acceptance verdict must come from the unified report, not from your impression:
+ 
+-- Report file: `artifacts/validation/acceptance_report.json`, schema `schemas/acceptance-report.schema.json`.
++- Report file: `artifacts/validation/acceptance_report.json` in the user's project, validated against `$skillRoot/schemas/acceptance-report.schema.json`.
+ - `overallStatus` is `PASS` only when every check passed. Any `SKIP` makes it `SKIP` (exit code `3`), and `SKIP` is never converted into a pass.
+ - `achievedLevel` is the highest **contiguous** level reached: if L2 was skipped, a passing L3 still only yields L1.
+ - Route the work so that at least the level the user asked for is genuinely executed. If it cannot be executed here (no license, no toolbox, no board), say that explicitly instead of producing an L1 artifact and calling it done.
+diff --git a/skills/matlab-robotics-autonomy/SKILL.md b/skills/matlab-robotics-autonomy/SKILL.md
+index cb71a23..fe3b0ba 100644
+--- a/skills/matlab-robotics-autonomy/SKILL.md
++++ b/skills/matlab-robotics-autonomy/SKILL.md
+@@ -10,6 +10,21 @@ that another engineer will act on. A plot of the arm or a smooth estimate trace
+ evidence: a sign error in a Jacobian drives the tip the wrong way, and a filter can be
+ smooth, stable and confidently wrong.
+ 
++## Skill Root
++
++The installed directory containing this `SKILL.md` is the resource root. Add its
++helper folder for the current MATLAB session only — never through `savepath`,
++`startup.m`, or a global path edit:
++
++```matlab
++skillRoot = '<absolute path to the installed matlab-robotics-autonomy Skill directory>';
++addpath(fullfile(skillRoot, 'scripts'));
++```
++
++Resolve `references/`, `tests/`, and helper calls from that root, not from the
++caller's working directory. If a shipped helper or reference is missing, report the
++exact path and reinstall the Skill; do not scan the disk for a substitute.
++
+ ## Workflow
+ 
+ 1. 任务识别 — Name the frame convention, units, sign convention and the tolerance that
+diff --git a/skills/matlab-runner/SKILL.md b/skills/matlab-runner/SKILL.md
+index 6383da5..673d09c 100644
+--- a/skills/matlab-runner/SKILL.md
++++ b/skills/matlab-runner/SKILL.md
+@@ -7,6 +7,37 @@ description: Run MATLAB tasks from Codex with reliable MCP-based execution, logs
+ 
+ Use this skill to execute MATLAB work safely and repeatably through the official MATLAB MCP server, preferably in `auto` mode, and only use terminal batch workflows when the user explicitly asks for them. It is the foundation skill for all other MATLAB skills.
+ 
++## Skill Root Resolution
++
++The installed Skill is self-contained: the probe, batch wrapper, their modules, and
++the acceptance schema all live **inside this Skill directory**, next to this
++`SKILL.md`. The caller's current working directory is never the Skill root, so every
++command below resolves resources from the Skill root first.
++
++`$skillRoot` means the absolute path of the installed Skill directory that contains
++this `SKILL.md` (the directory reported by the client's Skill loader). Set it once
++per shell session; do not derive it from the caller cwd and do not assume a
++repository checkout exists.
++
++```powershell
++$skillRoot = '<absolute path to the installed matlab-runner Skill directory>'
++$probe = Join-Path $skillRoot 'scripts\Test-MatlabMcpExistingSession.ps1'
++```
++
++The MATLAB helpers (`mas_precheck`, `mas_dep_probe`) live in the same root. Add them
++for the current MATLAB session only; never edit `savepath`, `startup.m`, or a global
++MATLAB preference:
++
++```matlab
++skillRoot = '<absolute path to the installed matlab-runner Skill directory>';
++addpath(fullfile(skillRoot, 'scripts'));
++```
++
++If `$skillRoot\scripts\Test-MatlabMcpExistingSession.ps1` is missing, the Skill was
++installed incompletely. Report that exact path and ask the user to reinstall the
++Skill with the project installer; do not search the disk for another copy, do not
++fall back to a development checkout, and do not run an unknown script found nearby.
++
+ ## References — load on demand
+ 
+ This file carries the workflow. The tables below are **not** loaded unless the task
+@@ -40,7 +71,7 @@ r = mas_precheck('struct',   cfg, {'Vin','L','C'});           % fields present?
+ r = mas_precheck('numeric',  x, struct('finite',true));        % NaN/Inf?
+ r = mas_precheck('index',    mask, numel(target));             % mask length
+ r = mas_precheck('toolbox',  'Control System Toolbox');        % product vs feature
+-r = mas_precheck('model',    'matlab/boost/models/boost_avg.slx');
++r = mas_precheck('model',    fullfile(pwd, 'models', 'boost_avg.slx'));
+ ```
+ 
+ The `index` check exists because MATLAB does **not** error when a logical mask is
+@@ -66,9 +97,13 @@ rotate it — a redacted report does not mean the underlying key is invalid.
+ Before claiming readiness, run the staged probe and read its verdict:
+ 
+ ```powershell
+-powershell -ExecutionPolicy Bypass -File .\scripts\Test-MatlabMcpExistingSession.ps1 -Json
++powershell -ExecutionPolicy Bypass -File $skillRoot\scripts\Test-MatlabMcpExistingSession.ps1 -ProjectRoot (Get-Location).Path -Json
+ ```
+ 
++The probe writes only into the current project's `artifacts/` directory. It never
++reads the source repository, never needs the caller cwd to be the Skill root, and
++never prints the session credential.
++
+ The seven-stage ladder, the rules that must not be relaxed (only stage 4 upgrades a
+ licence SKIP to PASS; a failed stage makes every later stage SKIP), and the
+ machine-specific decision rule are in `references/mcp-readiness-ladder.md`. Load it
+@@ -79,26 +114,20 @@ mode. A batch rerun that succeeds hides the problem the user needs to see.
+ 
+ ## Preferred Wrapper
+ 
+-If the user explicitly requests batch execution in this repository, prefer:
++If the user explicitly requests batch execution, prefer the wrapper shipped in this
++Skill:
+ 
+ ```powershell
+-powershell -ExecutionPolicy Bypass -File .\scripts\Invoke-MatlabBatch.ps1 -Script .\path\to\script.m -TimeoutSeconds 1800
++powershell -ExecutionPolicy Bypass -File $skillRoot\scripts\Invoke-MatlabBatch.ps1 -Script .\path\to\script.m -TimeoutSeconds 1800
+ ```
+ 
+ `-TimeoutSeconds` is mandatory in spirit: a batch run without a timeout can hang forever. The wrapper exits `124` on timeout, `2` when MATLAB cannot be found, and otherwise returns the real MATLAB exit code. A timed-out run terminates the whole process tree and still keeps the partial logs.
+ 
+-For official MCP auto-mode setup and validation in this repository, prefer:
+-
+-```powershell
+-powershell -ExecutionPolicy Bypass -File .\scripts\Setup-MatlabMcpExistingSession.ps1
+-powershell -ExecutionPolicy Bypass -File .\scripts\Test-MatlabMcpExistingSession.ps1
+-```
+-
+-For a full local smoke test:
+-
+-```powershell
+-powershell -ExecutionPolicy Bypass -File .\scripts\Test-MatlabSkills.ps1
+-```
++`Setup-MatlabMcpExistingSession.ps1` and `Test-MatlabSkills.ps1` are
++repository-only developer operations. They are **not shipped** inside the installed
++Skill, so an installed user must not be asked to run them or to find a development
++checkout. The installed workflow is the shipped probe above plus the user's own MCP
++client configuration.
+ 
+ If the wrapper is not available, call MATLAB directly:
+ 
+diff --git a/skills/matlab-runner/references/acceptance-levels.md b/skills/matlab-runner/references/acceptance-levels.md
+index 0e62c50..2062ef5 100644
+--- a/skills/matlab-runner/references/acceptance-levels.md
++++ b/skills/matlab-runner/references/acceptance-levels.md
+@@ -21,8 +21,8 @@ review because the file really is there.
+ - **File existence is an L1 claim only.** It never substitutes for L2 compile success.
+ - **Generic C codegen is not STM32 deployment.** STM32 additionally needs CubeMX
+   registration, visible target hardware, a bound `.ioc`, and a matching Cube firmware
+-  package. Verify each separately — see `references/stm32-deployment-chain.md` in
+-  `matlab-codegen-deploy` for the full list.
++  package. Verify each separately; the STM32 checklist in `matlab-codegen-deploy`
++  names the products, registration calls, `.ioc` binding, and target data fields.
+ - **Every run must edit the acceptance report** (`artifacts/validation/acceptance_report.json`),
+   which carries `status`, `command`, `exitCode`, `metrics`, `reason`, `errorClass`
+   per check.
+diff --git a/skills/matlab-runner/references/mcp-readiness-ladder.md b/skills/matlab-runner/references/mcp-readiness-ladder.md
+index c354dc8..02dd102 100644
+--- a/skills/matlab-runner/references/mcp-readiness-ladder.md
++++ b/skills/matlab-runner/references/mcp-readiness-ladder.md
+@@ -23,7 +23,7 @@ means "usable":
+ Run the staged probe and read its verdict, never a file listing:
+ 
+ ```powershell
+-powershell -ExecutionPolicy Bypass -File .\scripts\Test-MatlabMcpExistingSession.ps1 -Json
++powershell -ExecutionPolicy Bypass -File $skillRoot\scripts\Test-MatlabMcpExistingSession.ps1 -ProjectRoot (Get-Location).Path -Json
+ ```
+ 
+ | Stage | Check id | Level | Proves |
+@@ -61,20 +61,22 @@ powershell -ExecutionPolicy Bypass -File .\scripts\Test-MatlabMcpExistingSession
+ 
+ ## Setup
+ 
+-```powershell
+-powershell -ExecutionPolicy Bypass -File .\scripts\Setup-MatlabMcpExistingSession.ps1
+-powershell -ExecutionPolicy Bypass -File .\scripts\Test-MatlabMcpExistingSession.ps1
+-```
++`Setup-MatlabMcpExistingSession.ps1` is a repository-only developer operation for
++maintainers of the source repository. It is **not shipped** inside the installed
++Skill. An installed user configures the official MATLAB MCP entry through their MCP
++client and then runs the shipped probe above; do not ask them to find a development
++checkout, and do not scan for a similarly named script elsewhere on disk.
+ 
+ ## 自动打开可见 MATLAB 桌面
+ 
+-先运行仓库的 `scripts/Start-MatlabDesktop.ps1`：优先复用匹配的现有共享运行时及
++仓库开发者辅助脚本 `scripts/Start-MatlabDesktop.ps1`（**不随 Skill 安装**）用于
++维护者复现可见桌面启动流程，不属于安装后流程：优先复用匹配的现有共享运行时及
+ 桌面窗口；没有 MATLAB 时自动经 Windows Shell 打开可见桌面，等待本次唯一
+ receipt，再重建官方 stdio `auto` 连接并用真实工具执行验证。
+ 如存在未就绪实例，先读报告决定是否用 `-NewSession` 另开，不关闭用户原会话。
+ `REUSED_EXISTING` 不计作新启动；仅 `newSessionVerified=true` 且启动前没有
+ MATLAB 进程时才可记录 `coldStartVerified=true`。端口、PID 或 receipt 单独成立
+-都不能替代 MCP 执行验证。详见 `docs/MATLAB_DESKTOP_STARTUP_ZH.md`。
++都不能替代 MCP 执行验证。
+ 需要精确复现手动入口时可用 `-LaunchMode Shortcut`；候选返回后，用官方 MCP 执行
+ 报告指定的 `mcpCodeFile`，再以 `-ConfirmReport` 核对回执。候选本身不算启动成功。
+ 可显式用 `-LaunchMode ComDesktop` 由独立 STA holder 激活已注册的可见桌面并保留 COM 引用；
+diff --git a/skills/matlab-signal-vision-ai/SKILL.md b/skills/matlab-signal-vision-ai/SKILL.md
+index c99d795..61440a5 100644
+--- a/skills/matlab-signal-vision-ai/SKILL.md
++++ b/skills/matlab-signal-vision-ai/SKILL.md
+@@ -7,6 +7,21 @@ description: MATLAB workflow for signal processing, DSP, image processing, compu
+ 
+ Use this skill when the core artifact is a processed signal, image, video, point cloud, neural network, or AI experiment.
+ 
++## Skill Root
++
++The installed directory containing this `SKILL.md` is the resource root. Add its
++helper folder for the current MATLAB session only — never through `savepath`,
++`startup.m`, or a global path edit:
++
++```matlab
++skillRoot = '<absolute path to the installed matlab-signal-vision-ai Skill directory>';
++addpath(fullfile(skillRoot, 'scripts'));
++```
++
++Resolve `references/`, `tests/`, and helper calls from that root, not from the
++caller's working directory. If a shipped helper or reference is missing, report the
++exact path and reinstall the Skill; do not scan the disk for a substitute.
++
+ ## Workflow
+ 
+ 1. 任务识别 — Identify data modality, sampling rate, image size, color space, labels, expected outputs. State the units (Hz vs rad/s), the analysis window, and whether the claim is steady-state or transient.
+diff --git a/skills/matlab-simulink-modeling/SKILL.md b/skills/matlab-simulink-modeling/SKILL.md
+index e6ff15a..8b8c0d2 100644
+--- a/skills/matlab-simulink-modeling/SKILL.md
++++ b/skills/matlab-simulink-modeling/SKILL.md
+@@ -7,6 +7,21 @@ description: MATLAB and Simulink workflow for creating, inspecting, modifying, s
+ 
+ Use this skill for model-based design and simulation workflows.
+ 
++## Skill Root
++
++The installed directory containing this `SKILL.md` is the resource root. Add its
++helper folder for the current MATLAB session only — never through `savepath`,
++`startup.m`, or a global path edit:
++
++```matlab
++skillRoot = '<absolute path to the installed matlab-simulink-modeling Skill directory>';
++addpath(fullfile(skillRoot, 'scripts'));
++```
++
++Resolve `references/`, `tests/`, and helper calls from that root, not from the
++caller's working directory. If a shipped helper or reference is missing, report the
++exact path and reinstall the Skill; do not scan the disk for a substitute.
++
+ ## First Checks
+ 
+ 1. Confirm the product with the precheck, not by guessing a license string:
+@@ -120,7 +135,7 @@ When a Simulink build waits on external tools, diagnose the boundary instead of
+ 
+ - If the model simulates but build hangs, inspect generated build logs, `STM32CubeMX.log`, temporary script files, and active `java.exe`, compiler, or CubeMX processes.
+ - For STM32 builds, verify the `.ioc` is bound through `STM32CubeMX.ProjectFile`; a CubeMX installation alone is not enough.
+-- Check whether the project path contains non-ASCII characters, spaces, or very long segments. Copy to a short ASCII scratch path such as `C:\codex_build\project_name` for one isolation run.
++- Check whether the project path contains non-ASCII characters, spaces, or very long segments. Copy to a short ASCII scratch path such as `<short-ascii-scratch>\project_name` for one isolation run.
+ - Distinguish direct tool availability from MATLAB registration. MATLAB may fail even when a desktop shortcut launches the tool.
+ - Record the exact phase that passed: diagram update, simulation, code generation, CubeMX generation, compiler build, or binary creation.
+ 
+@@ -142,15 +157,16 @@ Always report model path, stop time, solver, changed blocks, logged signals, and
+ 
+ ## Verify A Model By Level, Not By Hope
+ 
+-A saved `.slx` is not a working model. Phase 3B.2 generated a converter model that
+-simulated happily while applying a zero duty for the first period, because a Unit
+-Delay defaults to 0. Grade the model instead of asserting it works:
++A saved `.slx` is not a working model. A converter model can simulate happily while
++applying a zero duty for the first period, because a Unit Delay defaults to 0. Grade
++the model instead of asserting it works:
+ 
+ ```matlab
+-r = mas_model_check('matlab/boost/models/boost_avg.slx', struct('tStop',0.01));
++r = mas_model_check(fullfile(pwd, 'models', 'boost_avg.slx'), struct('tStop',0.01));
+ r.level   % L0 missing | L1 loads | L2 updates | L3 simulates with finite signals
+ ```
+ 
+ `L3` is the first level that means anything numerically. Toolboxes are checked with
+ `mas_precheck('toolbox', ...)`, never by calling `license` with a product name.
+-`tests/test_model_check.m` pins a real model at L3 and a missing file at L0.
++The Skill's own `tests/test_model_check.m` pins a real model fixture at L3 and a
++missing file at L0.
+diff --git a/skills/matlab-testing-ci/SKILL.md b/skills/matlab-testing-ci/SKILL.md
+index 14bb86a..bed7085 100644
+--- a/skills/matlab-testing-ci/SKILL.md
++++ b/skills/matlab-testing-ci/SKILL.md
+@@ -7,6 +7,21 @@ description: MATLAB testing, validation, and CI workflow for matlab.unittest, MA
+ 
+ Use this skill to close the loop on MATLAB work.
+ 
++## Skill Root
++
++The installed directory containing this `SKILL.md` is the resource root. Add its
++helper folder for the current MATLAB session only — never through `savepath`,
++`startup.m`, or a global path edit:
++
++```matlab
++skillRoot = '<absolute path to the installed matlab-testing-ci Skill directory>';
++addpath(fullfile(skillRoot, 'scripts'));
++```
++
++Resolve `references/`, `tests/`, and helper calls from that root, not from the
++caller's working directory. If a shipped helper or reference is missing, report the
++exact path and reinstall the Skill; do not scan the disk for a substitute.
++
+ ## Test Ladder
+ 
+ Start as small as possible, then broaden:
+@@ -96,7 +111,13 @@ into another. `tests/test_grade.m` covers six combinations.
+ 
+ A task that grades itself is not being tested. `mas_verify_task(id, values)` grades a
+ task's NUMBERS against `evals/references/reference_manifest.json`, which is committed
+-with a SHA-256 per entry:
++with a SHA-256 per entry.
++
++`mas_verify_task` and `mas_refcheck` are **repository-only developer operations**:
++the frozen manifest under `evals/` is not shipped inside the installed Skill. When it
++is absent they report `UNDETERMINED` with `reference manifest missing`; that is the
++expected installed-only outcome, not a reason to search for a development checkout.
++Use the shipped `mas_grade` for standalone acceptance.
+ 
+ ```matlab
+ v = mas_verify_task('D3', out.values);
+diff --git a/tests/Invoke-S2Acceptance.ps1 b/tests/Invoke-S2Acceptance.ps1
+new file mode 100644
+index 0000000..394d2d4
+--- /dev/null
++++ b/tests/Invoke-S2Acceptance.ps1
+@@ -0,0 +1,701 @@
++#Requires -Version 5.1
++<#
++.SYNOPSIS
++S2 independent acceptance A-J for installed Skill portability.
++
++.DESCRIPTION
++Runs against an isolated copy of the runtime in the temp directory. It never reads
++or writes a real user-level Skill root, never modifies the repository, and never
++prints a session credential.
++
++Phases:
++  A first install of all nine Skills
++  B installed resource and SHA-256 parity
++  C execution from a cwd outside the repository and Skill root
++  D MCP session check produces a staged verdict
++  E no source-repository fallback
++  F repeat install is zero-write
++  G failed upgrade restores the pre-upgrade tree
++  H S1 credential protection still holds in the installed layout
++  I uninstall leaves no payload residue
++  J report and sandbox cleanup
++
++.PARAMETER EvidenceRoot
++Where the acceptance report and raw evidence are written.
++
++.PARAMETER SkipRealProbe
++Skip the real MCP session probe (phase D still records SKIP, never PASS).
++#>
++[CmdletBinding()]
++param(
++    [string]$RepositoryRoot = "",
++    [string]$EvidenceRoot = "",
++    [switch]$SkipRealProbe
++)
++
++$ErrorActionPreference = 'Stop'
++
++if (-not $RepositoryRoot) {
++    $RepositoryRoot = Split-Path -Parent (Split-Path -Parent $MyInvocation.MyCommand.Path)
++}
++$repo = (Resolve-Path -LiteralPath $RepositoryRoot).Path
++$timestamp = Get-Date -Format 'yyyyMMdd-HHmmss'
++if (-not $EvidenceRoot) {
++    $EvidenceRoot = Join-Path (Join-Path $repo 'artifacts\s2\acceptance') $timestamp
++}
++$EvidenceRoot = [IO.Path]::GetFullPath($EvidenceRoot)
++if (-not (Test-Path -LiteralPath $EvidenceRoot)) {
++    New-Item -ItemType Directory -Force -Path $EvidenceRoot | Out-Null
++}
++
++$sandbox = Join-Path ([IO.Path]::GetTempPath()) ('mas-s2-acceptance-' + [guid]::NewGuid().ToString('N'))
++$installerRepo = Join-Path $sandbox 'installer-repo'
++$installSkillRoot = Join-Path $sandbox 'installed-skills'
++$installBackup = Join-Path $sandbox 'backups'
++$cleanRoot = Join-Path $sandbox 'clean-install'
++$cleanSkillRoot = Join-Path $cleanRoot 'installed-skills'
++$cleanProject = Join-Path $cleanRoot 'project'
++$skillNames = @(
++    'matlab-codegen-deploy',
++    'matlab-control-optimization',
++    'matlab-data-analysis',
++    'matlab-orchestrator',
++    'matlab-robotics-autonomy',
++    'matlab-runner',
++    'matlab-signal-vision-ai',
++    'matlab-simulink-modeling',
++    'matlab-testing-ci'
++)
++$checks = New-Object System.Collections.Generic.List[object]
++$syntheticSecret = 'synthetic-s2-acceptance-not-a-real-credential-7f31'
++$utf8NoBom = New-Object System.Text.UTF8Encoding($false)
++
++function Add-Check {
++    param(
++        [Parameter(Mandatory)][string]$Id,
++        [Parameter(Mandatory)][string]$Name,
++        [Parameter(Mandatory)][string]$Status,
++        [string]$Detail = "",
++        [string]$Evidence = ""
++    )
++    $checks.Add([pscustomobject][ordered]@{
++            id       = $Id
++            name     = $Name
++            status   = $Status
++            detail   = $Detail
++            evidence = $Evidence
++        })
++}
++
++function Write-EvidenceText {
++    param([string]$Name, [string]$Text)
++    $path = Join-Path $EvidenceRoot $Name
++    [IO.File]::WriteAllText($path, $Text, $utf8NoBom)
++    return $path
++}
++
++function Write-EvidenceJson {
++    param([string]$Name, $Object)
++    $path = Join-Path $EvidenceRoot $Name
++    [IO.File]::WriteAllText($path, ($Object | ConvertTo-Json -Depth 20), $utf8NoBom)
++    return $path
++}
++
++function ConvertFrom-MixedJson {
++    param([string]$Text)
++    if ([string]::IsNullOrWhiteSpace($Text)) { return $null }
++    $start = $Text.IndexOf('{')
++    while ($start -ge 0) {
++        try {
++            $candidate = $Text.Substring($start)
++            $value = $candidate | ConvertFrom-Json
++            if ($null -ne $value) { return $value }
++        }
++        catch { }
++        $start = $Text.IndexOf('{', $start + 1)
++    }
++    return $null
++}
++
++function Invoke-ChildPowerShell {
++    param(
++        [Parameter(Mandatory)][string]$ScriptPath,
++        [string[]]$Arguments = @(),
++        [int]$TimeoutSeconds = 600,
++        [string]$WorkingDirectory = $sandbox
++    )
++    $stdout = Join-Path $sandbox (([IO.Path]::GetFileNameWithoutExtension($ScriptPath)) + '-' + [guid]::NewGuid().ToString('N') + '.out.txt')
++    $stderr = [IO.Path]::ChangeExtension($stdout, '.err.txt')
++    $exe = (Get-Process -Id $PID).Path
++    $argumentList = @('-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', $ScriptPath) + $Arguments
++    $quoted = @($argumentList | ForEach-Object { '"' + ([string]$_ -replace '"', '\"') + '"' }) -join ' '
++    # Start-Process -PassThru leaves ExitCode empty after WaitForExit(ms) on this
++    # host, so drive the child through System.Diagnostics.Process directly.
++    $psi = New-Object System.Diagnostics.ProcessStartInfo
++    $psi.FileName = $exe
++    $psi.Arguments = $quoted
++    $psi.WorkingDirectory = $WorkingDirectory
++    $psi.UseShellExecute = $false
++    $psi.CreateNoWindow = $true
++    $psi.RedirectStandardOutput = $true
++    $psi.RedirectStandardError = $true
++    $process = New-Object System.Diagnostics.Process
++    $process.StartInfo = $psi
++    $null = $process.Start()
++    $outTask = $process.StandardOutput.ReadToEndAsync()
++    $errTask = $process.StandardError.ReadToEndAsync()
++    $timedOut = -not $process.WaitForExit($TimeoutSeconds * 1000)
++    if ($timedOut) {
++        try { $process.Kill() } catch { }
++        $process.WaitForExit(5000) | Out-Null
++    }
++    $outText = if ($outTask.Wait(10000)) { [string]$outTask.Result } else { '' }
++    $errText = if ($errTask.Wait(10000)) { [string]$errTask.Result } else { '' }
++    $exitCode = if ($timedOut) { -1 } else { $process.ExitCode }
++    [IO.File]::WriteAllText($stdout, $outText, $utf8NoBom)
++    [IO.File]::WriteAllText($stderr, $errText, $utf8NoBom)
++    $process.Dispose()
++    [pscustomobject]@{
++        ExitCode = $exitCode
++        TimedOut = $timedOut
++        Stdout   = $outText
++        Stderr   = $errText
++        OutPath  = $stdout
++        ErrPath  = $stderr
++        Json     = ConvertFrom-MixedJson -Text $outText
++    }
++}
++
++function Invoke-SyncChild {
++    param(
++        [Parameter(Mandatory)][string]$InstallerRoot,
++        [Parameter(Mandatory)][string]$SkillRoot,
++        [Parameter(Mandatory)][string]$BackupRoot,
++        [switch]$Force
++    )
++    $sync = Join-Path $InstallerRoot 'scripts\Sync-Skills.ps1'
++    $args = @(
++        '-RepositoryRoot', $InstallerRoot,
++        '-SkillRoot', $SkillRoot,
++        '-BackupRoot', $BackupRoot
++    )
++    if ($Force) { $args += '-Force' }
++    return Invoke-ChildPowerShell -ScriptPath $sync -Arguments $args -WorkingDirectory $sandbox
++}
++
++function Get-FileSha256 {
++    param([Parameter(Mandatory)][string]$Path)
++    return (Get-FileHash -LiteralPath $Path -Algorithm SHA256).Hash
++}
++
++function Get-TreeSnapshot {
++    param([Parameter(Mandatory)][string]$Root)
++    $files = New-Object System.Collections.Generic.List[object]
++    if (Test-Path -LiteralPath $Root) {
++        $resolved = (Resolve-Path -LiteralPath $Root).Path
++        foreach ($file in @(Get-ChildItem -LiteralPath $resolved -Recurse -File -Force | Sort-Object FullName)) {
++            $relative = $file.FullName.Substring($resolved.Length).TrimStart([char[]]'\/')
++            $files.Add([pscustomobject][ordered]@{
++                    relative = ($relative -replace '\\', '/')
++                    sha256   = Get-FileSha256 -Path $file.FullName
++                    length   = $file.Length
++                })
++        }
++    }
++    $canonical = (@($files | ForEach-Object { "$($_.relative)|$($_.sha256)" }) -join "`n")
++    $sha = [Security.Cryptography.SHA256]::Create()
++    try {
++        $aggregate = ([BitConverter]::ToString($sha.ComputeHash([Text.Encoding]::UTF8.GetBytes($canonical))) -replace '-', '')
++    }
++    finally { $sha.Dispose() }
++    [pscustomobject][ordered]@{
++        root            = $Root
++        fileCount       = $files.Count
++        aggregateSha256 = $aggregate
++        files           = $files.ToArray()
++    }
++}
++
++function Compare-TreeSnapshot {
++    param($Before, $After)
++    $differences = New-Object System.Collections.Generic.List[string]
++    $beforeMap = @{}
++    foreach ($entry in @($Before.files)) { $beforeMap[$entry.relative] = $entry.sha256 }
++    $afterMap = @{}
++    foreach ($entry in @($After.files)) { $afterMap[$entry.relative] = $entry.sha256 }
++    foreach ($key in @($beforeMap.Keys | Sort-Object)) {
++        if (-not $afterMap.ContainsKey($key)) { $differences.Add("missing: $key"); continue }
++        if ($beforeMap[$key] -ne $afterMap[$key]) { $differences.Add("changed: $key") }
++    }
++    foreach ($key in @($afterMap.Keys | Sort-Object)) {
++        if (-not $beforeMap.ContainsKey($key)) { $differences.Add("added: $key") }
++    }
++    return , $differences.ToArray()
++}
++
++function Read-PayloadConfig {
++    param([Parameter(Mandatory)][string]$InstallerRoot)
++    $path = Join-Path $InstallerRoot 'config\skill-payloads.json'
++    if (-not (Test-Path -LiteralPath $path)) { return $null }
++    $text = [IO.File]::ReadAllText($path, $utf8NoBom)
++    return ($text | ConvertFrom-Json)
++}
++
++function Get-PayloadEntries {
++    param($Config, [Parameter(Mandatory)][string]$SkillName)
++    if ($null -eq $Config) { return @() }
++    $property = $Config.payloads.PSObject.Properties | Where-Object { $_.Name -eq $SkillName }
++    if (-not $property) { return @() }
++    return @($property.Value.files)
++}
++
++$startedAt = Get-Date
++$sandboxCreated = $false
++$cleanupSucceeded = $false
++$report = $null
++
++try {
++    # ---------- setup: isolated installer source copy ----------
++    New-Item -ItemType Directory -Force -Path $sandbox | Out-Null
++    $sandboxCreated = $true
++    New-Item -ItemType Directory -Force -Path $installerRepo | Out-Null
++    foreach ($name in @('scripts', 'schemas', 'config', 'skills')) {
++        Copy-Item -LiteralPath (Join-Path $repo $name) -Destination (Join-Path $installerRepo $name) -Recurse -Force
++    }
++    New-Item -ItemType Directory -Force -Path $cleanProject | Out-Null
++
++    # ---------- A: first install ----------
++    $install = Invoke-SyncChild -InstallerRoot $installerRepo -SkillRoot $installSkillRoot -BackupRoot $installBackup
++    Write-EvidenceText -Name 'A-install.stdout.txt' -Text $install.Stdout | Out-Null
++    Write-EvidenceText -Name 'A-install.stderr.txt' -Text $install.Stderr | Out-Null
++    if ($null -ne $install.Json) { Write-EvidenceJson -Name 'A-install.summary.json' -Object $install.Json | Out-Null }
++
++    $missingSkills = @($skillNames | Where-Object {
++            -not (Test-Path -LiteralPath (Join-Path (Join-Path $installSkillRoot $_) 'SKILL.md') -PathType Leaf)
++        })
++    $installCount = if ($null -ne $install.Json) { [int]$install.Json.installed } else { -1 }
++    $installOk = ($install.ExitCode -eq 0 -and $installCount -eq 9 -and $missingSkills.Count -eq 0)
++    Add-Check -Id 'A' -Name 'first install of nine Skills' `
++        -Status $(if ($installOk) { 'PASS' } else { 'FAIL' }) `
++        -Detail ("exit={0}; installed={1}; missing={2}" -f $install.ExitCode, $installCount, ($missingSkills -join ',')) `
++        -Evidence 'A-install.stdout.txt; A-install.stderr.txt; A-install.summary.json'
++
++    # ---------- B: resource + SHA-256 parity ----------
++    $payloadConfig = Read-PayloadConfig -InstallerRoot $installerRepo
++    $payloadConfigSource = Join-Path $repo 'config\skill-payloads.json'
++    $payloadConfigSha = if (Test-Path -LiteralPath $payloadConfigSource) { Get-FileSha256 -Path $payloadConfigSource } else { '' }
++    $hashEntries = New-Object System.Collections.Generic.List[object]
++    $hashFailures = New-Object System.Collections.Generic.List[string]
++    $payloadTargets = @{}
++    foreach ($skill in @('matlab-runner', 'matlab-orchestrator')) {
++        $payloadTargets[$skill] = @{}
++        foreach ($entry in @(Get-PayloadEntries -Config $payloadConfig -SkillName $skill)) {
++            $target = ([string]$entry.target -replace '\\', '/')
++            $source = ([string]$entry.source -replace '\\', '/')
++            $payloadTargets[$skill][$target] = $source
++            $installedPath = Join-Path (Join-Path $installSkillRoot $skill) $target
++            $sourcePath = Join-Path $installerRepo $source
++            if (-not (Test-Path -LiteralPath $installedPath -PathType Leaf)) {
++                $hashFailures.Add("missing payload: $skill/$target")
++                continue
++            }
++            if (-not (Test-Path -LiteralPath $sourcePath -PathType Leaf)) {
++                $hashFailures.Add("missing source: $source")
++                continue
++            }
++            $installedHash = Get-FileSha256 -Path $installedPath
++            $sourceHash = Get-FileSha256 -Path $sourcePath
++            if ($installedHash -ne $sourceHash) { $hashFailures.Add("payload mismatch: $skill/$target") }
++            $hashEntries.Add([pscustomobject][ordered]@{
++                    skill = $skill; relativePath = $target; origin = $source
++                    sha256 = $installedHash; sourceSha256 = $sourceHash; match = ($installedHash -eq $sourceHash)
++                })
++        }
++    }
++    foreach ($skill in $skillNames) {
++        $skillRoot = Join-Path $installSkillRoot $skill
++        if (-not (Test-Path -LiteralPath $skillRoot)) { $hashFailures.Add("missing skill: $skill"); continue }
++        foreach ($file in @(Get-ChildItem -LiteralPath $skillRoot -Recurse -File -Force)) {
++            $relative = ($file.FullName.Substring($skillRoot.Length).TrimStart([char[]]'\/') -replace '\\', '/')
++            if ($payloadTargets.ContainsKey($skill) -and $payloadTargets[$skill].ContainsKey($relative)) { continue }
++            $sourcePath = Join-Path (Join-Path $installerRepo 'skills') (Join-Path $skill $relative)
++            if (-not (Test-Path -LiteralPath $sourcePath -PathType Leaf)) {
++                $hashFailures.Add("unexpected file: $skill/$relative")
++                continue
++            }
++            $installedHash = Get-FileSha256 -Path $file.FullName
++            $sourceHash = Get-FileSha256 -Path $sourcePath
++            if ($installedHash -ne $sourceHash) { $hashFailures.Add("skill mismatch: $skill/$relative") }
++            $hashEntries.Add([pscustomobject][ordered]@{
++                    skill = $skill; relativePath = $relative; origin = "skills/$skill/$relative"
++                    sha256 = $installedHash; sourceSha256 = $sourceHash; match = ($installedHash -eq $sourceHash)
++                })
++        }
++    }
++    $forbidden = New-Object System.Collections.Generic.List[string]
++    foreach ($skill in $skillNames) {
++        $skillRoot = Join-Path $installSkillRoot $skill
++        foreach ($file in @(Get-ChildItem -LiteralPath $skillRoot -Recurse -File -Force)) {
++            $relative = $file.FullName.Substring($skillRoot.Length)
++            if ($relative -match '(?i)[\\/]artifacts[\\/]') { $forbidden.Add("artifacts: $skill$relative") }
++            if ($relative -match '(?i)(sessiondetails\.json|\.pem$|\.key$|\.pfx$|\.p12$|\.cer$|\.crt$|(^|[\\/])\.env$)') {
++                $forbidden.Add("secret-like: $skill$relative")
++            }
++        }
++    }
++    $shaEvidence = [pscustomobject][ordered]@{
++        schemaVersion = 1
++        payloadConfig = 'config/skill-payloads.json'
++        payloadConfigSha256 = $payloadConfigSha
++        entries = $hashEntries.ToArray()
++        failures = $hashFailures.ToArray()
++        forbidden = $forbidden.ToArray()
++    }
++    Write-EvidenceJson -Name 'B-installed-sha256.json' -Object $shaEvidence | Out-Null
++    $parityOk = ($hashFailures.Count -eq 0 -and $forbidden.Count -eq 0)
++    Add-Check -Id 'B' -Name 'installed resource and SHA-256 parity' `
++        -Status $(if ($parityOk) { 'PASS' } else { 'FAIL' }) `
++        -Detail ("files={0}; failures={1}; forbidden={2}; payloadConfigSha256={3}" -f `
++            $hashEntries.Count, $hashFailures.Count, $forbidden.Count, $payloadConfigSha) `
++        -Evidence 'B-installed-sha256.json'
++
++    # ---------- F: repeat install zero writes ----------
++    $beforeRepeat = Get-TreeSnapshot -Root $installSkillRoot
++    $manifestPath = Join-Path $installSkillRoot '.matlab-agent-skills-manifest.json'
++    $manifestBefore = if (Test-Path -LiteralPath $manifestPath) { Get-FileSha256 -Path $manifestPath } else { '' }
++    $backupSessionsBefore = @(Get-ChildItem -LiteralPath $installBackup -Directory -ErrorAction SilentlyContinue).Count
++    $repeat = Invoke-SyncChild -InstallerRoot $installerRepo -SkillRoot $installSkillRoot -BackupRoot $installBackup
++    Write-EvidenceText -Name 'F-repeat.stdout.txt' -Text $repeat.Stdout | Out-Null
++    Write-EvidenceText -Name 'F-repeat.stderr.txt' -Text $repeat.Stderr | Out-Null
++    if ($null -ne $repeat.Json) { Write-EvidenceJson -Name 'F-repeat.summary.json' -Object $repeat.Json | Out-Null }
++    $afterRepeat = Get-TreeSnapshot -Root $installSkillRoot
++    $repeatDiff = Compare-TreeSnapshot -Before $beforeRepeat -After $afterRepeat
++    $manifestAfter = if (Test-Path -LiteralPath $manifestPath) { Get-FileSha256 -Path $manifestPath } else { '' }
++    $backupSessionsAfter = @(Get-ChildItem -LiteralPath $installBackup -Directory -ErrorAction SilentlyContinue).Count
++    $repeatUnchanged = if ($null -ne $repeat.Json) { [int]$repeat.Json.unchanged } else { -1 }
++    $repeatOk = ($repeat.ExitCode -eq 0 -and $repeatUnchanged -eq 9 -and $repeatDiff.Count -eq 0 -and
++        $manifestBefore -eq $manifestAfter -and $backupSessionsBefore -eq $backupSessionsAfter)
++    Add-Check -Id 'F' -Name 'repeat install is zero-write' `
++        -Status $(if ($repeatOk) { 'PASS' } else { 'FAIL' }) `
++        -Detail ("exit={0}; unchanged={1}; diff={2}; manifestEqual={3}; backupSessions={4}->{5}" -f `
++            $repeat.ExitCode, $repeatUnchanged, $repeatDiff.Count, ($manifestBefore -eq $manifestAfter), `
++            $backupSessionsBefore, $backupSessionsAfter) `
++        -Evidence 'F-repeat.stdout.txt; F-repeat.stderr.txt; F-repeat.summary.json'
++
++    # ---------- G: failed upgrade rollback ----------
++    $beforeUpgrade = Get-TreeSnapshot -Root $installSkillRoot
++    $lockedPayload = Join-Path $installSkillRoot 'matlab-runner\scripts\MatlabAgentSkills.Core.psm1'
++    $sandboxSourceSkill = Join-Path $installerRepo 'skills\matlab-runner\SKILL.md'
++    Add-Content -LiteralPath $sandboxSourceSkill -Value "`nacceptance-upgrade-marker`n"
++    $lock = [IO.File]::Open($lockedPayload, 'Open', 'Read', 'Read')
++    try {
++        $upgrade = Invoke-SyncChild -InstallerRoot $installerRepo -SkillRoot $installSkillRoot -BackupRoot $installBackup
++    }
++    finally { $lock.Dispose() }
++    Write-EvidenceText -Name 'G-upgrade.stdout.txt' -Text $upgrade.Stdout | Out-Null
++    Write-EvidenceText -Name 'G-upgrade.stderr.txt' -Text $upgrade.Stderr | Out-Null
++    if ($null -ne $upgrade.Json) { Write-EvidenceJson -Name 'G-upgrade.summary.json' -Object $upgrade.Json | Out-Null }
++    $afterUpgrade = Get-TreeSnapshot -Root $installSkillRoot
++    $upgradeDiff = Compare-TreeSnapshot -Before $beforeUpgrade -After $afterUpgrade
++    $runnerResult = $null
++    if ($null -ne $upgrade.Json) {
++        $runnerResult = @($upgrade.Json.skills | Where-Object { $_.name -eq 'matlab-runner' } | Select-Object -First 1)
++        if ($runnerResult.Count -gt 0) { $runnerResult = $runnerResult[0] }
++    }
++    $stagingResidue = @(Get-ChildItem -LiteralPath $installSkillRoot -Directory -Force -ErrorAction SilentlyContinue |
++            Where-Object { $_.Name -like '*.__incoming__*' }).Count
++    $rollbackOk = ($upgrade.ExitCode -ne 0 -and $null -ne $runnerResult -and
++        [string]$runnerResult.decision -eq 'error' -and [bool]$runnerResult.restoredFromBackup -eq $true -and
++        $upgradeDiff.Count -eq 0 -and $stagingResidue -eq 0)
++    Add-Check -Id 'G' -Name 'failed upgrade restores the pre-upgrade tree' `
++        -Status $(if ($rollbackOk) { 'PASS' } else { 'FAIL' }) `
++        -Detail ("exit={0}; decision={1}; restored={2}; diff={3}; staging={4}" -f `
++            $upgrade.ExitCode, $(if ($runnerResult) { $runnerResult.decision } else { 'n/a' }), `
++            $(if ($runnerResult) { $runnerResult.restoredFromBackup } else { 'n/a' }), $upgradeDiff.Count, $stagingResidue) `
++        -Evidence 'G-upgrade.stdout.txt; G-upgrade.stderr.txt; G-upgrade.summary.json'
++
++    # ---------- clean install copy with no source repository ----------
++    New-Item -ItemType Directory -Force -Path $cleanRoot | Out-Null
++    Copy-Item -LiteralPath $installSkillRoot -Destination $cleanSkillRoot -Recurse -Force
++    New-Item -ItemType Directory -Force -Path $cleanProject | Out-Null
++
++    # ---------- E: no source-repository fallback (module resolution) ----------
++    $scriptsDir = Join-Path $cleanSkillRoot 'matlab-runner\scripts'
++    $moduleScript = Join-Path $sandbox 'module-resolution.ps1'
++    $moduleContent = @"
++`$paths = @()
++foreach (`$name in @('Acceptance', 'Execution', 'McpProbe')) {
++    Import-Module (Join-Path '$scriptsDir' ("MatlabAgentSkills." + `$name + ".psm1")) -Force -DisableNameChecking
++}
++foreach (`$module in @(Get-Module -All | Where-Object { `$_.Name -like 'MatlabAgentSkills.*' })) { if (`$module.Path) { `$paths += `$module.Path } }
++[pscustomobject]@{ count = `$paths.Count; paths = `$paths } | ConvertTo-Json
++"@
++    [IO.File]::WriteAllText($moduleScript, $moduleContent, (New-Object System.Text.UTF8Encoding($true)))
++    $moduleRun = Invoke-ChildPowerShell -ScriptPath $moduleScript -WorkingDirectory $cleanProject
++    Write-EvidenceText -Name 'E-module-resolution.stdout.txt' -Text $moduleRun.Stdout | Out-Null
++    Write-EvidenceText -Name 'E-module-resolution.stderr.txt' -Text $moduleRun.Stderr | Out-Null
++    $modulePaths = @()
++    if ($null -ne $moduleRun.Json) { $modulePaths = @($moduleRun.Json.paths) }
++    $outsideModulePaths = @($modulePaths | Where-Object {
++            -not $_.StartsWith($scriptsDir, [StringComparison]::OrdinalIgnoreCase)
++        })
++    $moduleOk = ($moduleRun.ExitCode -eq 0 -and $null -ne $moduleRun.Json -and
++        [int]$moduleRun.Json.count -ge 4 -and $outsideModulePaths.Count -eq 0)
++
++    # ---------- D: MCP session check runs ----------
++    $probeResult = $null
++    $probeJson = $null
++    $probeStatus = 'SKIP'
++    $probeDetail = 'skipped by request'
++    if (-not $SkipRealProbe) {
++        $probePath = Join-Path $cleanSkillRoot 'matlab-runner\scripts\Test-MatlabMcpExistingSession.ps1'
++        $probe = Invoke-ChildPowerShell -ScriptPath $probePath -Arguments @(
++            '-ProjectRoot', $cleanProject, '-TimeoutSeconds', '20', '-Json'
++        ) -WorkingDirectory $cleanProject -TimeoutSeconds 600
++        Write-EvidenceText -Name 'D-probe.stdout.txt' -Text $probe.Stdout | Out-Null
++        Write-EvidenceText -Name 'D-probe.stderr.txt' -Text $probe.Stderr | Out-Null
++        $probeJson = ConvertFrom-MixedJson -Text $probe.Stdout
++        if ($null -ne $probeJson) { Write-EvidenceJson -Name 'D-probe.report.json' -Object $probeJson | Out-Null }
++        $probeReportPath = Join-Path $cleanProject 'artifacts\validation\acceptance\mcp_probe.json'
++        if (Test-Path -LiteralPath $probeReportPath) {
++            Copy-Item -LiteralPath $probeReportPath -Destination (Join-Path $EvidenceRoot 'D-probe.artifacts.json') -Force
++        }
++        $probeChecks = @()
++        if ($null -ne $probeJson) {
++            $probeChecks = @($probeJson.checks | ForEach-Object {
++                    [pscustomobject][ordered]@{ id = $_.id; status = $_.status }
++                })
++        }
++        $probeResult = [pscustomobject][ordered]@{
++            exitCode      = $probe.ExitCode
++            timedOut      = [bool]$probe.TimedOut
++            overallStatus = $(if ($probeJson) { [string]$probeJson.overallStatus } else { $null })
++            achievedLevel = $(if ($probeJson) { [string]$probeJson.achievedLevel } else { $null })
++            checkCount    = $probeChecks.Count
++            checks        = $probeChecks
++        }
++        Write-EvidenceJson -Name 'D-probe.verdict.json' -Object $probeResult | Out-Null
++        if ($null -ne $probeJson -and @($probeJson.checks).Count -ge 7) {
++            $probeStatus = 'PASS'
++            $probeDetail = "probe produced a staged verdict: overall=$($probeJson.overallStatus), achieved=$($probeJson.achievedLevel), exit=$($probe.ExitCode)"
++        }
++        else {
++            $probeStatus = 'FAIL'
++            $probeDetail = "probe did not produce a parseable staged report (exit=$($probe.ExitCode))"
++        }
++    }
++    Add-Check -Id 'D' -Name 'MCP session check runs from the installed Skill' `
++        -Status $probeStatus -Detail $probeDetail `
++        -Evidence 'D-probe.stdout.txt; D-probe.stderr.txt; D-probe.report.json; D-probe.verdict.json'
++
++    # ---------- E: no source-repository fallback (probe output + payload text) ----------
++    $fallbackHits = New-Object System.Collections.Generic.List[string]
++    $repoVariants = @($repo, $installerRepo, $cleanSkillRoot, $installSkillRoot) | Where-Object { $_ }
++    if ($probeResult) {
++        $probeText = ''
++        foreach ($name in @('D-probe.stdout.txt', 'D-probe.stderr.txt', 'D-probe.report.json', 'D-probe.artifacts.json')) {
++            $path = Join-Path $EvidenceRoot $name
++            if (Test-Path -LiteralPath $path) { $probeText += [IO.File]::ReadAllText($path) + "`n" }
++        }
++        foreach ($variant in @($repo, $installerRepo)) {
++            if ($probeText.IndexOf($variant, [StringComparison]::OrdinalIgnoreCase) -ge 0) {
++                $fallbackHits.Add("probe output mentions source repo: $variant")
++            }
++        }
++    }
++    foreach ($skill in @('matlab-runner', 'matlab-orchestrator')) {
++        foreach ($target in @($payloadTargets[$skill].Keys)) {
++            $path = Join-Path (Join-Path $cleanSkillRoot $skill) $target
++            if (-not (Test-Path -LiteralPath $path -PathType Leaf)) { continue }
++            $text = [IO.File]::ReadAllText($path)
++            if ($text.IndexOf($repo, [StringComparison]::OrdinalIgnoreCase) -ge 0) {
++                $fallbackHits.Add("payload embeds source repo path: $skill/$target")
++            }
++        }
++    }
++    $noRepoInClean = -not (Test-Path -LiteralPath (Join-Path $cleanRoot 'repo'))
++    $fallbackOk = ($moduleOk -and $noRepoInClean -and $fallbackHits.Count -eq 0)
++    Add-Check -Id 'C' -Name 'commands run outside the repository and Skill root' `
++        -Status $(if ($moduleRun.ExitCode -eq 0 -and $moduleOk) { 'PASS' } else { 'FAIL' }) `
++        -Detail ("module modules={0}; outside={1}; cwd={2}" -f $modulePaths.Count, $outsideModulePaths.Count, $cleanProject) `
++        -Evidence 'E-module-resolution.stdout.txt; E-module-resolution.stderr.txt; D-probe.stdout.txt'
++    Add-Check -Id 'E' -Name 'no source-repository fallback' `
++        -Status $(if ($fallbackOk) { 'PASS' } else { 'FAIL' }) `
++        -Detail ("cleanRootHasRepo={0}; moduleOutside={1}; fallbackHits={2}" -f (-not $noRepoInClean), $outsideModulePaths.Count, $fallbackHits.Count) `
++        -Evidence 'E-module-resolution.stdout.txt; D-probe.stdout.txt'
++
++    # ---------- H: credential protection in the installed layout ----------
++    $corePath = Join-Path $cleanSkillRoot 'matlab-runner\scripts\MatlabAgentSkills.Core.psm1'
++    $sanitizerScript = Join-Path $sandbox 'sanitizer.ps1'
++    $sanitizerContent = @"
++Import-Module '$corePath' -Force -DisableNameChecking
++`$text = '{"apiKey":"$syntheticSecret"}'
++Protect-MasText -Text `$text
++"@
++    [IO.File]::WriteAllText($sanitizerScript, $sanitizerContent, (New-Object System.Text.UTF8Encoding($true)))
++    $sanitizerRun = Invoke-ChildPowerShell -ScriptPath $sanitizerScript -WorkingDirectory $cleanProject
++    Write-EvidenceText -Name 'H-sanitizer.stdout.txt' -Text $sanitizerRun.Stdout | Out-Null
++    Write-EvidenceText -Name 'H-sanitizer.stderr.txt' -Text $sanitizerRun.Stderr | Out-Null
++    $sanitizerOk = ($sanitizerRun.ExitCode -eq 0 -and
++        $sanitizerRun.Stdout.IndexOf($syntheticSecret, [StringComparison]::Ordinal) -lt 0 -and
++        $sanitizerRun.Stdout -match 'REDACTED')
++
++    $realKey = $null
++    $sessionFile = Join-Path $env:APPDATA 'MathWorks\MATLAB MCP Server\v1\sessionDetails.json'
++    if (Test-Path -LiteralPath $sessionFile -PathType Leaf) {
++        try {
++            $sessionText = [IO.File]::ReadAllText($sessionFile, $utf8NoBom)
++            $sessionJson = $sessionText | ConvertFrom-Json
++            if ($sessionJson.PSObject.Properties.Name -contains 'apiKey') {
++                $candidate = [string]$sessionJson.apiKey
++                if (-not [string]::IsNullOrEmpty($candidate) -and $candidate.Length -ge 4) { $realKey = $candidate }
++            }
++        }
++        catch { $realKey = $null }
++    }
++    $secretScan = [pscustomobject][ordered]@{
++        sessionFilePresent = (Test-Path -LiteralPath $sessionFile -PathType Leaf)
++        keyAvailable       = ($null -ne $realKey)
++        filesScanned       = 0
++        leaksFound         = 0
++        leakFiles          = @()
++    }
++    if ($null -ne $realKey) {
++        $leakFiles = New-Object System.Collections.Generic.List[string]
++        $filesToScan = @(Get-ChildItem -LiteralPath $EvidenceRoot -Recurse -File -Force -ErrorAction SilentlyContinue)
++        $probeArtifacts = Join-Path $cleanProject 'artifacts'
++        if (Test-Path -LiteralPath $probeArtifacts) {
++            $filesToScan += @(Get-ChildItem -LiteralPath $probeArtifacts -Recurse -File -Force -ErrorAction SilentlyContinue)
++        }
++        foreach ($file in $filesToScan) {
++            $secretScan.filesScanned++
++            try {
++                $text = [IO.File]::ReadAllText($file.FullName)
++                if ($text.IndexOf($realKey, [StringComparison]::Ordinal) -ge 0) {
++                    $leakFiles.Add($file.FullName)
++                }
++            }
++            catch { }
++        }
++        $secretScan.leaksFound = $leakFiles.Count
++        $secretScan.leakFiles = $leakFiles.ToArray()
++    }
++    Write-EvidenceJson -Name 'H-credential-scan.json' -Object $secretScan | Out-Null
++    $credentialOk = ($sanitizerOk -and $secretScan.leaksFound -eq 0)
++    $credentialStatus = if ($credentialOk) { $(if ($secretScan.keyAvailable) { 'PASS' } else { 'SKIP' }) } else { 'FAIL' }
++    Add-Check -Id 'H' -Name 'S1 credential protection in the installed layout' `
++        -Status $credentialStatus `
++        -Detail ("sanitizerRedacted={0}; sessionPresent={1}; keyAvailable={2}; scanned={3}; leaks={4}" -f `
++            $sanitizerOk, $secretScan.sessionFilePresent, $secretScan.keyAvailable, $secretScan.filesScanned, $secretScan.leaksFound) `
++        -Evidence 'H-sanitizer.stdout.txt; H-sanitizer.stderr.txt; H-credential-scan.json'
++
++    # ---------- I: uninstall no residue ----------
++    $removeScript = Join-Path $installerRepo 'scripts\Remove-Skills.ps1'
++    $remove = Invoke-ChildPowerShell -ScriptPath $removeScript -Arguments @(
++        '-RepositoryRoot', $installerRepo,
++        '-SkillRoot', $installSkillRoot,
++        '-BackupRoot', $installBackup
++    ) -WorkingDirectory $sandbox
++    Write-EvidenceText -Name 'I-uninstall.stdout.txt' -Text $remove.Stdout | Out-Null
++    Write-EvidenceText -Name 'I-uninstall.stderr.txt' -Text $remove.Stderr | Out-Null
++    if ($null -ne $remove.Json) { Write-EvidenceJson -Name 'I-uninstall.summary.json' -Object $remove.Json | Out-Null }
++    $residualSkills = @(Get-ChildItem -LiteralPath $installSkillRoot -Directory -Filter 'matlab-*' -ErrorAction SilentlyContinue)
++    $remainingPayload = New-Object System.Collections.Generic.List[string]
++    foreach ($skill in $skillNames) {
++        foreach ($target in @($payloadTargets[$skill].Keys)) {
++            if (Test-Path -LiteralPath (Join-Path (Join-Path $installSkillRoot $skill) $target)) {
++                $remainingPayload.Add("$skill/$target")
++            }
++        }
++    }
++    $removedCount = if ($remove.Json) { @($remove.Json.removed).Count } else { -1 }
++    $preservedCount = if ($remove.Json) { @($remove.Json.preserved).Count } else { -1 }
++    $uninstallOk = ($remove.ExitCode -eq 0 -and $removedCount -eq 9 -and $preservedCount -eq 0 -and
++        $residualSkills.Count -eq 0 -and $remainingPayload.Count -eq 0)
++    Add-Check -Id 'I' -Name 'uninstall leaves no payload residue' `
++        -Status $(if ($uninstallOk) { 'PASS' } else { 'FAIL' }) `
++        -Detail ("exit={0}; removed={1}; preserved={2}; residualSkills={3}; residualPayload={4}" -f `
++            $remove.ExitCode, $removedCount, $preservedCount, $residualSkills.Count, $remainingPayload.Count) `
++        -Evidence 'I-uninstall.stdout.txt; I-uninstall.stderr.txt; I-uninstall.summary.json'
++
++    # ---------- J: cleanup ----------
++    if (Test-Path -LiteralPath $sandbox) {
++        Remove-Item -LiteralPath $sandbox -Recurse -Force -ErrorAction Stop
++    }
++    $cleanupSucceeded = -not (Test-Path -LiteralPath $sandbox)
++    Add-Check -Id 'J' -Name 'sandbox cleanup' `
++        -Status $(if ($cleanupSucceeded) { 'PASS' } else { 'FAIL' }) `
++        -Detail ("sandboxRemoved={0}" -f $cleanupSucceeded) `
++        -Evidence ''
++}
++catch {
++    Add-Check -Id 'X' -Name 'acceptance harness exception' -Status 'FAIL' `
++        -Detail $_.Exception.Message -Evidence ''
++}
++finally {
++    if ($sandboxCreated -and (Test-Path -LiteralPath $sandbox) -and -not $cleanupSucceeded) {
++        try { Remove-Item -LiteralPath $sandbox -Recurse -Force -ErrorAction SilentlyContinue } catch { }
++    }
++}
++
++$finishedAt = Get-Date
++$pass = @($checks | Where-Object { $_.status -eq 'PASS' }).Count
++$fail = @($checks | Where-Object { $_.status -eq 'FAIL' }).Count
++$skip = @($checks | Where-Object { $_.status -eq 'SKIP' }).Count
++$overall = if ($fail -gt 0) { 'FAIL' } elseif ($skip -gt 0) { 'SKIP' } else { 'PASS' }
++
++$gitHead = ''
++$gitBranch = ''
++try {
++    $gitHead = (git -C $repo rev-parse HEAD 2>$null)
++    $gitBranch = (git -C $repo rev-parse --abbrev-ref HEAD 2>$null)
++}
++catch { }
++
++$report = [pscustomobject][ordered]@{
++    schemaVersion = 1
++    task = 'S2 independent acceptance A-J'
++    startedAt = $startedAt.ToString('o')
++    finishedAt = $finishedAt.ToString('o')
++    repository = $repo
++    gitHead = $gitHead
++    gitBranch = $gitBranch
++    evidenceRoot = $EvidenceRoot
++    sandboxRoot = $sandbox
++    sandboxRemoved = $cleanupSucceeded
++    scope = 'isolated simulated installation; not a real user-level Skills directory'
++    realUserRootTouched = $false
++    overallStatus = $overall
++    summary = [pscustomobject][ordered]@{ pass = $pass; fail = $fail; skip = $skip; total = $checks.Count }
++    checks = $checks.ToArray()
++    limitations = @(
++        'A passing probe means the staged check produced a verdict; the per-stage PASS/FAIL/SKIP is recorded verbatim.',
++        'No session credential value is written to any evidence file or printed.',
++        'The sandbox is a simulated installation on the temp drive, not a real user machine installation.'
++    )
++}
++$reportPath = Write-EvidenceJson -Name 'acceptance-report.json' -Object $report
++
++$summaryLines = New-Object System.Collections.Generic.List[string]
++$summaryLines.Add('# S2 independent acceptance A-J')
++$summaryLines.Add('')
++$summaryLines.Add("- overall: **$overall**")
++$summaryLines.Add("- checks: $pass PASS / $fail FAIL / $skip SKIP")
++$summaryLines.Add("- repository: $repo")
++$summaryLines.Add("- git: $gitBranch @ $gitHead")
++$summaryLines.Add("- scope: isolated simulated installation; no real user-level Skill directory was read or written")
++$summaryLines.Add('')
++$summaryLines.Add('| id | check | status | detail |')
++$summaryLines.Add('|---|---|---|---|')
++foreach ($check in $checks) {
++    $summaryLines.Add("| $($check.id) | $($check.name) | $($check.status) | $($check.detail) |")
++}
++$summaryLines.Add('')
++$summaryLines.Add('Raw evidence: A-install.*, B-installed-sha256.json, D-probe.*, E-module-resolution.*, F-repeat.*, G-upgrade.*, H-*, I-uninstall.*, acceptance-report.json')
++Write-EvidenceText -Name 'summary.md' -Text ($summaryLines -join "`n") | Out-Null
++
++Write-Host ("OVERALL={0} PASS={1} FAIL={2} SKIP={3}" -f $overall, $pass, $fail, $skip)
++Write-Host ("REPORT={0}" -f $reportPath)
++if ($fail -gt 0) { exit 1 }
++if ($skip -gt 0) { exit 2 }
++exit 0
+diff --git a/tests/McpProbe.Tests.ps1 b/tests/McpProbe.Tests.ps1
+index 28b9e3c..269db91 100644
+--- a/tests/McpProbe.Tests.ps1
++++ b/tests/McpProbe.Tests.ps1
+@@ -305,3 +305,16 @@ Describe "客户端注册校验" {
+         finally { Remove-TestSandbox $sandbox }
+     }
+ }
++
++Describe "JSON 解析保持键名大小写" {
++    It "大小写不同但合法的键不会被当成重复键" {
++        $json = '{"path":"lower","Path":"upper","nested":{"Value":1},"items":[1,{"Key":"v"}]}'
++        $parsed = ConvertFrom-JsonCaseSensitive -Text $json
++        ($parsed -is [System.Collections.IDictionary]) | Should Be $true
++        ([string]$parsed['path']) | Should Be 'lower'
++        ([string]$parsed['Path']) | Should Be 'upper'
++        ([int]$parsed['nested']['Value']) | Should Be 1
++        ([int]$parsed['items'][0]) | Should Be 1
++        ([string]$parsed['items'][1]['Key']) | Should Be 'v'
++    }
++}
+diff --git a/tests/SkillPayloadContract.Tests.ps1 b/tests/SkillPayloadContract.Tests.ps1
+new file mode 100644
+index 0000000..e4cd5bf
+--- /dev/null
++++ b/tests/SkillPayloadContract.Tests.ps1
+@@ -0,0 +1,245 @@
++# S2 static contract: the installed Skills must ship their runtime resources.
++# All assertions are read-only; no user-level Skill directory is touched.
++. (Join-Path $PSScriptRoot 'helpers/Assertions.ps1')
++
++$script:RepoRoot = Split-Path -Parent $PSScriptRoot
++$script:PayloadConfig = Join-Path $script:RepoRoot 'config/skill-payloads.json'
++$script:RunnerTargets = @(
++    'scripts/Test-MatlabMcpExistingSession.ps1',
++    'scripts/Invoke-MatlabBatch.ps1',
++    'scripts/MatlabAgentSkills.Core.psm1',
++    'scripts/MatlabAgentSkills.Acceptance.psm1',
++    'scripts/MatlabAgentSkills.Execution.psm1',
++    'scripts/MatlabAgentSkills.McpProbe.psm1',
++    'schemas/acceptance-report.schema.json'
++)
++$script:OrchestratorTargets = @(
++    'scripts/Test-MatlabMcpExistingSession.ps1',
++    'scripts/MatlabAgentSkills.Core.psm1',
++    'scripts/MatlabAgentSkills.Acceptance.psm1',
++    'scripts/MatlabAgentSkills.Execution.psm1',
++    'scripts/MatlabAgentSkills.McpProbe.psm1',
++    'schemas/acceptance-report.schema.json'
++)
++$script:Skills = @(
++    'matlab-codegen-deploy',
++    'matlab-control-optimization',
++    'matlab-data-analysis',
++    'matlab-orchestrator',
++    'matlab-robotics-autonomy',
++    'matlab-runner',
++    'matlab-signal-vision-ai',
++    'matlab-simulink-modeling',
++    'matlab-testing-ci'
++)
++
++function Read-JsonUtf8 {
++    param([Parameter(Mandatory)][string]$Path)
++    $text = [System.IO.File]::ReadAllText($Path, (New-Object System.Text.UTF8Encoding($false)))
++    return ($text | ConvertFrom-Json)
++}
++
++function Get-PayloadEntries {
++    param(
++        [Parameter(Mandatory)]$Config,
++        [Parameter(Mandatory)][string]$SkillName
++    )
++    $property = $Config.payloads.PSObject.Properties | Where-Object { $_.Name -eq $SkillName }
++    if (-not $property) { return @() }
++    return @($property.Value.files)
++}
++
++function Get-NormalizedTargets {
++    param([object[]]$Entries)
++    return @($Entries | ForEach-Object { ([string]$_.target -replace '\\', '/').ToLowerInvariant() } | Sort-Object)
++}
++
++function Test-SafeRelativePath {
++    param([string]$Value)
++    if ([string]::IsNullOrWhiteSpace($Value)) { return $false }
++    if ([IO.Path]::IsPathRooted($Value)) { return $false }
++    if ($Value -match '^[A-Za-z]:') { return $false }
++    if ($Value -match '(^|[\\/])\.\.([\\/]|$)') { return $false }
++    if ($Value -match '[<>:"|?*]') { return $false }
++    return $true
++}
++
++Describe 'S2 payload manifest contract' {
++
++    It 'declares a schema-versioned payload manifest' {
++        (Test-Path -LiteralPath $script:PayloadConfig) | Should Be $true
++        if (-not (Test-Path -LiteralPath $script:PayloadConfig)) { return }
++        $config = Read-JsonUtf8 -Path $script:PayloadConfig
++        ([int]$config.schemaVersion) | Should Be 1
++        $names = @($config.payloads.PSObject.Properties.Name)
++        ($names -contains 'matlab-runner') | Should Be $true
++        ($names -contains 'matlab-orchestrator') | Should Be $true
++    }
++
++    It 'ships the complete runner probe and batch closure' {
++        (Test-Path -LiteralPath $script:PayloadConfig) | Should Be $true
++        if (-not (Test-Path -LiteralPath $script:PayloadConfig)) { return }
++        $config = Read-JsonUtf8 -Path $script:PayloadConfig
++        $entries = @(Get-PayloadEntries -Config $config -SkillName 'matlab-runner')
++        $actual = @(Get-NormalizedTargets -Entries $entries)
++        $expected = @($script:RunnerTargets | ForEach-Object { $_.ToLowerInvariant() } | Sort-Object)
++        ($actual -join '|') | Should Be ($expected -join '|')
++    }
++
++    It 'ships the complete orchestrator probe closure' {
++        (Test-Path -LiteralPath $script:PayloadConfig) | Should Be $true
++        if (-not (Test-Path -LiteralPath $script:PayloadConfig)) { return }
++        $config = Read-JsonUtf8 -Path $script:PayloadConfig
++        $entries = @(Get-PayloadEntries -Config $config -SkillName 'matlab-orchestrator')
++        $actual = @(Get-NormalizedTargets -Entries $entries)
++        $expected = @($script:OrchestratorTargets | ForEach-Object { $_.ToLowerInvariant() } | Sort-Object)
++        ($actual -join '|') | Should Be ($expected -join '|')
++    }
++
++    It 'keeps every payload source inside the repository runtime roots' {
++        (Test-Path -LiteralPath $script:PayloadConfig) | Should Be $true
++        if (-not (Test-Path -LiteralPath $script:PayloadConfig)) { return }
++        $config = Read-JsonUtf8 -Path $script:PayloadConfig
++        $failures = New-Object System.Collections.Generic.List[string]
++        foreach ($skillName in @('matlab-runner', 'matlab-orchestrator')) {
++            foreach ($entry in @(Get-PayloadEntries -Config $config -SkillName $skillName)) {
++                $source = [string]$entry.source
++                $target = [string]$entry.target
++                if (-not (Test-SafeRelativePath $source)) { $failures.Add("unsafe source: $skillName -> $source") }
++                if (-not (Test-SafeRelativePath $target)) { $failures.Add("unsafe target: $skillName -> $target") }
++                $normalizedSource = ($source -replace '\\', '/').TrimStart('/')
++                if ($normalizedSource -notmatch '^(scripts|schemas|config)/') {
++                    $failures.Add("source outside runtime roots: $source")
++                }
++                if ($normalizedSource -match '(^|/)(artifacts|tests|docs|skills)/') {
++                    $failures.Add("source outside installable runtime: $source")
++                }
++                if ($normalizedSource -match '(?i)(sessiondetails\.json|\.pem$|\.key$|\.pfx$|\.cer$|(^|/)\.env$)') {
++                    $failures.Add("secret-like source: $source")
++                }
++                if (-not (Test-Path -LiteralPath (Join-Path $script:RepoRoot $source))) {
++                    $failures.Add("missing source: $source")
++                }
++                $sourceSkill = Join-Path $script:RepoRoot ("skills/" + $skillName)
++                if (Test-Path -LiteralPath (Join-Path $sourceSkill $target)) {
++                    $failures.Add("target collides with skill source: $skillName/$target")
++                }
++            }
++        }
++        ($failures -join '; ') | Should Be ''
++    }
++
++    It 'does not commit a duplicate probe implementation inside skills/' {
++        $duplicates = @(Get-ChildItem -LiteralPath (Join-Path $script:RepoRoot 'skills') -Recurse -File -Force |
++                Where-Object { $_.Name -in @('Test-MatlabMcpExistingSession.ps1', 'MatlabAgentSkills.Core.psm1', 'MatlabAgentSkills.McpProbe.psm1') })
++        @($duplicates).Count | Should Be 0
++    }
++
++    It 'keeps all nine skills present with SKILL.md' {
++        foreach ($skill in $script:Skills) {
++            $skillFile = Join-Path $script:RepoRoot ("skills/$skill/SKILL.md")
++            (Test-Path -LiteralPath $skillFile) | Should Be $true
++        }
++    }
++}
++
++Describe 'S2 skill documentation reference contract' {
++
++    It 'uses a skill-root resolution rule instead of caller-cwd scripts for runner and orchestrator' {
++        $runner = Get-Content -Raw -LiteralPath (Join-Path $script:RepoRoot 'skills/matlab-runner/SKILL.md')
++        $orchestrator = Get-Content -Raw -LiteralPath (Join-Path $script:RepoRoot 'skills/matlab-orchestrator/SKILL.md')
++        ($runner -match '(?i)skill root') | Should Be $true
++        ($runner -match '\$skillRoot') | Should Be $true
++        ($orchestrator -match '(?i)skill root') | Should Be $true
++        ($orchestrator -match '\$skillRoot') | Should Be $true
++        ($runner -match 'Join-Path \$skillRoot ''scripts\\Test-MatlabMcpExistingSession\.ps1''') | Should Be $true
++        ($orchestrator -match 'Join-Path \$skillRoot ''scripts\\Test-MatlabMcpExistingSession\.ps1''') | Should Be $true
++    }
++
++    It 'does not present repository-relative PowerShell scripts as installed commands' {
++        $failures = New-Object System.Collections.Generic.List[string]
++        foreach ($skill in $script:Skills) {
++            $root = Join-Path $script:RepoRoot ("skills/$skill")
++            foreach ($file in @(Get-ChildItem -LiteralPath $root -Recurse -File -Filter '*.md' -Force)) {
++                $lines = @(Get-Content -LiteralPath $file.FullName)
++                for ($i = 0; $i -lt $lines.Count; $i++) {
++                    $line = $lines[$i]
++                    if ($line -match '(?:-File|&)\s+\.\\scripts\\') {
++                        $failures.Add("$($file.FullName):$($i + 1): $line")
++                    }
++                    if ($line -match '^(?:\s*)powershell\b.*-File\s+(?!\$skillRoot|<skill-root>)') {
++                        $failures.Add("$($file.FullName):$($i + 1): unanchored -File: $line")
++                    }
++                }
++            }
++        }
++        ($failures -join "`n") | Should Be ''
++    }
++
++    It 'does not reference the removed STM32 deployment document or repository-only docs' {
++        $failures = New-Object System.Collections.Generic.List[string]
++        foreach ($skill in $script:Skills) {
++            $root = Join-Path $script:RepoRoot ("skills/$skill")
++            foreach ($file in @(Get-ChildItem -LiteralPath $root -Recurse -File -Filter '*.md' -Force)) {
++                $text = Get-Content -Raw -LiteralPath $file.FullName
++                if ($text -match 'stm32-deployment-chain\.md') { $failures.Add("$($file.FullName): missing STM32 reference") }
++                if ($text -match 'docs/MATLAB_DESKTOP_STARTUP_ZH\.md') { $failures.Add("$($file.FullName): repository docs reference") }
++            }
++        }
++        ($failures -join '; ') | Should Be ''
++    }
++
++    It 'marks repository-only setup and smoke-test scripts as developer operations' {
++        $runner = Get-Content -Raw -LiteralPath (Join-Path $script:RepoRoot 'skills/matlab-runner/SKILL.md')
++        $ladder = Get-Content -Raw -LiteralPath (Join-Path $script:RepoRoot 'skills/matlab-runner/references/mcp-readiness-ladder.md')
++        (($runner + "`n" + $ladder) -match '(?i)developer') | Should Be $true
++        ($runner -match 'Test-MatlabSkills\.ps1') | Should Be $true
++        ($runner -match '(?i)(not shipped|repository-only|developer)') | Should Be $true
++    }
++
++    It 'resolves every references/, tests/ and scripts/ link inside the skill or its siblings' {
++        $failures = New-Object System.Collections.Generic.List[string]
++        $pattern = '(?<prefix>(?:references|tests|scripts)/[A-Za-z0-9._-]+\.(?:md|m|ps1))'
++        foreach ($skill in $script:Skills) {
++            $root = Join-Path $script:RepoRoot ("skills/$skill")
++            foreach ($file in @(Get-ChildItem -LiteralPath $root -Recurse -File -Filter '*.md' -Force)) {
++                $lines = @(Get-Content -LiteralPath $file.FullName)
++                for ($i = 0; $i -lt $lines.Count; $i++) {
++                    foreach ($match in [regex]::Matches($lines[$i], $pattern)) {
++                        $relative = $match.Groups['prefix'].Value
++                        $candidates = @(
++                            (Join-Path $root $relative),
++                            (Join-Path $script:RepoRoot $relative)
++                        )
++                        foreach ($sibling in $script:Skills) {
++                            $candidates += (Join-Path $script:RepoRoot ("skills/$sibling/$relative"))
++                        }
++                        $exists = $false
++                        foreach ($candidate in $candidates) {
++                            if (Test-Path -LiteralPath $candidate) { $exists = $true; break }
++                        }
++                        if (-not $exists) {
++                            $failures.Add("$($file.FullName):$($i + 1): $relative")
++                        }
++                    }
++                }
++            }
++        }
++        ($failures -join "`n") | Should Be ''
++    }
++
++    It 'keeps repository-only build examples out of installed skill instructions' {
++        $failures = New-Object System.Collections.Generic.List[string]
++        foreach ($skill in $script:Skills) {
++            $root = Join-Path $script:RepoRoot ("skills/$skill")
++            foreach ($file in @(Get-ChildItem -LiteralPath $root -Recurse -File -Filter '*.md' -Force)) {
++                $lines = @(Get-Content -LiteralPath $file.FullName)
++                for ($i = 0; $i -lt $lines.Count; $i++) {
++                    if ($lines[$i] -match 'matlab/boost/models') { $failures.Add("$($file.FullName):$($i + 1): repo model example") }
++                    if ($lines[$i] -match 'C:\\Users\\|C:\\codex_build') { $failures.Add("$($file.FullName):$($i + 1): machine-specific path") }
++                }
++            }
++        }
++        ($failures -join "`n") | Should Be ''
++    }
++}
+diff --git a/tests/SkillPayloadInstall.Tests.ps1 b/tests/SkillPayloadInstall.Tests.ps1
+new file mode 100644
+index 0000000..c6eaffe
+--- /dev/null
++++ b/tests/SkillPayloadInstall.Tests.ps1
+@@ -0,0 +1,440 @@
++# S2 install-time acceptance: the installed Skills must carry their runtime payload.
++# Every fixture lives under the system temp directory; the real user Skill root is never touched.
++. (Join-Path $PSScriptRoot 'helpers/Assertions.ps1')
++
++$script:RepoRoot = Split-Path -Parent $PSScriptRoot
++$script:SyncScript = Join-Path $script:RepoRoot 'scripts/Sync-Skills.ps1'
++$script:RemoveScript = Join-Path $script:RepoRoot 'scripts/Remove-Skills.ps1'
++$script:PayloadConfig = Join-Path $script:RepoRoot 'config/skill-payloads.json'
++$script:Skills = @(
++    'matlab-codegen-deploy',
++    'matlab-control-optimization',
++    'matlab-data-analysis',
++    'matlab-orchestrator',
++    'matlab-robotics-autonomy',
++    'matlab-runner',
++    'matlab-signal-vision-ai',
++    'matlab-simulink-modeling',
++    'matlab-testing-ci'
++)
++$script:RunnerTargets = @(
++    'scripts/Test-MatlabMcpExistingSession.ps1',
++    'scripts/Invoke-MatlabBatch.ps1',
++    'scripts/MatlabAgentSkills.Core.psm1',
++    'scripts/MatlabAgentSkills.Acceptance.psm1',
++    'scripts/MatlabAgentSkills.Execution.psm1',
++    'scripts/MatlabAgentSkills.McpProbe.psm1',
++    'schemas/acceptance-report.schema.json'
++)
++$script:OrchestratorTargets = @(
++    'scripts/Test-MatlabMcpExistingSession.ps1',
++    'scripts/MatlabAgentSkills.Core.psm1',
++    'scripts/MatlabAgentSkills.Acceptance.psm1',
++    'scripts/MatlabAgentSkills.Execution.psm1',
++    'scripts/MatlabAgentSkills.McpProbe.psm1',
++    'schemas/acceptance-report.schema.json'
++)
++$script:FakeApiKey = 'synthetic-s2-install-probe-not-a-real-credential'
++
++function Read-S2Json {
++    param([Parameter(Mandatory)][string]$Path)
++    $text = [System.IO.File]::ReadAllText($Path, (New-Object System.Text.UTF8Encoding($false)))
++    return ($text | ConvertFrom-Json)
++}
++
++function Get-S2FileHash {
++    param([Parameter(Mandatory)][string]$Path)
++    $sha = [System.Security.Cryptography.SHA256]::Create()
++    $stream = $null
++    try {
++        $stream = [System.IO.File]::OpenRead($Path)
++        return ([System.BitConverter]::ToString($sha.ComputeHash($stream)) -replace '-', '')
++    }
++    finally {
++        if ($stream) { $stream.Dispose() }
++        $sha.Dispose()
++    }
++}
++
++function New-S2Fixture {
++    param([switch]$CopyRepository)
++    $root = Join-Path ([IO.Path]::GetTempPath()) ('mas-s2-install-' + [guid]::NewGuid().ToString('N'))
++    $repo = $script:RepoRoot
++    if ($CopyRepository) {
++        $repo = Join-Path $root 'repo'
++        New-Item -ItemType Directory -Force -Path $repo | Out-Null
++        foreach ($name in @('scripts', 'schemas', 'config', 'skills')) {
++            $source = Join-Path $script:RepoRoot $name
++            if (Test-Path -LiteralPath $source) {
++                Copy-Item -LiteralPath $source -Destination (Join-Path $repo $name) -Recurse -Force
++            }
++        }
++    }
++    $project = Join-Path $root 'project'
++    New-Item -ItemType Directory -Force -Path $project | Out-Null
++    $fakeHome = Join-Path $root 'fake-home'
++    New-Item -ItemType Directory -Force -Path $fakeHome | Out-Null
++    [pscustomobject]@{
++        Root       = $root
++        Repo       = $repo
++        SkillRoot  = (Join-Path $root 'installed-skills')
++        Backup     = (Join-Path $root 'backups')
++        Project    = $project
++        FakeHome   = $fakeHome
++        Session    = (Join-Path $project 'sessionDetails.test.json')
++        FakeCert   = (Join-Path $project 'fake-cert.pem')
++    }
++}
++
++function Remove-S2Fixture {
++    param($Fixture)
++    $target = [IO.Path]::GetFullPath($Fixture.Root)
++    $tempPrefix = [IO.Path]::GetFullPath([IO.Path]::GetTempPath()).TrimEnd([char[]]'\/') + [IO.Path]::DirectorySeparatorChar
++    if (-not $target.StartsWith($tempPrefix) -or (Split-Path -Leaf $target) -notlike 'mas-s2-install-*') {
++        throw "refusing to clean outside the temp sandbox: $target"
++    }
++    if (Test-Path -LiteralPath $target) { Remove-Item -LiteralPath $target -Recurse -Force }
++}
++
++function Get-S2Snapshot {
++    param([Parameter(Mandatory)][string]$Root)
++    $map = @{}
++    if (-not (Test-Path -LiteralPath $Root)) { return $map }
++    $resolved = (Resolve-Path -LiteralPath $Root).Path
++    foreach ($file in @(Get-ChildItem -LiteralPath $resolved -Recurse -File -Force)) {
++        $relative = $file.FullName.Substring($resolved.Length).TrimStart([char[]]'\/').ToLowerInvariant()
++        $map[$relative] = Get-S2FileHash -Path $file.FullName
++    }
++    return $map
++}
++
++function Compare-S2Snapshot {
++    param([hashtable]$Before, [hashtable]$After)
++    $differences = New-Object System.Collections.Generic.List[string]
++    foreach ($key in @($Before.Keys | Sort-Object)) {
++        if (-not $After.ContainsKey($key)) { $differences.Add("missing: $key"); continue }
++        if ($Before[$key] -ne $After[$key]) { $differences.Add("changed: $key") }
++    }
++    foreach ($key in @($After.Keys | Sort-Object)) {
++        if (-not $Before.ContainsKey($key)) { $differences.Add("added: $key") }
++    }
++    return , $differences.ToArray()
++}
++
++function Get-S2PayloadTargets {
++    param([Parameter(Mandatory)][string]$SkillName)
++    if (-not (Test-Path -LiteralPath $script:PayloadConfig)) { return @() }
++    $config = Read-S2Json -Path $script:PayloadConfig
++    $property = $config.payloads.PSObject.Properties | Where-Object { $_.Name -eq $SkillName }
++    if (-not $property) { return @() }
++    return @($property.Value.files | ForEach-Object { ([string]$_.target -replace '\\', '/') })
++}
++
++function Invoke-S2Sync {
++    param($Fixture, [switch]$DryRun)
++    $output = & $script:SyncScript -RepositoryRoot $Fixture.Repo -SkillRoot $Fixture.SkillRoot `
++        -BackupRoot $Fixture.Backup -DryRun:$DryRun 2>&1 | Out-String
++    $start = $output.IndexOf('{')
++    if ($start -lt 0) { throw "sync produced no JSON: $output" }
++    return ($output.Substring($start) | ConvertFrom-Json)
++}
++
++function Write-S2ProbeSession {
++    param($Fixture)
++    [IO.File]::WriteAllText($Fixture.FakeCert, 'synthetic certificate placeholder')
++    $payload = [ordered]@{
++        port        = 1
++        certificate = $Fixture.FakeCert
++        apiKey      = $script:FakeApiKey
++        pid         = $PID
++    }
++    [IO.File]::WriteAllText($Fixture.Session, ($payload | ConvertTo-Json), (New-Object System.Text.UTF8Encoding($false)))
++}
++
++function Invoke-S2ChildScript {
++    param(
++        [Parameter(Mandatory)][string]$Root,
++        [Parameter(Mandatory)][string]$Name,
++        [Parameter(Mandatory)][string]$Content
++    )
++    $scriptPath = Join-Path $Root ($Name + '.ps1')
++    [IO.File]::WriteAllText($scriptPath, $Content, (New-Object System.Text.UTF8Encoding($true)))
++    $stdout = Join-Path $Root ($Name + '.stdout.txt')
++    $stderr = Join-Path $Root ($Name + '.stderr.txt')
++    $exe = (Get-Process -Id $PID).Path
++    $process = Start-Process -FilePath $exe `
++        -ArgumentList @('-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', $scriptPath) `
++        -WorkingDirectory $Root -Wait -PassThru -NoNewWindow `
++        -RedirectStandardOutput $stdout -RedirectStandardError $stderr
++    [pscustomobject]@{
++        ExitCode = $process.ExitCode
++        Stdout   = if (Test-Path -LiteralPath $stdout) { [IO.File]::ReadAllText($stdout) } else { '' }
++        Stderr   = if (Test-Path -LiteralPath $stderr) { [IO.File]::ReadAllText($stderr) } else { '' }
++        Report   = (Join-Path $Root ('artifacts/validation/matlab_mcp_existing_session_probe.json'))
++    }
++}
++
++function ConvertTo-S2Literal {
++    param([string]$Value)
++    return "'" + ($Value -replace "'", "''") + "'"
++}
++
++Describe 'S2 installed Skill resource payload' {
++
++    It 'installs every declared payload file byte-for-byte into runner and orchestrator' {
++        $f = New-S2Fixture
++        try {
++            (Test-Path -LiteralPath $script:PayloadConfig) | Should Be $true
++            if (-not (Test-Path -LiteralPath $script:PayloadConfig)) { return }
++            Invoke-S2Sync -Fixture $f | Out-Null
++
++            foreach ($pair in @(
++                    @{ Skill = 'matlab-runner'; Targets = $script:RunnerTargets },
++                    @{ Skill = 'matlab-orchestrator'; Targets = $script:OrchestratorTargets })) {
++                $installed = Join-Path $f.SkillRoot $pair.Skill
++                $declared = @(Get-S2PayloadTargets -SkillName $pair.Skill)
++                (@($declared | Sort-Object) -join '|') | Should Be (@($pair.Targets | Sort-Object) -join '|')
++                foreach ($target in $pair.Targets) {
++                    $installedPath = Join-Path $installed $target
++                    (Test-Path -LiteralPath $installedPath) | Should Be $true
++                    if (-not (Test-Path -LiteralPath $installedPath)) { continue }
++                    (Get-S2FileHash -Path $installedPath) | Should Be (Get-S2FileHash -Path (Join-Path $script:RepoRoot $target))
++                }
++            }
++        }
++        finally { Remove-S2Fixture $f }
++    }
++
++    It 'does not ship artifacts, session files, certificates, keys, or repository paths inside a Skill' {
++        $f = New-S2Fixture
++        try {
++            Invoke-S2Sync -Fixture $f | Out-Null
++            $violations = New-Object System.Collections.Generic.List[string]
++            foreach ($skill in $script:Skills) {
++                $skillPath = Join-Path $f.SkillRoot $skill
++                foreach ($file in @(Get-ChildItem -LiteralPath $skillPath -Recurse -File -Force)) {
++                    $relative = $file.FullName.Substring($skillPath.Length)
++                    if ($relative -match '(?i)[\\/]artifacts[\\/]') { $violations.Add("artifacts: $relative") }
++                    if ($relative -match '(?i)(sessiondetails\.json|\.pem$|\.key$|\.pfx$|\.cer$|(^|[\\/])\.env$)') {
++                        $violations.Add("secret-like: $relative")
++                    }
++                }
++            }
++            ($violations -join '; ') | Should Be ''
++
++            foreach ($skill in @('matlab-runner', 'matlab-orchestrator')) {
++                foreach ($target in @(Get-S2PayloadTargets -SkillName $skill)) {
++                    $path = Join-Path (Join-Path $f.SkillRoot $skill) $target
++                    if (-not (Test-Path -LiteralPath $path)) { continue }
++                    $text = [IO.File]::ReadAllText($path)
++                    ($text.IndexOf($script:RepoRoot, [StringComparison]::OrdinalIgnoreCase)) | Should Be -1
++                }
++            }
++        }
++        finally { Remove-S2Fixture $f }
++    }
++
++    It 'keeps a repeat sync byte-identical, including payload and manifest' {
++        $f = New-S2Fixture
++        try {
++            Invoke-S2Sync -Fixture $f | Out-Null
++            $before = Get-S2Snapshot -Root $f.SkillRoot
++            $backupSessionsBefore = @(Get-ChildItem -LiteralPath $f.Backup -Directory -ErrorAction SilentlyContinue).Count
++            $summary = Invoke-S2Sync -Fixture $f
++            $summary.unchanged | Should Be 9
++            $differences = Compare-S2Snapshot -Before $before -After (Get-S2Snapshot -Root $f.SkillRoot)
++            ($differences -join '; ') | Should Be ''
++            @(Get-ChildItem -LiteralPath $f.Backup -Directory -ErrorAction SilentlyContinue).Count | Should Be $backupSessionsBefore
++        }
++        finally { Remove-S2Fixture $f }
++    }
++
++    It 'writes nothing for -DryRun' {
++        $f = New-S2Fixture
++        try {
++            $summary = Invoke-S2Sync -Fixture $f -DryRun
++            (Test-Path -LiteralPath $f.SkillRoot) | Should Be $false
++            (Test-Path -LiteralPath $f.Backup) | Should Be $false
++            @($summary.skills).Count | Should Be 9
++        }
++        finally { Remove-S2Fixture $f }
++    }
++
++    It 'repairs a tampered installed payload and backs up the previous copy' {
++        $f = New-S2Fixture
++        try {
++            Invoke-S2Sync -Fixture $f | Out-Null
++            $payloadPath = Join-Path $f.SkillRoot 'matlab-runner/scripts/MatlabAgentSkills.Core.psm1'
++            (Test-Path -LiteralPath $payloadPath) | Should Be $true
++            if (-not (Test-Path -LiteralPath $payloadPath)) { return }
++            [IO.File]::AppendAllText($payloadPath, "`n# tampered-by-s2-test`n")
++
++            $summary = Invoke-S2Sync -Fixture $f
++            ($summary.updated -ge 1) | Should Be $true
++            (Get-S2FileHash -Path $payloadPath) | Should Be (Get-S2FileHash -Path (Join-Path $script:RepoRoot 'scripts/MatlabAgentSkills.Core.psm1'))
++            $backups = @(Get-ChildItem -LiteralPath $f.Backup -Recurse -File -Force |
++                    Where-Object { (Get-Content -Raw -LiteralPath $_.FullName) -match 'tampered-by-s2-test' })
++            @($backups).Count | Should Be 1
++        }
++        finally { Remove-S2Fixture $f }
++    }
++
++    It 'restores the pre-upgrade payload when the destination is locked' {
++        $f = New-S2Fixture -CopyRepository
++        try {
++            Invoke-S2Sync -Fixture $f | Out-Null
++            $skillPath = Join-Path $f.SkillRoot 'matlab-runner'
++            $payloadPath = Join-Path $skillPath 'scripts/MatlabAgentSkills.Core.psm1'
++            (Test-Path -LiteralPath $payloadPath) | Should Be $true
++            if (-not (Test-Path -LiteralPath $payloadPath)) { return }
++
++            $before = Get-S2Snapshot -Root $f.SkillRoot
++            $sourceFile = Join-Path $f.Repo 'skills/matlab-runner/SKILL.md'
++            [IO.File]::AppendAllText($sourceFile, "`nversion-two`n")
++
++            $syncPath = Join-Path $f.Repo 'scripts/Sync-Skills.ps1'
++            $scriptText = @(
++                '$ErrorActionPreference = ''Continue'''
++                '& ' + (ConvertTo-S2Literal $syncPath) + ' -RepositoryRoot ' + (ConvertTo-S2Literal $f.Repo) +
++                    ' -SkillRoot ' + (ConvertTo-S2Literal $f.SkillRoot) + ' -BackupRoot ' + (ConvertTo-S2Literal $f.Backup)
++                'exit $LASTEXITCODE'
++            ) -join "`n"
++
++            # Read access with share Read: hashing can still open it, while any
++            # delete request (which shares none of it) fails and triggers rollback.
++            $lock = [IO.File]::Open($payloadPath, 'Open', 'Read', 'Read')
++            try {
++                $child = Invoke-S2ChildScript -Root $f.Root -Name 'locked-upgrade' -Content $scriptText
++            }
++            finally { $lock.Dispose() }
++
++            ($child.ExitCode -ne 0) | Should Be $true
++            ($child.Stdout -match '"restoredFromBackup"\s*:\s*true') | Should Be $true
++            ($child.Stdout -match '"decision"\s*:\s*"error"') | Should Be $true
++            $differences = Compare-S2Snapshot -Before $before -After (Get-S2Snapshot -Root $f.SkillRoot)
++            ($differences -join '; ') | Should Be ''
++            @(Get-ChildItem -LiteralPath $f.SkillRoot -Directory -Force -ErrorAction SilentlyContinue |
++                    Where-Object { $_.Name -like '*.__incoming__*' }).Count | Should Be 0
++        }
++        finally { Remove-S2Fixture $f }
++    }
++
++    It 'uninstalls all nine managed Skills without leaving payload residue' {
++        $f = New-S2Fixture
++        try {
++            Invoke-S2Sync -Fixture $f | Out-Null
++            $result = & $script:RemoveScript -RepositoryRoot $f.Repo -SkillRoot $f.SkillRoot `
++                -BackupRoot $f.Backup | Out-String | ConvertFrom-Json
++            @($result.removed).Count | Should Be 9
++            @($result.preserved).Count | Should Be 0
++            @(Get-ChildItem -LiteralPath $f.SkillRoot -Directory -Filter 'matlab-*' -ErrorAction SilentlyContinue).Count | Should Be 0
++            $manifestPath = Join-Path $f.SkillRoot '.matlab-agent-skills-manifest.json'
++            $remainingPayload = @()
++            if (Test-Path -LiteralPath $manifestPath) {
++                $manifest = Read-S2Json -Path $manifestPath
++                @($manifest.skills.PSObject.Properties.Name | Where-Object { -not [string]::IsNullOrEmpty($_) }).Count | Should Be 0
++            }
++            foreach ($skill in $script:Skills) {
++                foreach ($target in @(Get-S2PayloadTargets -SkillName $skill)) {
++                    if (Test-Path -LiteralPath (Join-Path $f.SkillRoot (Join-Path $skill $target))) {
++                        $remainingPayload += "$skill/$target"
++                    }
++                }
++            }
++            ($remainingPayload -join '; ') | Should Be ''
++        }
++        finally { Remove-S2Fixture $f }
++    }
++}
++
++Describe 'S2 installed Skill execution without the source repository' {
++
++    It 'keeps sanitizer behavior in the installed Core module' {
++        $f = New-S2Fixture
++        try {
++            Invoke-S2Sync -Fixture $f | Out-Null
++            $corePath = Join-Path $f.SkillRoot 'matlab-runner/scripts/MatlabAgentSkills.Core.psm1'
++            (Test-Path -LiteralPath $corePath) | Should Be $true
++            if (-not (Test-Path -LiteralPath $corePath)) { return }
++            $scriptText = @(
++                'Import-Module ' + (ConvertTo-S2Literal $corePath) + ' -Force -DisableNameChecking'
++                '$text = ''{"apiKey":"' + $script:FakeApiKey + '"}'''
++                'Protect-MasText -Text $text'
++            ) -join "`n"
++            $child = Invoke-S2ChildScript -Root $f.Root -Name 'installed-sanitizer' -Content $scriptText
++            $child.ExitCode | Should Be 0
++            ($child.Stdout.IndexOf($script:FakeApiKey, [StringComparison]::Ordinal)) | Should Be -1
++            ($child.Stdout -match 'REDACTED') | Should Be $true
++        }
++        finally { Remove-S2Fixture $f }
++    }
++
++    It 'resolves every installed module from inside the Skill root' {
++        $f = New-S2Fixture
++        try {
++            Invoke-S2Sync -Fixture $f | Out-Null
++            $scriptsDir = Join-Path $f.SkillRoot 'matlab-runner/scripts'
++            $scriptText = @(
++                '$paths = @()'
++                'foreach ($name in @(''Acceptance'', ''Execution'', ''McpProbe'')) {'
++                '    Import-Module (Join-Path ' + (ConvertTo-S2Literal $scriptsDir) + ' ("MatlabAgentSkills." + $name + ".psm1")) -Force -DisableNameChecking'
++                '}'
++                'foreach ($module in @(Get-Module -All | Where-Object { $_.Name -like ''MatlabAgentSkills.*'' })) { if ($module.Path) { $paths += $module.Path } }'
++                '[pscustomobject]@{ count = $paths.Count; paths = $paths } | ConvertTo-Json'
++            ) -join "`n"
++            $child = Invoke-S2ChildScript -Root $f.Root -Name 'module-resolution' -Content $scriptText
++            $child.ExitCode | Should Be 0
++            $moduleReport = ($child.Stdout.TrimStart([char]0xFEFF)) | ConvertFrom-Json
++            ([int]$moduleReport.count -ge 4) | Should Be $true
++            $paths = @($moduleReport.paths)
++            $outside = @($paths | Where-Object { -not $_.StartsWith($scriptsDir, [StringComparison]::OrdinalIgnoreCase) })
++            ($outside -join '; ') | Should Be ''
++        }
++        finally { Remove-S2Fixture $f }
++    }
++
++    It 'runs the installed probe from a project cwd and writes artifacts outside the Skill' {
++        $f = New-S2Fixture
++        try {
++            Invoke-S2Sync -Fixture $f | Out-Null
++            Write-S2ProbeSession -Fixture $f
++            $probePath = Join-Path $f.SkillRoot 'matlab-runner/scripts/Test-MatlabMcpExistingSession.ps1'
++            (Test-Path -LiteralPath $probePath) | Should Be $true
++            if (-not (Test-Path -LiteralPath $probePath)) { return }
++
++            $before = Get-S2Snapshot -Root (Join-Path $f.SkillRoot 'matlab-runner')
++            $scriptText = @(
++                '$env:USERPROFILE = ' + (ConvertTo-S2Literal $f.FakeHome)
++                '$env:HOME = ' + (ConvertTo-S2Literal $f.FakeHome)
++                '$env:APPDATA = ' + (ConvertTo-S2Literal (Join-Path $f.FakeHome 'AppData/Roaming'))
++                '$env:LOCALAPPDATA = ' + (ConvertTo-S2Literal (Join-Path $f.FakeHome 'AppData/Local'))
++                '$env:MATLAB_EXE = ' + (ConvertTo-S2Literal (Join-Path $f.FakeHome 'no-matlab.exe'))
++                '$env:PATH = (Join-Path $env:SystemRoot ''System32'')'
++                '& ' + (ConvertTo-S2Literal $probePath) + ' -SessionFile ' + (ConvertTo-S2Literal $f.Session) +
++                    ' -ProjectRoot ' + (ConvertTo-S2Literal $f.Project) + ' -SkipStage5 -TimeoutSeconds 2 -Json'
++                'exit $LASTEXITCODE'
++            ) -join "`n"
++            $child = Invoke-S2ChildScript -Root $f.Project -Name 'installed-probe' -Content $scriptText
++
++            $child.Stdout | Should Match 'mcp\.session-config'
++            ($child.Stdout -match '"mcp\.session-config"[\s\S]{0,400}?"status"\s*:\s*"PASS"') | Should Be $true
++            (Test-Path -LiteralPath $child.Report) | Should Be $true
++            if (Test-Path -LiteralPath $child.Report) {
++                $report = Read-S2Json -Path $child.Report
++                $sessionCheck = @($report.checks | Where-Object { $_.id -eq 'mcp.session-config' })
++                @($sessionCheck).Count | Should Be 1
++                $sessionCheck[0].status | Should Be 'PASS'
++                $report.overallStatus | Should Be 'FAIL'
++            }
++            ($child.Stdout.IndexOf($script:FakeApiKey, [StringComparison]::Ordinal)) | Should Be -1
++            ($child.Stderr.IndexOf($script:FakeApiKey, [StringComparison]::Ordinal)) | Should Be -1
++
++            $after = Get-S2Snapshot -Root (Join-Path $f.SkillRoot 'matlab-runner')
++            $differences = Compare-S2Snapshot -Before $before -After $after
++            ($differences -join '; ') | Should Be ''
++            (Test-Path -LiteralPath (Join-Path $f.SkillRoot 'matlab-runner/artifacts')) | Should Be $false
++            (Test-Path -LiteralPath (Join-Path $f.Project 'artifacts/validation')) | Should Be $true
++        }
++        finally { Remove-S2Fixture $f }
++    }
++}

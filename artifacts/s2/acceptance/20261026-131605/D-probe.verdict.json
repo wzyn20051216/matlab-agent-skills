@@ -1,0 +1,37 @@
+{
+    "exitCode":  null,
+    "timedOut":  false,
+    "overallStatus":  "SKIP",
+    "achievedLevel":  "L0",
+    "checkCount":  7,
+    "checks":  [
+                   {
+                       "id":  "mcp.matlab-install",
+                       "status":  "PASS"
+                   },
+                   {
+                       "id":  "mcp.matlab-license",
+                       "status":  "SKIP"
+                   },
+                   {
+                       "id":  "mcp.session-config",
+                       "status":  "SKIP"
+                   },
+                   {
+                       "id":  "mcp.client-registration",
+                       "status":  "SKIP"
+                   },
+                   {
+                       "id":  "mcp.protocol-handshake",
+                       "status":  "SKIP"
+                   },
+                   {
+                       "id":  "mcp.readonly-exec",
+                       "status":  "SKIP"
+                   },
+                   {
+                       "id":  "mcp.file-io",
+                       "status":  "SKIP"
+                   }
+               ]
+}

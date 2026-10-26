@@ -1,0 +1,20 @@
+==> 同步 skills: E:\desktop\MATLAB\skills -> D:\Temp\mas-s3-7-auto-existing-b5233679e30a4d96bd9a201ceb196076\installed-skills
+    备份目录（仅在发生变更时创建）: D:\Temp\mas-s3-7-auto-existing-b5233679e30a4d96bd9a201ceb196076\backups\20261026-212808-sync-skills
+  install: matlab-codegen-deploy -> D:\Temp\mas-s3-7-auto-existing-b5233679e30a4d96bd9a201ceb196076\installed-skills\matlab-codegen-deploy
+  install: matlab-control-optimization -> D:\Temp\mas-s3-7-auto-existing-b5233679e30a4d96bd9a201ceb196076\installed-skills\matlab-control-optimization
+  install: matlab-data-analysis -> D:\Temp\mas-s3-7-auto-existing-b5233679e30a4d96bd9a201ceb196076\installed-skills\matlab-data-analysis
+  install: matlab-orchestrator -> D:\Temp\mas-s3-7-auto-existing-b5233679e30a4d96bd9a201ceb196076\installed-skills\matlab-orchestrator
+  install: matlab-robotics-autonomy -> D:\Temp\mas-s3-7-auto-existing-b5233679e30a4d96bd9a201ceb196076\installed-skills\matlab-robotics-autonomy
+  install: matlab-runner -> D:\Temp\mas-s3-7-auto-existing-b5233679e30a4d96bd9a201ceb196076\installed-skills\matlab-runner
+  install: matlab-signal-vision-ai -> D:\Temp\mas-s3-7-auto-existing-b5233679e30a4d96bd9a201ceb196076\installed-skills\matlab-signal-vision-ai
+  install: matlab-simulink-modeling -> D:\Temp\mas-s3-7-auto-existing-b5233679e30a4d96bd9a201ceb196076\installed-skills\matlab-simulink-modeling
+  install: matlab-testing-ci -> D:\Temp\mas-s3-7-auto-existing-b5233679e30a4d96bd9a201ceb196076\installed-skills\matlab-testing-ci
+EVIDENCE: E:\desktop\MATLAB\artifacts\s3\evidence\final\installed-7-auto-existing.json
+overall=FAIL achieved=L0 exit=1
+  mcp.matlab-install PASS
+  mcp.matlab-license SKIP
+  mcp.session-config PASS
+  mcp.client-registration SKIP
+  mcp.protocol-handshake FAIL
+  mcp.readonly-exec SKIP
+  mcp.file-io SKIP

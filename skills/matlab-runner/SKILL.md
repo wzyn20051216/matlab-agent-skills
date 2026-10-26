@@ -7,6 +7,38 @@ description: Run MATLAB tasks from Codex with reliable MCP-based execution, logs
 
 Use this skill to execute MATLAB work safely and repeatably through the official MATLAB MCP server, preferably in `auto` mode, and only use terminal batch workflows when the user explicitly asks for them. It is the foundation skill for all other MATLAB skills.
 
+## Skill Root Resolution
+
+The installed Skill is self-contained: the probe, batch wrapper, their modules, the
+acceptance schema, and the pinned MCP server release manifest all live **inside this
+Skill directory**, next to this
+`SKILL.md`. The caller's current working directory is never the Skill root, so every
+command below resolves resources from the Skill root first.
+
+`$skillRoot` means the absolute path of the installed Skill directory that contains
+this `SKILL.md` (the directory reported by the client's Skill loader). Set it once
+per shell session; do not derive it from the caller cwd and do not assume a
+repository checkout exists.
+
+```powershell
+$skillRoot = '<absolute path to the installed matlab-runner Skill directory>'
+$probe = Join-Path $skillRoot 'scripts\Test-MatlabMcpExistingSession.ps1'
+```
+
+The MATLAB helpers (`mas_precheck`, `mas_dep_probe`) live in the same root. Add them
+for the current MATLAB session only; never edit `savepath`, `startup.m`, or a global
+MATLAB preference:
+
+```matlab
+skillRoot = '<absolute path to the installed matlab-runner Skill directory>';
+addpath(fullfile(skillRoot, 'scripts'));
+```
+
+If `$skillRoot\scripts\Test-MatlabMcpExistingSession.ps1` is missing, the Skill was
+installed incompletely. Report that exact path and ask the user to reinstall the
+Skill with the project installer; do not search the disk for another copy, do not
+fall back to a development checkout, and do not run an unknown script found nearby.
+
 ## References — load on demand
 
 This file carries the workflow. The tables below are **not** loaded unless the task
@@ -40,7 +72,7 @@ r = mas_precheck('struct',   cfg, {'Vin','L','C'});           % fields present?
 r = mas_precheck('numeric',  x, struct('finite',true));        % NaN/Inf?
 r = mas_precheck('index',    mask, numel(target));             % mask length
 r = mas_precheck('toolbox',  'Control System Toolbox');        % product vs feature
-r = mas_precheck('model',    'matlab/boost/models/boost_avg.slx');
+r = mas_precheck('model',    fullfile(pwd, 'models', 'boost_avg.slx'));
 ```
 
 The `index` check exists because MATLAB does **not** error when a logical mask is
@@ -55,11 +87,30 @@ Never start a 20-minute matrix after a failed precheck; fix the precheck first.
 
 A config file never proves MCP works, and `sessionDetails.json`, a listening `pid`
 or a client entry in `.mcp.json` all look identical to a file-existence check.
+
+`sessionDetails.json` is a credential descriptor, not plain configuration: it holds
+the live MCP `apiKey` and certificate. Never read, print, echo, copy, or archive its
+contents, and never paste it into prompts, logs, or reports. Use the probe below,
+which reads only the fields it needs. If a credential may have been exposed, report
+the file path and field name without reproducing the value, then ask the user to
+rotate it — a redacted report does not mean the underlying key is invalid.
+
 Before claiming readiness, run the staged probe and read its verdict:
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File .\scripts\Test-MatlabMcpExistingSession.ps1 -Json
+powershell -ExecutionPolicy Bypass -File $skillRoot\scripts\Test-MatlabMcpExistingSession.ps1 -ProjectRoot (Get-Location).Path -Json
 ```
+
+The probe writes only into the current project's `artifacts/` directory. It never
+reads the source repository, never needs the caller cwd to be the Skill root, and
+never prints the session credential.
+
+By default (`-Transport auto`) the probe drives the official MATLAB MCP server over
+**stdio** — that is the only path the server supports — and only falls back to a
+loopback `https` observation when no manifest-verified server binary exists on the
+machine. Run it as-is: do not add `-SkipTlsValidation`, and do not read an `https`
+`403` as a broken Skill. When the stdio channel cannot be built, stages 3–5 report
+SKIP with the real reason instead of a fallback.
 
 The seven-stage ladder, the rules that must not be relaxed (only stage 4 upgrades a
 licence SKIP to PASS; a failed stage makes every later stage SKIP), and the
@@ -71,26 +122,20 @@ mode. A batch rerun that succeeds hides the problem the user needs to see.
 
 ## Preferred Wrapper
 
-If the user explicitly requests batch execution in this repository, prefer:
+If the user explicitly requests batch execution, prefer the wrapper shipped in this
+Skill:
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File .\scripts\Invoke-MatlabBatch.ps1 -Script .\path\to\script.m -TimeoutSeconds 1800
+powershell -ExecutionPolicy Bypass -File $skillRoot\scripts\Invoke-MatlabBatch.ps1 -Script .\path\to\script.m -TimeoutSeconds 1800
 ```
 
 `-TimeoutSeconds` is mandatory in spirit: a batch run without a timeout can hang forever. The wrapper exits `124` on timeout, `2` when MATLAB cannot be found, and otherwise returns the real MATLAB exit code. A timed-out run terminates the whole process tree and still keeps the partial logs.
 
-For official MCP auto-mode setup and validation in this repository, prefer:
-
-```powershell
-powershell -ExecutionPolicy Bypass -File .\scripts\Setup-MatlabMcpExistingSession.ps1
-powershell -ExecutionPolicy Bypass -File .\scripts\Test-MatlabMcpExistingSession.ps1
-```
-
-For a full local smoke test:
-
-```powershell
-powershell -ExecutionPolicy Bypass -File .\scripts\Test-MatlabSkills.ps1
-```
+`Setup-MatlabMcpExistingSession.ps1` and `Test-MatlabSkills.ps1` are
+repository-only developer operations. They are **not shipped** inside the installed
+Skill, so an installed user must not be asked to run them or to find a development
+checkout. The installed workflow is the shipped probe above plus the user's own MCP
+client configuration.
 
 If the wrapper is not available, call MATLAB directly:
 

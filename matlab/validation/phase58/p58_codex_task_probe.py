@@ -17,6 +17,9 @@ import sys
 import tempfile
 import time
 
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
+import p58_sanitize  # noqa: E402
+
 REPO = pathlib.Path(__file__).resolve().parents[3]
 SYNC = REPO / "scripts" / "Sync-Skills.ps1"
 
@@ -136,9 +139,18 @@ def main():
         record["command"] = command
         result = subprocess.run(command, capture_output=True, stdin=subprocess.DEVNULL,
                                 timeout=args.timeout)
-        stdout = decode_output(result.stdout)
-        stderr = decode_output(result.stderr)
+        stdout_raw = decode_output(result.stdout)
+        stderr_raw = decode_output(result.stderr)
+        # 客户端输出可能把会话描述符（含 apiKey）整段回显；落盘前必须结构化脱敏。
+        stdout, stdout_replacements = p58_sanitize.sanitize_jsonl(stdout_raw)
+        stderr, stderr_replacements = p58_sanitize.sanitize_text(stderr_raw)
         record["exitCode"] = result.returncode
+        record["sanitize"] = {
+            "applied": True,
+            "replaced": stdout_replacements + stderr_replacements,
+            "stdoutReplaced": stdout_replacements,
+            "stderrReplaced": stderr_replacements,
+        }
         record["stderrTail"] = stderr[-8000:]
         (output / "stderr.log").write_text(stderr, encoding="utf-8")
         (output / "events.jsonl").write_text(stdout, encoding="utf-8")
@@ -199,8 +211,18 @@ def main():
         record["durationSeconds"] = round(time.monotonic() - started, 1)
     except subprocess.TimeoutExpired as error:
         record["reason"] = f"timeout after {args.timeout}s"
-        record["stdoutTail"] = decode_output(error.stdout or b"")[-4000:]
-        record["stderrTail"] = decode_output(error.stderr or b"")[-4000:]
+        stdout_tail, stdout_replacements = p58_sanitize.sanitize_text(
+            decode_output(error.stdout or b"")[-4000:])
+        stderr_tail, stderr_replacements = p58_sanitize.sanitize_text(
+            decode_output(error.stderr or b"")[-4000:])
+        record["stdoutTail"] = stdout_tail
+        record["stderrTail"] = stderr_tail
+        record["sanitize"] = {
+            "applied": True,
+            "replaced": stdout_replacements + stderr_replacements,
+            "stdoutReplaced": stdout_replacements,
+            "stderrReplaced": stderr_replacements,
+        }
     except Exception as error:
         record["reason"] = f"{type(error).__name__}: {error}"
     finally:
@@ -212,6 +234,7 @@ def main():
     print(json.dumps({"task": args.task, "client": args.client, "status": record["status"],
                       "events": record.get("eventCount"), "produced": list(record.get("producedFiles", {})),
                       "skillItems": len(record.get("skillItems", [])),
+                      "replaced": record.get("sanitize", {}).get("replaced"),
                       "reason": record.get("reason")}, ensure_ascii=False))
     sys.exit(0 if record["status"] == "PASS" else 1)
 

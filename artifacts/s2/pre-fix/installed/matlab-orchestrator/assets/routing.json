@@ -1,0 +1,772 @@
+{
+  "version": "1.1",
+  "description": "Capability routing table. Each skill lists weighted trigger terms (Chinese and English). The matcher sums matched weights; runner is always loaded because every route needs execution.",
+  "minScore": 3,
+  "multiSkillRatio": 0.6,
+  "skills": {
+    "matlab-runner": {
+      "always": true,
+      "priority": 0,
+      "dependsOn": [],
+      "terms": [],
+      "id": "matlab-runner"
+    },
+    "matlab-simulink-modeling": {
+      "priority": 1,
+      "dependsOn": [
+        "matlab-runner"
+      ],
+      "requires": [
+        {
+          "type": "toolbox",
+          "name": "Simulink",
+          "feature": "Simulink",
+          "hard": true
+        }
+      ],
+      "terms": [
+        {
+          "t": "simulink",
+          "w": 4
+        },
+        {
+          "t": "slx",
+          "w": 4
+        },
+        {
+          "t": "stateflow",
+          "w": 3
+        },
+        {
+          "t": "simscape",
+          "w": 3
+        },
+        {
+          "t": "模型",
+          "w": 1
+        },
+        {
+          "t": "仿真",
+          "w": 2
+        },
+        {
+          "t": "逆变器",
+          "w": 3
+        },
+        {
+          "t": "三相",
+          "w": 2
+        },
+        {
+          "t": "svpwm",
+          "w": 3
+        },
+        {
+          "t": "pwm",
+          "w": 2
+        },
+        {
+          "t": "框图",
+          "w": 2
+        },
+        {
+          "t": "model-based",
+          "w": 3
+        },
+        {
+          "t": "建模",
+          "w": 2
+        }
+      ],
+      "id": "matlab-simulink-modeling"
+    },
+    "matlab-signal-vision-ai": {
+      "priority": 2,
+      "dependsOn": [
+        "matlab-runner"
+      ],
+      "requires": [
+        {
+          "type": "toolbox",
+          "name": "Signal Processing Toolbox",
+          "feature": "Signal_Toolbox",
+          "hard": false
+        }
+      ],
+      "terms": [
+        {
+          "t": "ofdm",
+          "w": 3
+        },
+        {
+          "t": "误码率",
+          "w": 3
+        },
+        {
+          "t": "ber",
+          "w": 2
+        },
+        {
+          "t": "通信",
+          "w": 2
+        },
+        {
+          "t": "调制",
+          "w": 2
+        },
+        {
+          "t": "滤波器",
+          "w": 2
+        },
+        {
+          "t": "filter",
+          "w": 1
+        },
+        {
+          "t": "频谱",
+          "w": 2
+        },
+        {
+          "t": "主频",
+          "w": 2
+        },
+        {
+          "t": "thd",
+          "w": 3
+        },
+        {
+          "t": "谐波",
+          "w": 3
+        },
+        {
+          "t": "图像",
+          "w": 2
+        },
+        {
+          "t": "分割",
+          "w": 2
+        },
+        {
+          "t": "边缘检测",
+          "w": 2
+        },
+        {
+          "t": "目标检测",
+          "w": 2
+        },
+        {
+          "t": "kitti",
+          "w": 3
+        },
+        {
+          "t": "深度学习",
+          "w": 2
+        },
+        {
+          "t": "神经网络",
+          "w": 2
+        },
+        {
+          "t": "信号",
+          "w": 1
+        },
+        {
+          "t": "低通",
+          "w": 3
+        },
+        {
+          "t": "高通",
+          "w": 3
+        },
+        {
+          "t": "巴特沃斯",
+          "w": 4
+        },
+        {
+          "t": "butterworth",
+          "w": 4
+        },
+        {
+          "t": "幅频",
+          "w": 3
+        },
+        {
+          "t": "相频",
+          "w": 2
+        },
+        {
+          "t": "相位特性",
+          "w": 2
+        },
+        {
+          "t": "信噪比",
+          "w": 3
+        },
+        {
+          "t": "功率谱",
+          "w": 3
+        },
+        {
+          "t": "psd",
+          "w": 3
+        },
+        {
+          "t": "窗函数",
+          "w": 3
+        },
+        {
+          "t": "采样率",
+          "w": 3
+        },
+        {
+          "t": "采样频率",
+          "w": 3
+        },
+        {
+          "t": "采样定理",
+          "w": 3
+        },
+        {
+          "t": "混叠",
+          "w": 3
+        },
+        {
+          "t": "ebn0",
+          "w": 3
+        },
+        {
+          "t": "eb/n0",
+          "w": 3
+        }
+      ],
+      "id": "matlab-signal-vision-ai"
+    },
+    "matlab-control-optimization": {
+      "priority": 2,
+      "dependsOn": [
+        "matlab-runner"
+      ],
+      "requires": [
+        {
+          "type": "toolbox",
+          "name": "Control System Toolbox",
+          "feature": "Control_Toolbox",
+          "hard": true
+        }
+      ],
+      "terms": [
+        {
+          "t": "pid",
+          "w": 3
+        },
+        {
+          "t": "pidtune",
+          "w": 3
+        },
+        {
+          "t": "控制",
+          "w": 2
+        },
+        {
+          "t": "传递函数",
+          "w": 2
+        },
+        {
+          "t": "状态空间",
+          "w": 2
+        },
+        {
+          "t": "稳定性",
+          "w": 2
+        },
+        {
+          "t": "裕度",
+          "w": 2
+        },
+        {
+          "t": "相位裕度",
+          "w": 3
+        },
+        {
+          "t": "最优",
+          "w": 2
+        },
+        {
+          "t": "优化",
+          "w": 2
+        },
+        {
+          "t": "辨识",
+          "w": 2
+        },
+        {
+          "t": "mpc",
+          "w": 3
+        },
+        {
+          "t": "电机",
+          "w": 2
+        },
+        {
+          "t": "调参",
+          "w": 2
+        },
+        {
+          "t": "阶跃响应",
+          "w": 3
+        },
+        {
+          "t": "极点",
+          "w": 2
+        },
+        {
+          "t": "零点",
+          "w": 2
+        },
+        {
+          "t": "右半平面",
+          "w": 3
+        },
+        {
+          "t": "rhp",
+          "w": 3
+        },
+        {
+          "t": "交越",
+          "w": 3
+        },
+        {
+          "t": "穿越",
+          "w": 3
+        },
+        {
+          "t": "回路",
+          "w": 2
+        },
+        {
+          "t": "增益裕度",
+          "w": 3
+        },
+        {
+          "t": "闭环",
+          "w": 2
+        },
+        {
+          "t": "抗饱和",
+          "w": 3
+        },
+        {
+          "t": "饱和",
+          "w": 2
+        },
+        {
+          "t": "变换器",
+          "w": 2
+        },
+        {
+          "t": "占空比",
+          "w": 3
+        },
+        {
+          "t": "纹波",
+          "w": 2
+        },
+        {
+          "t": "稳态",
+          "w": 1
+        },
+        {
+          "t": "约束",
+          "w": 2
+        },
+        {
+          "t": "fmincon",
+          "w": 3
+        }
+      ],
+      "id": "matlab-control-optimization"
+    },
+    "matlab-data-analysis": {
+      "priority": 3,
+      "dependsOn": [
+        "matlab-runner"
+      ],
+      "requires": [
+        {
+          "type": "toolbox",
+          "name": "Statistics and Machine Learning Toolbox",
+          "feature": "Statistics_Toolbox",
+          "hard": false
+        }
+      ],
+      "terms": [
+        {
+          "t": "csv",
+          "w": 2
+        },
+        {
+          "t": "excel",
+          "w": 2
+        },
+        {
+          "t": "数据",
+          "w": 1
+        },
+        {
+          "t": "统计",
+          "w": 2
+        },
+        {
+          "t": "回归",
+          "w": 2
+        },
+        {
+          "t": "拟合",
+          "w": 2
+        },
+        {
+          "t": "缺失值",
+          "w": 3
+        },
+        {
+          "t": "论文图",
+          "w": 2
+        },
+        {
+          "t": "画图",
+          "w": 1
+        },
+        {
+          "t": "可视化",
+          "w": 2
+        },
+        {
+          "t": "table",
+          "w": 2
+        },
+        {
+          "t": "数值积分",
+          "w": 3
+        },
+        {
+          "t": "数值精度",
+          "w": 2
+        },
+        {
+          "t": "积分",
+          "w": 2
+        },
+        {
+          "t": "线性方程组",
+          "w": 3
+        },
+        {
+          "t": "求解",
+          "w": 1
+        },
+        {
+          "t": "剔除",
+          "w": 2
+        },
+        {
+          "t": "清洗",
+          "w": 3
+        },
+        {
+          "t": "微分",
+          "w": 3
+        },
+        {
+          "t": "方程",
+          "w": 2
+        },
+        {
+          "t": "插值",
+          "w": 2
+        },
+        {
+          "t": "条件数",
+          "w": 3
+        },
+        {
+          "t": "迭代",
+          "w": 2
+        },
+        {
+          "t": "收敛",
+          "w": 2
+        },
+        {
+          "t": "显著性",
+          "w": 3
+        },
+        {
+          "t": "置信区间",
+          "w": 3
+        },
+        {
+          "t": "假设检验",
+          "w": 3
+        },
+        {
+          "t": "误差传播",
+          "w": 3
+        },
+        {
+          "t": "论文",
+          "w": 2
+        },
+        {
+          "t": "fsolve",
+          "w": 3
+        }
+      ],
+      "id": "matlab-data-analysis"
+    },
+    "matlab-codegen-deploy": {
+      "priority": 3,
+      "dependsOn": [
+        "matlab-runner"
+      ],
+      "requires": [
+        {
+          "type": "toolbox",
+          "name": "MATLAB Coder",
+          "feature": "MATLAB_Coder",
+          "hard": true
+        },
+        {
+          "type": "toolbox",
+          "name": "Simulink Coder",
+          "feature": "Real-Time_Workshop",
+          "hard": false
+        }
+      ],
+      "terms": [
+        {
+          "t": "代码生成",
+          "w": 3
+        },
+        {
+          "t": "coder",
+          "w": 3
+        },
+        {
+          "t": "部署",
+          "w": 2
+        },
+        {
+          "t": "stm32",
+          "w": 3
+        },
+        {
+          "t": "嵌入式",
+          "w": 2
+        },
+        {
+          "t": "hdl",
+          "w": 3
+        },
+        {
+          "t": "cuda",
+          "w": 3
+        },
+        {
+          "t": "mex",
+          "w": 2
+        },
+        {
+          "t": "定点",
+          "w": 3
+        },
+        {
+          "t": "代码",
+          "w": 2
+        },
+        {
+          "t": "生成",
+          "w": 1
+        }
+      ],
+      "id": "matlab-codegen-deploy"
+    },
+    "matlab-robotics-autonomy": {
+      "priority": 3,
+      "dependsOn": [
+        "matlab-runner"
+      ],
+      "requires": [
+        {
+          "type": "toolbox",
+          "name": "Robotics System Toolbox",
+          "feature": "Robotics_System_Toolbox",
+          "hard": false
+        },
+        {
+          "type": "toolbox",
+          "name": "ROS Toolbox",
+          "feature": "ROS_Toolbox",
+          "hard": false
+        }
+      ],
+      "terms": [
+        {
+          "t": "ros",
+          "w": 3
+        },
+        {
+          "t": "机器人",
+          "w": 2
+        },
+        {
+          "t": "轨迹规划",
+          "w": 3
+        },
+        {
+          "t": "运动学",
+          "w": 2
+        },
+        {
+          "t": "导航",
+          "w": 2
+        },
+        {
+          "t": "slam",
+          "w": 3
+        },
+        {
+          "t": "无人机",
+          "w": 2
+        },
+        {
+          "t": "传感器融合",
+          "w": 3
+        },
+        {
+          "t": "正运动学",
+          "w": 3
+        },
+        {
+          "t": "逆运动学",
+          "w": 3
+        },
+        {
+          "t": "dh",
+          "w": 3
+        },
+        {
+          "t": "位姿",
+          "w": 2
+        },
+        {
+          "t": "四元数",
+          "w": 4
+        },
+        {
+          "t": "quaternion",
+          "w": 4
+        },
+        {
+          "t": "slerp",
+          "w": 4
+        },
+        {
+          "t": "轨迹",
+          "w": 2
+        },
+        {
+          "t": "动力学",
+          "w": 4
+        },
+        {
+          "t": "状态估计",
+          "w": 4
+        },
+        {
+          "t": "机械臂",
+          "w": 3
+        },
+        {
+          "t": "雅可比",
+          "w": 4
+        },
+        {
+          "t": "jacobian",
+          "w": 3
+        },
+        {
+          "t": "刚体",
+          "w": 3
+        },
+        {
+          "t": "姿态",
+          "w": 2
+        },
+        {
+          "t": "关节",
+          "w": 2
+        },
+        {
+          "t": "manipulator",
+          "w": 2
+        },
+        {
+          "t": "dynamics",
+          "w": 3
+        },
+        {
+          "t": "ekf",
+          "w": 3
+        },
+        {
+          "t": "anees",
+          "w": 3
+        }
+      ],
+      "id": "matlab-robotics-autonomy"
+    },
+    "matlab-testing-ci": {
+      "priority": 4,
+      "dependsOn": [
+        "matlab-runner"
+      ],
+      "terms": [
+        {
+          "t": "测试",
+          "w": 2
+        },
+        {
+          "t": "回归测试",
+          "w": 3
+        },
+        {
+          "t": "ci",
+          "w": 3
+        },
+        {
+          "t": "覆盖率",
+          "w": 3
+        },
+        {
+          "t": "验收",
+          "w": 2
+        },
+        {
+          "t": "github actions",
+          "w": 3
+        },
+        {
+          "t": "复现",
+          "w": 1
+        }
+      ],
+      "id": "matlab-testing-ci"
+    }
+  },
+  "notes": [
+    "matlab-orchestrator itself is not scored: it is the router.",
+    "Weights are deliberately small integers so a single strong term (e.g. 'kitti' 3) can carry a short prompt.",
+    "A route below minScore must be reported as CLARIFY, not guessed.",
+    "Power-electronics prompts (变换器/占空比/纹波) route to matlab-control-optimization because that skill owns the stability and steady-state analysis methods; there is no separate power-electronics skill, and pretending otherwise would misreport coverage."
+  ]
+}

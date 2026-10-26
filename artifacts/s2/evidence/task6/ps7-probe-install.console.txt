@@ -1,0 +1,154 @@
+==> 同步 skills: E:\desktop\MATLAB\skills -> E:\desktop\MATLAB\artifacts\s2\scratch\ps7-layout\skills
+    备份目录（仅在发生变更时创建）: E:\desktop\MATLAB\artifacts\s2\scratch\ps7-layout\backups\20261026-133816-sync-skills
+  install: matlab-codegen-deploy -> E:\desktop\MATLAB\artifacts\s2\scratch\ps7-layout\skills\matlab-codegen-deploy
+  install: matlab-control-optimization -> E:\desktop\MATLAB\artifacts\s2\scratch\ps7-layout\skills\matlab-control-optimization
+  install: matlab-data-analysis -> E:\desktop\MATLAB\artifacts\s2\scratch\ps7-layout\skills\matlab-data-analysis
+  install: matlab-orchestrator -> E:\desktop\MATLAB\artifacts\s2\scratch\ps7-layout\skills\matlab-orchestrator
+  install: matlab-robotics-autonomy -> E:\desktop\MATLAB\artifacts\s2\scratch\ps7-layout\skills\matlab-robotics-autonomy
+  install: matlab-runner -> E:\desktop\MATLAB\artifacts\s2\scratch\ps7-layout\skills\matlab-runner
+  install: matlab-signal-vision-ai -> E:\desktop\MATLAB\artifacts\s2\scratch\ps7-layout\skills\matlab-signal-vision-ai
+  install: matlab-simulink-modeling -> E:\desktop\MATLAB\artifacts\s2\scratch\ps7-layout\skills\matlab-simulink-modeling
+  install: matlab-testing-ci -> E:\desktop\MATLAB\artifacts\s2\scratch\ps7-layout\skills\matlab-testing-ci
+{
+    "syncTime":  "2026-10-26 13:38:19",
+    "dryRun":  false,
+    "sourceRoot":  "E:\\desktop\\MATLAB\\skills",
+    "skillRoot":  "E:\\desktop\\MATLAB\\artifacts\\s2\\scratch\\ps7-layout\\skills",
+    "skillEnvironment":  {
+                             "skillRoot":  "E:\\desktop\\MATLAB\\artifacts\\s2\\scratch\\ps7-layout\\skills",
+                             "userHome":  "C:\\Users\\23201",
+                             "runtime":  "Windows",
+                             "source":  "explicit",
+                             "legacySkillRoot":  "C:\\Users\\23201\\.codex\\skills"
+                         },
+    "payloadManifestPath":  "E:\\desktop\\MATLAB\\config\\skill-payloads.json",
+    "payloadManifestSha256":  "2914FF29FA3CEEE65990E6C6F35C8AA6ACB47289695D3DA1BB4AA8D2962065CA",
+    "manifestPath":  "E:\\desktop\\MATLAB\\artifacts\\s2\\scratch\\ps7-layout\\skills\\.matlab-agent-skills-manifest.json",
+    "backupRoot":  "E:\\desktop\\MATLAB\\artifacts\\s2\\scratch\\ps7-layout\\backups\\20261026-133816-sync-skills",
+    "installed":  9,
+    "updated":  0,
+    "unchanged":  0,
+    "conflicts":  [
+
+                  ],
+    "failed":  false,
+    "skills":  [
+                   {
+                       "name":  "matlab-codegen-deploy",
+                       "decision":  "install",
+                       "changed":  true,
+                       "backupPath":  null,
+                       "message":  "已安装",
+                       "preservedUserFiles":  [
+
+                                              ],
+                       "restoredFromBackup":  false,
+                       "recreatedFiles":  0,
+                       "payloadFileCount":  0
+                   },
+                   {
+                       "name":  "matlab-control-optimization",
+                       "decision":  "install",
+                       "changed":  true,
+                       "backupPath":  null,
+                       "message":  "已安装",
+                       "preservedUserFiles":  [
+
+                                              ],
+                       "restoredFromBackup":  false,
+                       "recreatedFiles":  0,
+                       "payloadFileCount":  0
+                   },
+                   {
+                       "name":  "matlab-data-analysis",
+                       "decision":  "install",
+                       "changed":  true,
+                       "backupPath":  null,
+                       "message":  "已安装",
+                       "preservedUserFiles":  [
+
+                                              ],
+                       "restoredFromBackup":  false,
+                       "recreatedFiles":  0,
+                       "payloadFileCount":  0
+                   },
+                   {
+                       "name":  "matlab-orchestrator",
+                       "decision":  "install",
+                       "changed":  true,
+                       "backupPath":  null,
+                       "message":  "已安装",
+                       "preservedUserFiles":  [
+
+                                              ],
+                       "restoredFromBackup":  false,
+                       "recreatedFiles":  0,
+                       "payloadFileCount":  6
+                   },
+                   {
+                       "name":  "matlab-robotics-autonomy",
+                       "decision":  "install",
+                       "changed":  true,
+                       "backupPath":  null,
+                       "message":  "已安装",
+                       "preservedUserFiles":  [
+
+                                              ],
+                       "restoredFromBackup":  false,
+                       "recreatedFiles":  0,
+                       "payloadFileCount":  0
+                   },
+                   {
+                       "name":  "matlab-runner",
+                       "decision":  "install",
+                       "changed":  true,
+                       "backupPath":  null,
+                       "message":  "已安装",
+                       "preservedUserFiles":  [
+
+                                              ],
+                       "restoredFromBackup":  false,
+                       "recreatedFiles":  0,
+                       "payloadFileCount":  7
+                   },
+                   {
+                       "name":  "matlab-signal-vision-ai",
+                       "decision":  "install",
+                       "changed":  true,
+                       "backupPath":  null,
+                       "message":  "已安装",
+                       "preservedUserFiles":  [
+
+                                              ],
+                       "restoredFromBackup":  false,
+                       "recreatedFiles":  0,
+                       "payloadFileCount":  0
+                   },
+                   {
+                       "name":  "matlab-simulink-modeling",
+                       "decision":  "install",
+                       "changed":  true,
+                       "backupPath":  null,
+                       "message":  "已安装",
+                       "preservedUserFiles":  [
+
+                                              ],
+                       "restoredFromBackup":  false,
+                       "recreatedFiles":  0,
+                       "payloadFileCount":  0
+                   },
+                   {
+                       "name":  "matlab-testing-ci",
+                       "decision":  "install",
+                       "changed":  true,
+                       "backupPath":  null,
+                       "message":  "已安装",
+                       "preservedUserFiles":  [
+
+                                              ],
+                       "restoredFromBackup":  false,
+                       "recreatedFiles":  0,
+                       "payloadFileCount":  0
+                   }
+               ]
+}
