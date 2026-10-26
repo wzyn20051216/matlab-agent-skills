@@ -1,7 +1,10 @@
 # S3 quality gates — real MCP unblock (final code)
 
 - Branch: `phase5.1-audit`
-- HEAD: `876a2b0c67dae275c199415752226ed71c9c344f` (no commit, no push)
+- Pre-approval HEAD: `876a2b0c67dae275c199415752226ed71c9c344f`
+- Landing commit: `3379067a3d383bf282b5a9087f1126fd12c8dc43` — one commit on this branch after explicit
+  user approval ("提交到当前分支，暂不推送"). 551 files, +86389/−275, clean work tree afterwards,
+  **not pushed**, `main` and existing Releases untouched. See report §11.6 for the pre-commit credential scan.
 - Gate date: 2026-10-26 (rows marked *final* re-measured 21:20–21:34 after the §11.1 ownership fix)
 - Supersedes the BLOCKED section of `artifacts/s2/evidence/task6/GATES.md` for the
   real-MCP item only. The S2 file itself is frozen evidence and was not rewritten;
@@ -59,7 +62,8 @@
 - No real user-level Skills directory touched (`~/.qoder-cn/skills` still 2026-10-21 13:42).
 - No credential value printed, copied into a fixture, or used against an external service; no external rotation call.
 - No history deleted or rewritten: S2 frozen evidence, S1 traces, and every red run above remain in place.
-- No commit, push, merge, rebase, reset or clean.
+- No push, merge, rebase, reset or clean. No commit was made while the work awaited review; the single
+  landing commit above exists only because the user explicitly approved committing on this branch without pushing.
 - The MATLAB session started by this work was **kept running on purpose**: pid 15392 (headless shared session,
   port 31519, 600 s keep-alive timer) and its child pid 42956 (port 31520, the session named by
   `sessionDetails.json`). It is still the advertised live session and the final L4 gates above ran through it.
