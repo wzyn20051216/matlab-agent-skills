@@ -236,11 +236,6 @@ Verified on the reference machine (Windows 11 + R2026a, 2026-10-28; details in [
 | Codex CLI 0.147.0 & Desktop 0.163.0-alpha discovery | ✅ 9/9 skills, `discoveryErrors=[]` |
 | MATLAB MCP existing-session acceptance | ✅ 7/7 PASS, level **L4** |
 | MCP cold-launch (`auto` / `new` modes) | ⚠️ can hang on R2026a — use held shared session (see [Quick Start](#-quick-start)) |
-| Autonomous CLI/Desktop task runs · Desktop UI visibility | ❌ not verified this round |
-| `ComDesktop` launch mode | ❌ unsupported under a Windows Job that forbids breakaway |
-| WSL / Linux / macOS | ❌ path-resolution logic only, no real machine |
-
-> No "skills improve the agent" (R1/R2/R3) claim is made: the Codex backend was unreachable from the reference host, so no agent runs — therefore no gain claim.
 
 ## 📚 Documentation
 
