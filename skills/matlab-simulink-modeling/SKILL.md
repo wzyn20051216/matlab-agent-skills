@@ -35,9 +35,10 @@ exact path and reinstall the Skill; do not scan the disk for a substitute.
    `Neural_Network_Toolbox` → 1 on R2026a). The verified map lives in
    `../matlab-runner/references/toolbox-feature-map.md`. An earlier revision of this
    file pointed at `masacc.availability`, which does not exist anywhere — removed.
-2. Prefer an official MATLAB MCP auto session tied to a visible MATLAB/Simulink desktop before substantial edits. Use `load_system`, `open_system`, and `set_param(modelName,"ZoomFactor","FitSystem")` so the user can see the model.
-3. Audit topology before editing: blocks, lines, solver config, sample times, logged signals.
-4. Prefer existing model architecture and naming.
+2. **Research before modeling.** For any physical/engineering model (power electronics, control plant, mechanical/electrical system), search first for the vendor's reference design, application note, or a proven open-source model of the same topology, and pull component parameters from real datasheets — not from memory or plausible defaults. Record the source (URL, app-note number, or datasheet part number). A simulation built on real part numbers is far more likely to run correctly the first time and produce believable results.
+3. Prefer an official MATLAB MCP auto session tied to a visible MATLAB/Simulink desktop before substantial edits. Use `load_system`, `open_system`, and `set_param(modelName,"ZoomFactor","FitSystem")` so the user can see the model.
+4. Audit topology before editing: blocks, lines, solver config, sample times, logged signals.
+5. Prefer existing model architecture and naming.
 5. Save a copy before destructive edits to user models.
 
 ## Visible Workflow Requirement

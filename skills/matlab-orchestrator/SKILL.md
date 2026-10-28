@@ -51,11 +51,12 @@ Use this priority order:
 ## First pass
 
 1. Identify the task family.
-2. Check whether an official MATLAB MCP auto configuration is available first.
-3. If the task requires MATLAB work on this machine, stay on MCP unless the user explicitly requests a headless/batch path.
-4. Inspect installed toolboxes with `ver` before choosing toolbox-specific APIs.
-5. Prefer official MathWorks documentation and installed examples over memory.
-6. Treat forum posts and blogs as hints only; verify every API and parameter locally.
+2. **Research before building.** Before writing any model or script, search the web for mature solutions and prior art for this exact task family: official toolboxes' shipped examples, vendor reference designs and application notes (e.g. TI / ST / Analog Devices / Infineon for power and control), open-source projects (GitHub, MATLAB Central File Exchange), and real component datasheets. For a physical/engineering task, pull parameters from real datasheets and reference designs, not from memory or plausible defaults. Record the source (URL, doc number, or datasheet part number) so the result is traceable.
+3. Check whether an official MATLAB MCP auto configuration is available first.
+4. If the task requires MATLAB work on this machine, stay on MCP unless the user explicitly requests a headless/batch path.
+5. Inspect installed toolboxes with `ver` before choosing toolbox-specific APIs.
+6. Prefer official MathWorks documentation and installed examples over memory.
+7. Treat forum posts and blogs as hints only; verify every API and parameter locally.
 
 ## Local Simulink Visualization Preference
 
@@ -203,11 +204,12 @@ Use sources in this order:
 
 1. Local MATLAB `help`, `doc`, `ver`, `which`, `exist`, `license`.
 2. MathWorks official documentation and release notes.
-3. MathWorks GitHub repositories and MATLAB Actions.
-4. Peer-reviewed paper, official dataset, or author repository.
-5. GitHub issues, MathWorks Answers, Zhihu, blogs, and forums as untrusted heuristics.
+3. Vendor reference designs, application notes, and real component datasheets (for any physical/engineering task, these override memory and plausible defaults for component values).
+4. MathWorks GitHub repositories and MATLAB Actions.
+5. Peer-reviewed paper, official dataset, or author repository.
+6. GitHub issues, MathWorks Answers, Zhihu, blogs, and forums as untrusted heuristics.
 
-Never cite a forum workaround as fact until a local MATLAB command confirms it.
+Never cite a forum workaround as fact until a local MATLAB command confirms it. Never pick a component value from memory when a datasheet or reference design for that part is reachable.
 
 ## Reporting
 

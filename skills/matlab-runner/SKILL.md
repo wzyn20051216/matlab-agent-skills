@@ -60,6 +60,7 @@ context on every run and goes stale on every MATLAB release.
 4. Run from a project root, not from a random temporary folder, unless isolation is required.
 5. Put generated files under `artifacts/` or a user-specified output folder.
 6. Keep scripts deterministic: seed random generators and record data sources.
+7. Record the provenance of every non-trivial parameter or component value: pull physical parameters from real datasheets and reference designs, and note the source (URL, app-note number, or datasheet part number) in a comment or manifest. Do not leave a plausible-but-unsourced number in the model without marking it as a placeholder.
 
 ## Precheck Before A Long Run
 
