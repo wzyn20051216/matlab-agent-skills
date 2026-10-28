@@ -1,6 +1,6 @@
 # Phase 5.6 · MATLAB Coder 与 MCP 通道独立诊断（Task 5）
 
-日期：2026-10-22 · 机器：Windows 11 x64 · MATLAB：26.1.0.3276743 (R2026a) Update 3，`matlabroot = E:\matlab`
+日期：2026-10-22 · 机器：Windows 11 x64 · MATLAB：26.1.0.3276743 (R2026a) Update 3，`matlabroot = <matlabroot>`
 产物：`artifacts/phase56/coder_channel/`（15 个 JSON）· 汇总：`coder_diagnosis.json`（schema `mas-phase56-coder-diagnosis/3`，sha256 前缀 `4d0f50e18c1294aa`）
 
 ---
@@ -28,7 +28,7 @@ Phase 5.5 的实验同时改了两个量：
 
 每条记录都存了 `dbstack('-completenames')` 的前 6 帧。汇总脚本据此独立标注 `channelIdentity`：出现 `LiveEditorEvaluationHelperEmatlab_mcp_server.m` 或 `matlab_mcp/mcpEval.m` 即记为 `mcp-helper-frame-present`，否则 `no-mcp-frame`。
 
-- `batch-process`：`E:/matlab/bin/matlab.exe -batch ...`，独立新进程；
+- `batch-process`：`<matlabroot>/bin/matlab.exe -batch ...`，独立新进程；
 - `mcp-dynamic-eval`：`evaluate_matlab_code` 提交的代码；
 - `mcp-run_matlab_file`：`run_matlab_file` 提交的脚本文件。
 
@@ -37,10 +37,10 @@ Phase 5.5 的实验同时改了两个量：
 ```
 p56_coder_channel_probe.m:39 in p56_coder_channel_probe
 p56_coder_drive_d.m:17 in p56_coder_drive_d
-D:/Temp/Editor_tfqyu/LiveEditorEvaluationHelperEmatlab_mcp_server.m:1
-D:/Temp/matlab-mcp-server-2594176706/matlab-session-1084747922-2657702379/+matlab_mcp/mcpEval.m:48 in mcpEval
-E:/matlab/toolbox/matlab/connector2/interpreter/+connector/+internal/fevalMatlab.p:0
-E:/matlab/toolbox/matlab/connector2/interpreter/+connector/+internal/fevalJSON.p:0
+<temp>/Editor_tfqyu/LiveEditorEvaluationHelperEmatlab_mcp_server.m:1
+<temp>/matlab-mcp-server-2594176706/matlab-session-1084747922-2657702379/+matlab_mcp/mcpEval.m:48 in mcpEval
+<matlabroot>/toolbox/matlab/connector2/interpreter/+connector/+internal/fevalMatlab.p:0
+<matlabroot>/toolbox/matlab/connector2/interpreter/+connector/+internal/fevalJSON.p:0
 ```
 
 所以"文件 vs 内联"是**代码如何递交**的差别，不是**谁执行**的差别。这一点在诊断增益时很关键：官方 MCP Server 的每个工具最终都落到同一个常驻求值帧。
@@ -117,9 +117,9 @@ E:/matlab/toolbox/matlab/connector2/interpreter/+connector/+internal/fevalJSON.p
 ## 7. 因此改了哪一行产品代码
 
 失败路径原本会把"空消息"原样交给 Agent：`FAIL at codegen: `（后面什么都没有），没有可操作的诊断。最小修复在
-[skills/matlab-codegen-deploy/scripts/mas_codegen_verify.m](file:///E:/desktop/MATLAB/skills/matlab-codegen-deploy/scripts/mas_codegen_verify.m)：
+[skills/matlab-codegen-deploy/scripts/mas_codegen_verify.m](skills/matlab-codegen-deploy/scripts/mas_codegen_verify.m)：
 codegen 阶段捕获到空消息时，改写为携带 `ME.identifier` 与"入口必须用函数名而不是函数句柄"的可执行建议。回归用例
-[skills/matlab-codegen-deploy/tests/test_codegen.m](file:///E:/desktop/MATLAB/skills/matlab-codegen-deploy/tests/test_codegen.m) 新增 `verify: empty-message codegen error still yields a usable detail`，先构造失败输入（句柄入口）再断言 `detail` 里必须出现 `emlc` / identifier / "file name" / "function handle" 之一且长度显著超过前缀。
+[skills/matlab-codegen-deploy/tests/test_codegen.m](skills/matlab-codegen-deploy/tests/test_codegen.m) 新增 `verify: empty-message codegen error still yields a usable detail`，先构造失败输入（句柄入口）再断言 `detail` 里必须出现 `emlc` / identifier / "file name" / "function handle" 之一且长度显著超过前缀。
 
 这是本轮唯一的 Skill 产品代码改动，属于"通用判断缺陷"，不新增工具、不新增 Skill。
 

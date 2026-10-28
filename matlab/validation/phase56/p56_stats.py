@@ -16,9 +16,12 @@ This script deliberately prints the gap as loudly as the result: pass 1 is
 3 tasks x 3 arms x 1 repeat = 9 of the planned 27 episodes.
 """
 import json, os, hashlib, collections
+from pathlib import Path
 
-ARCH = r"E:\desktop\MATLAB\artifacts\phase56\episodes"
-EVAL = r"E:\desktop\MATLAB-bench-phase56\eval"
+# 路径推导而非写死（2026-10-28 路径卫生整改）：封存评测工作区与仓库同级。
+_REPO = Path(__file__).resolve().parents[3]
+ARCH = str(_REPO / "artifacts" / "phase56" / "episodes")
+EVAL = str(_REPO.parent / (_REPO.name + "-bench-phase56") / "eval")
 OUT = os.path.join(ARCH, "statistics.json")
 ARMS = ["R1", "R2", "R3"]
 BUDGET = 25

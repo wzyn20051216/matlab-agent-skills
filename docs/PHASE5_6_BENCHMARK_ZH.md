@@ -314,7 +314,7 @@ Phase 5.5 的判断是"新鲜 MCP 会话失败、`matlab -batch` 通过，所以
   与 `regression/*.mat`：它们可由 [PHASE5_6_CODER_CHANNEL_ZH.md](PHASE5_6_CODER_CHANNEL_ZH.md) 的复现命令重建，
   且仓库历史上不在 `artifacts/` 存二进制（`git ls-files artifacts | grep -E '\.(mat|mexw64)$'` 计数为 0）。
   构建事实由 `coder_channel/*.json`（每条 39 个产物、mex 落地、三通道逐字节一致）与 `coder_diagnosis.json` 记录，未丢失。
-- 评测工作区 `E:\desktop\MATLAB-bench-phase56`（封存答案、手臂交付原文）不进仓库，只以哈希进入
+- 评测工作区 `<repo>-bench-phase56`（封存答案、手臂交付原文）不进仓库，只以哈希进入
   `skills/capability-matrix.json` 与本文档：`answers.json` sha256 `5397be4bf0…34fd2c`、
   `tasks_frozen.json` sha256 `6b528da1c6…429d4b`、封存 `episodes.json` sha256 `3ce6964…`。
 - 暂存区之外没有任何未暂存或未跟踪条目（提交前 `git status --porcelain` 只有 `A `/`M ` 两类）。

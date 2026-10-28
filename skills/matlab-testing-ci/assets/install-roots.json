@@ -32,7 +32,7 @@
    "scope": "user",
    "path": "${USERPROFILE}/.workbuddy/skills",
    "priority": 10,
-   "evidence": ".workbuddy is a symlink to E:/WorkBuddyData; the WorkBuddy client has no skill-list probe in this repository, so this root is KNOWN but LOADING IS NOT OBSERVED."
+   "evidence": ".workbuddy is a symlink to <workbuddy-data>; the WorkBuddy client has no skill-list probe in this repository, so this root is KNOWN but LOADING IS NOT OBSERVED."
   },
   {
    "id": "codex-user",

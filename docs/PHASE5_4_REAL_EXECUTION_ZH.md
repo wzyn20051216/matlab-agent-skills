@@ -1,7 +1,7 @@
 # Phase 5.4 — MATLAB Agent Skills 真实能力验证与跨领域补强
 
 日期：2026-10-22 · 分支 `phase5.1-audit` · 基线/冻结提交 `ce81d72` · MATLAB `26.1.0.3276743 (R2026a) Update 3`
-证据根目录：`artifacts/phase54/` · 仓库外留出集：`E:\desktop\MATLAB-bench-holdout-phase54`、`E:\desktop\MATLAB-bench-agent-phase54`
+证据根目录：`artifacts/phase54/` · 仓库外留出集：`<repo>-bench-holdout-phase54`、`<repo>-bench-agent-phase54`
 
 ## 0. 结论
 
@@ -93,7 +93,7 @@ test_concurrency: 3/3 rounds clean; residue shared=0 mex=0 tempDirs=0
 
 ### 3.1 隔离工作区
 
-工作区 `E:\desktop\MATLAB-bench-agent-phase54` 在仓库外，只包含：
+工作区 `<repo>-bench-agent-phase54` 在仓库外，只包含：
 
 - `README.md`（任务说明与禁止事项）；
 - `task1..3/prompt.md`（自然语言 prompt）与 `task1..3/input.mat`（原始输入）；
@@ -123,7 +123,7 @@ README 明确禁止读取 Phase 5.3 留出集或任何答案/评分文件。三�
   `trajectory_task*.jsonl` 只叙述了其中 13 次 `evaluate_matlab_code`，两者口径不同。
 - 证据：`artifacts/phase54/evidence/agent_episode_grade_summary.json`；
   完整逐任务结果与包含期望值的 `grade.json` 位于留出集
-  `E:\desktop\MATLAB-bench-holdout-phase53\runs\agent_phase54\`，**不进入仓库**。
+  `<repo>-bench-holdout-phase53\runs\agent_phase54\`，**不进入仓库**。
 
 ### 3.3 评分与隔离
 
@@ -269,7 +269,7 @@ false accepts 0 | false rejects 0 | missing 0 | environment SKIP/BLOCKED 0
 **边界声明：** 这是工具级基线，不是 Agent 级；6 个任务不代表 ODE/vision 全领域，
 不能把 6/6 外推为全领域或 Agent 成功率。新域的 Agent 级为 **NOT TESTED**。
 逐任务结果、轨迹、输入/输出 `.mat` 与包含答案的 `grade.json` 全部在仓库外
-`E:\desktop\MATLAB-bench-holdout-phase54\runs\tool_level_20261022\`；仓库仅保留聚合
+`<repo>-bench-holdout-phase54\runs\tool_level_20261022\`；仓库仅保留聚合
 `artifacts/phase54/benchmark/task5_summary.json` 与 `isolation_audit.json`。
 
 ## 7. 全量回归与失败分类（Task 6）

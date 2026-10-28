@@ -50,9 +50,9 @@ end
 manifest = struct();
 manifest.schema = 'mas-benchmark-manifest/1';
 manifest.frozenAt = datestr(now, 31);
-manifest.tasksFile = tasksFile;
+manifest.tasksFile = relativize_manifest_path(manifestFile, tasksFile);
 manifest.tasksSha256 = sha256_file(tasksFile);
-manifest.answersFile = answersFile;
+manifest.answersFile = relativize_manifest_path(manifestFile, answersFile);
 manifest.answersSha256 = sha256_file(answersFile);
 manifest.nTasks = numel(T);
 manifest.ids = tid;
@@ -63,6 +63,27 @@ if fid < 0, error('benchmark_freeze:write', 'cannot write %s', manifestFile); en
 fwrite(fid, jsonencode(manifest), 'char'); fclose(fid);
 fprintf('frozen %d tasks\n  tasks  %s\n  sha256 %s\n  answers sha256 %s\n  manifest %s\n', ...
     manifest.nTasks, tasksFile, manifest.tasksSha256, manifest.answersSha256, manifestFile);
+end
+
+function p = relativize_manifest_path(manifestFile, target)
+%RELATIVIZE_MANIFEST_PATH 与清单同目录时写相对路径，否则原样记录。
+%   2026-10-28：仓库内提交的清单不再写死机器绝对路径（路径卫生门禁）。
+%   benchmark_audit 侧对应地按清单目录解析相对路径，旧清单的绝对路径照旧可用。
+[tdir, tname, text] = fileparts(char(target));
+[mdir, ~, ~] = fileparts(char(manifestFile));
+if strcmpi(normalize_dir(tdir), normalize_dir(mdir))
+    p = [tname text];
+else
+    p = char(target);
+end
+end
+
+function d = normalize_dir(d)
+if isempty(d), d = '.'; end
+d = strrep(d, '/', '\');
+while numel(d) > 1 && d(end) == '\'
+    d(end) = [];
+end
 end
 
 function h = sha256_file(p)

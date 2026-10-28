@@ -4,6 +4,24 @@ All notable changes to this project will be documented here.
 
 ## Unreleased
 
+### 路径可移植性与测试框架健壮性（S4 后续）
+
+- **仓库内不再有本机绝对路径**：`E:` / `D:` 盘符路径从 **21 个文件 69 行**降到 **0**。
+  历史阶段报告里的机器路径统一换成 `<repo>` / `<repo-parent>` / `<matlabroot>` / `<temp>` /
+  `<workbuddy-data>` 占位符，`file:///E:/...` 形式的链接改成仓库相对链接；数值与结论未改，
+  逐字可核（`git log -p`）。路径卫生门禁从此不再失败。
+- **p56 / p57 分析脚本改为路径推导**：仓库根从 `__file__` 位置推出、用户级根用 `Path.home()`、
+  封存评测工作区取仓库同级目录 —— 不再写死机器目录，也不再写死 Windows 用户名。
+- **dev 基准清单改为相对路径**：`benchmark/dev/manifest.json` 的 `tasksFile` / `answersFile`
+  改为相对清单目录；`benchmark_audit` 相应地按清单目录解析相对路径（旧清单里的绝对路径照旧可用），
+  `benchmark_freeze` 在与清单同目录时记录相对路径，避免重新冻结时又把机器路径冻进去。
+- **测试框架折叠大小写重复的环境变量名**：环境块里同时存在 `HTTPS_PROXY` 与 `https_proxy` 时，
+  Windows PowerShell 5.1 的 `Get-ChildItem Env:` 与 `Start-Process` 都会抛 `ArgumentException`，
+  而且抛出点落在被测代码的调用栈里 —— 实测把免费层从 402/403 拉到 398/403，看起来像功能回归。
+  新增 `tests/helpers/EnvironmentNormalization.ps1`：用 kernel32 读原始环境块（保留大小写与重复项）
+  折叠，折叠后复验，未收敛就如实报 `Normalized=false`，不谎报成功。
+- 结果：**免费层 413/413**（首次全绿）、MATLAB 层 74/74、benchmark harness 11/11。
+
 ### Phase 4.9：main 发布收尾（文档与实际行为对齐）
 
 - README / WINDOWS_BETA **删除"main 是旧快照、须用固定 tag"的过期说明**：四层 PR 合并后

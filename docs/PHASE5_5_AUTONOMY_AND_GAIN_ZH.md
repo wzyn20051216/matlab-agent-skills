@@ -64,7 +64,7 @@ Prompt 由 `stage_phase55.m` 生成，只含：任务陈述、`input.mat` 变量
 | R2 | R1 + 九个 `SKILL.md` + references + capability-matrix | 23 | **0** | 1 episode |
 | R3 | R2 + 九个完整 skill 目录 | 101 | 76 `.m` / 53 `mas_*` | 12 episodes |
 
-公平性控制：同一 MATLAB（R2026a Update 3）与工具箱、同一官方 MATLAB MCP 服务（serverId `a68c155e…`）、同一 Prompt sha、同一预算（25 次 MCP / 15 min）、同一评分器与冻结容差、每臂每任务独立目录（全部在仓库外 `E:\desktop\MATLAB-bench-phase55-v3`）、episode 串行执行且每次会话卫生校验。
+公平性控制：同一 MATLAB（R2026a Update 3）与工具箱、同一官方 MATLAB MCP 服务（serverId `a68c155e…`）、同一 Prompt sha、同一预算（25 次 MCP / 15 min）、同一评分器与冻结容差、每臂每任务独立目录（全部在仓库外 `<repo>-bench-phase55-v3`）、episode 串行执行且每次会话卫生校验。
 
 模型控制是本轮最脆弱的一环，如实记录：
 - v1/v2 试点批（各 3 episodes）中，v2 三臂分别是 `dfmodel`/`dfmodel`/`qmodel_38max`，**违反同模型条件**，因此 v1、v2 只作为试点保留，不进入任何对照结论。
@@ -157,7 +157,7 @@ Phase 5.4 的 ODE/vision 只有工具级 6/6；本轮 6 个任务全部改由真
 
 但"尝试真实强制隔离"的结果是负面的，如实报告：用只读对抗探针 subagent 做 5 项检查，**0 项被阻止、5 项全部允许**——
 
-1. 直接读出 `E:/desktop/MATLAB-bench-holdout-phase53/answers.json`（3039 字节，无需 Prompt）；
+1. 直接读出 `<repo>-bench-holdout-phase53/answers.json`（3039 字节，无需 Prompt）；
 2. 读取仓库内 `SKILL.md`；
 3. 列出用户级 skill 目录 `C:/Users/23201/.qoder-cn/skills/`，可见全部 `matlab-*`；
 4. 执行本地 `matlab -batch`，退出码 0；
@@ -209,7 +209,7 @@ benchmarkHarness 11/11 ... 24 suites, 0 errored
 2. `final_gate2_console.log`（17:48:04，146.4 s）：字段名修正后取数正确，但它在能力矩阵的 recovery 修订**之前**运行。
 3. `final_gate3_console.log`（18:09:27，298.1 s）：矩阵定稿后的最终门禁，`allOk=1`。
 
-Codegen 并发回归（本轮重跑，`artifacts/phase55/regression/concurrency_runs/20261022_174913`）：3 轮 × 2 进程，6 个独立 `matlab -batch` 进程全部 `test_codegen: 12/12 passed`、exit 0；每个进程的唯一夹具子目录用后自删，`D:/Temp/mas_codegen_tests` 留空目录；未删除任何非本轮拥有的文件（10-17 遗留的 `mas-test-*` 等目录原样保留）。
+Codegen 并发回归（本轮重跑，`artifacts/phase55/regression/concurrency_runs/20261022_174913`）：3 轮 × 2 进程，6 个独立 `matlab -batch` 进程全部 `test_codegen: 12/12 passed`、exit 0；每个进程的唯一夹具子目录用后自删，`<temp>/mas_codegen_tests` 留空目录；未删除任何非本轮拥有的文件（10-17 遗留的 `mas-test-*` 等目录原样保留）。
 
 Git Diff（本轮相对 `4f4ceb5` 的仓库内改动，提交 `c052ecd`，77 files changed / 7042 insertions / 2 deletions）：**九个 Skill 的任何 `.m` 工具、测试与 references 零改动**。产品侧唯一改动是 `skills/capability-matrix.json`（+41 / −2）：`phase` 更新为 5.5 部分完成、新增 `autonomousExecution.phase55AgentBenchmark` 块、`summary.note` 追加一句。其余为本报告与 `artifacts/phase55/**` 证据（评分器、stager、审计脚本、统计脚本、episode 台账、审计 JSON、门禁与并发日志、探针脚本）。格式上刻意用 `indent=1` + ASCII 转义重生矩阵，使 diff 保持单块新增而非整文件重写。
 

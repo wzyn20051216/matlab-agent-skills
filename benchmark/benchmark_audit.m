@@ -24,7 +24,8 @@ if ~isfile(manifestFile)
     A.checks = [checks{:}]; A.ok = false; return;
 end
 M = jsondecode(fileread(manifestFile));
-tasksFile = M.tasksFile; answersFile = M.answersFile;
+tasksFile = resolve_manifest_path(manifestFile, M.tasksFile);
+answersFile = resolve_manifest_path(manifestFile, M.answersFile);
 if ~isfile(tasksFile) || ~isfile(answersFile)
     checks = addc(checks, 'filesExist', false, 'tasks or answers missing');
     A.checks = [checks{:}]; A.ok = false; return;
@@ -107,6 +108,24 @@ function tf = is_binary(p)
 [~, ~, ext] = fileparts(p);
 tf = any(strcmpi(ext, {'.mat', '.slx', '.mexw64', '.png', '.jpg', '.pdf', '.zip', ...
     '.xlsx', '.fig', '.mdl', '.p'}));
+end
+
+function p = resolve_manifest_path(manifestFile, value)
+%RESOLVE_MANIFEST_PATH 清单里的相对路径按清单所在目录解析，绝对路径原样返回。
+%   2026-10-28：仓库内提交的清单不再写死机器绝对路径（路径卫生门禁），
+%   因此 tasksFile / answersFile 允许写相对清单目录的相对路径。
+%   旧清单里的绝对路径仍然照旧工作，不需要迁移。
+value = char(value);
+if isempty(value)
+    p = value;
+    return;
+end
+isAbsolute = (numel(value) >= 2 && value(2) == ':') || startsWith(value, '/') || startsWith(value, '\');
+if isAbsolute
+    p = value;
+else
+    p = fullfile(fileparts(manifestFile), value);
+end
 end
 
 function h = sha256_file(p)

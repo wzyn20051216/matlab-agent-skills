@@ -52,7 +52,7 @@ R3 的 2 个 miss、11/13 的并发日志）全部保留，未被改写。
   优先读 `.qoder-cn`，但该根只有 7 个 MATLAB Skill 且全部落后；另外 2 个来自 `.agents`；
 - 两个 Codex 客户端通过 app-server `skills/list` 各自列出 9/9，`discoveryErrors=[]`；
   这证明**发现**，不证明自动调用；
-- 项目级根 `E:\desktop\MATLAB\.qoder\skills` 不存在，“项目级覆盖用户级”在本机未被触发，
+- 项目级根 `<repo>\.qoder\skills` 不存在，“项目级覆盖用户级”在本机未被触发，
   报告为 `UNEXERCISED`，没有写成已观察；
 - WorkBuddy 根存在但没有可用的 skill-list 探针，只能标为 `assumed`，不能当作加载证据。
 
@@ -175,7 +175,7 @@ Task 5 不启动。** 批准前的 V1–V13 对抗验收必须包含正控，0/1
 命令：
 
 ```matlab
-cd('E:/desktop/MATLAB'); addpath('matlab/validation/phase4');
+cd('<repo>'); addpath('matlab/validation/phase4');
 r = run_all('artifacts/phase57/regression');
 ```
 

@@ -147,7 +147,7 @@ skill/tool 名，所以三臂 `pass` 都是 **0/3**。这是判据不适配，�
 |---|---|---|---|---|---|
 | `C:\Users\23201\.qoder-cn\skills` | 是 | 7/9 | **0** | 7 | 26 |
 | `C:\Users\23201\.workbuddy\skills` | 是 | 9/9 | **0** | 9 | 30 |
-| 项目级 `E:\desktop\MATLAB\.qoder\skills` | **不存在** | 0/9 | — | — | — |
+| 项目级 `<repo>\.qoder\skills` | **不存在** | 0/9 | — | — | — |
 | 仓库 `skills/` | 是 | 9/9 | 9 | 0 | 54 |
 
 由此得出一条必须说出的限制：**真实会话里加载的 SKILL.md 不是仓库当前文本**，而且同名 Skill 同时存在于**两个用户级根**、
@@ -173,6 +173,6 @@ skill/tool 名，所以三臂 `pass` 都是 **0/3**。这是判据不适配，�
 - `artifacts/phase56/episodes/statistics.json`（配对表、成本、缺口、警告）
 - `artifacts/phase56/episodes/session_reset.jsonl`（每集 1 行重置审计）
 - `artifacts/phase56/episodes/{exploratory,pass1}/`（12 份手臂交付原文）
-- `E:\desktop\MATLAB-bench-phase56\eval\`（`episodes.json` 封存输入、`answers.json`、`tasks_frozen.json`、
+- `<repo>-bench-phase56\eval\`（`episodes.json` 封存输入、`answers.json`、`tasks_frozen.json`、
   `manifest.json`、`seal_manifest.json`、`absence_report.json`、`grade_R{1,2,3}.json`、`arm_R{1,2,3}/`）
 - 工具：`matlab/validation/phase56/p56_{episode_ledger,stats,session_reset,absence_scan,stage}.m/.py`

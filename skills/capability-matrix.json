@@ -374,7 +374,7 @@
    "status": "PARTIAL",
    "date": "2026-10-22",
    "batch": "v3",
-   "workspace": "E:/desktop/MATLAB-bench-phase55-v3 -- outside the repo, one isolated directory per arm and task",
+   "workspace": "<repo>-bench-phase55-v3 -- outside the repo, one isolated directory per arm and task",
    "arms": {
     "R1": "Agent + official MATLAB MCP only. Workspace exposes input.mat and prompt.md (2 files). n=1 episode.",
     "R2": "R1 plus the nine SKILL.md, their references and capability-matrix.json, and zero .m files (no mas_* tool exposed). n=1 episode.",
@@ -412,7 +412,7 @@
   "phase56ControlledComparison": {
    "status": "EXECUTED WITH A DECLARED SHORTFALL",
    "date": "2026-10-23",
-   "workspace": "E:/desktop/MATLAB-bench-phase56 -- arms/<arm>/<task> re-staged per pass; eval/ and the sealed answers live outside the arm roots",
+   "workspace": "<repo>-bench-phase56 -- arms/<arm>/<task> re-staged per pass; eval/ and the sealed answers live outside the arm roots",
    "design": {
     "tasks": "3 tasks frozen before the first formal episode (P56-SIG-B, P56-SIG-F, P56-ODE-N); tasks_frozen.json sha256 6b528da1c62f2cd4d171b859e7a713c8577b67fde3a591c82cd495a75e429d4b",
     "arms": "R1 3 files, 0 .m, 0 SKILL.md | R2 23 files, 21 .md, 0 .m | R3 79 files, 54 mas_*.m. Frozen for the whole round; no arm was re-staged with different content between episodes.",

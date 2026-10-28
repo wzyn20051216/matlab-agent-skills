@@ -171,7 +171,7 @@ Task 3 的 9 条机器人提示全部路由正确；Task 2 的 6 条数据提示
 ### 6.1 隔离约定
 
 1. Agent 可见仓库只含 **dev** 集；正式留出集在仓库外
-   `E:\desktop\MATLAB-bench-holdout-phase53`。留出集的 id、fixture、prompt 与
+   `<repo>-bench-holdout-phase53`。留出集的 id、fixture、prompt 与
    参考值只存在于评测侧，仓库文档不枚举。
 2. 参考答案与评分器只在评测侧；runner 只收到 `tasks.json`。
 3. 评测前 `benchmark_freeze` 写 SHA-256 清单；评分器发现 tasks/answers 变更即拒绝。
@@ -203,7 +203,7 @@ v2 冻结哈希：
 - answers `f4134974ff1549d9315b5ea08bbabfba4e22ae7ca488219ecf519eb8d0b61517`
 
 v1 pilot 与逐任务轨迹保存在
-`E:\desktop\MATLAB-bench-holdout-phase53\runs\v1_pilot\`、`runs\latest\`；
+`<repo>-bench-holdout-phase53\runs\v1_pilot\`、`runs\latest\`；
 复跑命令 `run_holdout` 在 2026-10-22 再次得到 9/9。
 
 **边界声明**：这是程序性隔离，不是操作系统沙箱；知道绝对路径的进程仍可读答案。
@@ -319,16 +319,16 @@ v1 pilot 与逐任务轨迹保存在
 
 ```matlab
 % 全量回归（单实例！）
-cd('E:/desktop/MATLAB/artifacts/phase53');
+cd('<repo>/artifacts/phase53');
 run_full_regression
 
 % 三域契约（各自独立）
-addpath('E:/desktop/MATLAB/skills/matlab-signal-vision-ai/tests');   test_signal_contract
-addpath('E:/desktop/MATLAB/skills/matlab-data-analysis/tests');      test_data_contract
-addpath('E:/desktop/MATLAB/skills/matlab-robotics-autonomy/tests');  test_robotics_contract
+addpath('<repo>/skills/matlab-signal-vision-ai/tests');   test_signal_contract
+addpath('<repo>/skills/matlab-data-analysis/tests');      test_data_contract
+addpath('<repo>/skills/matlab-robotics-autonomy/tests');  test_robotics_contract
 
 % 隔离 Benchmark（结果写到评测侧 <root>/runs/latest）
-addpath('E:/desktop/MATLAB/benchmark');
+addpath('<repo>/benchmark');
 run_holdout
 ```
 

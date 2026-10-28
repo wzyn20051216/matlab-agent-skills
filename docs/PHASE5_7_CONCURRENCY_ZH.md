@@ -123,14 +123,14 @@ catch ME
 
 ```matlab
 % 真实并发隔离（3 轮 × 2 进程）
-cd('E:/desktop/MATLAB/matlab/validation/phase57')
+cd('<repo>/matlab/validation/phase57')
 p57_concurrency_evidence
 
 % Coder 三入口契约 + 原始编译器日志
 p57_coder_contract
 
 % 用例级回归（15 例）
-cd('E:/desktop/MATLAB/skills/matlab-codegen-deploy/tests')
+cd('<repo>/skills/matlab-codegen-deploy/tests')
 test_codegen
 ```
 

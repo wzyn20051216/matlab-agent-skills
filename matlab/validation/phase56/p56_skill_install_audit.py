@@ -11,14 +11,18 @@ Read-only by design. It never writes to, renames, or deletes an install director
 stale copy is a finding to report, not a thing to silently overwrite.
 """
 import os, json, hashlib, glob, sys
+from pathlib import Path
 
-REPO = r"E:\desktop\MATLAB\skills"
+# 路径推导而非写死（2026-10-28 路径卫生整改）：
+# 仓库根从本文件位置推导，用户级根从主目录推导，不出现任何机器专属绝对路径。
+_REROOT = Path(__file__).resolve().parents[3]
+REPO = str(_REROOT / "skills")
 ROOTS = {
-    "user:qoder-cn": r"C:\Users\23201\.qoder-cn\skills",
-    "user:workbuddy": r"C:\Users\23201\.workbuddy\skills",
-    "project": r"E:\desktop\MATLAB\.qoder\skills",
+    "user:qoder-cn": str(Path.home() / ".qoder-cn" / "skills"),
+    "user:workbuddy": str(Path.home() / ".workbuddy" / "skills"),
+    "project": str(_REROOT / ".qoder" / "skills"),
 }
-OUT = r"E:\desktop\MATLAB\artifacts\phase56\skills_install_audit.json"
+OUT = str(_REROOT / "artifacts" / "phase56" / "skills_install_audit.json")
 
 
 def sha(p):
@@ -71,7 +75,7 @@ def main():
             "repo's current text, so 'the Skills are installed and usable' and 'the Skills "
             "in this repository are what the agent sees' are two different claims",
             "the Phase 5.6 arms are unaffected: R2/R3 were staged from the repository tree "
-            "(p56_stage.m copies from E:/desktop/MATLAB/skills), not from an install root",
+            "(p56_stage.m copies from <repo>/skills), not from an install root",
             "no install directory was written to, renamed or removed by this round",
         ],
     }

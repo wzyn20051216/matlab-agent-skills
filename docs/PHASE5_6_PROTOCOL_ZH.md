@@ -21,7 +21,7 @@
 | 重复 | 每格 3 次，共 3×3×3 = 27 episodes |
 | 顺序 | 每一遍（repeat）内部对 9 个 (臂×任务) 格独立伪随机排序，seed `20261022` / `20261023` / `20261024`（`random.Random(seed).shuffle`），运行前写入 `episode_order.json`；遍与遍之间重新暂存并清空手臂目录，所以 repeat 2 看不到 repeat 1 的 `result.json` |
 | 提示 | 逐字节使用 `arms/<arm>/<task>/prompt.txt`；不提及 Skill、`mas_*`、路由、工具名 |
-| 工作区 | E 盘隔离区 `E:\desktop\MATLAB-bench-phase56`；不改动用户 Skill 安装目录、不改系统 ACL |
+| 工作区 | E 盘隔离区 `<repo>-bench-phase56`；不改动用户 Skill 安装目录、不改系统 ACL |
 
 探针轮（3 个 episode，10-22 12:21–12:28Z，顺序 R1→R2→R3，仅 `P56-SIG-B`，未随机化）
 **不计入正式配对统计**，只作为设计校准与账本可用性证据，标 `EXPLORATORY`。

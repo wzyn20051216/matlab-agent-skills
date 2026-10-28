@@ -14,10 +14,14 @@ Read-only. It writes one report under artifacts/phase57/task0/ and never edits
 skills, artifacts from earlier phases, or the evaluation workspace.
 """
 import os, sys, json, subprocess, hashlib, glob, datetime, re
+from pathlib import Path
 
-REPO = r"E:\desktop\MATLAB"
-EVAL56 = r"E:\desktop\MATLAB-bench-phase56\eval"
-TRANSCRIPT_ROOT = r"C:\Users\23201\.qoder-cn\projects\E--desktop-MATLAB"
+# 路径推导而非写死（2026-10-28 路径卫生整改）：
+# 仓库根从本文件位置推导，封存评测工作区与仓库同级，客户端根从主目录推导。
+_REPO_PATH = Path(__file__).resolve().parents[3]
+REPO = str(_REPO_PATH)
+EVAL56 = str(_REPO_PATH.parent / (_REPO_PATH.name + "-bench-phase56") / "eval")
+TRANSCRIPT_ROOT = str(Path.home() / ".qoder-cn" / "projects" / "E--desktop-MATLAB")
 OUT = os.path.join(REPO, "artifacts", "phase57", "task0", "baseline_audit.json")
 PHASE56_HEAD = "9543f36"
 

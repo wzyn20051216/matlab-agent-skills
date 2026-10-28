@@ -32,9 +32,9 @@
    7 条，恰好对应这 7 个重复项。
 2. **`.agents` 共享根被两个 Codex 客户端实际列出 9/9**（app-server `skills/list`，
    见 `artifacts/phase57/native/codex-*/verification.json`），但其中 4 个内容落后。
-3. **WorkBuddy 根存在但不是有效加载证据**：`.workbuddy` 是 `E:\WorkBuddyData` 的符号
+3. **WorkBuddy 根存在但不是有效加载证据**：`.workbuddy` 是 `<workbuddy-data>` 的符号
    链接，本仓库没有 WorkBuddy 的 skill-list 探针，状态只能是 `assumed`。
-4. **项目级根 `E:\desktop\MATLAB\.qoder\skills` 不存在**，所以"项目级覆盖用户级"这条
+4. **项目级根 `<repo>\.qoder\skills` 不存在**，所以"项目级覆盖用户级"这条
    规则在本机 **未被触发**，不能写成已观察。
 
 ## 3. 优先级证据

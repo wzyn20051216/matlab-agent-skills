@@ -1,7 +1,7 @@
 # Phase 5.6 任务 1：Benchmark 强制隔离设计与对抗验证
 
 分支 `phase5.1-audit`，HEAD `572641c`（Phase 5.5 冻结点）。探针数据：
-[artifacts/phase56/isolation/probe_report.json](file:///E:/desktop/MATLAB/artifacts/phase56/isolation/probe_report.json)。
+[artifacts/phase56/isolation/probe_report.json](artifacts/phase56/isolation/probe_report.json)。
 本文只回答一个问题：**三臂对照里"某臂看不到某类信息"这句话，现在是靠什么保证的，以及它到底成不成立。**
 
 ## 1. 目标访问矩阵（本轮永久冻结）
@@ -26,7 +26,7 @@
 
 方法：一个 `general-purpose` 子代理，正常工具权限（Read/Grep/Glob/Bash），按绝对路径逐个
 尝试，只有真正取回字节才算"达到"；策略性拒绝不算。结果按向量记录在
-`probe_report.json`，探针原始输出在 `E:\desktop\p56-probes\probe_results\v1_probes.json`。
+`probe_report.json`，探针原始输出在 `<repo-parent>\p56-probes\probe_results\v1_probes.json`。
 
 | 向量 | 目标 | 结果 | 为什么这条重要 |
 |---|---|---|---|
@@ -100,14 +100,14 @@ V11 是决定性的：**只要手臂还需要主机侧的 MATLAB 执行通道，
 
 | 文件 | 作用 |
 |---|---|
-| [benchmark/tasks_p56.json](file:///E:/desktop/MATLAB/benchmark/tasks_p56.json) | 三个永久冻结任务（normal/boundary/fault），**不含** skill/tool/verdict 字段 |
-| [benchmark/benchmark_publish.m](file:///E:/desktop/MATLAB/benchmark/benchmark_publish.m) | 阶段一：公布任务 + 物化 `inputs_*.mat`，剥离期望值，公布哈希，拒绝二次发布 |
-| [benchmark/reference_p56.m](file:///E:/desktop/MATLAB/benchmark/reference_p56.m) | 答案生成器：只以 **SHA-256 承诺**出现在 bundle 里，内容不落地 |
-| [benchmark/benchmark_seal.m](file:///E:/desktop/MATLAB/benchmark/benchmark_seal.m) | 阶段二：校验承诺、episode 完成时刻、单次使用，然后才生成 `answers.json` |
-| [benchmark/benchmark_expectation_shape.m](file:///E:/desktop/MATLAB/benchmark/benchmark_expectation_shape.m) | 判据：**形状**而非词汇 —— `"verdict":"PASS"`、`"ref":`、`"answersSha256":"` |
-| [benchmark/benchmark_scan_for_answers.m](file:///E:/desktop/MATLAB/benchmark/benchmark_scan_for_answers.m) | 泄漏扫描器，`bundle` 严格模式与 `workspace` 臂模式两套规则 |
-| [matlab/validation/phase56/p56_stage.m](file:///E:/desktop/MATLAB/matlab/validation/phase56/p56_stage.m) | 三臂工作区搭建 + 臂不变式断言 |
-| [matlab/validation/phase56/p56_absence_scan.m](file:///E:/desktop/MATLAB/matlab/validation/phase56/p56_absence_scan.m) | 全盘"不存在"验证 + episode 前承诺复核 |
+| [benchmark/tasks_p56.json](benchmark/tasks_p56.json) | 三个永久冻结任务（normal/boundary/fault），**不含** skill/tool/verdict 字段 |
+| [benchmark/benchmark_publish.m](benchmark/benchmark_publish.m) | 阶段一：公布任务 + 物化 `inputs_*.mat`，剥离期望值，公布哈希，拒绝二次发布 |
+| [benchmark/reference_p56.m](benchmark/reference_p56.m) | 答案生成器：只以 **SHA-256 承诺**出现在 bundle 里，内容不落地 |
+| [benchmark/benchmark_seal.m](benchmark/benchmark_seal.m) | 阶段二：校验承诺、episode 完成时刻、单次使用，然后才生成 `answers.json` |
+| [benchmark/benchmark_expectation_shape.m](benchmark/benchmark_expectation_shape.m) | 判据：**形状**而非词汇 —— `"verdict":"PASS"`、`"ref":`、`"answersSha256":"` |
+| [benchmark/benchmark_scan_for_answers.m](benchmark/benchmark_scan_for_answers.m) | 泄漏扫描器，`bundle` 严格模式与 `workspace` 臂模式两套规则 |
+| [matlab/validation/phase56/p56_stage.m](matlab/validation/phase56/p56_stage.m) | 三臂工作区搭建 + 臂不变式断言 |
+| [matlab/validation/phase56/p56_absence_scan.m](matlab/validation/phase56/p56_absence_scan.m) | 全盘"不存在"验证 + episode 前承诺复核 |
 
 时间顺序是定义性的：`publish → 承诺哈希 → 全部 episode 结束 → seal → grade`。
 `benchmark_seal` 拒绝任何 `finishedAt` 晚于封存时刻的 episode，也拒绝二次封存。
@@ -128,7 +128,7 @@ prompt 里不出现 `mas_`、不出现 skill 名、不出现 routing 词汇。�
 
 ### 6.3 测试：43/43，其中 12 条是"必须失败"的负例
 
-日志 [artifacts/phase56/isolation/seal_and_staging.log](file:///E:/desktop/MATLAB/artifacts/phase56/isolation/seal_and_staging.log)：
+日志 [artifacts/phase56/isolation/seal_and_staging.log](artifacts/phase56/isolation/seal_and_staging.log)：
 `test_two_phase_seal` 22/22 + `test_p56_stage` 21/21，已注册进质量门禁（`run_all.m` 第 28 个套件）。
 
 负例覆盖：二次发布、脏 bundle 里发布、episode 未跑完就封存、封存后改 prompt、

@@ -13,8 +13,12 @@ Coder, and it does not retract Phase 5.5 by editing Phase 5.5 -- the correction 
 recorded here and referenced from the new document.
 """
 import json, glob, os, hashlib
+from pathlib import Path
 
-DIR = r"E:\desktop\MATLAB\artifacts\phase56\coder_channel"
+# 路径从本文件位置推导，不写死本机目录（2026-10-28 路径卫生整改）：
+# 仓库内产物目录 = <repo>/artifacts/...
+REPO = Path(__file__).resolve().parents[3]
+DIR = str(REPO / "artifacts" / "phase56" / "coder_channel")
 OUT = os.path.join(DIR, "coder_diagnosis.json")
 
 # p56_coder_channel_probe.m was called with a tag argument; the tag names the channel.

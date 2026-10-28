@@ -13,11 +13,16 @@ orchestrator's own tool-use label; the arm path regex is only a fallback and a
 cross-check.
 """
 import json, os, re, glob, datetime
+from pathlib import Path
 
-SUB = r"C:\Users\23201\.qoder-cn\projects\E--desktop-MATLAB\d0c0bf5d-79a5-43e1-b507-1b8abfae4bbc\subagents"
-OUT = r"E:\desktop\MATLAB\artifacts\phase56\episodes"
+# 路径推导而非写死（2026-10-28 路径卫生整改）：
+# 仓库外的工作区与本机客户端根一律从 repo 位置和用户主目录推出来。
+REPO = Path(__file__).resolve().parents[3]
+SUB = str(Path.home() / ".qoder-cn" / "projects" / "E--desktop-MATLAB" /
+          "d0c0bf5d-79a5-43e1-b507-1b8abfae4bbc" / "subagents")
+OUT = str(REPO / "artifacts" / "phase56" / "episodes")
 ARCH = OUT
-BUNDLE = r"E:\desktop\MATLAB-bench-phase56\bundle\tasks_public.json"
+BUNDLE = str(REPO.parent / (REPO.name + "-bench-phase56") / "bundle" / "tasks_public.json")
 
 # The three-arm probe ran 12:21-12:28Z on P56-SIG-B only, unrandomised; pass 1
 # started at 12:50Z. Everything before the cutoff is labelled EXPLORATORY and is

@@ -1,10 +1,10 @@
 # Phase 5.7 任务 4：泄漏面复测与强隔离评估
 
 分支 `phase5.1-audit`，HEAD `9543f36`（Phase 5.6 冻结点，本轮未提交）。
-探针：[p57_leak_surface_probe.py](file:///E:/desktop/MATLAB/matlab/validation/phase57/p57_leak_surface_probe.py)
-与 [p57_isolation_probe.m](file:///E:/desktop/MATLAB/matlab/validation/phase57/p57_isolation_probe.m)；
-证据：[leak_surface_probe.json](file:///E:/desktop/MATLAB/artifacts/phase57/isolation/leak_surface_probe.json)、
-[matlab_state.json](file:///E:/desktop/MATLAB/artifacts/phase57/isolation/matlab_state.json)。
+探针：[p57_leak_surface_probe.py](matlab/validation/phase57/p57_leak_surface_probe.py)
+与 [p57_isolation_probe.m](matlab/validation/phase57/p57_isolation_probe.m)；
+证据：[leak_surface_probe.json](artifacts/phase57/isolation/leak_surface_probe.json)、
+[matlab_state.json](artifacts/phase57/isolation/matlab_state.json)。
 
 ## 0. 结论
 
@@ -46,7 +46,7 @@
 
 `reference_p56.m` 是闭式公式（QPSK BER、Wilson 区间、二项 z、解析 ODE），不调用任何
 `mas_*` 工具；`tasks_p56.json` 发布时已公开。探针把生成器指向临时文件，重算后与
-`E:\desktop\MATLAB-bench-phase56\eval\answers.json` 比较：**3/3 个任务的 skill、tool、
+`<repo>-bench-phase56\eval\answers.json` 比较：**3/3 个任务的 skill、tool、
 verdict 与全部 fields 的 name/op/ref/tol 完全一致**。临时文件已删除。
 
 含义：即使把 `answers.json` 从磁盘移除，只要手臂能读仓库并执行 MATLAB，答案仍然可得。
@@ -71,8 +71,8 @@ verdict 与全部 fields 的 name/op/ref/tol 完全一致**。临时文件已删
 |---|---:|---|
 | `C:\Users\23201\.qoder-cn\skills` | 7 | 7 个陈旧；Qoder 对其中 7 个优先使用此根 |
 | `C:\Users\23201\.agents\skills` | 9 | 5 current / 4 drifted（Codex 全部从此根发现） |
-| `C:\Users\23201\.workbuddy\skills` → `E:\WorkBuddyData\skills` | 9 | 9 个陈旧；加载未观测 |
-| `E:\desktop\MATLAB\skills` | 9 | 仓库源 |
+| `C:\Users\23201\.workbuddy\skills` → `<workbuddy-data>\skills` | 9 | 9 个陈旧；加载未观测 |
+| `<repo>\skills` | 9 | 仓库源 |
 
 即使把 `.qoder-cn` 同步到最新，**"安装正确"也不等于"隔离"**：R1 仍能按绝对路径读仓库
 `skills/`，Task 2 的显式会话已经用普通 Read 工具读到了 `.agents/skills/matlab-orchestrator/...`。
@@ -149,7 +149,7 @@ rc=0。V11 已证明：只要手臂还需要主机侧 MATLAB 执行通道，`sys
 |---|---|---|---|---|
 | P1 | 创建本地标准用户 `masarm`（非管理员） | 让手臂以非属主身份运行 | 新账户、用户目录、客户端配置 | 删除账户与其 profile |
 | P2 | 在该账户下验证 MATLAB R2026a 启动与许可 | 确认手臂能执行 MATLAB | 许可占用/激活 | 停用该账户的许可会话 |
-| P3 | 对 `E:\desktop\MATLAB-bench-phase56\eval`、历史 holdout 答案、`benchmark/reference_p56.m` 设置"属主+SYSTEM 可读，masarm 拒绝"的 ACL | 阻断答案与生成器 | 仅这些目录/文件 | `icacls /save` 备份后 `/restore` |
+| P3 | 对 `<repo>-bench-phase56\eval`、历史 holdout 答案、`benchmark/reference_p56.m` 设置"属主+SYSTEM 可读，masarm 拒绝"的 ACL | 阻断答案与生成器 | 仅这些目录/文件 | `icacls /save` 备份后 `/restore` |
 | P4 | 对 `C:\Users\23201\.qoder-cn\projects`（父 transcript）设置同样的 ACL | 阻断历史轨迹 | 仅该目录 | 同上 |
 | P5 | 为每臂准备独立工作区与 Skills 根，并在臂间清理 profile 临时目录 | 防止跨臂残留 | 新目录 | 删除新目录 |
 | P6 | 在手臂运行期间禁用其网络（或仅允许许可服务器） | 防止外传 | 该账户网络策略 | 恢复策略 |
@@ -162,8 +162,8 @@ rc=0。V11 已证明：只要手臂还需要主机侧 MATLAB 执行通道，`sys
 New-LocalUser -Name masarm -NoPassword
 Add-LocalGroupMember -Group Users -Member masarm
 # P3/P4（先备份 ACL，再收紧）
-icacls "E:\desktop\MATLAB-bench-phase56\eval" /save "artifacts\phase57\isolation\acl_backup_eval.txt" /t
-icacls "E:\desktop\MATLAB-bench-phase56\eval" /inheritance:r /grant:r "23201:(OI)(CI)F" "SYSTEM:(OI)(CI)F"
+icacls "<repo>-bench-phase56\eval" /save "artifacts\phase57\isolation\acl_backup_eval.txt" /t
+icacls "<repo>-bench-phase56\eval" /inheritance:r /grant:r "23201:(OI)(CI)F" "SYSTEM:(OI)(CI)F"
 # P7（批准后）
 # 以 masarm 运行客户端，重复 13 个对抗向量，要求 0 个达到
 ```
