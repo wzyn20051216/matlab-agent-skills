@@ -55,6 +55,47 @@ python -B .\scripts\Test-CodexSkillDiscovery.py --help
 powershell -ExecutionPolicy Bypass -File .\scripts\Test-MatlabMcpEndToEnd.ps1
 ```
 
+**`tools/call` 永远不返回（`initialize` / `tools/list` 却都正常）**
+症状：客户端能列出 5 个工具，但任何 `evaluate_matlab_code` / `run_matlab_file` 都挂到超时
+（120–300 s），服务端 stderr 干净，会话目录里**既没有** `connector.securePort`、**也没有**
+`mcp_startup_error.txt`。
+
+2026-10-28 在 MATLAB R2026a Update 3 上实测：`auto`（`nodesktop` 与 `desktop` 两种显示模式）
+与 `new` 共三条冷启动路径**全部挂起**，只有 `existing` 正常 —— 同一台机器、同一天、同一行代码，
+`existing` 1.9 s 返回真实版本串。已排除的因素：会话目录、`cert.pem` / `cert.key`、Connector 本身
+（`-batch` 里 `graphics 初始化 / ensureServiceOn / securePort` 三步合计 1.4 s 通过），
+以及客户端侧协议（`initialize` 0.8 s PASS）。**把服务器用的那条完整命令行手工启动是成功的**
+（会写出 `connector.securePort`），所以问题在「服务器启动子进程的上下文」，不在命令行本身。
+
+处理：换成 `existing` 模式，两步。
+
+```powershell
+# 1) 先持有一个共享会话（内部用空转 timer 让事件循环活着，不用 pause 占住主线程）
+powershell -ExecutionPolicy Bypass -File .\scripts\Start-MatlabSharedSession.ps1 -HoldMinutes 25
+
+# 2) 用 existing 模式接入并验收
+powershell -ExecutionPolicy Bypass -File .\scripts\Test-MatlabMcpExistingSession.ps1 `
+  -Backend matlab-mcp-existing -Transport stdio -ProjectRoot . -Json
+```
+
+实测：`7/7 PASS`、`achievedLevel=L4`、`exit=0`，`evaluate_matlab_code` 1.9 s 返回
+`26.1.0.3276743 (R2026a) Update 3`，文件读写 `hostVerified=true`。
+要把客户端长期配成这种模式：`Install-MatlabMcpClients.ps1 -SessionMode existing`。
+
+两条硬约束：
+
+- 持有会话期间**不要再启动任何 MATLAB**（任何一次启动都会覆写 `sessionDetails.json`，
+  `existing` 随即指向一个失效会话）；
+- 结束时写 `<Work>\stop_session.flag` 温和退出，实测 15 s 内退出、无残留进程。
+
+两个不要被带偏的现象：
+
+- `Start-MatlabSharedSession.ps1` 产出的 `session_ready.json` 里 `PortProbe` 可能是 `false`，
+  但 MCP 实际可用 —— 那是脚本自身 HTTPS 探测（自签证书）的误报，不是会话不可用。
+- MCP server v0.15.0 仍传 `-softwareopengl`，而 R2026a **已移除该选项**，启动时会打印
+  `[警告: OpenGL 启动选项已删除。]` 与 `刷新时出错`。带该选项手工启动仍成功，所以它不是挂起的
+  充分原因，只是噪声。
+
 **MATLAB 没开，任务直接失败**
 先让 Agent 自动拉起可见桌面：
 
@@ -70,6 +111,11 @@ powershell -ExecutionPolicy Bypass -File .\scripts\Start-MatlabDesktop.ps1 -Time
 Phase 4.5 已修：MCP stdio 客户端现在把 stdin/stdout/stderr 都钉成 UTF-8。若仍出现，
 确认用的是本仓库 `scripts\Invoke-MatlabMcpCode.ps1`（旧版会按 OEM 代码页转码）。
 
+**安装器报 `A parameter cannot be found that matches parameter name 'McpServerName'`**
+旧版 Windows 测试版文档写过 `Install-MatlabMcpClients.ps1 -McpServerName`，该参数只存在于
+`Setup-MatlabMcpExistingSession.ps1`。安装客户端配置请用 `-ServerName matlab-official`
+（已修正 `docs/WINDOWS_BETA_ZH.md` 与 `docs/RELEASE_NOTES_WINDOWS_BETA_ZH.md`）。
+
 **Simulink 任务卡住不返回**
 实测过两种：`new_system` 后未 `load_system` 就 `add_block`、以及把模型另存为与已打开模型
 不同名的文件，都会报"模型不存在/同名模型已打开"。处理：`new_system` 后立刻 `load_system`，
@@ -77,6 +123,16 @@ Phase 4.5 已修：MCP stdio 客户端现在把 stdin/stdout/stderr 都钉成 UT
 结束该实例再重开即可。
 
 ## 许可证与平台
+
+**`matlab -batch` 报错误 5201 / 安装器提示 `MATLAB MCP Server Toolbox 安装失败（exit=1）`**
+本机实测的许可证模式是在线许可（`license_info.xml` 中 `licmode=onlinelicensing`），激活状态按
+Windows 用户档案保存。换到没有激活记录的用户档案（例如临时重定向 `%USERPROFILE%` 的新环境）时，
+MATLAB 会尝试联网校验并以 **LME 5201** 失败（本机实测 `matlab -batch` 154.8 s 后退出 1）；
+`Setup-MatlabMcpExistingSession.ps1` 会等待约 10 分钟，然后以上面这句通用错误结束，服务端日志里
+是 `timeout waiting for worker to start`。这不是 MCP 配置错误：请用拥有 MATLAB 许可证的正常
+Windows 账户登录，先手工启动一次 MATLAB 完成激活，再重跑安装器；安装器失败不会留下半装的
+Toolbox 状态。另外，新档案下 `%USERPROFILE%\Documents` 不存在时会看到
+`failed to determine MATLAB starting directory, proceeding without one`，这是警告，不是失败原因。
 
 **提示某个工具箱未授权**
 本项目**不提供** MATLAB 许可。用 `mas_precheck('toolbox','<产品名>')` 查实际状态，

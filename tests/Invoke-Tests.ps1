@@ -46,6 +46,25 @@ $matlabLayerSuffix = ".Matlab.Tests.ps1"
 # 版本选择逻辑放在 helpers 里，便于脱离 Pester 单独做回归测试。
 . (Join-Path $PSScriptRoot "helpers\PesterSelection.ps1")
 
+# 存在"仅大小写不同"的重复环境变量时，当前进程环境块里会同时有 HTTPS_PROXY 与 https_proxy。
+# Windows PowerShell 5.1 在多条路径上会直接抛 ArgumentException（Get-ChildItem Env:、
+# Start-Process 都会），实测 2026-10-28：仅此一项就把免费层从 402/403 拉到 398/403，
+# 四个失败全是被测代码调用栈里的 Start-Process，与被测行为无关。
+# 在跑任何用例之前先把环境折叠干净；折不干净就如实说出来，不假装通过。
+. (Join-Path $PSScriptRoot "helpers\EnvironmentNormalization.ps1")
+$envRepair = Repair-DuplicateEnvironmentNames
+if ($envRepair.Groups.Count -gt 0) {
+    $dupNames = @($envRepair.Groups | ForEach-Object { $_.Name }) -join ', '
+    if ($envRepair.Normalized) {
+        Write-Host "==> 环境变量名大小写重复已折叠：$dupNames（移除 $($envRepair.RemovedCount) 条重复项）" -ForegroundColor Yellow
+    }
+    else {
+        Write-Host "==> 警告：环境变量名大小写重复未能完全折叠（剩余 $($envRepair.RemainingGroups) 组：$dupNames）。" -ForegroundColor Red
+        Write-Host "    受影响的只会是依赖 Start-Process 的用例，属环境状态问题，不代表被测功能回归。" -ForegroundColor Red
+        if ($envRepair.Error) { Write-Host "    $($envRepair.Error)" -ForegroundColor DarkGray }
+    }
+}
+
 function Get-TestFileLayer {
     param([Parameter(Mandatory)][string]$Name)
     if ($Name.EndsWith($matlabLayerSuffix, [System.StringComparison]::OrdinalIgnoreCase)) { return "matlab" }
@@ -95,7 +114,12 @@ if ($requestedLayers -contains "matlab") {
         $matlabAvailable = $true
         $matlabInfo = Get-MatlabInstallInfo -ExecutablePath $matlabExe
 
-        $preflight = Invoke-MatlabBatchProcess -MatlabPath $matlabExe `
+        $preflightLogs = @{}
+        if ($env:MAS_TEST_EVIDENCE_ROOT) {
+            $preflightRoot = Join-Path $env:MAS_TEST_EVIDENCE_ROOT 'preflight'
+            $preflightLogs = @{StdoutPath=(Join-Path $preflightRoot 'stdout.log'); StderrPath=(Join-Path $preflightRoot 'stderr.log'); StageLogPath=(Join-Path $preflightRoot 'stages.log')}
+        }
+        $preflight = Invoke-MatlabBatchProcess @preflightLogs -MatlabPath $matlabExe `
             -ArgumentList @("-batch", "disp(version)") -WorkingDirectory $repoRoot `
             -TimeoutSeconds 180 -Label "matlab-preflight"
         if (-not $preflight.TimedOut -and $preflight.ExitCode -eq 0) {

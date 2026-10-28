@@ -18,7 +18,7 @@ Full capability statement: this repository is open source, but its full workflow
 - Official MATLAB MCP guide: `docs/MCP_EXISTING_SESSION_ZH.md`
 - CLI / Desktop 共享安装与卸载：[安装说明](docs/SKILL_INSTALLATION_ZH.md)
 - 双端独立验收与可见桌面启动：[验收记录](docs/PHASE4_4_DUAL_CLIENT_ZH.md)、[启动说明](docs/MATLAB_DESKTOP_STARTUP_ZH.md)
-- 安装与执行基础设施可靠性收尾（缺陷逐项结论、免费层 306/306（Phase 4.7 后）、平台范围）：[Phase 4.4.1 记录](docs/PHASE4_4_1_RELIABILITY_ZH.md)
+- 安装与执行基础设施可靠性收尾（缺陷逐项结论、免费层现状与平台范围）：[Phase 4.4.1 记录](docs/PHASE4_4_1_RELIABILITY_ZH.md)
 - Windows 测试版说明、验证边界与卸载回滚：[WINDOWS_BETA_ZH](docs/WINDOWS_BETA_ZH.md)
 - 故障排查：[TROUBLESHOOTING_ZH](docs/TROUBLESHOOTING_ZH.md)
 - 支持环境矩阵（哪些实测、哪些没测）：[SUPPORT_MATRIX_ZH](docs/SUPPORT_MATRIX_ZH.md)
@@ -49,6 +49,12 @@ This repository provides that workflow layer:
 - Close every task with tests, smoke checks, or artifact validation.
 
 ## Installation
+
+Prerequisites: Windows 10/11; Windows PowerShell 5.1 or PowerShell 7; MATLAB R2026a installed and
+activated for the **same Windows user** who runs the scripts; network access on first run (the pinned
+MCP server binary is downloaded and SHA-256 verified). MATLAB online-licence activation is stored per
+Windows user profile — a brand-new Windows user must activate MATLAB first, otherwise `matlab -batch`
+fails with LME 5201 (see `docs/TROUBLESHOOTING_ZH.md`).
 
 `main` **is** the validated Windows technical preview. A default clone gives the version that was
 verified end-to-end on 2026-10-21; no branch switch or extra flag.
@@ -100,8 +106,11 @@ running these skills requires your own valid MathWorks licence and the relevant 
 
 Verified on the reference machine (details and evidence paths in [WINDOWS_BETA_ZH](docs/WINDOWS_BETA_ZH.md)):
 
-- free test layer **306/306** on Windows PowerShell 5.1 and PowerShell 7;
-- default install to `%USERPROFILE%\.agents\skills`: 9 skills, 62 files, tree hashes identical to `skills/`;
+- free test layer **378/379** on Windows PowerShell 5.1 and PowerShell 7 (the single failure is the known
+  drive-path hygiene check, not a functional test);
+- default install to `%USERPROFILE%\.agents\skills`: 9 skills, 123 files; 7/9 skills are tree-identical to
+  `skills/`, while `matlab-runner` and `matlab-orchestrator` also carry the script resources declared in
+  `config/skill-payloads.json` (by design);
 - upgrade, idempotent re-sync, user-file preservation, failure rollback, and scoped uninstall;
 - **Codex CLI 0.147.0** and **Codex Desktop engine 0.163.0-alpha.10.2** both discover 9/9 skills with `discoveryErrors=[]`;
 - MATLAB MCP cold start, session binding and reuse.
@@ -181,6 +190,26 @@ Verify MCP readiness:
 ```powershell
 powershell -ExecutionPolicy Bypass -File .\scripts\Test-MatlabMcpExistingSession.ps1
 ```
+
+If the handshake works but execution never returns (`tools/call` times out while
+`initialize` and `tools/list` succeed), use a held shared session instead. This is
+the path verified on Windows + R2026a; on 2026-10-28 the `auto` and `new` cold-launch
+paths both hung, while this one returned real results:
+
+```powershell
+# 1) hold a shared MATLAB session (idle timer, does not block the main thread)
+powershell -ExecutionPolicy Bypass -File .\scripts\Start-MatlabSharedSession.ps1 -HoldMinutes 25
+
+# 2) verify in existing mode
+powershell -ExecutionPolicy Bypass -File .\scripts\Test-MatlabMcpExistingSession.ps1 `
+  -Backend matlab-mcp-existing -Transport stdio -ProjectRoot . -Json
+```
+
+Measured: 7/7 checks PASS, `achievedLevel=L4`, exit 0, `evaluate_matlab_code` returns the
+real version string in 1.9 s. To pin clients to this mode permanently, register them with
+`Install-MatlabMcpClients.ps1 -SessionMode existing`. Constraints and the full diagnosis are
+in [TROUBLESHOOTING_ZH](docs/TROUBLESHOOTING_ZH.md) — in short: do not start any other
+MATLAB while the session is held, and release it with `<Work>\stop_session.flag`.
 
 Run local validation:
 
