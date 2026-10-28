@@ -31,7 +31,9 @@ if ([string]::IsNullOrWhiteSpace($matlabExe)) {
 }
 
 $probeScript = Join-Path $repoRoot "matlab\validation\tests\masacc_boundary_probe.m"
-$boundaryDir = Join-Path $repoRoot "artifacts\validation\tests\masacc_boundary"
+$evidenceRoot = $repoRoot
+if ($env:MAS_TEST_EVIDENCE_ROOT) { $evidenceRoot = $env:MAS_TEST_EVIDENCE_ROOT }
+$boundaryDir = Join-Path $evidenceRoot "artifacts\validation\tests\masacc_boundary"
 $manifestPath = Join-Path $boundaryDir "manifest.json"
 $timeoutSeconds = 300
 
@@ -39,9 +41,9 @@ $timeoutSeconds = 300
 $probeRun = Invoke-MatlabBatchProcess -MatlabPath $matlabExe `
     -ArgumentList @("-batch", "run('$(($probeScript).Replace("'", "''"))')") `
     -WorkingDirectory $repoRoot -Label "masacc-boundary-probe" -TimeoutSeconds $timeoutSeconds `
-    -StdoutPath (Join-Path $repoRoot "artifacts\logs\masacc_boundary.stdout.log") `
-    -StderrPath (Join-Path $repoRoot "artifacts\logs\masacc_boundary.stderr.log") `
-    -StageLogPath (Join-Path $repoRoot "artifacts\logs\masacc_boundary.stages.log")
+    -StdoutPath (Join-Path $evidenceRoot "artifacts\logs\masacc_boundary.stdout.log") `
+    -StderrPath (Join-Path $evidenceRoot "artifacts\logs\masacc_boundary.stderr.log") `
+    -StageLogPath (Join-Path $evidenceRoot "artifacts\logs\masacc_boundary.stages.log")
 
 Describe "MATLAB 侧边界探针（真实执行）" {
 

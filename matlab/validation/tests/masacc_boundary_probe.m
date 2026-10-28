@@ -20,7 +20,9 @@ scriptPath = mfilename("fullpath");
 repoRoot = fileparts(fileparts(fileparts(fileparts(scriptPath))));
 addpath(fullfile(repoRoot, "matlab", "validation"));
 
-outDir = fullfile(repoRoot, "artifacts", "validation", "tests", "masacc_boundary");
+evidenceRoot = getenv('MAS_TEST_EVIDENCE_ROOT');
+if isempty(evidenceRoot), evidenceRoot = repoRoot; end
+outDir = fullfile(evidenceRoot, "artifacts", "validation", "tests", "masacc_boundary");
 if ~isfolder(outDir)
     mkdir(outDir);
 end

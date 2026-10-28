@@ -1,7 +1,7 @@
 function R = p56_coder_syntax_probe(outDir)
 %P56_CODER_SYNTAX_PROBE  Is the codegen failure call syntax or channel?
 %
-%   R = p56_coder_syntax_probe('E:\desktop\MATLAB\artifacts\phase56\coder_channel')
+%   R = p56_coder_syntax_probe(outputDirectory)
 %
 % before blaming Coder, the documented handle syntax has to be tried: codegen
 % accepts codegen(f, {0.5}) for a function handle, while codegen(f, '-args',

@@ -107,5 +107,65 @@ class SanitizeStructureTest(unittest.TestCase):
         self.assertRegex(first, r"<REDACTED:sha256-[0-9a-f]{12}>")
 
 
+class OutputBoundaryContractTest(unittest.TestCase):
+    """验证真实输出内容及 JSON 结构，所有秘密均为合成值。"""
+
+    def test_repeated_credential_in_earlier_diagnostic_is_also_removed(self):
+        source = {"diagnostic": "repeated SYNTHETIC-REPEATED-PY",
+                  "nested": {"apiKey": "SYNTHETIC-REPEATED-PY"}, "value": 1.25}
+        safe, _ = sanitize.sanitize_value(source)
+        self.assertNotIn("SYNTHETIC-REPEATED-PY", json.dumps(safe))
+        self.assertEqual(safe["value"], 1.25)
+
+    def test_additional_sensitive_keys_and_nested_non_string_values(self):
+        source = {"x-mcp-api-key": "SYNTHETIC-MCP-KEY", "PASSWD": "SYNTHETIC-PASSWD",
+                  "secret": {"nested": "SYNTHETIC-NESTED"}, "matrix": [[1, 2], [3, 4]]}
+        safe, _ = sanitize.sanitize_value(source)
+        self.assertNotIn("SYNTHETIC-", json.dumps(safe))
+        self.assertEqual(safe["matrix"], source["matrix"])
+
+    def test_known_secrets_apply_inside_parsed_jsonl(self):
+        source = json.dumps({"type": "tool.result", "output": "SYNTHETIC-UNLABELLED"})
+        safe, count = sanitize.sanitize_jsonl(source, secrets=["SYNTHETIC-UNLABELLED"])
+        self.assertNotIn("SYNTHETIC-UNLABELLED", safe)
+        self.assertGreater(count, 0)
+        self.assertEqual(json.loads(safe)["type"], "tool.result")
+
+    def test_unicode_escaped_field_is_recognized(self):
+        safe, _ = sanitize.sanitize_text('{"\\u0061piKey":"SYNTHETIC-UNICODE","value":1.25}')
+        self.assertNotIn("SYNTHETIC-UNICODE", safe)
+        self.assertEqual(json.loads(safe)["value"], 1.25)
+
+    def test_benign_crlf_and_blank_lines_are_unchanged(self):
+        source = "MATLAB matrix=[1 2;3 4]\r\n\r\nnormal diagnostic\r\n"
+        safe, count = sanitize.sanitize_text(source)
+        self.assertEqual(safe, source)
+        self.assertEqual(count, 0)
+
+    def test_structured_protocol_identifiers_and_hashes_are_preserved(self):
+        source = {"jsonrpc": "2.0", "id": FAKE_UUID,
+                  "result": {"sha256": FAKE_HEX, "path": "C:/models/result.mat", "values": []}}
+        safe, _ = sanitize.sanitize_value(source)
+        self.assertEqual(safe, source)
+
+    def test_known_short_and_encoded_secrets_are_scrubbed(self):
+        safe, _ = sanitize.sanitize_text("detail p4! encoded=p4%21", secrets=["p4!"])
+        self.assertNotIn("p4!", safe)
+        self.assertNotIn("p4%21", safe)
+
+    def test_bare_key_in_tool_output_is_not_treated_as_public_digest(self):
+        source = {"output": FAKE_HEX, "id": FAKE_UUID}
+        safe, _ = sanitize.sanitize_value(source)
+        self.assertNotIn(FAKE_HEX, safe["output"])
+        self.assertEqual(safe["id"], FAKE_UUID)
+
+    def test_aliases_and_normal_path_components(self):
+        for key in ["API_KEY", "xMcpApiKey", "X_MCP_API_KEY", "GH_TOKEN", "AWS_SECRET_ACCESS_KEY"]:
+            safe, _ = sanitize.sanitize_value({key: "SYNTHETIC-ALIAS"})
+            self.assertNotIn("SYNTHETIC-ALIAS", json.dumps(safe))
+        source = "model=C:/models/%s/result.slx" % FAKE_UUID
+        self.assertEqual(sanitize.sanitize_text(source), (source, 0))
+
+
 if __name__ == "__main__":
     unittest.main()

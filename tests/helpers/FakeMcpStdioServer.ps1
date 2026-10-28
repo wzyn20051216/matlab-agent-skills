@@ -66,8 +66,13 @@ function Get-ResultPayload {
             $code = ""
             try { $code = "$($Message.params.arguments.code)" } catch { $code = "" }
             if (-not $code -and $Message.params.arguments.script_path) { $code = "FILE=$($Message.params.arguments.script_path)" }
+            # 合成请求的摘要用于证明客户端输出脱敏没有改写线上执行代码。
+            $sha = [Security.Cryptography.SHA256]::Create()
+            try { $codeSha256 = [BitConverter]::ToString($sha.ComputeHash([Text.Encoding]::UTF8.GetBytes($code))).Replace('-', '').ToLowerInvariant() }
+            finally { $sha.Dispose() }
             return [ordered]@{
                 content = @([ordered]@{ type = "text"; text = "ECHO=$code" })
+                codeSha256 = $codeSha256
                 isError = $false
             }
         }

@@ -18,6 +18,12 @@ existing 模式不得与 matlab-root、initial-working-folder、matlab-display-m
 #>
 
 $script:CoreVersion = "1.0.0"
+# 同一进程的模块重导入共享登记值，避免 -Force 重新导入后忘记仍可能出现在输出里的凭据。
+$script:MasOutputSecrets = [AppDomain]::CurrentDomain.GetData('MatlabAgentSkills.OutputSecrets.v1')
+if ($null -eq $script:MasOutputSecrets) {
+    $script:MasOutputSecrets = [System.Collections.Generic.HashSet[string]]::new([StringComparer]::Ordinal)
+    [AppDomain]::CurrentDomain.SetData('MatlabAgentSkills.OutputSecrets.v1', $script:MasOutputSecrets)
+}
 
 $script:StartupBeginMarker = "% BEGIN matlab-agent-skills: share MATLAB session (managed block)"
 $script:StartupEndMarker = "% END matlab-agent-skills: share MATLAB session (managed block)"
@@ -93,6 +99,209 @@ function Get-FileSha256 {
     }
 }
 
+function Get-MasSensitiveKeyPattern {
+    <# .SYNOPSIS 返回结构化字段和文本诊断共用的凭据字段规则。 #>
+    return '(?:(?:matlab|mcp|aws|azure|github|gh|openai)[_-])*(?:api[_-]?key|api[_-]?token|x[-_]?(?:mcp[-_]?)?api[-_]?key|authorization|proxy[_-]?authorization|access[_-]?token|refresh[_-]?token|id[_-]?token|auth[_-]?token|session[_-]?token|client[_-]?secret|session[_-]?key|auth[_-]?key|secret[_-]?access[_-]?key|password|passwd|pwd|secret|token|private[_-]?key|certificate)'
+}
+
+function Register-MasSecret {
+    <# .SYNOPSIS 仅在模块内存中登记鉴权原值；不返回凭据、不写文件。 #>
+    param([AllowNull()][string[]]$Secrets = @())
+    if ($null -eq $script:MasOutputSecrets) {
+        $script:MasOutputSecrets = New-Object 'System.Collections.Generic.HashSet[string]' ([StringComparer]::Ordinal)
+    }
+    foreach ($value in @($Secrets)) {
+        if (-not [string]::IsNullOrEmpty($value)) { [void]$script:MasOutputSecrets.Add($value) }
+    }
+}
+
+function ConvertFrom-MasJsonElement {
+    <# .SYNOPSIS 解析 JSON 元素，保留键名大小写、数组、空值和数值类型。 #>
+    param([System.Text.Json.JsonElement]$Element)
+    switch ($Element.ValueKind.ToString()) {
+        'Object' {
+            $value = [System.Collections.Generic.Dictionary[string,object]]::new([StringComparer]::Ordinal)
+            foreach ($property in $Element.EnumerateObject()) {
+                $value[$property.Name] = ConvertFrom-MasJsonElement -Element $property.Value
+            }
+            return ,$value
+        }
+        'Array' {
+            $items = New-Object 'System.Collections.Generic.List[object]'
+            foreach ($item in $Element.EnumerateArray()) { $items.Add((ConvertFrom-MasJsonElement -Element $item)) }
+            return ,$items.ToArray()
+        }
+        'String' { return $Element.GetString() }
+        'Number' {
+            $number = [long]0
+            if ($Element.TryGetInt64([ref]$number)) { return $number }
+            return $Element.GetDouble()
+        }
+        'True' { return $true }
+        'False' { return $false }
+        default { return $null }
+    }
+}
+
+function Register-MasCredentialFile {
+    <# .SYNOPSIS 从调用方指定的会话描述中只读登记鉴权值；原值不进入返回值。 #>
+    param([AllowNull()][AllowEmptyString()][string]$Path)
+    if ([string]::IsNullOrWhiteSpace($Path) -or -not (Test-Path -LiteralPath $Path)) { return }
+    try {
+        $node = ConvertFrom-MasJson -Text ([IO.File]::ReadAllText($Path))
+        if ($node -is [System.Collections.IDictionary]) {
+            foreach ($key in $node.Keys) {
+                if ([string]$key -ieq 'apiKey' -and $node[$key] -is [string]) {
+                    Register-MasSecret -Secrets @($node[$key])
+                }
+            }
+        }
+    } catch { }
+}
+
+function ConvertFrom-MasJson {
+    <# .SYNOPSIS 双宿主共享 JSON 解析；不把 ISO 字符串转成日期或合并大小写不同的键。 #>
+    param([Parameter(Mandatory)][string]$Text)
+    if ($PSVersionTable.PSEdition -eq 'Desktop') {
+        Add-Type -AssemblyName System.Web.Extensions -ErrorAction Stop
+        $serializer = New-Object System.Web.Script.Serialization.JavaScriptSerializer
+        $serializer.MaxJsonLength = [int]::MaxValue
+        $serializer.RecursionLimit = 512
+        return ,($serializer.DeserializeObject($Text))
+    }
+    $document = [System.Text.Json.JsonDocument]::Parse($Text)
+    try { return ,(ConvertFrom-MasJsonElement -Element $document.RootElement) }
+    finally { $document.Dispose() }
+}
+
+function Protect-MasArguments {
+    <# .SYNOPSIS 对参数数组保留普通参数，保护敏感开关的值；仅供输出副本使用。 #>
+    param([AllowNull()][object[]]$Arguments = @(), [string]$RedactionText = '[REDACTED]')
+    $safe = New-Object 'System.Collections.Generic.List[object]'
+    $pending = $false
+    foreach ($item in @($Arguments)) {
+        if ($pending) {
+            if ($item -is [string]) { Register-MasSecret -Secrets @($item) }
+            $safe.Add($RedactionText)
+            $pending = $false
+        } elseif ($item -is [string] -and $item -match ('(?i)^--?' + (Get-MasSensitiveKeyPattern) + '$')) {
+            $safe.Add($item)
+            $pending = $true
+        } elseif ($item -is [string]) {
+            $safe.Add((Protect-MasText -Text $item -PreserveIdentifiers))
+        } else { $safe.Add($item) }
+    }
+    return ,$safe.ToArray()
+}
+
+function Register-MasSensitiveValue {
+    <# .SYNOPSIS 预先登记结构中的敏感字符串，保护同一输出中较早出现的重复诊断。 #>
+    param([AllowNull()]$Value, [int]$Depth=0)
+    if ($null -eq $Value -or $Depth -gt 48) { return }
+    if ($Value -is [string]) {
+        if ($Value.TrimStart() -match '^[\[{]') {
+            try { Register-MasSensitiveValue -Value (ConvertFrom-MasJson -Text $Value) -Depth ($Depth+1) } catch { }
+        }
+        return
+    }
+    $dictionary = $Value -is [System.Collections.IDictionary]
+    if ($dictionary -or $Value -is [pscustomobject]) {
+        $keys = if ($dictionary) { @($Value.Keys) } else { @($Value.PSObject.Properties.Name) }
+        foreach ($key in $keys) {
+            $item = $null
+            if ($dictionary) { $item=$Value[$key] } else { $item=$Value.$key }
+            if ([string]$key -match ('(?i)^'+(Get-MasSensitiveKeyPattern)+'$') -and $item -is [string]) {
+                if ($item -notmatch '^(?i)(?:\[|<)redacted') { Register-MasSecret -Secrets @($item) }
+            } else { Register-MasSensitiveValue -Value $item -Depth ($Depth+1) }
+        }
+    } elseif ($Value -is [System.Collections.IEnumerable]) {
+        foreach ($item in $Value) { Register-MasSensitiveValue -Value $item -Depth ($Depth+1) }
+    }
+}
+
+function Protect-MasValue {
+    <#
+    .SYNOPSIS 在对象进入日志或 Agent 返回值之前递归保护敏感字段，不修改输入对象。
+    .DESCRIPTION
+    字段规则统一复用 Get-MasSensitiveKeyPattern；字符串继续经过 Protect-MasText。
+    协议标识、摘要、路径和矩阵保持原值。深度上限用于安全处理循环异常对象。
+    #>
+    param(
+        [AllowNull()]$Value,
+        [string[]]$Secrets = @(),
+        [string]$RedactionText = '[REDACTED]',
+        [switch]$OmitSensitiveTextLines,
+        [switch]$MaskSensitiveFieldNames,
+        [switch]$PreserveIdentifiers,
+        [int]$Depth = 0
+    )
+    if ($null -eq $Value) { return $null }
+    if ($Depth -gt 48) { return '[REDACTED: depth-limit]' }
+    if ($Depth -eq 0) { Register-MasSensitiveValue -Value $Value }
+    if ($Value -is [string]) {
+        if ($OmitSensitiveTextLines) {
+            $lines = @($Value -split '\r?\n' | ForEach-Object {
+                if ($_ -match ('(?i)' + (Get-MasSensitiveKeyPattern) + '\s*["'']?\s*[:=]|\b(?:bearer|basic)\s+')) {
+                    '[已省略凭据相关行]'
+                } else { $_ }
+            })
+            $Value = $lines -join "`n"
+        }
+        return Protect-MasText -Text $Value -Secrets $Secrets -MaskSensitiveFieldNames:$MaskSensitiveFieldNames -PreserveIdentifiers:$PreserveIdentifiers -Depth ($Depth + 1)
+    }
+    if ($Value -is [System.Exception]) {
+        return [pscustomobject][ordered]@{
+            Type = $Value.GetType().FullName
+            Message = Protect-MasValue -Value $Value.Message -Secrets $Secrets -Depth ($Depth + 1)
+            StackTrace = Protect-MasValue -Value $Value.StackTrace -Secrets $Secrets -Depth ($Depth + 1)
+            InnerException = Protect-MasValue -Value $Value.InnerException -Secrets $Secrets -Depth ($Depth + 1)
+            Data = Protect-MasValue -Value $Value.Data -Secrets $Secrets -Depth ($Depth + 1)
+        }
+    }
+    if ($Value -is [System.Management.Automation.ErrorRecord]) {
+        return [pscustomobject][ordered]@{
+            Exception = Protect-MasValue -Value $Value.Exception -Secrets $Secrets -Depth ($Depth + 1)
+            ScriptStackTrace = Protect-MasValue -Value $Value.ScriptStackTrace -Secrets $Secrets -Depth ($Depth + 1)
+            ErrorDetails = Protect-MasValue -Value "$($Value.ErrorDetails)" -Secrets $Secrets -Depth ($Depth + 1)
+        }
+    }
+    $isDictionary = $Value -is [System.Collections.IDictionary]
+    if ($isDictionary -or $Value -is [pscustomobject]) {
+        $safe = [System.Collections.Generic.Dictionary[string,object]]::new([StringComparer]::Ordinal)
+        $keys = if ($isDictionary) { @($Value.Keys) } else { @($Value.PSObject.Properties.Name) }
+        foreach ($key in $keys) {
+            $item = $null
+            if ($isDictionary) { $item = $Value[$key] } else { $item = $Value.$key }
+            $outputKey = [string]$key
+            if ($MaskSensitiveFieldNames -and $outputKey -match ('(?i)^' + (Get-MasSensitiveKeyPattern) + '$')) {
+                $outputKey = 'redacted_field_' + $safe.Count
+            }
+            if ([string]$key -match ('(?i)^' + (Get-MasSensitiveKeyPattern) + '$') -and
+                $null -ne $item -and -not ($item -is [string] -and $item.Length -eq 0)) {
+                $safe[$outputKey] = $RedactionText
+            } elseif ([string]$key -match '(?i)^(?:args|argv|arguments)$' -and $item -is [array]) {
+                $safe[$outputKey] = Protect-MasArguments -Arguments $item -RedactionText $RedactionText
+            } else {
+                $keepIdentifier = $PreserveIdentifiers -or [string]$key -match '(?i)^(?:id|.*sha(?:256|384|512)?|digest|hash|.*paths?)$'
+                $safe[$outputKey] = Protect-MasValue -Value $item -Secrets $Secrets -RedactionText $RedactionText -OmitSensitiveTextLines:$OmitSensitiveTextLines -MaskSensitiveFieldNames:$MaskSensitiveFieldNames -PreserveIdentifiers:$keepIdentifier -Depth ($Depth + 1)
+            }
+        }
+        if ($isDictionary) { return ,$safe }
+        # Generic Dictionary 的强制转换只包装原对象，不会创建可供既有探针反射的属性。
+        $properties = [ordered]@{}
+        foreach ($key in $safe.Keys) { $properties[$key] = $safe[$key] }
+        return [pscustomobject]$properties
+    }
+    if ($Value -is [System.Collections.IEnumerable]) {
+        $items = New-Object 'System.Collections.Generic.List[object]'
+        foreach ($item in $Value) {
+            $items.Add((Protect-MasValue -Value $item -Secrets $Secrets -RedactionText $RedactionText -OmitSensitiveTextLines:$OmitSensitiveTextLines -MaskSensitiveFieldNames:$MaskSensitiveFieldNames -PreserveIdentifiers:$PreserveIdentifiers -Depth ($Depth + 1)))
+        }
+        return ,$items.ToArray()
+    }
+    return $Value
+}
+
 function Protect-MasText {
     <#
     .SYNOPSIS
@@ -103,32 +312,62 @@ function Protect-MasText {
     `\"apiKey\": \"...\"`，以及 agent 命令行里的 `--api-key` / Bearer。
     因此这里一次覆盖六种形态：
 
-      1. 普通 JSON 字段（字段名与值一起移除，避免“值没了但字段名还在”被误判）；
+      1. 完整 JSON 按结构保护值，保留键名、空值、数组与协议标识；审计可显式遮蔽字段名；
       2. 转义 / 嵌套 JSON（一层或多层反斜杠）；
       3. x-api-key 等请求头；
       4. Authorization: Bearer|Basic；
       5. --api-key <v> / --api-key=<v>；
       6. 裸 UUID 或 >=32 位十六进制令牌。
 
-    已知密钥字面值（-Secrets）先做整串替换。最后如果某行仍残留
+    已知密钥及其 URL / Base64 变体只在字符串叶子上替换。最后如果某行仍残留
     “凭据字段名 + 未脱敏值”，整行替换为 [REDACTED:credential-line]。
     无敏感内容的文本逐字节返回，避免正常日志被改写。
     #>
     [CmdletBinding()]
     param(
         [AllowNull()][AllowEmptyString()][string]$Text,
-        [string[]]$Secrets = @()
+        [string[]]$Secrets = @(),
+        [switch]$MaskSensitiveFieldNames,
+        [switch]$PreserveIdentifiers,
+        [int]$Depth = 0
     )
 
     if ([string]::IsNullOrEmpty($Text)) { return "" }
+    if ($Depth -gt 48) { return '[REDACTED: depth-limit]' }
     $result = $Text
+    $allSecrets = @($Secrets) + @($script:MasOutputSecrets)
 
-    foreach ($secret in @($Secrets)) {
-        if ([string]::IsNullOrEmpty($secret) -or $secret.Length -lt 4) { continue }
-        $result = $result.Replace($secret, '[REDACTED]')
+    # 先处理完整 JSON，避免文本替换破坏 JSON-RPC、Unicode 字段名、空数组和数值。
+    if ($Text.TrimStart() -match '^[\[{\"]') {
+        try {
+            $parsed = ConvertFrom-MasJson -Text $Text
+            Register-MasSensitiveValue -Value $parsed
+            $safe = Protect-MasValue -Value $parsed -Secrets $allSecrets -MaskSensitiveFieldNames:$MaskSensitiveFieldNames -PreserveIdentifiers:$PreserveIdentifiers -Depth ($Depth + 1)
+            $before = ConvertTo-Json -InputObject $parsed -Depth 64 -Compress
+            $after = ConvertTo-Json -InputObject $safe -Depth 64 -Compress
+            if ($before -ceq $after) { return $Text }
+            return $after
+        } catch {
+            # 非完整 JSON 是普通诊断，继续用同一字段规则处理；异常原文不输出。
+        }
+    }
+    foreach ($secret in $allSecrets) {
+        if ([string]::IsNullOrEmpty($secret)) { continue }
+        # .NET Framework 与 .NET 的 EscapeDataString 对 ! 等字符处理不同，按 RFC3986 字节规则统一。
+        $encoded = New-Object Text.StringBuilder
+        foreach ($byte in [Text.Encoding]::UTF8.GetBytes($secret)) {
+            if (($byte -ge 65 -and $byte -le 90) -or ($byte -ge 97 -and $byte -le 122) -or
+                ($byte -ge 48 -and $byte -le 57) -or $byte -in @(45, 46, 95, 126)) {
+                [void]$encoded.Append([char]$byte)
+            } else { [void]$encoded.Append(('%{0:X2}' -f $byte)) }
+        }
+        $variants = @($secret, $encoded.ToString(),
+            [Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes($secret)),
+            [Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes($secret)))
+        foreach ($variant in $variants) { $result = $result.Replace($variant, '[REDACTED]') }
     }
 
-    $keyPattern = '(?:api[_-]?key|x-api-key|authorization|proxy-authorization|access[_-]?token|refresh[_-]?token|client[_-]?secret|password|token|certificate)'
+    $keyPattern = Get-MasSensitiveKeyPattern
 
     # JSON 字段：保留转义层级（\" / \\\"），字段名替换为不含凭据关键字的唯一名。
     $jsonFieldPattern = '(?i)((?:\\*"))' + $keyPattern + '((?:\\*")\s*:\s*(?:\\*"))((?:[^"\\]|\\.)*)((?:\\*"))'
@@ -142,23 +381,29 @@ function Protect-MasText {
     }
     $result = [regex]::Replace($result, $jsonFieldPattern, $jsonEvaluator)
 
+    $result = [regex]::Replace($result,
+        '(?i)(\b(?:proxy-authorization|authorization)\s*[:=])(?!\s*\[REDACTED)(\s*)[^\r\n;,]+', '$1$2[REDACTED]')
     $result = [regex]::Replace(
         $result,
-        '(?i)\b(bearer|basic)(\s+)([A-Za-z0-9._~+/=\-]{8,})',
+        '(?i)\b(bearer|basic)(\s+)([A-Za-z0-9._~+/=\-]+)',
         '$1$2[REDACTED]')
     $result = [regex]::Replace(
         $result,
-        '(?i)(--api[-_]?key(?:=|\s+))([^\s,;"'']+)',
+        ('(?i)(--' + $keyPattern + '(?:=|\s+))([^\s,;"'']+)'),
         '$1[REDACTED]')
     $result = [regex]::Replace(
         $result,
         '(?i)(?<![A-Za-z0-9])' + $keyPattern + '(?![A-Za-z0-9])\s*[:=]\s*(?!\[REDACTED)([^\s,;"'']+)',
         '[REDACTED_FIELD]')
-    $result = [regex]::Replace(
-        $result,
-        '\b[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}\b',
-        '[REDACTED]')
-    $result = [regex]::Replace($result, '\b[0-9a-fA-F]{32,}\b', '[REDACTED]')
+    # URI 中的 user:password 不进入代理快照或异常；保留主机与端口便于诊断。
+    $result = [regex]::Replace($result, '(?i)\b((?:https?|socks[45]?h?)://)[^/\s@]+:[^/\s@]+@', '$1[REDACTED]@')
+    if (-not $PreserveIdentifiers) {
+        $result = [regex]::Replace(
+            $result,
+            '(?<![A-Za-z0-9_\\/])[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}(?![A-Za-z0-9_\\/])',
+            '[REDACTED]')
+        $result = [regex]::Replace($result, '(?<![A-Za-z0-9_\\/])[0-9a-fA-F]{32,}(?![A-Za-z0-9_\\/])', '[REDACTED]')
+    }
 
     $residualPattern = '(?i)(?<![A-Za-z0-9])' + $keyPattern + '(?![A-Za-z0-9])\s*[:=](?!\s*\[REDACTED)'
     if ($result -match $residualPattern) {

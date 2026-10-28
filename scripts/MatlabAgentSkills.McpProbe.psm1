@@ -20,7 +20,7 @@ MATLAB MCP 分级探测：把“配置看起来对”与“MCP 真的能执行�
 
 $coreModulePath = Join-Path $PSScriptRoot "MatlabAgentSkills.Core.psm1"
 if (Test-Path -LiteralPath $coreModulePath) {
-    Import-Module $coreModulePath -Force -DisableNameChecking -ErrorAction SilentlyContinue
+    Import-Module $coreModulePath -DisableNameChecking -ErrorAction SilentlyContinue
 }
 
 $defaultSessionRelative = "MathWorks\MATLAB MCP Server\v1\sessionDetails.json"
@@ -181,17 +181,25 @@ function Get-McpSessionInfo {
         $session = ConvertFrom-JsonCaseSensitive -Text $sessionText
     }
     catch {
-        $info.Error = "会话文件不是合法 JSON: $($_.Exception.Message)"
+        $info.Error = '会话文件不是合法 JSON；解析失败的输入不回显。'
         return $info
     }
 
     $info.Parsed = $true
-    if (Test-NodeProperty -Node $session -Name "port") { $info.Port = [int](Get-NodeProperty -Node $session -Name "port") }
+    if (Test-NodeProperty -Node $session -Name "port") {
+        $portValue = 0
+        if (-not [int]::TryParse([string](Get-NodeProperty -Node $session -Name 'port'), [ref]$portValue)) {
+            $info.Error = '会话端口不是整数。'
+            return $info
+        }
+        $info.Port = $portValue
+    }
     if (Test-NodeProperty -Node $session -Name "apiKey") {
         $apiKeyText = "$(Get-NodeProperty -Node $session -Name "apiKey")"
         if (-not [string]::IsNullOrEmpty($apiKeyText)) {
             $info.HasApiKey = $true
             $info.ApiKeyLength = $apiKeyText.Length
+            Register-MasSecret -Secrets @($apiKeyText)
             # 凭据只在这里落地一次；调用方通过 Get-McpSessionCredential 短期读取，不进入任何可序列化对象。
             $script:McpSessionCredential = [pscustomobject]@{
                 Path   = [System.IO.Path]::GetFullPath($SessionFile)
@@ -201,7 +209,14 @@ function Get-McpSessionInfo {
         $apiKeyText = $null
     }
     if (Test-NodeProperty -Node $session -Name "certificate") { $info.Certificate = "$(Get-NodeProperty -Node $session -Name "certificate")" }
-    if (Test-NodeProperty -Node $session -Name "pid") { $info.Pid = [int](Get-NodeProperty -Node $session -Name "pid") }
+    if (Test-NodeProperty -Node $session -Name "pid") {
+        $pidValue = 0
+        if (-not [int]::TryParse([string](Get-NodeProperty -Node $session -Name 'pid'), [ref]$pidValue)) {
+            $info.Error = '会话进程编号不是整数。'
+            return $info
+        }
+        $info.Pid = $pidValue
+    }
 
     if ($info.Certificate) {
         $info.CertificateExists = Test-Path -LiteralPath $info.Certificate
@@ -387,11 +402,11 @@ function Get-McpClientRegistrations {
             client         = $Client
             source         = $Source
             command        = $Command
-            args           = $argList
+            args           = Protect-MasArguments -Arguments $argList
             commandExists  = $commandExists
             violations     = $violations
             valid          = ($violations.Count -eq 0 -and $commandExists)
-            raw            = $Raw
+            raw            = Protect-MasText -Text $Raw
         })
     }
 
@@ -415,7 +430,7 @@ function Get-McpClientRegistrations {
             $entries.Add([pscustomobject][ordered]@{
                 client = $config.Client; source = $config.Path; command = $null; args = @()
                 commandExists = $false; violations = @("配置文件不是合法 JSON"); valid = $false
-                raw = $_.Exception.Message
+                raw = '配置文件解析失败；输入内容不回显。'
             })
             continue
         }
@@ -462,11 +477,11 @@ function Get-McpClientRegistrations {
                     client        = "codex"
                     source        = "codex mcp get $ServerName"
                     command       = $command
-                    args          = $args
+                    args          = Protect-MasArguments -Arguments $args
                     commandExists = $codexCommandExists
                     violations    = $codexViolations
                     valid         = ($codexViolations.Count -eq 0 -and $args.Count -gt 0 -and $codexCommandExists)
-                    raw           = $text.Trim()
+                    raw           = Protect-MasText -Text $text.Trim()
                     sessionMode   = $mode
                 })
             }
@@ -547,6 +562,7 @@ function Invoke-McpJsonRpc {
     if ($null -ne $Params) { $payload["params"] = $Params }
     $body = $payload | ConvertTo-Json -Depth 12 -Compress
 
+    Register-MasSecret -Secrets @($ApiKey)
     $headers = @{ "Accept" = "application/json, text/event-stream" }
     if ($ApiKey) { $headers[$AuthHeaderName] = $ApiKey }
 
@@ -577,7 +593,7 @@ function Invoke-McpJsonRpc {
         try { [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.SecurityProtocolType]::Tls12 } catch { }
         $stopwatch = [System.Diagnostics.Stopwatch]::StartNew()
         try {
-            $response = Invoke-WebRequest -Uri $Endpoint -Method Post -Body $body `
+            $response = Invoke-WebRequest -Uri $Endpoint -Method Post -Body ([Text.Encoding]::UTF8.GetBytes($body)) `
                 -ContentType "application/json" -Headers $headers -TimeoutSec $TimeoutSeconds -UseBasicParsing
             $result.StatusCode = [int]$response.StatusCode
             $result.Body = "$($response.Content)"
@@ -613,8 +629,17 @@ function Invoke-McpJsonRpc {
     }
 
     if ($result.Body) {
-        $result.Json = ConvertFrom-McpResponseBody -Body $result.Body
+        # 先解析可信传输中的原消息，再生成安全返回副本，鉴权头与线上的 JSON-RPC 不变。
+        $parsedBody = ConvertFrom-McpResponseBody -Body $result.Body
+        $result.Json = Protect-MasValue -Value $parsedBody
+        $safeLines = @($result.Body -split '\r?\n' | ForEach-Object {
+            if ($_ -match '^(\s*data:\s*)(\{.*\})\s*$') {
+                $Matches[1] + (Protect-MasText -Text $Matches[2])
+            } else { Protect-MasText -Text $_ }
+        })
+        $result.Body = $safeLines -join "`n"
     }
+    if ($null -ne $result.Error) { $result.Error = Protect-MasText -Text $result.Error }
     return $result
 }
 
@@ -626,21 +651,21 @@ function Get-McpToolText {
     $texts = New-Object System.Collections.Generic.List[string]
 
     $content = $null
-    if ($Result -is [System.Management.Automation.PSCustomObject] -and $Result.PSObject.Properties.Name -contains "content") {
+    if (($Result -is [System.Collections.IDictionary] -and $Result.ContainsKey('content')) -or $Result.PSObject.Properties.Name -contains "content") {
         $content = $Result.content
     }
     if ($content) {
         foreach ($item in @($content)) {
-            if ($item.PSObject.Properties.Name -contains "text") { $texts.Add("$($item.text)") }
+            if (($item -is [System.Collections.IDictionary] -and $item.ContainsKey('text')) -or $item.PSObject.Properties.Name -contains "text") { $texts.Add("$($item.text)") }
         }
     }
     foreach ($name in @("output", "stdout", "result", "value")) {
-        if ($Result -is [System.Management.Automation.PSCustomObject] -and $Result.PSObject.Properties.Name -contains $name) {
+        if (($Result -is [System.Collections.IDictionary] -and $Result.ContainsKey($name)) -or $Result.PSObject.Properties.Name -contains $name) {
             $value = $Result.$name
             if ($value -is [string]) { $texts.Add($value) }
         }
     }
-    return ($texts -join "`n")
+    return Protect-MasText -Text ($texts -join "`n")
 }
 
 function Test-TcpEndpoint {
@@ -776,7 +801,8 @@ function Start-McpStdioChannel {
         [ValidateSet("auto", "existing", "new")][string]$SessionMode = "auto",
         [string]$MatlabRoot,
         [string]$WorkingDirectory = (Get-Location).Path,
-        [string]$Label = "mcp-probe-stdio"
+        [string]$Label = "mcp-probe-stdio",
+        [string]$CredentialFile
     )
 
     if (-not (Get-Command Start-McpStdioServer -ErrorAction SilentlyContinue)) {
@@ -799,7 +825,7 @@ function Start-McpStdioChannel {
     $proxyState = Enable-McpLocalhostProxyBypass
     try {
         $session = Start-McpStdioServer -ServerExe $ServerExe -ServerArgumentLine $arguments `
-            -WorkingDirectory $WorkingDirectory -Label $Label
+            -WorkingDirectory $WorkingDirectory -Label $Label -CredentialFile $CredentialFile
     }
     catch {
         Restore-McpProxyEnvironment -State $proxyState
@@ -1106,7 +1132,7 @@ function Invoke-McpStagedProbe {
                 $stdioMatlabRoot = $null
                 if ($matlabExe) { $stdioMatlabRoot = Split-Path -Parent (Split-Path -Parent $matlabExe) }
                 $stdioChannel = Start-McpStdioChannel -ServerExe $stdioServer.Path -SessionMode $SessionMode `
-                    -MatlabRoot $stdioMatlabRoot -WorkingDirectory (Split-Path -Parent $IoProbeDirectory)
+                    -MatlabRoot $stdioMatlabRoot -WorkingDirectory (Split-Path -Parent $IoProbeDirectory) -CredentialFile $SessionFile
                 # MATLAB 首次连接要 30 秒以上，探测默认值（20s）会把正常会话判成超时。
                 $channel = [pscustomobject][ordered]@{
                     Kind           = "stdio"
@@ -1203,10 +1229,10 @@ function Invoke-McpStagedProbe {
         $handshakeMetrics["durationMs"] = $initialize.DurationMs
         $handshakeMetrics["tlsMode"] = $initialize.TlsMode
         $handshakeMetrics["skippedLines"] = $initialize.SkippedLines
-        if ($initialize.Ok -and $null -ne $initialize.Json -and ($initialize.Json.PSObject.Properties.Name -contains "result")) {
+        if ($initialize.Ok -and $null -ne $initialize.Json -and ((Test-NodeProperty -Node $initialize.Json -Name "result"))) {
             $resultNode = $initialize.Json.result
-            if ($resultNode.PSObject.Properties.Name -contains "protocolVersion") { $handshakeMetrics.protocolVersion = "$($resultNode.protocolVersion)" }
-            if ($resultNode.PSObject.Properties.Name -contains "serverInfo") {
+            if ((Test-NodeProperty -Node $resultNode -Name "protocolVersion")) { $handshakeMetrics.protocolVersion = "$($resultNode.protocolVersion)" }
+            if ((Test-NodeProperty -Node $resultNode -Name "serverInfo")) {
                 $handshakeMetrics.serverName = "$($resultNode.serverInfo.name)"
                 $handshakeMetrics["serverVersion"] = "$($resultNode.serverInfo.version)"
             }
@@ -1226,7 +1252,7 @@ function Invoke-McpStagedProbe {
             if ($initialize.StatusCode -and ($initialize.StatusCode -lt 200 -or $initialize.StatusCode -ge 300)) {
                 $reasonParts.Add("HTTP $($initialize.StatusCode)")
             }
-            if ($initialize.Json -and $initialize.Json.PSObject.Properties.Name -contains "error") {
+            if ($initialize.Json -and (Test-NodeProperty -Node $initialize.Json -Name "error")) {
                 $reasonParts.Add("JSON-RPC 返回错误：$($initialize.Json.error | ConvertTo-Json -Compress -Depth 6)")
             }
             if ($initialize.Error) {
@@ -1253,8 +1279,8 @@ function Invoke-McpStagedProbe {
 
     if ($handshakeStatus -eq "PASS") {
         $list = Invoke-McpTransportRequest -Channel $channel -Method "tools/list" -Id 2
-        if ($list.Ok -and $null -ne $list.Json -and $list.Json.PSObject.Properties.Name -contains "result" -and
-            $list.Json.result.PSObject.Properties.Name -contains "tools") {
+        if ($list.Ok -and $null -ne $list.Json -and (Test-NodeProperty -Node $list.Json -Name "result") -and
+            (Test-NodeProperty -Node $list.Json.result -Name "tools")) {
             $tools = @($list.Json.result.tools)
             $readMetrics.toolCount = $tools.Count
             $toolNames = @($tools | ForEach-Object { "$($_.name)" })
@@ -1280,7 +1306,7 @@ function Invoke-McpStagedProbe {
                 $callParams = [ordered]@{ name = $selected; arguments = [ordered]@{ $EvalToolArgument = "disp(version)" } }
                 $call = Invoke-McpTransportRequest -Channel $channel -Method "tools/call" -Params $callParams -Id 3
                 $readMetrics["durationMs"] = $call.DurationMs
-                if ($call.Ok -and $null -ne $call.Json -and $call.Json.PSObject.Properties.Name -contains "result") {
+                if ($call.Ok -and $null -ne $call.Json -and (Test-NodeProperty -Node $call.Json -Name "result")) {
                     $text = Get-McpToolText -Result $call.Json.result
                     $readMetrics.output = $text
                     if ($text -match '\d+\.\d+') {
@@ -1296,14 +1322,14 @@ function Invoke-McpStagedProbe {
                 else {
                     $readStatus = "FAIL"
                     $readErrorClass = "MCP_CONNECTION_ERROR"
-                    $readReason = "tools/call 失败：$(if ($call.Json -and $call.Json.PSObject.Properties.Name -contains 'error') { $call.Json.error | ConvertTo-Json -Compress } else { $call.Error })"
+                    $readReason = "tools/call 失败：$(if ($call.Json -and (Test-NodeProperty -Node $call.Json -Name 'error')) { $call.Json.error | ConvertTo-Json -Compress } else { $call.Error })"
                 }
             }
         }
         else {
             $readStatus = "FAIL"
             $readErrorClass = "MCP_CONNECTION_ERROR"
-            $readReason = "tools/list 失败：$(if ($list.Json -and $list.Json.PSObject.Properties.Name -contains 'error') { $list.Json.error | ConvertTo-Json -Compress } else { $list.Error })"
+            $readReason = "tools/list 失败：$(if ($list.Json -and (Test-NodeProperty -Node $list.Json -Name 'error')) { $list.Json.error | ConvertTo-Json -Compress } else { $list.Error })"
         }
     }
 
@@ -1325,7 +1351,8 @@ function Invoke-McpStagedProbe {
         if (-not (Test-Path -LiteralPath $IoProbeDirectory)) {
             New-Item -ItemType Directory -Force -Path $IoProbeDirectory | Out-Null
         }
-        $token = [guid]::NewGuid().ToString("N")
+        # 明确的公开完成标记，避免与无上下文的十六进制认证令牌混淆。
+        $token = 'MAS_IO_' + [guid]::NewGuid().ToString("N")
         $probeFile = Join-Path $IoProbeDirectory "io_probe_$token.txt"
         $ioMetrics.token = $token
         $ioMetrics["file"] = $probeFile
@@ -1335,7 +1362,7 @@ function Invoke-McpStagedProbe {
         $callParams = [ordered]@{ name = $ioToolName; arguments = [ordered]@{ $EvalToolArgument = $code } }
         $call = Invoke-McpTransportRequest -Channel $channel -Method "tools/call" -Params $callParams -Id 4
 
-        if ($call.Ok -and $null -ne $call.Json -and $call.Json.PSObject.Properties.Name -contains "result") {
+        if ($call.Ok -and $null -ne $call.Json -and (Test-NodeProperty -Node $call.Json -Name "result")) {
             $text = Get-McpToolText -Result $call.Json.result
             $ioMetrics.echoed = $text
             $echoOk = $text -match [regex]::Escape($token)
@@ -1367,7 +1394,7 @@ function Invoke-McpStagedProbe {
         else {
             $ioStatus = "FAIL"
             $ioErrorClass = "MCP_CONNECTION_ERROR"
-            $ioReason = "文件读写 tools/call 失败：$(if ($call.Json -and $call.Json.PSObject.Properties.Name -contains 'error') { $call.Json.error | ConvertTo-Json -Compress } else { $call.Error })"
+            $ioReason = "文件读写 tools/call 失败：$(if ($call.Json -and (Test-NodeProperty -Node $call.Json -Name 'error')) { $call.Json.error | ConvertTo-Json -Compress } else { $call.Error })"
         }
     }
 
@@ -1412,4 +1439,5 @@ function Invoke-McpStagedProbe {
     return Update-AcceptanceSummary -Report $report
 }
 
-Export-ModuleMember -Function *
+# 鉴权原值读取函数仅保留模块内部可见，避免被普通诊断调用序列化。
+Export-ModuleMember -Function @('Get-McpDefaultSessionFile', 'ConvertFrom-JsonElement', 'ConvertFrom-JsonCaseSensitive', 'Find-DictionaryKey', 'Test-NodeProperty', 'Get-NodeProperty', 'Get-McpSessionInfo', 'Test-McpLoopbackHostName', 'Get-McpCertificateThumbprint', 'New-McpCertificatePinValidator', 'Get-McpClientRegistrations', 'ConvertFrom-McpResponseBody', 'Invoke-McpJsonRpc', 'Get-McpToolText', 'Test-TcpEndpoint', 'Resolve-McpStdioServer', 'Start-McpStdioChannel', 'Stop-McpStdioChannel', 'Invoke-McpTransportRequest', 'Invoke-McpStagedProbe')

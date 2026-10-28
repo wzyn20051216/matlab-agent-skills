@@ -1,4 +1,4 @@
-<#
+﻿<#
 .SYNOPSIS
 Phase 5.7 sync scenarios: upgrade, conflict, user-file preservation, rollback.
 
@@ -131,7 +131,7 @@ Describe 'Phase 5.7 sync: manifest ownership fence' {
             Invoke-Sync $f | Out-Null
             $manifestPath = Join-Path $f.Skills '.matlab-agent-skills-manifest.json'
             $manifest = Get-Content -Raw -LiteralPath $manifestPath | ConvertFrom-Json
-            $manifest.repository = 'E:\some\other\repo'
+            $manifest.repository = Join-Path $f.Root 'foreign-repository'
             [IO.File]::WriteAllText($manifestPath, ($manifest | ConvertTo-Json -Depth 6))
 
             $threw = Test-Throws { Invoke-Sync $f }

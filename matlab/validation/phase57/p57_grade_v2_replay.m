@@ -2,17 +2,17 @@ function S = p57_grade_v2_replay(evalDir)
 %P57_GRADE_V2_REPLAY  Replay the frozen Phase 5.6 results under protocol v2.
 %
 %   S = p57_grade_v2_replay()
-%   S = p57_grade_v2_replay('E:\desktop\MATLAB-bench-phase56\eval')
+%   S = p57_grade_v2_replay(evaluationDirectory)
 %
 % Reads the sealed answers only through the frozen files and never writes to
 % them. v1 grades are hashed before and after; if either the inputs or the v1
 % outputs change, the replay fails. Outputs live under artifacts/phase57/grading.
 
-if nargin < 1 || isempty(evalDir)
-    evalDir = 'E:\desktop\MATLAB-bench-phase56\eval';
-end
 here = fileparts(mfilename('fullpath'));
 repo = fileparts(fileparts(fileparts(here)));
+if nargin < 1 || isempty(evalDir)
+    evalDir = fullfile(fileparts(repo), 'MATLAB-bench-phase56', 'eval');
+end
 outDir = fullfile(repo, 'artifacts', 'phase57', 'grading');
 if ~isfolder(outDir), mkdir(outDir); end
 addpath(fullfile(repo, 'benchmark'));

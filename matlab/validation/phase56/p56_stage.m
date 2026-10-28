@@ -1,7 +1,7 @@
 function S = p56_stage(rootDir, taskIds)
 %P56_STAGE  Build the Phase 5.6 arm workspaces from the published task bundle.
 %
-%   S = p56_stage('E:\desktop\MATLAB-bench-phase56')
+%   S = p56_stage(evaluationRoot)
 %
 % One publish, three arm directories per task, and a machine-readable record of
 % exactly which files each arm can see. The arm definitions are the ones frozen

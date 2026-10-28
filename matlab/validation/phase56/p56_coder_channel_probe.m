@@ -1,7 +1,7 @@
 function S = p56_coder_channel_probe(outDir, channel)
 %P56_CODER_CHANNEL_PROBE  Run one MATLAB Coder build through one call channel.
 %
-%   S = p56_coder_channel_probe('E:\desktop\MATLAB\artifacts\phase56\coder_channel', 'B')
+%   S = p56_coder_channel_probe(outputDirectory, 'B')
 %
 % Phase 5.5 established that codegen fails over the MCP dynamic-evaluation
 % channel and passes in a real process, but it tested only one shape: an entry

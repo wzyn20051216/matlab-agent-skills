@@ -259,7 +259,8 @@ function Write-StageLog {
     )
     if (-not $Path) { return }
     $safeDetail = Protect-ExecutionLogDetail -Text $Detail
-    $line = "{0} [{1}] {2}" -f (Get-Date).ToString("yyyy-MM-ddTHH:mm:ss.fff"), $Stage, $safeDetail
+    $safeStage = Protect-ExecutionLogDetail -Text $Stage
+    $line = "{0} [{1}] {2}" -f (Get-Date).ToString("yyyy-MM-ddTHH:mm:ss.fff"), $safeStage, $safeDetail
     try {
         Add-Content -LiteralPath $Path -Value $line -Encoding UTF8
     }
@@ -287,7 +288,7 @@ function Invoke-MatlabBatchProcess {
     - 不用 Start-Process 启动：Windows PowerShell 5.1 在环境变量存在大小写重复键
       （例如 HTTPS_PROXY 与 https_proxy 同时存在）时会抛“字典中的关键字重复”，
       改用 ProcessStartInfo 直接启动可绕过该缺陷；
-    - 输出经异步流写入日志文件，避免管道缓冲导致超时后读不到日志；
+    - 双流异步接收到进程内存，结束或超时后先脱敏再写日志，不产生原始日志副本；
     - 记录 started/finished/exitCode/timedOut/errorClass，供验收报告直接引用。
     #>
     [CmdletBinding()]
@@ -324,7 +325,7 @@ function Invoke-MatlabBatchProcess {
     }
 
     $argumentText = ($ArgumentList | ForEach-Object { Format-ProcessArgument -Argument $_ }) -join ' '
-    $commandText = "$MatlabPath $argumentText"
+    $commandText = Protect-ExecutionLogDetail -Text "$MatlabPath $argumentText"
     Write-StageLog -Path $StageLogPath -Stage "launch" -Detail $commandText
 
     $startedAt = Get-Date
@@ -359,7 +360,7 @@ function Invoke-MatlabBatchProcess {
         $stderrStream = New-Object System.IO.FileStream($StderrPath, [System.IO.FileMode]::Create, [System.IO.FileAccess]::Write, [System.IO.FileShare]::ReadWrite)
     }
     catch {
-        $launchError = "无法创建日志文件: $($_.Exception.Message)"
+        $launchError = Protect-ExecutionLogDetail -Text "无法创建日志文件: $($_.Exception.Message)"
         Write-StageLog -Path $StageLogPath -Stage "launch-failed" -Detail $launchError
         $finishedAt = Get-Date
         return [pscustomobject][ordered]@{
@@ -387,11 +388,12 @@ function Invoke-MatlabBatchProcess {
         $process.Start() | Out-Null
         # 空 stdin，避免 MATLAB 等待交互输入。
         try { $process.StandardInput.Close() } catch { }
-        $stdoutTask = $process.StandardOutput.BaseStream.CopyToAsync($stdoutStream)
-        $stderrTask = $process.StandardError.BaseStream.CopyToAsync($stderrStream)
+        # 原始输出仅在进程内异步接收；两个流都完成保护后才允许写入磁盘。
+        $stdoutTask = $process.StandardOutput.ReadToEndAsync()
+        $stderrTask = $process.StandardError.ReadToEndAsync()
     }
     catch {
-        $launchError = $_.Exception.Message
+        $launchError = Protect-ExecutionLogDetail -Text $_.Exception.Message
         Write-StageLog -Path $StageLogPath -Stage "launch-failed" -Detail $launchError
         $finishedAt = Get-Date
         foreach ($stream in @($stdoutStream, $stderrStream)) {
@@ -440,6 +442,20 @@ function Invoke-MatlabBatchProcess {
 
     foreach ($task in @($stdoutTask, $stderrTask)) {
         if ($task) { try { $task.Wait(5000) | Out-Null } catch { } }
+    }
+    $safeOutputs = @()
+    foreach ($task in @($stdoutTask, $stderrTask)) {
+        $captured = '[REDACTED: output capture incomplete]'
+        if ($task -and $task.IsCompleted -and -not $task.IsFaulted -and -not $task.IsCanceled) {
+            $captured = Protect-ExecutionLogDetail -Text ([string]$task.Result)
+        }
+        $safeOutputs += $captured
+    }
+    $utf8 = New-Object Text.UTF8Encoding($false)
+    for ($index = 0; $index -lt 2; $index++) {
+        $stream = @($stdoutStream, $stderrStream)[$index]
+        $bytes = $utf8.GetBytes($safeOutputs[$index])
+        $stream.Write($bytes, 0, $bytes.Length)
     }
     foreach ($stream in @($stdoutStream, $stderrStream)) {
         try { if ($stream) { $stream.Flush(); $stream.Dispose() } } catch { }
@@ -728,7 +744,7 @@ function Invoke-ProcessWithTimeout {
             ExitCode        = -1
             TimedOut        = $false
             StandardOutput  = ""
-            StandardError   = $_.Exception.Message
+            StandardError   = Protect-ExecutionLogDetail -Text $_.Exception.Message
             DurationSeconds = 0
             Started         = $false
         }
@@ -760,8 +776,8 @@ function Invoke-ProcessWithTimeout {
         FilePath        = $FilePath
         ExitCode        = $exitCode
         TimedOut        = $timedOut
-        StandardOutput  = $stdout
-        StandardError   = $stderr
+        StandardOutput  = Protect-ExecutionLogDetail -Text $stdout
+        StandardError   = Protect-ExecutionLogDetail -Text $stderr
         DurationSeconds = [math]::Round(((Get-Date) - $startedAt).TotalSeconds, 3)
         Started         = $true
     }

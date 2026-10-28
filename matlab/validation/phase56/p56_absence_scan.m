@@ -1,7 +1,7 @@
 function A = p56_absence_scan(rootDir, repoDir)
 %P56_ABSENCE_SCAN  Prove the phase-one claim by searching, not by asserting.
 %
-%   A = p56_absence_scan('E:\desktop\MATLAB-bench-phase56', 'E:\desktop\MATLAB')
+%   A = p56_absence_scan(evaluationRoot, repositoryRoot)
 %
 % The two-phase seal says: while an episode runs, the Phase 5.6 answer key does
 % not exist anywhere. "Does not exist" is checkable -- this scans the agent-visible
@@ -22,8 +22,8 @@ function A = p56_absence_scan(rootDir, repoDir)
 % artifacts are absent AND the committed generator still hashes to the committed
 % value. A hit is never dropped: it is reported with its path and reason.
 
-if nargin < 1, rootDir = 'E:\desktop\MATLAB-bench-phase56'; end
 if nargin < 2, repoDir = fileparts(fileparts(fileparts(fileparts(mfilename('fullpath'))))); end
+if nargin < 1, rootDir = fullfile(fileparts(repoDir), 'MATLAB-bench-phase56'); end
 benchDir = fileparts(rootDir);
 
 pubFile = fullfile(rootDir, 'bundle', 'tasks_public.json');

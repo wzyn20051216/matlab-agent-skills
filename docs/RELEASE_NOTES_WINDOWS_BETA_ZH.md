@@ -26,7 +26,7 @@ git clone https://github.com/wzyn20051216/matlab-agent-skills.git
 cd matlab-agent-skills
 git rev-parse HEAD                      # compare with the preview tag's commit
 powershell -ExecutionPolicy Bypass -File .\scripts\Sync-Skills.ps1
-powershell -ExecutionPolicy Bypass -File .\scripts\Install-MatlabMcpClients.ps1 -McpServerName matlab-official
+powershell -ExecutionPolicy Bypass -File .\scripts\Install-MatlabMcpClients.ps1 -ServerName matlab-official
 ```
 
 重启 Codex 会话后自检：`列出你能看到的 matlab-* 技能名称`（应得 9 个）。
@@ -49,6 +49,9 @@ powershell -ExecutionPolicy Bypass -File .\scripts\Install-MatlabMcpClients.ps1 
 | `matlab-robotics-autonomy` | ROS、导航、感知融合、轨迹规划 |
 
 ## 4. 已验证（本机参考环境）
+
+> 本节是 `v0.6.0-preview.2` 发布时点的快照。后续 S3/S4 复测已把免费层推进到 378/379、默认安装推进到
+> 123 个文件（payload 设计），当前数字以 README 与 `SUPPORT_MATRIX_ZH.md` 为准。
 
 | 项 | 结果 |
 |---|---|

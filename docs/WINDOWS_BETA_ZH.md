@@ -17,12 +17,16 @@
 
 ## 2. 快速开始（Windows，三步）
 
-前置：Windows 10/11；已安装 MATLAB R2026a（建议；更早版本未验证）；已安装 Codex CLI 或 Codex Desktop。
+前置：Windows 10/11；Windows PowerShell 5.1 或 PowerShell 7；已安装 MATLAB R2026a（建议；更早版本未验证）
+且许可证已在**运行脚本的同一个 Windows 用户**下激活；首次运行可联网（下载并校验固定 MCP 二进制）；
+已安装 Codex CLI 或 Codex Desktop。MATLAB 在线许可的激活状态按 Windows 用户档案保存，新用户档案
+未激活时 `matlab -batch` 会以 LME 5201 失败，详见 `TROUBLESHOOTING_ZH.md`。
 
 > **版本入口（已同步，2026-10-21）**：`main` **就是**通过验收的技术预览版本，
 > 默认克隆即可，不再需要切换分支。与验收版本核对：`git rev-parse HEAD` 应等于预览 tag
 > `v0.6.0-preview.2` 指向的提交（文档类小改动不改变已安装内容）。
-> 固定不变入口（可选）：tag `v0.6.0-preview.1`（`100e6d4`），内容与验收树**完全相同**，
+> 固定不变入口（可选）：tag `v0.6.0-preview.1`（`100e6d4`），`skills/`、`config/`、`scripts/`
+> 与 main 无差异（即可安装内容相同；Git tree 因文档历史不同而不同），
 > 不是 GitHub Release，也不会被移动。
 
 ```powershell
@@ -36,7 +40,7 @@ git rev-parse 'v0.6.0-preview.2^{commit}'   # tag 发布后可用
 powershell -ExecutionPolicy Bypass -File .\scripts\Sync-Skills.ps1
 
 # 3) 配置官方 MATLAB MCP（生成/合并客户端配置，并校验服务器二进制）
-powershell -ExecutionPolicy Bypass -File .\scripts\Install-MatlabMcpClients.ps1 -McpServerName matlab-official
+powershell -ExecutionPolicy Bypass -File .\scripts\Install-MatlabMcpClients.ps1 -ServerName matlab-official
 ```
 
 如需不可变入口，把第 1 步换成
@@ -108,7 +112,7 @@ powershell -ExecutionPolicy Bypass -File .\scripts\Start-MatlabDesktop.ps1 -Time
 ```powershell
 # 安装/更新客户端 MCP 配置（可指定服务器路径与 MATLAB 根）
 powershell -ExecutionPolicy Bypass -File .\scripts\Install-MatlabMcpClients.ps1 `
-  -McpServerName matlab-official `
+  -ServerName matlab-official `
   -ServerExePath "C:\path\to\matlab-mcp-server-windows-x64.exe" `
   -MatlabRoot "C:\Program Files\MATLAB\R2026a"
 ```
@@ -138,8 +142,8 @@ powershell -ExecutionPolicy Bypass -File .\tests\Invoke-Tests.ps1 -Layer free
 
 | 项 | 结论 | 证据 |
 |---|---|---|
-| 免费层测试 | **306/306**，Windows PowerShell 5.1 与 PowerShell 7 各一遍，exit 0 | `free_tests_final_ps51.json` / `free_tests_final_ps7.json` |
-| 默认安装 | 不带 `-SkillRoot` 装到 `%USERPROFILE%\.agents\skills`；9/9 目录、62/62 文件、树哈希与仓库一致 | `artifacts/validation/phase45/install/windows_install_acceptance.md`（76/76 断言 ×2 宿主） |
+| 免费层测试 | **378/379**，Windows PowerShell 5.1 与 PowerShell 7 各一遍（唯一失败为既有的盘符路径卫生检查，非功能测试） | `artifacts/s3/evidence/green/free-layer-final.json` / `free-layer-final-ps7.json` |
+| 默认安装 | 不带 `-SkillRoot` 装到 `%USERPROFILE%\.agents\skills`；9/9 目录、123 个文件；7/9 与 `skills/` 树哈希一致，`matlab-runner` / `matlab-orchestrator` 额外携带 `config/skill-payloads.json` 声明的脚本资源（属设计） | `artifacts/s3/GATES_S3.md`；S4 干净环境安装证据 `artifacts/s4/evidence/install-verification.json` |
 | 升级 / 幂等 | 旧版→新版 `updated=9`；连续两次 `updated=0`、不再新增备份目录 | 同上 |
 | 用户文件保护 | 升级后用户新增文件保留且哈希不变；JSON 报 `preservedUserFiles` | 同上 |
 | 失败回滚 | 目标文件被占用时退出码非零、`decision=error`、树哈希恢复、缺失 0 | 同上 |
@@ -203,11 +207,11 @@ powershell -ExecutionPolicy Bypass -File .\scripts\Remove-Skills.ps1
 
 ## 11. 发布前 checklist
 
-- [x] 免费层 306/306（PS 5.1 + PS 7）
+- [x] 免费层 378/379（PS 5.1 + PS 7；唯一失败为既有盘符路径卫生检查）
 - [x] 安装验收 76/76 ×2 宿主，0 FAIL
 - [x] 两端客户端 9/9 发现（引擎级）
-- [x] 已去掉报告中的本机用户名路径
-- [x] `.codex/`、`.workbuddy/`、`artifacts/`、`bin/` 均未进入版本库
+- [ ] 公开前复核 `artifacts/` 与 `docs/PHASE*` 中的本机路径、主机名（见 S4 报告）
+- [x] `.codex/`、`.workbuddy/`、`bin/` 未进入版本库；`artifacts/` 证据按约定以 `git add -f` 纳入（994 个文件），公开前需复核
 - [ ] CLI/Desktop 自主执行（等网络恢复后补测）
 - [ ] R1/R2/R3 增益评测（等 Agent 可运行后执行冻结方案）
 - [ ] WSL/Linux/macOS 实机验证（不在本轮范围）

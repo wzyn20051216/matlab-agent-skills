@@ -102,6 +102,79 @@ Describe '统一脱敏函数覆盖真实泄露形态' {
     }
 }
 
+Describe '安全输出保留 JSON 结构与正常数据' {
+    It '同一结构中先出现的普通诊断不能回显后出现的凭据值' {
+        $source = '{"diagnostic":"repeated SYNTHETIC-REPEATED-KEY","nested":{"apiKey":"SYNTHETIC-REPEATED-KEY"},"value":1.25}'
+        $safe = Protect-MasText -Text $source
+        $safe | Should Not Match 'SYNTHETIC-REPEATED-KEY'
+        ($safe | ConvertFrom-Json).value | Should Be 1.25
+    }
+
+    It '常见大小写、分隔符及环境变量字段使用同一规则' {
+        foreach ($key in @('API_KEY', 'Api-Key', 'X_MCP_API_KEY', 'xMcpApiKey', 'PASSWD', 'GH_TOKEN', 'AWS_SECRET_ACCESS_KEY', 'MATLAB_MCP_API_KEY')) {
+            $value = @{}; $value[$key] = 'SYNTHETIC-ALIAS-CREDENTIAL'
+            (Protect-MasText -Text ($value | ConvertTo-Json -Compress)) | Should Not Match 'SYNTHETIC-ALIAS-CREDENTIAL'
+        }
+    }
+
+    It '普通输出中的独立令牌仍受保护，协议 id 采用独立上下文' {
+        $value = @{ output = $script:FakeHex; id = $script:FakeUuid }
+        $safe = Protect-MasValue -Value $value
+        $safe.output | Should Not Match ([regex]::Escape($script:FakeHex))
+        $safe.id | Should Be $script:FakeUuid
+    }
+
+    It '嵌套对象、数组和非字符串敏感值不泄漏且仍是合法 JSON' {
+        $payload = [ordered]@{
+            jsonrpc = '2.0'; id = 7
+            result = [ordered]@{
+                matrix = @(@(1, 2), @(3, 4)); path = 'C:/models/normal.slx'
+                nested = @(@{ 'X-MCP-API-KEY' = 'SYNTHETIC-NESTED-CREDENTIAL-A'; secret = @{ value = 'SYNTHETIC-NESTED-CREDENTIAL-B' } })
+            }
+        }
+        $safe = Protect-MasText -Text ($payload | ConvertTo-Json -Depth 12 -Compress)
+        $safe | Should Not Match 'SYNTHETIC-NESTED-CREDENTIAL'
+        $parsed = $safe | ConvertFrom-Json
+        $parsed.jsonrpc | Should Be '2.0'
+        $parsed.id | Should Be 7
+        $parsed.result.matrix[1][0] | Should Be 3
+        $parsed.result.path | Should Be 'C:/models/normal.slx'
+    }
+
+    It 'Unicode 转义字段名和值在结构化边界被识别' {
+        $safe = Protect-MasText -Text '{"\u0061piKey":"SYNTHETIC-UNICODE-CREDENTIAL","value":3.14159}'
+        $safe | Should Not Match 'SYNTHETIC-UNICODE-CREDENTIAL'
+        ($safe | ConvertFrom-Json).value | Should Be 3.14159
+    }
+
+    It '已知短秘密及其 URL 编码不通过普通诊断泄漏' {
+        $safe = Protect-MasText -Text 'detail p4! encoded=p4%21' -Secrets @('p4!')
+        $safe | Should Not Match 'p4!|p4%21'
+    }
+
+    It '协议 JSON 中的请求标识、摘要和空数组保持不变' {
+        $source = '{"jsonrpc":"2.0","id":"11111111-2222-3333-4444-555555555555","result":{"sha256":"0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef","values":[],"optional":null}}'
+        $safe = Protect-MasText -Text $source
+        ([string]::Equals($safe, $source, [StringComparison]::Ordinal)) | Should Be $true
+    }
+
+    It '明确保留标识的诊断模式仍移除敏感字段' {
+        $safe = Protect-MasText -Text ('matrix=[1 2;3 4] sha256=' + $script:FakeHex + '; password=SYNTHETIC-PASSWORD') -PreserveIdentifiers
+        $safe | Should Match ([regex]::Escape($script:FakeHex))
+        $safe | Should Match 'matrix=\[1 2;3 4\]'
+        $safe | Should Not Match 'SYNTHETIC-PASSWORD'
+    }
+
+    It '嵌套异常保持可诊断且秘密不进入序列化结果' {
+        $inner = New-Object System.Exception('password=SYNTHETIC-INNER-PASSWORD')
+        $outer = New-Object System.Exception('request failed', $inner)
+        $safe = Protect-MasValue -Value $outer
+        $json = $safe | ConvertTo-Json -Depth 12
+        $json | Should Not Match 'SYNTHETIC-INNER-PASSWORD'
+        $json | Should Match 'request failed'
+    }
+}
+
 Describe '既有入口委托到统一实现后不再漏' {
     It 'Protect-McpSensitiveText 覆盖转义 JSON / Bearer / argv / 裸 UUID' {
         $text = '{\"apiKey\":\"' + $script:FakeJson + '\"}; Authorization: Bearer ' + $script:FakeBearer + '; --api-key ' + $script:FakeArgv + '; ' + $script:FakeUuid

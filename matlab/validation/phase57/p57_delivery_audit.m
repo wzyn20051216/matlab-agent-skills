@@ -3,18 +3,18 @@ function S = p57_delivery_audit(evalDir)
 %consistency: engineering math and output schema scored independently.
 %
 %   S = p57_delivery_audit()
-%   S = p57_delivery_audit('E:\desktop\MATLAB-bench-phase56\eval')
+%   S = p57_delivery_audit(evaluationDirectory)
 %
 % Contracts are built in memory from the sealed answers (evaluation side). The
 % results, answers and tasks are hashed before and after; this function never
 % writes to them and never rewrites a delivered verdict. Output lives under
 % artifacts/phase57/delivery.
 
-if nargin < 1 || isempty(evalDir)
-    evalDir = 'E:\desktop\MATLAB-bench-phase56\eval';
-end
 here = fileparts(mfilename('fullpath'));
 repo = fileparts(fileparts(fileparts(here)));
+if nargin < 1 || isempty(evalDir)
+    evalDir = fullfile(fileparts(repo), 'MATLAB-bench-phase56', 'eval');
+end
 outDir = fullfile(repo, 'artifacts', 'phase57', 'delivery');
 if ~isfolder(outDir), mkdir(outDir); end
 addpath(fullfile(repo, 'skills', 'matlab-testing-ci', 'scripts'));

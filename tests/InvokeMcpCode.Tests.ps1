@@ -51,7 +51,9 @@ function Send-McpStdioRequest {
 }
 Export-ModuleMember -Function *
 '@
-    [IO.File]::WriteAllText((Join-Path $scripts 'MatlabAgentSkills.Core.psm1'), $core, $utf8)
+    # 传输与 MATLAB 发现仍为假实现；输出边界必须使用实际公共脱敏器。
+    $actualCore = [IO.File]::ReadAllText((Join-Path (Split-Path -Parent $PSScriptRoot) 'scripts/MatlabAgentSkills.Core.psm1'))
+    [IO.File]::WriteAllText((Join-Path $scripts 'MatlabAgentSkills.Core.psm1'), ($actualCore + "`r`n" + $core), $utf8)
     [IO.File]::WriteAllText((Join-Path $scripts 'MatlabAgentSkills.Execution.psm1'), $execution, $utf8)
     [IO.File]::WriteAllText((Join-Path $scripts 'MatlabAgentSkills.McpStdio.psm1'), $stdio.Replace('__MODE__', $Mode), $utf8)
     [IO.File]::WriteAllText((Join-Path $root 'code.m'), $Code, $utf8)

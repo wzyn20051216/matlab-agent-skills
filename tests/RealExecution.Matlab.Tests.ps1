@@ -29,6 +29,11 @@ if ([string]::IsNullOrWhiteSpace($matlabExe)) {
 # 版本探测给足超时（首次启动要加载许可证），超时保护单独用更短的阈值验证。
 $batchTimeoutSeconds = 180
 $overrunTimeoutSeconds = 45
+$runRoot = $repoRoot
+if ($env:MAS_TEST_EVIDENCE_ROOT) {
+    $runRoot = Join-Path $env:MAS_TEST_EVIDENCE_ROOT 'real-execution'
+    New-Item -ItemType Directory -Force -Path $runRoot | Out-Null
+}
 
 Describe "真实 MATLAB 执行" {
     It "能解析出真实 MATLAB 可执行文件路径" {
@@ -46,7 +51,7 @@ Describe "真实 MATLAB 执行" {
 
     It "真实 -batch 执行 disp(version) 并返回真实版本号" {
         $run = Invoke-MatlabBatchProcess -MatlabPath $matlabExe -ArgumentList @("-batch", "disp(version)") `
-            -Label "real-version" -TimeoutSeconds $batchTimeoutSeconds -WorkingDirectory $repoRoot
+            -Label "real-version" -TimeoutSeconds $batchTimeoutSeconds -WorkingDirectory $runRoot
 
         $evidence = "exitCode=$($run.ExitCode) timedOut=$($run.TimedOut) duration=$([math]::Round($run.DurationSeconds, 1))s errorClass=$($run.ErrorClass)"
 
@@ -79,7 +84,7 @@ Describe "真实 MATLAB 执行" {
     It "超时保护会在阈值内终止真实 MATLAB 进程" {
         $stopwatch = [System.Diagnostics.Stopwatch]::StartNew()
         $run = Invoke-MatlabBatchProcess -MatlabPath $matlabExe -ArgumentList @("-batch", "pause(600)") `
-            -Label "real-timeout" -TimeoutSeconds $overrunTimeoutSeconds -WorkingDirectory $repoRoot `
+            -Label "real-timeout" -TimeoutSeconds $overrunTimeoutSeconds -WorkingDirectory $runRoot `
 
         $stopwatch.Stop()
 

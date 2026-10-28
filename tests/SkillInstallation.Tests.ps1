@@ -49,9 +49,9 @@ Describe '技能目录解析：客户端共用与运行环境隔离' {
         $r.source | Should Be 'native-user-shared'
     }
     It 'WSL 使用 Linux 用户目录，不沿用 Windows CODEX_HOME' {
-        $r = Resolve-MasSkillInstallation -Runtime WSL -UserHome '/home/orange' -CodexHome 'C:\Users\alice\.codex'
-        $r.skillRoot | Should Be '/home/orange/.agents/skills'
-        $r.legacySkillRoot | Should Be '/home/orange/.codex/skills'
+        $r = Resolve-MasSkillInstallation -Runtime WSL -UserHome '/home/alice' -CodexHome 'C:\Users\alice\.codex'
+        $r.skillRoot | Should Be '/home/alice/.agents/skills'
+        $r.legacySkillRoot | Should Be '/home/alice/.codex/skills'
     }
     It '原生 Linux 和 WSL 按当前用户分别解析' {
         (Resolve-MasSkillInstallation -Runtime Linux -UserHome '/home/researcher').skillRoot |
@@ -61,7 +61,7 @@ Describe '技能目录解析：客户端共用与运行环境隔离' {
         (Test-Throws { Resolve-MasSkillInstallation -Runtime WSL -UserHome 'C:\Users\alice' }) | Should Be $true
     }
     It 'Windows 不接受误传的 Linux 用户目录' {
-        (Test-Throws { Resolve-MasSkillInstallation -Runtime Windows -UserHome '/home/orange' }) | Should Be $true
+        (Test-Throws { Resolve-MasSkillInstallation -Runtime Windows -UserHome '/home/alice' }) | Should Be $true
     }
     It '显式 SkillRoot 优先，可兼容经验证的旧客户端目录' {
         $s = New-InstallationSandbox

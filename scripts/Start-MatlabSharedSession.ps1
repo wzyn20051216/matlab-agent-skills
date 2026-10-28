@@ -786,7 +786,7 @@ function Protect-MasSecretText {
         }
     }
     if (Get-Command Protect-MasText -ErrorAction SilentlyContinue) {
-        return (Protect-MasText -Text $Text -Secrets $Secrets)
+        return (Protect-MasText -Text $Text -Secrets $Secrets -MaskSensitiveFieldNames)
     }
     # 脱敏器不可用时失败关闭：宁可少一段文本，也不把原文写进日志。
     return "[REDACTED: sanitizer-unavailable]"

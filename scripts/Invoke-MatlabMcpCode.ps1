@@ -10,42 +10,15 @@ param(
     [Parameter(Mandatory)][string]$CodeFile,
     [Parameter(Mandatory)][string]$OutputDirectory,
     [string]$ServerExe,
-    [ValidateRange(1, 900)][int]$TimeoutSeconds = 120
+    [ValidateRange(1, 900)][int]$TimeoutSeconds = 120,
+    [string]$SessionFile
 )
 $ErrorActionPreference = 'Stop'
 
 function Protect-MasCodeEvidenceValue {
     <# .SYNOPSIS 在 JSON 序列化前按字段和文本行脱敏，保留合法的 JSON 结构。 #>
     param([AllowNull()]$Value)
-    if ($null -eq $Value) { return $null }
-    if ($Value -is [string]) {
-        $text = Protect-McpSensitiveText -Text $Value
-        # 混合诊断行可能含短密钥、Bearer 或转义后的 JSON；整行省略避免漏出值。
-        return (@($text -split '\r?\n' | ForEach-Object {
-            if ($_ -match '(?i)api[-_]?key|authorization|\bbearer\s|\bbasic\s|access[-_]?token|refresh[-_]?token|client[-_]?secret|\bpassword\b|\btoken\s*[:=]') {
-                '[已省略凭据相关行]'
-            } else { $_ }
-        }) -join "`n")
-    }
-    if ($Value -is [System.Collections.IDictionary]) {
-        $safe = [ordered]@{}
-        foreach ($key in $Value.Keys) {
-            $safe[$key] = if ([string]$key -match '^(?i:api[-_]?key|x-api-key|authorization|proxy-authorization|access[-_]?token|refresh[-_]?token|client[-_]?secret|password|token)$') {
-                '<redacted>'
-            } else { Protect-MasCodeEvidenceValue -Value $Value[$key] }
-        }
-        return $safe
-    }
-    if ($Value -is [System.Collections.IEnumerable]) {
-        $safeItems = @($Value | ForEach-Object { Protect-MasCodeEvidenceValue -Value $_ })
-        return ,$safeItems
-    }
-    if ($Value -is [pscustomobject]) {
-        $safe = [ordered]@{}
-        foreach ($property in $Value.PSObject.Properties) { $safe[$property.Name] = $property.Value }
-        return [pscustomobject](Protect-MasCodeEvidenceValue -Value $safe)
-    }
-    return $Value
+    return Protect-MasValue -Value $Value -RedactionText '<redacted>' -OmitSensitiveTextLines
 }
 
 $repo = Split-Path -Parent $PSScriptRoot
@@ -68,11 +41,12 @@ $matlabRoot = Split-Path -Parent (Split-Path -Parent $matlabExe)
 $built = New-MatlabMcpServerArgs -SessionMode auto -MatlabRoot $matlabRoot -DisplayMode desktop -InitializeMatlabOnStartup $true
 $argumentLine = ($built.Arguments | ForEach-Object { Format-ProcessArgument -Argument $_ }) -join ' '
 $proxyState = Enable-McpLocalhostProxyBypass
+if (-not $SessionFile -and $env:APPDATA) { $SessionFile = Join-Path $env:APPDATA 'MathWorks/MATLAB MCP Server/v1/sessionDetails.json' }
 $session = $null
 $timer = [Diagnostics.Stopwatch]::StartNew()
 $record = [ordered]@{schema='mas-mcp-code/2';startedAt=(Get-Date).ToString('o');status='FAIL';reason=$null;code=$code;submittedCode=$submittedCode;completionMarker=$completionMarker;executionCompleted=$false;serverExe=$ServerExe;serverArgs=$built.Arguments}
 try {
-    $session = Start-McpStdioServer -ServerExe $ServerExe -ServerArgumentLine $argumentLine -WorkingDirectory $repo
+    $session = Start-McpStdioServer -ServerExe $ServerExe -ServerArgumentLine $argumentLine -WorkingDirectory $repo -CredentialFile $SessionFile
     $init = Send-McpStdioRequest -Session $session -Method initialize -Params @{
         protocolVersion='2024-11-05';capabilities=@{};clientInfo=@{name='mas-codex-evaluation';version='1.0'}
     } -TimeoutSeconds $TimeoutSeconds

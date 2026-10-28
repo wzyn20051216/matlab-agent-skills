@@ -10,7 +10,7 @@ function r = test_p56_stage(verbose)
 % that claims "no answer is readable" is only worth something if it catches an
 % answer when one is planted, without crying wolf on the episode's own result.json.
 %
-% The self-test workspace lives on E:, next to the other evaluation roots and
+% The self-test workspace uses the process temporary directory and stays
 % outside both the repository and the phase56 bundle, so its planted canaries can
 % never be seen by a real run. It is removed on exit.
 
@@ -20,9 +20,7 @@ repo = fileparts(fileparts(fileparts(here)));
 addpath(here); addpath(fullfile(repo, 'benchmark'));
 
 C = {};
-tt = fullfile('E:', 'desktop', sprintf('p56-selftest-%s', ...
-    char(java.util.UUID.randomUUID().toString().substring(0, 8))));
-if ~exist('E:\desktop', 'dir'), tt = tempname; end
+tt = tempname;
 mkdir(tt);
 cleaner = onCleanup(@() rmdir(tt, 's')); %#ok<NASGU>
 root = fullfile(tt, 'bench');

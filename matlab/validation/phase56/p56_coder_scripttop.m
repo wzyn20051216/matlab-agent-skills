@@ -1,6 +1,6 @@
 %P56_CODER_SCRIPTTOP  The Phase 5.5 failing shape, measured at true top level.
 %
-%   run('E:\desktop\MATLAB\matlab\validation\phase56\p56_coder_scripttop.m')
+%   run(fullfile(repositoryRoot, 'matlab', 'validation', 'phase56', 'p56_coder_scripttop.m'))
 %
 % Phase 5.5's codegen failure came from an entry that exists only as a local
 % function of the code being evaluated. p56_coder_entry_form_probe.m tried to

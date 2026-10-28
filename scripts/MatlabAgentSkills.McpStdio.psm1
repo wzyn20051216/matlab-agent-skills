@@ -23,6 +23,10 @@ Bearer 还是 apiKey 头），而官方 matlab-mcp-server.exe 用 --matlab-sessi
 - 所有失败都带 stderr 尾部，便于审计。
 #>
 
+$coreModule = Join-Path $PSScriptRoot 'MatlabAgentSkills.Core.psm1'
+if (-not (Test-Path -LiteralPath $coreModule)) { throw '缺少公共安全输出模块，拒绝返回未保护的 MCP 数据。' }
+Import-Module $coreModule -DisableNameChecking -ErrorAction Stop
+
 function Start-McpStdioServer {
     <#
     .SYNOPSIS
@@ -36,7 +40,8 @@ function Start-McpStdioServer {
         [Parameter(Mandatory)][string]$ServerExe,
         [string]$ServerArgumentLine = "",
         [string]$WorkingDirectory = (Get-Location).Path,
-        [string]$Label = "mcp-stdio"
+        [string]$Label = "mcp-stdio",
+        [string]$CredentialFile
     )
 
     if (-not (Test-Path -LiteralPath $ServerExe)) {
@@ -96,6 +101,7 @@ function Start-McpStdioServer {
         TimedOut     = $false
         # 同一时刻只允许一个待决读取：见 Read-McpStdioResponseLine 的说明。
         PendingRead  = $null
+        CredentialFile = $CredentialFile
     }
     return $session
 }
@@ -116,7 +122,8 @@ function Get-McpStdioStderrTail {
     )
     if (-not $Session.Process.HasExited) { return "" }
     try {
-        $text = "$($Session.ErrTask.Result)"
+        if ($Session.PSObject.Properties['CredentialFile']) { Register-MasCredentialFile -Path $Session.CredentialFile }
+        $text = Protect-McpSensitiveText -Text "$($Session.ErrTask.Result)"
         if ($text.Length -gt $MaxChars) { return $text.Substring($text.Length - $MaxChars) }
         return $text
     }
@@ -174,7 +181,7 @@ function Send-McpStdioRequest {
     catch {
         $stopwatch.Stop()
         $outcome.DurationMs = [int]$stopwatch.ElapsedMilliseconds
-        $outcome.Error = "写入 stdin 失败：$($_.Exception.Message)"
+        $outcome.Error = Protect-McpSensitiveText -Text "写入 stdin 失败：$($_.Exception.Message)"
         return $outcome
     }
 
@@ -195,7 +202,8 @@ function Send-McpStdioRequest {
             # 进程已退出：再尝试读一次缓冲，仍无响应就立即失败，不空等到超时。
             $final = Read-McpStdioResponseLine -Session $Session -TimeoutMs 500
             if ($null -ne $final) {
-                if (Resolve-McpStdioLine -Outcome $outcome -Line $final -ExpectedId $requestId) { $break }
+                if ($Session.PSObject.Properties['CredentialFile']) { Register-MasCredentialFile -Path $Session.CredentialFile }
+                if (Resolve-McpStdioLine -Outcome $outcome -Line $final -ExpectedId $requestId) { break }
             }
             $outcome.Error = "服务端进程已退出（exit=$($Session.Process.ExitCode)），未返回响应"
             break
@@ -203,6 +211,7 @@ function Send-McpStdioRequest {
 
         $line = Read-McpStdioResponseLine -Session $Session -TimeoutMs ([Math]::Min($remainingMs, 1000))
         if ($null -eq $line) { continue }
+        if ($Session.PSObject.Properties['CredentialFile']) { Register-MasCredentialFile -Path $Session.CredentialFile }
         if (Resolve-McpStdioLine -Outcome $outcome -Line $line -ExpectedId $requestId) { break }
     }
 
@@ -294,30 +303,31 @@ function Resolve-McpStdioLine {
     }
 
     $parsed = $null
-    try { $parsed = $trimmed | ConvertFrom-Json } catch {
+    try { $parsed = ConvertFrom-MasJson -Text $trimmed } catch {
         $Outcome.SkippedLines = [int]$Outcome.SkippedLines + 1
         return $false
     }
 
-    $hasId = $parsed.PSObject.Properties.Name -contains "id"
+    $hasId = ($parsed -is [System.Collections.IDictionary] -and $parsed.ContainsKey('id'))
     if (-not $hasId) {
         # 服务器主动通知（notifications/*），不是本次请求的响应。
         $Outcome.SkippedLines = [int]$Outcome.SkippedLines + 1
         return $false
     }
 
-    if ([int]$parsed.id -ne $ExpectedId) {
+    if (($parsed.id -isnot [int] -and $parsed.id -isnot [long]) -or $parsed.id -ne $ExpectedId) {
         $Outcome.SkippedLines = [int]$Outcome.SkippedLines + 1
         return $false
     }
 
-    if ($parsed.PSObject.Properties.Name -contains "error") {
-        $Outcome.Error = ($parsed.error | ConvertTo-Json -Compress -Depth 8)
+    if ($parsed.ContainsKey('error')) {
+        $safeError = Protect-MasValue -Value $parsed.error
+        $Outcome.Error = ConvertTo-Json -InputObject $safeError -Compress -Depth 32
         return $true
     }
 
     $Outcome.Ok = $true
-    $Outcome.Result = $parsed.result
+    $Outcome.Result = Protect-MasValue -Value $parsed.result
     return $true
 }
 
@@ -400,7 +410,7 @@ function Get-McpProxyEnvironmentSnapshot {
     $snapshot = [ordered]@{}
     foreach ($name in $names) {
         $value = [System.Environment]::GetEnvironmentVariable($name, "Process")
-        $snapshot[$name] = $(if ([string]::IsNullOrEmpty($value)) { $null } else { $value })
+        $snapshot[$name] = $(if ([string]::IsNullOrEmpty($value)) { $null } else { Protect-McpSensitiveText -Text $value })
     }
     return $snapshot
 }
@@ -446,19 +456,19 @@ function Get-McpStdioToolText {
     if ($null -eq $ResultNode) { return "" }
     $texts = New-Object System.Collections.Generic.List[string]
 
-    if ($ResultNode.PSObject.Properties.Name -contains "content") {
+    if (($ResultNode -is [System.Collections.IDictionary] -and $ResultNode.ContainsKey('content')) -or $ResultNode.PSObject.Properties.Name -contains "content") {
         foreach ($item in @($ResultNode.content)) {
             if ($null -eq $item) { continue }
-            if ($item.PSObject.Properties.Name -contains "text") { $texts.Add("$($item.text)") }
+            if (($item -is [System.Collections.IDictionary] -and $item.ContainsKey('text')) -or $item.PSObject.Properties.Name -contains "text") { $texts.Add("$($item.text)") }
         }
     }
     foreach ($name in @("output", "stdout", "result", "value")) {
-        if ($ResultNode.PSObject.Properties.Name -contains $name) {
+        if (($ResultNode -is [System.Collections.IDictionary] -and $ResultNode.ContainsKey($name)) -or $ResultNode.PSObject.Properties.Name -contains $name) {
             $value = $ResultNode.$name
             if ($value -is [string]) { $texts.Add($value) }
         }
     }
-    return ($texts -join "`n")
+    return (Protect-McpSensitiveText -Text ($texts -join "`n"))
 }
 
 function Stop-McpStdioServer {
@@ -495,7 +505,7 @@ function Stop-McpStdioServer {
         $info.StdErrTail = Get-McpStdioStderrTail -Session $Session
     }
     catch {
-        $info.StdErrTail = "关闭服务端时出错：$($_.Exception.Message)"
+        $info.StdErrTail = Protect-McpSensitiveText -Text "关闭服务端时出错：$($_.Exception.Message)"
     }
     finally {
         try { $Session.Reader.Dispose() } catch { }

@@ -10,7 +10,8 @@ grade file says so in `baseline`, `agentRuns`, and `agentLevel`.
 1. **The agent-visible repository never contains the held-out answers.**
    `benchmark/dev/` is public: its tasks and answers exist so the harness can be
    developed. The formal holdout lives outside the repository, at
-   `MAS_BENCH_HOLDOUT_ROOT` (default `E:\desktop\MATLAB-bench-holdout-phase53`).
+   `MAS_BENCH_HOLDOUT_ROOT` (default: the sibling folder
+   `MATLAB-bench-holdout-phase53` next to this repository).
 2. **Reference answers and the grader are on the evaluation side.**
    `benchmark_run.m` receives only `tasks.json`; `benchmark_grade.m` reads
    `answers.json` afterwards and compares.

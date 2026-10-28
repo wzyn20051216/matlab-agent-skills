@@ -1,7 +1,7 @@
 function R = p56_session_reset(neutralDir, logFile)
 %P56_SESSION_RESET  Put the shared MATLAB session back into a known blind state.
 %
-%   R = p56_session_reset('E:\desktop\MATLAB', logFile)
+%   R = p56_session_reset(repositoryRoot, logFile)
 %
 % Phase 5.6 measures three arms that are supposed to differ only in what they can
 % see. The file system is not the only channel: every episode runs
@@ -38,7 +38,7 @@ repo = neutralDir;
 % SKILL.md, so they are not an arm-blindness channel. skills/, benchmark/ and the
 % staging root are.
 roots = {fullfile(repo, 'skills'), fullfile(repo, 'benchmark'), ...
-         'E:\desktop\MATLAB-bench-phase56'};
+         fullfile(fileparts(repo), 'MATLAB-bench-phase56')};
 
 B = struct();
 B.pwd = pwd;

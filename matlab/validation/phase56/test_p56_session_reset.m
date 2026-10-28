@@ -22,7 +22,7 @@ function r = test_p56_session_reset(verbose)
 %   4. the reset is recorded, is repeatable, and does not pretend to clear
 %      variables it cannot reach.
 %
-% The scratch root is E:\desktop\<uuid>, outside the repository and outside the
+% The scratch root uses the process temporary directory, outside the repository and
 % phase56 bundle, and the test restores the path and pwd before returning.
 
 if nargin < 1, verbose = true; end
@@ -34,9 +34,7 @@ startPwd = pwd;
 pathBefore = strsplit(path, pathsep);
 C = {};
 
-tt = fullfile('E:', 'desktop', sprintf('p56-reset-selftest-%s', ...
-    char(java.util.UUID.randomUUID().toString().substring(0, 8))));
-if ~exist('E:\desktop', 'dir'), tt = tempname; end
+tt = tempname;
 if ~exist(tt, 'dir'), mkdir(tt); end
 restoreGuard = onCleanup(@() cleanupState(tt, startPwd, pathBefore)); %#ok<NASGU>
 

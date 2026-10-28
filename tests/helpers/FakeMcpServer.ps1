@@ -21,7 +21,7 @@ Mode：
 param(
     [int]$Port = 0,
     [Parameter(Mandatory)][string]$PortFile,
-    [ValidateSet("pass", "no-tool", "bad-handshake", "auth-fail", "wrong-io", "slow")]
+    [ValidateSet("pass", "no-tool", "bad-handshake", "auth-fail", "wrong-io", "slow", "security-json", "security-sse", "security-error")]
     [string]$Mode = "pass",
     [int]$MaxRequests = 12
 )
@@ -65,7 +65,11 @@ function Read-HttpRequest {
         $body = [System.Text.Encoding]::UTF8.GetString($bodyBytes, 0, $offset)
     }
 
-    return [pscustomobject]@{ RequestLine = $lines[0]; Body = $body }
+    $headers = @{}
+    foreach ($line in $lines) {
+        if ($line -match '^([^:]+):\s*(.*)$') { $headers[$Matches[1]] = $Matches[2] }
+    }
+    return [pscustomobject]@{ RequestLine = $lines[0]; Body = $body; Headers = $headers }
 }
 
 function Send-HttpResponse {
@@ -137,6 +141,29 @@ try {
                 continue
             }
 
+            if ($Mode -like 'security-*') {
+                # 只包含合成值；回传布尔鉴权判定和请求摘要，不回显鉴权头。
+                $sha = [Security.Cryptography.SHA256]::Create()
+                try { $bodySha256 = [BitConverter]::ToString($sha.ComputeHash([Text.Encoding]::UTF8.GetBytes($request.Body))).Replace('-', '').ToLowerInvariant() }
+                finally { $sha.Dispose() }
+                $node = [ordered]@{ jsonrpc='2.0'; id=$id; result=[ordered]@{
+                    authUnchanged=($request.Headers['x-api-key'] -ceq 'SYNTHETIC-HTTP-AUTH!')
+                    bodySha256=$bodySha256; matrix=@(@(1,2),@(3,4)); paths=@('C:/data/sample.m')
+                    nested=@{ 'x-mcp-api-key'='SYNTHETIC-HTTP-FIELD'; apiKey=@{value='SYNTHETIC-HTTP-OBJECT'} }
+                    content=@(@{type='text';text='diagnostic SYNTHETIC-HTTP-AUTH! SYNTHETIC-HTTP-AUTH%21'})
+                } }
+                $status = 200
+                if ($Mode -eq 'security-error') {
+                    $node.Remove('result')
+                    $node.error=@{code=-32001;message='controlled failure';data=@{password='SYNTHETIC-HTTP-ERROR'}}
+                    $status=500
+                }
+                $safeFixture = $node | ConvertTo-Json -Depth 12 -Compress
+                if ($Mode -eq 'security-sse') { $safeFixture = "event: message`r`ndata: $safeFixture`r`n`r`n" }
+                Send-HttpResponse -Stream $stream -StatusCode $status -Body $safeFixture
+                continue
+            }
+
             switch ($method) {
                 "initialize" {
                     $result = [ordered]@{
@@ -170,7 +197,7 @@ try {
                     $text = "26.1.0.3276743 (R2026a)"
                     if ($code -match 'fileread') {
                         $pathMatch = [regex]::Match($code, "p\s*=\s*'([^']+)'")
-                        $tokenMatch = [regex]::Match($code, "'([0-9a-f]{32})'")
+                        $tokenMatch = [regex]::Match($code, "'((?:MAS_IO_)?[0-9a-f]{32})'")
                         $token = if ($tokenMatch.Success) { $tokenMatch.Groups[1].Value } else { "missing-token" }
                         if ($pathMatch.Success -and $Mode -ne "wrong-io") {
                             $target = $pathMatch.Groups[1].Value

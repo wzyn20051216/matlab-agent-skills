@@ -1,6 +1,6 @@
 %P56_CODER_DRIVE_D  Driver for channel D: the MCP run_matlab_file tool.
 %
-%   Executed by run_matlab_file on E:\desktop\MATLAB\matlab\validation\phase56\p56_coder_drive_d.m
+%   Executed by run_matlab_file on <repo>/matlab/validation/phase56/p56_coder_drive_d.m
 %
 % p56_coder_channel_probe.m measured A (real batch process) and B (MCP dynamic
 % evaluation). The official MCP server exposes a third way to run code -- a file

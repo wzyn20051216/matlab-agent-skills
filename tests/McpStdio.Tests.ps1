@@ -41,6 +41,49 @@ function New-FakeStdioSession {
     return [pscustomobject]@{ Session = $session; Sandbox = $sandbox }
 }
 
+Describe 'stdio 可返回结果自身就是安全边界' {
+    It '成功结果的嵌套凭据被处理而矩阵与 id 不变' {
+        $outcome = [pscustomobject]@{ Ok = $false; Result = $null; Error = $null; SkippedLines = 0 }
+        $line = @{ jsonrpc = '2.0'; id = 7; result = @{ content = @(@{ type = 'text'; text = '{"apiKey":"SYNTHETIC-STDIO-KEY","matrix":[[1,2],[3,4]]}' }); nested = @{ 'x-mcp-api-key' = 'SYNTHETIC-STDIO-HEADER' } } } | ConvertTo-Json -Depth 12 -Compress
+        (Resolve-McpStdioLine -Outcome $outcome -Line $line -ExpectedId 7) | Should Be $true
+        $outcome.Ok | Should Be $true
+        ($outcome | ConvertTo-Json -Depth 12) | Should Not Match 'SYNTHETIC-STDIO'
+        ($outcome.Result.content[0].text | ConvertFrom-Json).matrix[1][1] | Should Be 4
+    }
+
+    It 'JSON-RPC error 仍保留错误码和普通诊断' {
+        $outcome = [pscustomobject]@{ Ok = $false; Result = $null; Error = $null; SkippedLines = 0 }
+        $line = '{"jsonrpc":"2.0","id":7,"error":{"code":-32001,"message":"request failed","data":{"password":"SYNTHETIC-STDIO-ERROR"}}}'
+        (Resolve-McpStdioLine -Outcome $outcome -Line $line -ExpectedId 7) | Should Be $true
+        $outcome.Error | Should Not Match 'SYNTHETIC-STDIO-ERROR'
+        ($outcome.Error | ConvertFrom-Json).code | Should Be -32001
+        ($outcome.Error | ConvertFrom-Json).message | Should Be 'request failed'
+    }
+
+    It '非法响应 id 不经带原值的整数转换异常泄漏' {
+        $outcome = [pscustomobject]@{ Ok = $false; Result = $null; Error = $null; SkippedLines = 0 }
+        (Resolve-McpStdioLine -Outcome $outcome -Line '{"id":"SYNTHETIC-BAD-ID","result":{}}' -ExpectedId 7) | Should Be $false
+        $outcome.SkippedLines | Should Be 1
+    }
+
+    It 'stderr 在截尾前处理而不是原样返回' {
+        $session = [pscustomobject]@{ Process = [pscustomobject]@{ HasExited = $true }; ErrTask = [pscustomobject]@{ Result = 'Authorization: Bearer SYNTHETIC-STDERR-CREDENTIAL' } }
+        $safe = Get-McpStdioStderrTail -Session $session
+        $safe | Should Not Match 'SYNTHETIC-STDERR-CREDENTIAL'
+        $safe | Should Match 'Authorization'
+    }
+
+    It '代理快照不暴露 URI 中的用户名口令' {
+        $prior = [Environment]::GetEnvironmentVariable('HTTPS_PROXY', 'Process')
+        try {
+            [Environment]::SetEnvironmentVariable('HTTPS_PROXY', 'http://example:SYNTHETIC-PROXY-PASSWORD@localhost:3128', 'Process')
+            $safe = Get-McpProxyEnvironmentSnapshot | ConvertTo-Json -Depth 5
+            $safe | Should Not Match 'SYNTHETIC-PROXY-PASSWORD'
+            $safe | Should Match 'localhost:3128'
+        } finally { [Environment]::SetEnvironmentVariable('HTTPS_PROXY', $prior, 'Process') }
+    }
+}
+
 Describe "stdio 传输在两种宿主都必须能启动服务端" {
     It "Start-McpStdioServer 不依赖 PS7 专有属性，进程保持存活" {
         $h = $null
@@ -86,6 +129,29 @@ Describe "stdio 传输在两种宿主都必须能启动服务端" {
 }
 
 Describe "JSON-RPC 载荷按 UTF-8 往返" {
+    It '已登记合成会话凭据及编码不进入响应，线上 code 摘要保持一致' {
+        $h = $null
+        try {
+            $h = New-FakeStdioSession -Mode 'pass'
+            $credentialFile = Join-Path $h.Sandbox.Root 'synthetic-session.json'
+            $synthetic = 'SYNTHETIC-WIRE-p4!'
+            @{ apiKey = $synthetic } | ConvertTo-Json | Set-Content -LiteralPath $credentialFile -Encoding UTF8
+            $h.Session.CredentialFile = $credentialFile
+            $code = "disp('中文 $synthetic SYNTHETIC-WIRE-p4%21'); matrix=[1 2;3 4];"
+            $sha = [Security.Cryptography.SHA256]::Create()
+            try { $expected = [BitConverter]::ToString($sha.ComputeHash([Text.Encoding]::UTF8.GetBytes($code))).Replace('-', '').ToLowerInvariant() }
+            finally { $sha.Dispose() }
+            $null = Send-McpStdioRequest -Session $h.Session -Method initialize -TimeoutSeconds 30
+            $call = Send-McpStdioRequest -Session $h.Session -Method 'tools/call' -Params @{ name='evaluate_matlab_code'; arguments=@{code=$code} } -TimeoutSeconds 30
+            $call.Ok | Should Be $true
+            $call.Result.codeSha256 | Should Be $expected
+            ($call | ConvertTo-Json -Depth 12) | Should Not Match 'SYNTHETIC-WIRE-p4'
+            (Get-McpStdioToolText -ResultNode $call.Result) | Should Match 'matrix=\[1 2;3 4\]'
+        } finally {
+            if ($h) { Stop-McpStdioServer -Session $h.Session | Out-Null; Remove-TestSandbox $h.Sandbox }
+        }
+    }
+
     It "含非 ASCII 的 MATLAB 代码不被代码页损坏" {
         $h = $null
         try {

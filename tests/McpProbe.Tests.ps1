@@ -58,6 +58,43 @@ function Write-ValidRegistration {
     $config | ConvertTo-Json -Depth 6 | Set-Content -LiteralPath (Join-Path $RepositoryRoot ".mcp.json") -Encoding UTF8
 }
 
+Describe 'HTTP 与 SSE 安全输出不改变线上鉴权或 JSON-RPC 请求' {
+    foreach ($fixtureMode in @('security-json','security-sse','security-error')) {
+        It "实际本机 TCP 往返 $fixtureMode 的响应和异常不回显合成凭据" {
+            $sandbox = New-TestSandbox
+            $server = $null
+            try {
+                $server = Start-FakeMcpServer -HelperPath $fakeServer -PortFile (Join-Path $sandbox.Root 'port.txt') -Mode $fixtureMode
+                $parameters = @{code="disp('中文'); matrix=[1 2;3 4];"}
+                $wire = [ordered]@{jsonrpc='2.0';id=17;method='tools/call';params=$parameters} | ConvertTo-Json -Depth 12 -Compress
+                $sha = [Security.Cryptography.SHA256]::Create()
+                try { $expected = [BitConverter]::ToString($sha.ComputeHash([Text.Encoding]::UTF8.GetBytes($wire))).Replace('-', '').ToLowerInvariant() }
+                finally { $sha.Dispose() }
+                $result = Invoke-McpJsonRpc -Endpoint "http://127.0.0.1:$($server.Port)/mcp" -Method 'tools/call' -Params $parameters -Id 17 -ApiKey 'SYNTHETIC-HTTP-AUTH!' -TimeoutSeconds 5
+                ($result | ConvertTo-Json -Depth 20) | Should Not Match 'SYNTHETIC-HTTP-'
+                $result.Json.id | Should Be 17
+                if ($fixtureMode -eq 'security-error') {
+                    $result.Ok | Should Be $false
+                    $result.Json.error.code | Should Be -32001
+                    $result.Json.error.message | Should Be 'controlled failure'
+                } else {
+                    $result.Ok | Should Be $true
+                    $result.Json.result.authUnchanged | Should Be $true
+                    $result.Json.result.bodySha256 | Should Be $expected
+                    $result.Json.result.matrix[1][1] | Should Be 4
+                    $result.Json.result.paths[0] | Should Be 'C:/data/sample.m'
+                    $result.Json.result.content[0].text | Should Match 'diagnostic'
+                }
+                $jsonLine = if ($fixtureMode -eq 'security-sse') { ($result.Body -split '\r?\n' | Where-Object { $_ -match '^data:' }) -replace '^data:\s*','' } else { $result.Body }
+                ($jsonLine | ConvertFrom-Json).id | Should Be 17
+            } finally {
+                if ($server) { Stop-TestProcess $server.Process }
+                Remove-TestSandbox $sandbox
+            }
+        }
+    }
+}
+
 Describe "阶段 3~5 只有在真实可执行时才 PASS" {
     It "全套正常时五阶段通过，且整体为 PASS" {
         $sandbox = New-TestSandbox

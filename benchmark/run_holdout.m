@@ -22,7 +22,7 @@ addpath(here);
 
 root = getenv('MAS_BENCH_HOLDOUT_ROOT');
 if isempty(root)
-    root = 'E:\desktop\MATLAB-bench-holdout-phase53';
+    root = fullfile(fileparts(repo), 'MATLAB-bench-holdout-phase53');
 end
 outDir = getenv('MAS_BENCH_OUT');
 if isempty(outDir)

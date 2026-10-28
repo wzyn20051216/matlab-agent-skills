@@ -56,6 +56,111 @@ function New-FakeSessionFile {
     $session | ConvertTo-Json | Set-Content -LiteralPath $Sandbox.SessionFile -Encoding UTF8
 }
 
+Describe '进程 stdout stderr 与元数据落盘前保护' {
+    It '观察子进程运行期间的日志也没有先明文落盘再擦除的窗口' {
+        $sandbox = New-CredentialSandbox
+        $observer = $null
+        try {
+            $child = Join-Path $sandbox.Root 'stream-child.ps1'
+            $ready = Join-Path $sandbox.Root 'stream-ready.txt'
+            $stdout = Join-Path $sandbox.Root 'stream.stdout.log'
+            $stderr = Join-Path $sandbox.Root 'stream.stderr.log'
+            $childText = "[Console]::Out.WriteLine('password=SYNTHETIC-LIVE-OUT'); [Console]::Out.Flush(); [Console]::Error.WriteLine('token=SYNTHETIC-LIVE-ERR'); [Console]::Error.Flush(); [IO.File]::WriteAllText('" + $ready.Replace("'", "''") + "','READY'); Start-Sleep -Seconds 3"
+            [IO.File]::WriteAllText($child, $childText, (New-Object Text.UTF8Encoding($true)))
+            $harness = Join-Path $sandbox.Root 'stream-harness.ps1'
+            $module = Join-Path $script:RepoRoot 'scripts/MatlabAgentSkills.Execution.psm1'
+            $harnessText = @'
+param($Module, $Child, $Root, $Stdout, $Stderr, $Stage)
+Import-Module $Module -Force -DisableNameChecking
+$r = Invoke-MatlabBatchProcess -MatlabPath ((Get-Process -Id $PID).Path) -ArgumentList @('-NoProfile','-File',$Child) -WorkingDirectory $Root -StdoutPath $Stdout -StderrPath $Stderr -StageLogPath $Stage -TimeoutSeconds 15
+exit $r.ExitCode
+'@
+            [IO.File]::WriteAllText($harness, $harnessText, (New-Object Text.UTF8Encoding($true)))
+            $psi = New-Object Diagnostics.ProcessStartInfo
+            $psi.FileName = (Get-Process -Id $PID).Path
+            $psi.Arguments = (@('-NoProfile','-File',$harness,$module,$child,$sandbox.Root,$stdout,$stderr,$sandbox.StageLog) | ForEach-Object { Format-ProcessArgument -Argument $_ }) -join ' '
+            $psi.UseShellExecute = $false; $psi.CreateNoWindow = $true
+            $observer = New-Object Diagnostics.Process
+            $observer.StartInfo = $psi
+            $observer.Start() | Out-Null
+            $deadline = (Get-Date).AddSeconds(12)
+            while (-not (Test-Path -LiteralPath $ready) -and -not $observer.HasExited -and (Get-Date) -lt $deadline) { Start-Sleep -Milliseconds 40 }
+            (Test-Path -LiteralPath $ready) | Should Be $true
+            $observedWhileRunning = 0
+            while (-not $observer.HasExited -and (Get-Date) -lt $deadline) {
+                foreach ($path in @($stdout, $stderr)) {
+                    if (Test-Path -LiteralPath $path) {
+                        $stream = [IO.File]::Open($path, 'Open', 'Read', 'ReadWrite')
+                        $reader = New-Object IO.StreamReader($stream)
+                        try { $reader.ReadToEnd() | Should Not Match 'SYNTHETIC-LIVE' }
+                        finally { $reader.Dispose() }
+                    }
+                }
+                $observedWhileRunning++
+                Start-Sleep -Milliseconds 40
+            }
+            $observer.WaitForExit(5000) | Should Be $true
+            $observer.ExitCode | Should Be 0
+            $observedWhileRunning | Should BeGreaterThan 5
+            ([IO.File]::ReadAllText($stdout) + [IO.File]::ReadAllText($stderr)) | Should Not Match 'SYNTHETIC-LIVE'
+        } finally {
+            if ($observer -and -not $observer.HasExited) { Stop-ProcessTree -ProcessId $observer.Id }
+            if ($observer) { $observer.Dispose() }
+            Remove-CredentialSandbox $sandbox
+        }
+    }
+
+    It '子进程原始输出不先写入明文日志' {
+        $sandbox = New-CredentialSandbox
+        try {
+            $child = Join-Path $sandbox.Root 'synthetic-child.ps1'
+            $source = @'
+[Console]::Out.WriteLine('{"x-mcp-api-key":"SYNTHETIC-CHILD-STDOUT"}')
+[Console]::Out.WriteLine('matrix=[1 2;3 4]')
+[Console]::Error.WriteLine('Authorization: Bearer SYNTHETIC-CHILD-STDERR')
+'@
+            [IO.File]::WriteAllText($child, $source, (New-Object Text.UTF8Encoding($true)))
+            $stdout = Join-Path $sandbox.Root 'stdout.log'
+            $stderr = Join-Path $sandbox.Root 'stderr.log'
+            $result = Invoke-MatlabBatchProcess -MatlabPath ((Get-Process -Id $PID).Path) -ArgumentList @('-NoProfile', '-File', $child) -WorkingDirectory $sandbox.Root -TimeoutSeconds 20 -StdoutPath $stdout -StderrPath $stderr -StageLogPath $sandbox.StageLog
+            $result.ExitCode | Should Be 0
+            ([IO.File]::ReadAllText($stdout) + [IO.File]::ReadAllText($stderr)) | Should Not Match 'SYNTHETIC-CHILD-STD'
+            [IO.File]::ReadAllText($stdout) | Should Match 'matrix=\[1 2;3 4\]'
+            ($result | ConvertTo-Json -Depth 8) | Should Not Match 'SYNTHETIC-CHILD-STD'
+        } finally { Remove-CredentialSandbox $sandbox }
+    }
+
+    It '通用短进程边界同样保护标准输出和错误输出' {
+        $sandbox = New-CredentialSandbox
+        try {
+            $child = Join-Path $sandbox.Root 'synthetic-cli.ps1'
+            [IO.File]::WriteAllText($child, "[Console]::Out.WriteLine('password=SYNTHETIC-CLI-PASSWORD'); [Console]::Error.WriteLine('x-mcp-api-key: SYNTHETIC-CLI-KEY')", (New-Object Text.UTF8Encoding($true)))
+            $result = Invoke-ProcessWithTimeout -FilePath ((Get-Process -Id $PID).Path) -ArgumentList @('-NoProfile', '-File', $child) -WorkingDirectory $sandbox.Root
+            $result.ExitCode | Should Be 0
+            ($result | ConvertTo-Json -Depth 8) | Should Not Match 'SYNTHETIC-CLI'
+        } finally { Remove-CredentialSandbox $sandbox }
+    }
+
+    It '阶段名称与阶段内容均不得泄漏凭据' {
+        $sandbox = New-CredentialSandbox
+        try {
+            Write-StageLog -Path $sandbox.StageLog -Stage 'password=SYNTHETIC-STAGE-PASSWORD' -Detail 'normal diagnostic'
+            [IO.File]::ReadAllText($sandbox.StageLog) | Should Not Match 'SYNTHETIC-STAGE-PASSWORD'
+            [IO.File]::ReadAllText($sandbox.StageLog) | Should Match 'normal diagnostic'
+        } finally { Remove-CredentialSandbox $sandbox }
+    }
+
+    It '会话数值字段类型错误产生安全诊断而不是回显原值的异常' {
+        $sandbox = New-CredentialSandbox
+        try {
+            '{"port":"SYNTHETIC-INVALID-PORT","apiKey":"SYNTHETIC-SESSION-KEY"}' | Set-Content -LiteralPath $sandbox.SessionFile -Encoding UTF8
+            $info = Get-McpSessionInfo -SessionFile $sandbox.SessionFile
+            $info.Error | Should Not BeNullOrEmpty
+            ($info | ConvertTo-Json -Depth 6) | Should Not Match 'SYNTHETIC-INVALID-PORT|SYNTHETIC-SESSION-KEY'
+        } finally { Remove-CredentialSandbox $sandbox }
+    }
+}
+
 Describe '会话凭据不出现在可序列化对象与报告中' {
     It 'Get-McpSessionInfo 只暴露是否存在与长度，序列化后无 apiKey 值' {
         $sandbox = New-CredentialSandbox
@@ -78,7 +183,7 @@ Describe '会话凭据不出现在可序列化对象与报告中' {
         try {
             New-FakeSessionFile $sandbox
             $null = Get-McpSessionInfo -SessionFile $sandbox.SessionFile
-            $credential = Get-McpSessionCredential -SessionFile $sandbox.SessionFile
+            $credential = & (Get-Module MatlabAgentSkills.McpProbe) { param($Path) Get-McpSessionCredential -SessionFile $Path } $sandbox.SessionFile
             ([string]::Equals([string]$credential, $script:FakeApiKey, [System.StringComparison]::Ordinal)) | Should Be $true
         }
         finally { Remove-CredentialSandbox $sandbox }
@@ -92,7 +197,7 @@ Describe '会话凭据不出现在可序列化对象与报告中' {
                 -Backend 'matlab-mcp-existing' -Scheme 'http' -EndpointPath '/mcp' `
                 -MatlabPath (Join-Path $sandbox.Root 'no-matlab.exe') `
                 -IoProbeDirectory (Join-Path $sandbox.Root 'io_probe') `
-                -TimeoutSeconds 2 -SkipStage1 -SkipCodexCli -SkipUserConfigs -SkipTlsValidation
+                -Transport https -TimeoutSeconds 2 -SkipStage1 -SkipCodexCli -SkipUserConfigs -SkipTlsValidation
 
             $sessionCheck = @($report.checks | Where-Object { $_.id -eq 'mcp.session-config' })[0]
             $sessionCheck.metrics.sessionFile | Should Be 'sessionDetails.json'
@@ -106,6 +211,12 @@ Describe '会话凭据不出现在可序列化对象与报告中' {
             $json | Should Not Match '(?i)"sessionFilePath"'
         }
         finally { Remove-CredentialSandbox $sandbox }
+    }
+}
+
+Describe '鉴权函数的模块边界' {
+    It '返回原始鉴权值的内部函数不向普通模块调用者导出' {
+        @(Get-Command Get-McpSessionCredential -Module MatlabAgentSkills.McpProbe -ErrorAction SilentlyContinue).Count | Should Be 0
     }
 }
 

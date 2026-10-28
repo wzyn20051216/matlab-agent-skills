@@ -7,8 +7,8 @@
 | 组件 | 版本 / 环境 | 状态 | 证据 |
 |---|---|---|---|
 | Windows | Windows 10.0.26100（本机） | 实测 | Phase 4.4–4.6 全部验收 |
-| Windows PowerShell | 5.1.26100.7462（Desktop） | 免费层 306/306、exit 0 | `phase49/free_ps51.json` |
-| PowerShell | 7.6.7（Core） | 免费层 306/306、exit 0 | `phase49/free_ps7.json` |
+| Windows PowerShell | 5.1.26100.7462（Desktop） | 免费层 378/379（唯一失败为盘符路径卫生检查；运行器按失败数 exit 1） | `artifacts/s3/evidence/green/free-layer-final.json` |
+| PowerShell | 7.6.9（Core） | 免费层 378/379（同上） | `artifacts/s3/evidence/green/free-layer-final-ps7.json` |
 | Pester | 3.4.0（锁定版本） | 通过 | 测试框架要求 |
 | Codex CLI | 0.147.0 | 发现 9/9（引擎级） | `install/discovery/cli/verification.json` |
 | Codex Desktop（内置引擎） | 0.163.0-alpha.10.2 | 发现 9/9（引擎级） | `install/discovery/desktop-engine/verification.json` |
@@ -26,7 +26,7 @@
 | 旧版 MATLAB（R2025b 及更早） | 未实测；部分 API 可能不同 |
 | 只装 CLI 或只装 Desktop 的独立物理机 | 未实测 |
 | 完整 Desktop UI 重启 | 未实测 |
-| 全新 Windows 用户账户 / 非 C: 盘用户目录 | 未实测（干净环境测试用 fake home 模拟，但客户端对 `.agents` 的用户级解析绑定 OS 用户） |
+| 全新 Windows 用户账户 / 非 C: 盘用户目录 | 未实测（S4 用重定向档案模拟：安装/配置/stdio 通过，客户端发现与 MATLAB 许可证未通过/未验证；真实账户与 VM 均不可用，见 `artifacts/s4/S4_FINAL_REPORT_ZH.md`） |
 | ComDesktop 启动模式 | 本机 **UNSUPPORTED**（Windows Job 禁止 breakaway，Win32 5） |
 | B7：holder `HOLDING` 未证明 bootstrap 执行 | DEFERRED，需要允许 breakaway 的环境 |
 
