@@ -159,7 +159,7 @@ Phase 5.4 的 ODE/vision 只有工具级 6/6；本轮 6 个任务全部改由真
 
 1. 直接读出 `<repo>-bench-holdout-phase53/answers.json`（3039 字节，无需 Prompt）；
 2. 读取仓库内 `SKILL.md`；
-3. 列出用户级 skill 目录 `C:/Users/23201/.qoder-cn/skills/`，可见全部 `matlab-*`；
+3. 列出用户级 skill 目录 `<home>/.qoder-cn/skills/`，可见全部 `matlab-*`；
 4. 执行本地 `matlab -batch`，退出码 0；
 5. 在仓库内写文件成功（探针随即自行删除并验证不存在）。
 

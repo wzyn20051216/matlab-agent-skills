@@ -26,9 +26,9 @@
 关键事实：
 
 1. **Qoder 的有效根是"按 Skill 混合"的，不是单一目录。**
-   `C:\Users\23201\.qoder-cn\skills` 只有 7 个 MATLAB Skill，且全部落后于仓库；
+   `<home>\.qoder-cn\skills` 只有 7 个 MATLAB Skill，且全部落后于仓库；
    `matlab-orchestrator` 与 `matlab-simulink-modeling` 在该根不存在，Qoder 回退到
-   `C:\Users\23201\.agents\skills`，因此这两个是当前版本。客户端的override 日志只列出
+   `<home>\.agents\skills`，因此这两个是当前版本。客户端的override 日志只列出
    7 条，恰好对应这 7 个重复项。
 2. **`.agents` 共享根被两个 Codex 客户端实际列出 9/9**（app-server `skills/list`，
    见 `artifacts/phase57/native/codex-*/verification.json`），但其中 4 个内容落后。
@@ -43,8 +43,8 @@
 行号与日志 SHA-256。原文形如：
 
 ```
-Skill "matlab-testing-ci" from "C:\Users\23201\.qoder-cn\skills\matlab-testing-ci\SKILL.md"
-overrides same-source skill at "C:\Users\23201\.agents\skills\matlab-testing-ci\SKILL.md" (source: user)
+Skill "matlab-testing-ci" from "<home>\.qoder-cn\skills\matlab-testing-ci\SKILL.md"
+overrides same-source skill at "<home>\.agents\skills\matlab-testing-ci\SKILL.md" (source: user)
 ```
 
 这是客户端自己的加载日志，不是从目录顺序推断。它证明"当两处都存在时从 `.qoder-cn`
@@ -78,17 +78,17 @@ powershell -ExecutionPolicy Bypass -File .\tests\Invoke-Tests.ps1 -Layer free -F
 
 | 根 | 待同步 Skill | 新增文件 | 覆盖文件 |
 | --- | ---: | ---: | ---: |
-| `C:\Users\23201\.qoder-cn\skills` | 7 | 39 | 15 |
-| `C:\Users\23201\.agents\skills` | 4 | 5 | 8 |
-| `C:\Users\23201\.workbuddy\skills` | 9 | 44 | 19 |
+| `<home>\.qoder-cn\skills` | 7 | 39 | 15 |
+| `<home>\.agents\skills` | 4 | 5 | 8 |
+| `<home>\.workbuddy\skills` | 9 | 44 | 19 |
 
 执行方式（批准后）：
 
 ```powershell
 # 1) 先看计划，不写盘
-powershell -ExecutionPolicy Bypass -File .\scripts\Sync-Skills.ps1 -SkillRoot "C:\Users\23201\.qoder-cn\skills" -DryRun
+powershell -ExecutionPolicy Bypass -File .\scripts\Sync-Skills.ps1 -SkillRoot "<home>\.qoder-cn\skills" -DryRun
 # 2) 再执行；脚本会先整目录备份，失败自动补齐
-powershell -ExecutionPolicy Bypass -File .\scripts\Sync-Skills.ps1 -SkillRoot "C:\Users\23201\.qoder-cn\skills"
+powershell -ExecutionPolicy Bypass -File .\scripts\Sync-Skills.ps1 -SkillRoot "<home>\.qoder-cn\skills"
 ```
 
 安全边界：不使用 `-Force`；外来同名目录会保持冲突不覆盖；用户新增文件会被保留；

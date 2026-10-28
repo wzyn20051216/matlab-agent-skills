@@ -99,7 +99,7 @@ icacls $evalDir /inheritance:r /grant:r "${me}:(OI)(CI)F" "SYSTEM:(OI)(CI)F"
 
 1. 启用功能（管理员，可能重启）→ 新建专用实例；
 2. 沙箱/VM 内安装 MATLAB + 客户端；宿主侧**只映射任务包（只读）**，
-   不映射仓库 `skills/`、不映射评估目录、不映射 `C:\Users\23201\.qoder-cn\projects`；
+   不映射仓库 `skills/`、不映射评估目录、不映射 `<home>\.qoder-cn\projects`；
 3. 每臂开始前回滚快照 → 跑臂 → 单向导出结果目录 → 再回滚；
 4. 验收同 A（V1–V13 全部 BLOCKED + 正控可读）；
 5. 回滚：关闭功能即恢复原状，宿主不留残余。

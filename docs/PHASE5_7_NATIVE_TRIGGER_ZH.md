@@ -57,7 +57,7 @@ Codex Desktop engine 0.163.0-alpha.11.1
 
 ## 4. Codex 的边界
 
-- 两个 Codex 客户端都从 `C:\Users\23201\.agents\skills` 列出 9/9；
+- 两个 Codex 客户端都从 `<home>\.agents\skills` 列出 9/9；
 - 它们的版本分别是 `0.147.0` 与 `0.163.0-alpha.11.1`；
 - 这只证明**发现**。本轮没有用 Codex 执行 MATLAB 任务，因此不能用 Qoder 的 L3 结果
   代替 Codex 的调用结论；
@@ -80,5 +80,5 @@ python .\scripts\Test-CodexSkillDiscovery.py
 ```
 
 Qoder 的会话证据只能通过会话 ID 读取；原始 transcript 位于
-`C:\Users\23201\.qoder-cn\projects\E--desktop-MATLAB\<session-id>.jsonl`，
+`<home>\.qoder-cn\projects\E--desktop-MATLAB\<session-id>.jsonl`，
 哈希已固化在 `qoder_trigger_evidence.json`。它们是**证据**，不是可重放的实验。

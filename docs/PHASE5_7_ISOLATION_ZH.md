@@ -26,7 +26,7 @@
 4. 本轮未修改账户、ACL、Skills 安装根、MATLAB 全局配置或系统功能。唯一的会话内写入是
    一个临时变量 `P57PROBE_CANARY_7f31`（设值→下一次调用读回→清除），用于验证共享工作区。
 5. 当前的 MATLAB 会话在探测时是干净的：0 个仓库/评估侧路径项，`mas_ber_check` 等 4 个工具
-   均不可解析，`pwd` 已回到 `C:\Users\23201\Documents`。**"干净"是上一次清理的结果，不是边界。**
+   均不可解析，`pwd` 已回到 `<home>\Documents`。**"干净"是上一次清理的结果，不是边界。**
 
 ## 2. 九类泄漏面实测
 
@@ -38,7 +38,7 @@
 | 其他臂输出 | 3 组 | 3 组 | 9 份 `arm_R*/result_*.json` + 3 份 `grade_R*.json` + 9 份 episode 产物 |
 | Skills 安装根 | 5 | 5 | `.qoder-cn` 7 个（陈旧）、`.agents` 9 个、`.workbuddy` 9 个（陈旧）、仓库 9 个；Task 2 的显式会话已证明**代理**能读 `.agents`，不只是 OS 能读 |
 | MATLAB 共享状态/路径 | 1 | 1 | 两次独立 evaluate 调用共享一个工作区（canary 读回）；探测时 base 工作区 47 个变量 |
-| 命令执行 | 1 | 1 | 从 MCP 通道执行 `system('whoami')`，rc=0，输出 `liuliye\23201` |
+| 命令执行 | 1 | 1 | 从 MCP 通道执行 `system('whoami')`，rc=0，输出 `<host>\<user>` |
 | 可推导答案 | 1 | 1 | 用仓库内生成器 + 任务集重算，3/3 任务与封存答案**逐字段相等** |
 | 历史轨迹 | 1 | 1 | 12 份 episode transcript 共 1,564,191 字节且哈希未变；父会话 transcript 34,075,136 字节，含 2031 处 P56 任务 id |
 
@@ -69,9 +69,9 @@ verdict 与全部 fields 的 name/op/ref/tol 完全一致**。临时文件已删
 
 | 根 | MATLAB Skills | 状态（Task 1 审计） |
 |---|---:|---|
-| `C:\Users\23201\.qoder-cn\skills` | 7 | 7 个陈旧；Qoder 对其中 7 个优先使用此根 |
-| `C:\Users\23201\.agents\skills` | 9 | 5 current / 4 drifted（Codex 全部从此根发现） |
-| `C:\Users\23201\.workbuddy\skills` → `<workbuddy-data>\skills` | 9 | 9 个陈旧；加载未观测 |
+| `<home>\.qoder-cn\skills` | 7 | 7 个陈旧；Qoder 对其中 7 个优先使用此根 |
+| `<home>\.agents\skills` | 9 | 5 current / 4 drifted（Codex 全部从此根发现） |
+| `<home>\.workbuddy\skills` → `<workbuddy-data>\skills` | 9 | 9 个陈旧；加载未观测 |
 | `<repo>\skills` | 9 | 仓库源 |
 
 即使把 `.qoder-cn` 同步到最新，**"安装正确"也不等于"隔离"**：R1 仍能按绝对路径读仓库
@@ -150,7 +150,7 @@ rc=0。V11 已证明：只要手臂还需要主机侧 MATLAB 执行通道，`sys
 | P1 | 创建本地标准用户 `masarm`（非管理员） | 让手臂以非属主身份运行 | 新账户、用户目录、客户端配置 | 删除账户与其 profile |
 | P2 | 在该账户下验证 MATLAB R2026a 启动与许可 | 确认手臂能执行 MATLAB | 许可占用/激活 | 停用该账户的许可会话 |
 | P3 | 对 `<repo>-bench-phase56\eval`、历史 holdout 答案、`benchmark/reference_p56.m` 设置"属主+SYSTEM 可读，masarm 拒绝"的 ACL | 阻断答案与生成器 | 仅这些目录/文件 | `icacls /save` 备份后 `/restore` |
-| P4 | 对 `C:\Users\23201\.qoder-cn\projects`（父 transcript）设置同样的 ACL | 阻断历史轨迹 | 仅该目录 | 同上 |
+| P4 | 对 `<home>\.qoder-cn\projects`（父 transcript）设置同样的 ACL | 阻断历史轨迹 | 仅该目录 | 同上 |
 | P5 | 为每臂准备独立工作区与 Skills 根，并在臂间清理 profile 临时目录 | 防止跨臂残留 | 新目录 | 删除新目录 |
 | P6 | 在手臂运行期间禁用其网络（或仅允许许可服务器） | 防止外传 | 该账户网络策略 | 恢复策略 |
 | P7 | 以 `masarm` 启动客户端并完成一次单臂读取探针 | 先验证边界，不直接跑正式实验 | 客户端进程 | 关闭进程 |
@@ -163,7 +163,7 @@ New-LocalUser -Name masarm -NoPassword
 Add-LocalGroupMember -Group Users -Member masarm
 # P3/P4（先备份 ACL，再收紧）
 icacls "<repo>-bench-phase56\eval" /save "artifacts\phase57\isolation\acl_backup_eval.txt" /t
-icacls "<repo>-bench-phase56\eval" /inheritance:r /grant:r "23201:(OI)(CI)F" "SYSTEM:(OI)(CI)F"
+icacls "<repo>-bench-phase56\eval" /inheritance:r /grant:r "<user>:(OI)(CI)F" "SYSTEM:(OI)(CI)F"
 # P7（批准后）
 # 以 masarm 运行客户端，重复 13 个对抗向量，要求 0 个达到
 ```

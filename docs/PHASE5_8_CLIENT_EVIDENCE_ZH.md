@@ -108,7 +108,7 @@ Qoder 侧只记录真实接口能看到的东西：`skill-usage.json` 有 1 次
    仓库外两次始终没有暴露 MATLAB MCP，也没有重试成功；仓库内那次下一轮就恢复了。
    因此"仓库外夹具"被放弃，但**不能**把该拒绝归因于目录位置本身。
 2. **用户根读取回退**：第一条 A attempt（夹具在系统临时目录）除了读项目内副本，
-   还读取了 `C:/Users/23201/.agents/skills/matlab-runner/SKILL.md` **2 次**（只读）。
+   还读取了 `<home>/.agents/skills/matlab-runner/SKILL.md` **2 次**（只读）。
    这只说明"项目根不可用时客户端会去看用户根"，没有说明加载的是哪一个版本，
    因此该 episode 的 `projectScoped=false`，不计入 L3 等效证据。
 

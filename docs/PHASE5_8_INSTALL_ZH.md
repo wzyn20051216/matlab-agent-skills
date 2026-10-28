@@ -78,7 +78,7 @@ manifest 记入备份会话。结果是：目录可以从备份还原，manifest
 - Qoder 的“2 CURRENT”不是本地有 2 个最新副本，而是 `matlab-orchestrator` 与
   `matlab-simulink-modeling` 在 `.qoder-cn` **缺失**、回退到 `.agents` 后命中；其本地 7 个副本全部漂移；
 - 项目级根 `REPO\.qoder\skills` 不存在，“项目级覆盖用户级”在本机 **UNEXERCISED**；
-- 旧 Codex 根 `C:\Users\23201\.codex\skills` 存在但不含 `matlab-*`，两个 Codex 客户端实际从
+- 旧 Codex 根 `<home>\.codex\skills` 存在但不含 `matlab-*`，两个 Codex 客户端实际从
   `.agents\skills` 解析，因此**不纳入**本次同步目标；
 - 每个根都有与本仓库无关的其它 Skill，同步只能触碰 9 个 `matlab-*` 目录。
 
@@ -91,15 +91,15 @@ manifest 记入备份会话。结果是：目录可以从备份还原，manifest
 
 | 根 | add | overwrite | identical | 冲突 | 更新 | 安装 | 保留根条目 |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| `C:\Users\23201\.qoder-cn\skills` | 58 | 21 | 27 | 7 | 0 | 2 | 9 |
-| `C:\Users\23201\.agents\skills` | 8 | 11 | 87 | 0 | 4 | 0 | 334 |
+| `<home>\.qoder-cn\skills` | 58 | 21 | 27 | 7 | 0 | 2 | 9 |
+| `<home>\.agents\skills` | 8 | 11 | 87 | 0 | 4 | 0 | 334 |
 | `WB-PHYS\skills`（物理根） | 47 | 27 | 32 | 0 | 9 | 0 | 15 |
 | **合计（3 个目标根）** | **113** | **59** | **146** | **7** | **13** | **2** | — |
 
 非目标根（只读记录，不纳入计划）：
 
 - `REPO\.qoder\skills`：不存在；
-- `C:\Users\23201\.codex\skills`：9 个安装、106 个 add，但未观测为有效根，**不同步**。
+- `<home>\.codex\skills`：9 个安装、106 个 add，但未观测为有效根，**不同步**。
 
 `keepUserFiles=0`：9 个 `matlab-*` 目录内没有仓库之外的用户文件。根目录下无关 Skill 全部登记为
 `keepRootEntries`，同步不会删除或改写它们（`Sync-Skills` 只枚举源目录中的 `matlab-*`）。
@@ -171,17 +171,17 @@ manifest 记入备份会话。结果是：目录可以从备份还原，manifest
 
 因此：
 
-- 客户端可见路径：`C:\Users\23201\.workbuddy\skills`；
+- 客户端可见路径：`<home>\.workbuddy\skills`；
 - **真正要写入的物理根：`WB-PHYS\skills`**；
 - `Sync-Skills.ps1` 会拒绝含链接祖先前缀的根（`Assert-MasSkillRootPath`），
-  `-DryRun` 实测退出 1，提示“技能路径包含链接，拒绝自动修改: C:\Users\23201\.workbuddy”；
+  `-DryRun` 实测退出 1，提示“技能路径包含链接，拒绝自动修改: <home>\.workbuddy”；
 - 现有真实备份位于 `WB-PHYS\skills\.matlab-agent-skills\backups\20261020-102624-sync-skills`，
   其中 `manifest.json` 记录 9 个 Skill 的整目录备份；这就是回滚依据；
 - **任何清理都不得递归删除 `WB-PHYS` 或用户配置目录下的 `.workbuddy`**；只允许在
   `WB-PHYS\skills` 内按 9 个 `matlab-*` 名称操作。
 
 Qoder 根没有既有备份；首次同步会在
-`C:\Users\23201\.qoder-cn\skills\.matlab-agent-skills\backups\<时间戳>-sync-skills` 下创建备份会话。
+`<home>\.qoder-cn\skills\.matlab-agent-skills\backups\<时间戳>-sync-skills` 下创建备份会话。
 `.agents` / WorkBuddy 的后续备份会话会追加在各自的 `.matlab-agent-skills\backups`，旧会话不删除。
 
 ## 5. 隔离验证
@@ -290,7 +290,7 @@ python .\matlab\validation\phase58\p58_install_plan.py
 
 ```powershell
 Import-Module .\scripts\MatlabAgentSkills.Core.psm1 -Force -DisableNameChecking
-$backupRoot = "C:\Users\23201\.qoder-cn\skills\.matlab-agent-skills\backups"   # 按根替换
+$backupRoot = "<home>\.qoder-cn\skills\.matlab-agent-skills\backups"   # 按根替换
 $dir = Get-ChildItem -LiteralPath $backupRoot -Directory | Sort-Object Name -Descending | Select-Object -First 1
 $raw = Get-Content -Raw -LiteralPath (Join-Path $dir.FullName 'manifest.json') | ConvertFrom-Json
 $session = [pscustomobject]@{

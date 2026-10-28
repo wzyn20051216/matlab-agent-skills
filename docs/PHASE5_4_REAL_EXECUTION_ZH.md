@@ -305,7 +305,7 @@ refs=15/15 cross=15/15 pipeline=15/15 elapsed=176.2
 - 冻结参考：`mas_refcheck('verify')` **15/15**；git diff 冻结目录为空。
 - 路由/依赖：routing 9/9、depProbe 26/26、skillGraph 13/13、routingContract 16/16。
 - 安装完整性：`Sync-Skills.ps1 -DryRun` **9/9 unchanged**；本阶段同步时曾 8 updated /
-  1 unchanged，备份在 `C:\Users\23201\.agents\skills\.matlab-agent-skills\backups\20261022-122823-sync-skills`。
+  1 unchanged，备份在 `<home>\.agents\skills\.matlab-agent-skills\backups\20261022-122823-sync-skills`。
 - 能力矩阵：**CONSISTENT 5/5**（53 tools on disk = 53 listed；owner 一致；派生计数一致；
   VERIFIED 证据存在；17/17 reference 指针可解析）。
 

@@ -8,7 +8,7 @@ All notable changes to this project will be documented here.
 
 - **仓库内不再有本机绝对路径**：`E:` / `D:` 盘符路径从 **21 个文件 69 行**降到 **0**。
   历史阶段报告里的机器路径统一换成 `<repo>` / `<repo-parent>` / `<matlabroot>` / `<temp>` /
-  `<workbuddy-data>` 占位符，`file:///E:/...` 形式的链接改成仓库相对链接；数值与结论未改，
+  `<workbuddy-data>` 占位符，`file:///` 形式的绝对链接改成仓库相对链接；数值与结论未改，
   逐字可核（`git log -p`）。路径卫生门禁从此不再失败。
 - **p56 / p57 分析脚本改为路径推导**：仓库根从 `__file__` 位置推出、用户级根用 `Path.home()`、
   封存评测工作区取仓库同级目录 —— 不再写死机器目录，也不再写死 Windows 用户名。
@@ -20,6 +20,11 @@ All notable changes to this project will be documented here.
   而且抛出点落在被测代码的调用栈里 —— 实测把免费层从 402/403 拉到 398/403，看起来像功能回归。
   新增 `tests/helpers/EnvironmentNormalization.ps1`：用 kernel32 读原始环境块（保留大小写与重复项）
   折叠，折叠后复验，未收敛就如实报 `Normalized=false`，不谎报成功。
+- **历史报告中的个人标识已脱敏**：10 份阶段报告里 35 处 Windows 用户档案名与主机名换成
+  `<home>` / `<host>` / `<user>`，`p58_install_plan.py` 的四个用户级根改用 `Path.home()`。
+  全量扫描非 `artifacts/` 的跟踪文件：内网 IP 与邮箱均为 0 处。
+  **注意**：`matlab/stm32_temp_fan_closed_loop.m` 里的 `rng(2320194668)` 是随机种子、
+  不是个人数据，改它会改变仿真结果，因此保留不动。
 - 结果：**免费层 413/413**（首次全绿）、MATLAB 层 74/74、benchmark harness 11/11。
 
 ### Phase 4.9：main 发布收尾（文档与实际行为对齐）
