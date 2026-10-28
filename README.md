@@ -47,7 +47,7 @@ Built for developers, researchers, and model-based engineering teams who want ag
 **Prerequisites:** Windows 10/11 · PowerShell 5.1 or 7 · MATLAB R2026a installed and activated **for the same Windows user** running the scripts · network on first run (the pinned MCP server binary is downloaded and SHA-256 verified).
 
 > [!NOTE]
-> MATLAB online-licence activation is stored per Windows user profile. A brand-new Windows user must activate MATLAB first, otherwise `matlab -batch` fails with LME 5201 — see [Troubleshooting](docs/TROUBLESHOOTING_ZH.md).
+> MATLAB online-licence activation is stored per Windows user profile. A brand-new Windows user must activate MATLAB first, otherwise batch launches fail with LME 5201 — see [Troubleshooting](docs/TROUBLESHOOTING_ZH.md).
 
 ### Default (recommended)
 
@@ -69,7 +69,7 @@ git rev-parse HEAD; git rev-parse 'v0.6.0-preview.2^{commit}'   # must match
 ```
 
 > [!WARNING]
-> There is intentionally **no `irm … | iex` one-liner**: that pattern executes whatever the branch contains at that moment and cannot be reviewed. Clone and run from the checked-out tree instead. (The MCP server binary itself *is* pinned and hash-verified — see [WINDOWS_BETA_ZH](docs/WINDOWS_BETA_ZH.md) §4.1.)
+> There is intentionally **no `irm | iex` one-liner**: that pattern executes whatever the branch contains at that moment and cannot be reviewed. Clone and run from the checked-out tree instead. (The MCP server binary itself *is* pinned and hash-verified — see [WINDOWS_BETA_ZH](docs/WINDOWS_BETA_ZH.md) §4.1.)
 
 ## 🚀 Quick Start
 
@@ -97,7 +97,7 @@ powershell -ExecutionPolicy Bypass -File .\scripts\Test-MatlabMcpExistingSession
   -Backend matlab-mcp-existing -Transport stdio -ProjectRoot . -Json
 ```
 
-Measured: **7/7 checks PASS, level L4**, `evaluate_matlab_code` returns the real version string in ~1.9 s. To pin clients to this mode permanently: `Install-MatlabMcpClients.ps1 -SessionMode existing`. Constraints (don't start another MATLAB while held; release via `stop_session.flag`) in [TROUBLESHOOTING_ZH](docs/TROUBLESHOOTING_ZH.md).
+Measured: **7/7 checks PASS, level L4**, `evaluate_matlab_code` returns the real version string in ~1.9 s. To pin clients to this mode permanently, register them with **SessionMode existing** (see `Install-MatlabMcpClients.ps1`). Constraints (don't start another MATLAB while held; release via the **stop_session.flag** file) in [TROUBLESHOOTING_ZH](docs/TROUBLESHOOTING_ZH.md).
 
 </details>
 
@@ -220,9 +220,9 @@ Verification levels: **A** average · **B** discrete average · **C** discrete +
 Read these before quoting any number:
 
 - **S2 / S3 are average-model design values, not switching-level measurements.** PM/GM are small-signal LTI quantities; the switching converter is periodic and has no single linear loop to break. Switching-dynamics substitutes: delay margin (1 period), controller-gain margin (×1.253) — *weaker* claims than PM/GM.
-- **CCM only.** Operation below the CCM boundary (≈ R > 20 Ω at 150 µH) is **not modelled**; results there are undefined, not "good".
-- **Conduction parameters are placeholders** (`RonSW = 1 mΩ`, `RonD = 2 mΩ`, `Vf = 0.35 V`); the tolerance study includes a realistic 50 mΩ switch as a sensitivity case.
-- **The current clamp bounds the cycle average** (`Imax = 12 A`); the instantaneous peak reaches `Imax + ΔiL/2` (12.04 A). Real protection must act on instantaneous current.
+- **CCM only.** Operation below the CCM boundary (R greater than about 20 Ω at 150 µH) is **not modelled**; results there are undefined, not "good".
+- **Conduction parameters are placeholders**: switch on-resistance 1 mΩ, diode on-resistance 2 mΩ, diode forward drop 0.35 V. The tolerance study includes a realistic 50 mΩ switch as a sensitivity case.
+- **The current clamp bounds the cycle average** at Imax = 12 A; the instantaneous peak reaches about 12.04 A (Imax plus half the inductor ripple). Real protection must act on instantaneous current.
 - **No hardware.** Level E is absent — nothing here is a statement about a physical board.
 
 ## 🧪 Validation Status
