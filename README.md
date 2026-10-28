@@ -1,205 +1,92 @@
-# MATLAB Agent Skills
+<div align="center">
 
-> A production-minded Codex skills suite for MATLAB, Simulink, code generation, engineering simulation, research reproduction, and closed-loop validation.
+# ⚙️ MATLAB Agent Skills
 
-[![MATLAB Validation](https://github.com/wzyn20051216/matlab-agent-skills/actions/workflows/matlab-validation.yml/badge.svg)](https://github.com/wzyn20051216/matlab-agent-skills/actions/workflows/matlab-validation.yml)
+**Turn MATLAB into an agent-ready engineering workbench**
+
+*9 skills · MCP-first · Reproducible by default · Validated on MATLAB R2026a*
+
 [![Repository Checks](https://github.com/wzyn20051216/matlab-agent-skills/actions/workflows/repository-checks.yml/badge.svg)](https://github.com/wzyn20051216/matlab-agent-skills/actions/workflows/repository-checks.yml)
+[![MATLAB Validation](https://github.com/wzyn20051216/matlab-agent-skills/actions/workflows/matlab-validation.yml/badge.svg)](https://github.com/wzyn20051216/matlab-agent-skills/actions/workflows/matlab-validation.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
-[![Validated: R2026a](https://img.shields.io/badge/validated-R2026a-blue.svg)](https://www.mathworks.com/products/matlab.html)
+[![Platform](https://img.shields.io/badge/platform-Windows%2010%2F11-blue.svg)](docs/SUPPORT_MATRIX_ZH.md)
+[![Validated](https://img.shields.io/badge/validated-MATLAB%20R2026a-orange.svg)](docs/WINDOWS_BETA_ZH.md)
 
-`matlab-agent-skills` turns MATLAB from a tool you manually drive into an agent-ready engineering workbench. It packages MATLAB / Simulink / toolbox workflows as Codex skills with one hard rule: every task should end with a runnable command, captured logs, saved artifacts, and an acceptance check.
+[✨ Features](#-features) · [📦 Install](#-installation) · [🚀 Quick Start](#-quick-start) · [🧩 Skills](#-skill-suite) · [⚡ Demo](#-power-electronics-demo-48-v--12-v-buck) · [📖 Docs](#-documentation)
 
-This project is built for developers, researchers, and model-based engineering teams who want agents to do real MATLAB work, not just write plausible `.m` snippets.
+</div>
 
-Full capability statement: this repository is open source, but its full workflow potential depends on a properly licensed MATLAB R2026a installation plus the required MathWorks toolboxes, support packages, and third-party embedded toolchains. Without a valid licensed environment, some MCP control, Simulink, code generation, and hardware-in-the-loop flows will only be partially available or unavailable.
-
-- Chinese project introduction: `docs/SKILLS_INTRO_ZH.md`
-- Short-video script (Chinese): `docs/SHORT_VIDEO_SCRIPT_ZH.md`
-- Official MATLAB MCP guide: `docs/MCP_EXISTING_SESSION_ZH.md`
-- CLI / Desktop 共享安装与卸载：[安装说明](docs/SKILL_INSTALLATION_ZH.md)
-- 双端独立验收与可见桌面启动：[验收记录](docs/PHASE4_4_DUAL_CLIENT_ZH.md)、[启动说明](docs/MATLAB_DESKTOP_STARTUP_ZH.md)
-- 安装与执行基础设施可靠性收尾（缺陷逐项结论、免费层现状与平台范围）：[Phase 4.4.1 记录](docs/PHASE4_4_1_RELIABILITY_ZH.md)
-- Windows 测试版说明、验证边界与卸载回滚：[WINDOWS_BETA_ZH](docs/WINDOWS_BETA_ZH.md)
-- 故障排查：[TROUBLESHOOTING_ZH](docs/TROUBLESHOOTING_ZH.md)
-- 支持环境矩阵（哪些实测、哪些没测）：[SUPPORT_MATRIX_ZH](docs/SUPPORT_MATRIX_ZH.md)
-- Changelog: `CHANGELOG.md`
-
-## Highlights
-
-- MCP-first MATLAB / Simulink automation, not prompt-only code generation
-- One-command client install for `Codex` and `Claude Code`
-- Auto-mode MATLAB MCP setup that can reuse or automatically start MATLAB desktop
-- Simulink modeling, tuning, validation, and codegen-oriented workflows
-- Engineering artifacts by default: logs, figures, data, reports, validation JSON
+---
 
 ## Why This Exists
 
-Modern MATLAB ships with a deep engineering stack: Simulink, MATLAB Coder, Embedded Coder, ROS Toolbox, Control System Toolbox, Optimization Toolbox, Deep Learning Toolbox, Signal Processing Toolbox, Computer Vision Toolbox, and more. This repository is currently validated on MATLAB R2026a, while the core workflow is designed to stay compatible with recent MATLAB releases whenever APIs allow.
+Modern MATLAB ships with a deep engineering stack — Simulink, MATLAB Coder, Embedded Coder, ROS, Control System, Optimization, Deep Learning, Signal Processing, Computer Vision and more. But coding agents usually only *write plausible* `.m` snippets: nothing is executed, nothing is measured, nothing is reproducible.
 
-The repository can still be inspected, extended, and partially validated in lighter environments, but the complete intended experience requires a genuine licensed MATLAB R2026a setup.
+`matlab-agent-skills` closes that gap with one hard rule:
 
-This repository provides that workflow layer:
+> **Every task must end with a runnable command, captured logs, saved artifacts, and an acceptance check.**
 
-- Route fuzzy user requests to the right MATLAB specialist skill.
-- Use official MATLAB MCP auto-mode control as the default MATLAB / Simulink execution path on this machine.
-- Run MATLAB from the terminal with logs and reproducible output folders.
-- Build and simulate Simulink models automatically.
-- Reproduce open-source paper projects with manifests and measurable deltas.
-- Generate code through MATLAB Coder / Embedded Coder style workflows.
-- Close every task with tests, smoke checks, or artifact validation.
+Built for developers, researchers, and model-based engineering teams who want agents to do *real* MATLAB work.
 
-## Installation
+> [!IMPORTANT]
+> This repository is open source, but it is **not a MATLAB licence**. The full workflow requires your own licensed MATLAB R2026a installation plus the relevant toolboxes. Without a valid licence, MCP control, Simulink, codegen and HIL flows are only partially available.
 
-Prerequisites: Windows 10/11; Windows PowerShell 5.1 or PowerShell 7; MATLAB R2026a installed and
-activated for the **same Windows user** who runs the scripts; network access on first run (the pinned
-MCP server binary is downloaded and SHA-256 verified). MATLAB online-licence activation is stored per
-Windows user profile — a brand-new Windows user must activate MATLAB first, otherwise `matlab -batch`
-fails with LME 5201 (see `docs/TROUBLESHOOTING_ZH.md`).
+## ✨ Features
 
-`main` **is** the validated Windows technical preview. A default clone gives the version that was
-verified end-to-end on 2026-10-21; no branch switch or extra flag.
+| | |
+|---|---|
+| 🔌 **MCP-first** | Official MATLAB MCP server as the default execution path — real MATLAB, not prompt-only codegen |
+| 🧭 **Task routing** | `matlab-orchestrator` routes fuzzy requests to 8 specialist skills |
+| 📊 **Simulink automation** | Model creation, topology edits, simulation and signal checks — programmatically |
+| 📁 **Artifacts by default** | Logs, figures, data, reports, validation JSON on every run |
+| 🖥️ **One-command install** | Codex, Claude Code, VS Code and generic MCP clients |
+| 🔁 **Reproducible** | Pinned server binary (SHA-256), manifest-driven installs, bit-identical re-runs |
 
-To confirm you have the validated content, compare your commit with the preview tag
-`v0.6.0-preview.2` (the tag is created on the validated commit; documentation commits after the
-initial validation do not change installed content):
+## 📦 Installation
+
+**Prerequisites:** Windows 10/11 · PowerShell 5.1 or 7 · MATLAB R2026a installed and activated **for the same Windows user** running the scripts · network on first run (the pinned MCP server binary is downloaded and SHA-256 verified).
+
+> [!NOTE]
+> MATLAB online-licence activation is stored per Windows user profile. A brand-new Windows user must activate MATLAB first, otherwise `matlab -batch` fails with LME 5201 — see [Troubleshooting](docs/TROUBLESHOOTING_ZH.md).
 
 ### Default (recommended)
 
 ```powershell
 git clone https://github.com/wzyn20051216/matlab-agent-skills.git
 cd matlab-agent-skills
-git rev-parse HEAD                           # compare with the preview tag's commit
-git rev-parse 'v0.6.0-preview.2^{commit}'    # once the tag is published; the two should match
 powershell -ExecutionPolicy Bypass -File .\scripts\Sync-Skills.ps1
 ```
 
-默认安装到当前操作系统用户的 `.agents/skills`，Windows CLI 与 Desktop 共用一份；
-WSL 使用自己的 Linux 用户目录。实际发现、正文加载与 MCP 执行分别验收，详见
-[共享安装说明](docs/SKILL_INSTALLATION_ZH.md)。
+Installs 9 skills to the current user's `.agents/skills`, shared by Windows CLI and Desktop clients. Discovery, content loading and MCP execution are each independently accepted — see the [installation guide](docs/SKILL_INSTALLATION_ZH.md).
 
-### Pinned alternative (reproducible)
+### Pinned (reproducible)
 
-If you need an immutable entry point, tag `v0.6.0-preview.1` pins the pre-merge candidate
-(`100e6d4`). **Its content is identical to `main`** (same tree), so both routes install the same
-nine skills; the tag is not a GitHub Release and is not moved.
+Tag [`v0.6.0-preview.2`](../../releases) pins the end-to-end validated technical preview (2026-10-21). `main` has since moved ahead with later phases and audit fixes; the tag stays where validation happened. Compare before installing:
 
 ```powershell
-git clone --branch v0.6.0-preview.1 --depth 1 https://github.com/wzyn20051216/matlab-agent-skills.git
-cd matlab-agent-skills
-git rev-parse HEAD
-git rev-parse 'v0.6.0-preview.1^{commit}'   # the two values must match
+git clone --branch v0.6.0-preview.2 --depth 1 https://github.com/wzyn20051216/matlab-agent-skills.git
+git rev-parse HEAD; git rev-parse 'v0.6.0-preview.2^{commit}'   # must match
 ```
 
-`release/windows-preview` points at the same commit as the tag.
+> [!WARNING]
+> There is intentionally **no `irm … | iex` one-liner**: that pattern executes whatever the branch contains at that moment and cannot be reviewed. Clone and run from the checked-out tree instead. (The MCP server binary itself *is* pinned and hash-verified — see [WINDOWS_BETA_ZH](docs/WINDOWS_BETA_ZH.md) §4.1.)
 
-### No `irm … | iex` one-liner
+## 🚀 Quick Start
 
-There is intentionally no one-liner that pipes a moving branch into `iex`: that pattern executes
-whatever the branch contains at that moment and cannot be reviewed. Clone and run the script from
-the checked-out tree instead. (The MCP server binary itself is pinned and hash-verified — see
-[WINDOWS_BETA_ZH](docs/WINDOWS_BETA_ZH.md) §4.1.)
-
-## Windows beta status (technical preview)
-
-This repository is a **Windows technical preview**. The open-source code is not a MATLAB licence:
-running these skills requires your own valid MathWorks licence and the relevant toolboxes.
-
-Verified on the reference machine (details and evidence paths in [WINDOWS_BETA_ZH](docs/WINDOWS_BETA_ZH.md)):
-
-> **Evidence policy.** `artifacts/` holds local validation evidence — console logs, protocol
-> captures and per-phase reports. It is **not distributed with this repository**: those files
-> contain machine-specific paths, so the directory is git-ignored and the phase documents refer
-> to them as local artefacts. Reproduce them by running the corresponding phase driver.
-
-- free test layer **378/379** on Windows PowerShell 5.1 and PowerShell 7 (the single failure is the known
-  drive-path hygiene check, not a functional test);
-- default install to `%USERPROFILE%\.agents\skills`: 9 skills, 123 files; 7/9 skills are tree-identical to
-  `skills/`, while `matlab-runner` and `matlab-orchestrator` also carry the script resources declared in
-  `config/skill-payloads.json` (by design);
-- upgrade, idempotent re-sync, user-file preservation, failure rollback, and scoped uninstall;
-- **Codex CLI 0.147.0** and **Codex Desktop engine 0.163.0-alpha.10.2** both discover 9/9 skills with `discoveryErrors=[]`;
-- MATLAB MCP cold start, session binding and reuse.
-
-Not verified — do not assume:
-
-- autonomous CLI/Desktop task execution in this round (the Codex backend was unreachable from this host);
-- Desktop UI visibility (only engine-level discovery was proven);
-- any R1/R2/R3 "skills improve the agent" claim (blocked; no agent runs, therefore no gain claim);
-- `ComDesktop` launch mode (UNSUPPORTED under a Windows Job that forbids breakaway);
-- WSL / Linux / macOS (path-resolution logic only, no real machine).
-
-After installing, run one real task instead of a toy prompt:
-
-```text
-单位负反馈系统，开环传递函数 L(s)=10/((s+1)(s+2))。
-请报告 0 dB 交越处的相位裕度、增益裕度、闭环是否稳定以及闭环极点，
-并用官方 MATLAB MCP 在真实 MATLAB 里算，不要手算。
-```
-
-Expected: `matlab-control-optimization` + `matlab-runner` are used through the official MCP, and the
-numbers come back as PM ≈ 55.862240°, GM = Inf, closed-loop stable, poles −1.5 ± 3.1224989992j.
-
-## Clients
-
-Supported MCP client integration paths in this repository:
-
-| Client | Status | Setup |
-| --- | --- | --- |
-| `Codex` | Ready | One-command install |
-| `Claude Code` | Ready | One-command install |
-| `VS Code` | Ready | Writes project-local `.vscode/mcp.json` |
-| `Generic MCP clients` | Ready | Writes project-local `.mcp.json` |
-| `Claude Desktop` | Manual | Prefer official `.mcpb` bundle from MathWorks release |
-
-One-command install for `Codex` + `Claude Code`:
+### 1 · Wire up MATLAB MCP
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File .\scripts\Install-MatlabMcpClients.ps1 `
-  -Clients codex,claude
-```
+# auto-mode setup (discovers MATLAB and the server binary)
+powershell -ExecutionPolicy Bypass -File .\scripts\Setup-MatlabMcpExistingSession.ps1 -McpServerName matlab-official
 
-Auto-detect installed clients and also write a generic `.mcp.json`:
-
-```powershell
-powershell -ExecutionPolicy Bypass -File .\scripts\Install-MatlabMcpClients.ps1 `
-  -Clients auto
-```
-
-Write project-local `VS Code` MCP config:
-
-```powershell
-powershell -ExecutionPolicy Bypass -File .\scripts\Install-MatlabMcpClients.ps1 `
-  -Clients vscode `
-  -ProjectPath .
-```
-
-## Quick Start
-
-Set up official MATLAB MCP auto-mode control:
-
-```powershell
-powershell -ExecutionPolicy Bypass -File .\scripts\Setup-MatlabMcpExistingSession.ps1 `
-  -McpServerName matlab-official
-```
-
-If auto-discovery fails, provide only the missing path explicitly:
-
-```powershell
-powershell -ExecutionPolicy Bypass -File .\scripts\Setup-MatlabMcpExistingSession.ps1 `
-  -ServerExePath "C:\path\to\matlab-mcp-server-windows-x64.exe" `
-  -MatlabRoot "C:\Program Files\MATLAB\R2026a"
-```
-
-Verify MCP readiness:
-
-```powershell
+# verify readiness
 powershell -ExecutionPolicy Bypass -File .\scripts\Test-MatlabMcpExistingSession.ps1
 ```
 
-If the handshake works but execution never returns (`tools/call` times out while
-`initialize` and `tools/list` succeed), use a held shared session instead. This is
-the path verified on Windows + R2026a; on 2026-10-28 the `auto` and `new` cold-launch
-paths both hung, while this one returned real results:
+<details>
+<summary><b>If <code>tools/call</code> hangs while <code>initialize</code> succeeds → use a held shared session</b></summary>
+
+On Windows + R2026a (2026-10-28) the `auto`/`new` cold-launch paths can hang; the **existing-session** path is verified end-to-end:
 
 ```powershell
 # 1) hold a shared MATLAB session (idle timer, does not block the main thread)
@@ -210,32 +97,52 @@ powershell -ExecutionPolicy Bypass -File .\scripts\Test-MatlabMcpExistingSession
   -Backend matlab-mcp-existing -Transport stdio -ProjectRoot . -Json
 ```
 
-Measured: 7/7 checks PASS, `achievedLevel=L4`, exit 0, `evaluate_matlab_code` returns the
-real version string in 1.9 s. To pin clients to this mode permanently, register them with
-`Install-MatlabMcpClients.ps1 -SessionMode existing`. Constraints and the full diagnosis are
-in [TROUBLESHOOTING_ZH](docs/TROUBLESHOOTING_ZH.md) — in short: do not start any other
-MATLAB while the session is held, and release it with `<Work>\stop_session.flag`.
+Measured: **7/7 checks PASS, level L4**, `evaluate_matlab_code` returns the real version string in ~1.9 s. To pin clients to this mode permanently: `Install-MatlabMcpClients.ps1 -SessionMode existing`. Constraints (don't start another MATLAB while held; release via `stop_session.flag`) in [TROUBLESHOOTING_ZH](docs/TROUBLESHOOTING_ZH.md).
 
-Run local validation:
+</details>
+
+### 2 · Register MCP clients
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File .\scripts\Test-MatlabSkills.ps1
+powershell -ExecutionPolicy Bypass -File .\scripts\Install-MatlabMcpClients.ps1 -Clients codex,claude   # one command
+powershell -ExecutionPolicy Bypass -File .\scripts\Install-MatlabMcpClients.ps1 -Clients auto           # auto-detect + generic .mcp.json
+powershell -ExecutionPolicy Bypass -File .\scripts\Install-MatlabMcpClients.ps1 -Clients vscode -ProjectPath .
 ```
 
-Run the full embedded acceptance chain for MATLAB + STM32 / Raspberry Pi + CubeMX / Keil / VS Code:
+### 3 · Run one real task — not a toy prompt
+
+```text
+单位负反馈系统，开环传递函数 L(s)=10/((s+1)(s+2))。
+请报告 0 dB 交越处的相位裕度、增益裕度、闭环是否稳定以及闭环极点，
+并用官方 MATLAB MCP 在真实 MATLAB 里算，不要手算。
+```
+
+**Expected:** `matlab-control-optimization` + `matlab-runner` fire through the official MCP, and the numbers come back as **PM ≈ 55.862240°, GM = Inf, closed-loop stable, poles −1.5 ± 3.1224989992j**.
+
+### 4 · Local validation
 
 ```powershell
-$matlabExe = (Get-Command matlab -ErrorAction SilentlyContinue).Source
-powershell -ExecutionPolicy Bypass -File .\scripts\Test-MatlabEmbeddedStack.ps1 -MatlabPath $matlabExe
+powershell -ExecutionPolicy Bypass -File .\scripts\Test-MatlabSkills.ps1                                    # smoke test
+powershell -ExecutionPolicy Bypass -File .\scripts\Invoke-MatlabBatch.ps1 -Script .\path\to\script.m        # custom script w/ logs
+$matlabExe = (Get-Command matlab).Source
+powershell -ExecutionPolicy Bypass -File .\scripts\Test-MatlabEmbeddedStack.ps1 -MatlabPath $matlabExe      # full embedded chain
 ```
 
-Run a custom MATLAB script with captured logs:
+## 🧩 Skill Suite
 
-```powershell
-powershell -ExecutionPolicy Bypass -File .\scripts\Invoke-MatlabBatch.ps1 -Script .\path\to\script.m
-```
+| Skill | Purpose |
+|---|---|
+| [`matlab-orchestrator`](skills/matlab-orchestrator) | 🧭 Entry point — routes any MATLAB-flavoured request |
+| [`matlab-runner`](skills/matlab-runner) | ▶️ Batch execution, logs, toolbox inventory, smoke tests |
+| [`matlab-data-analysis`](skills/matlab-data-analysis) | 📈 Tables, statistics, fitting, visualization, paper figures |
+| [`matlab-simulink-modeling`](skills/matlab-simulink-modeling) | 🔧 `.slx` creation, topology edits, simulation, signal checks |
+| [`matlab-codegen-deploy`](skills/matlab-codegen-deploy) | ⚙️ MEX, C/C++, embedded, GPU, HDL-oriented codegen |
+| [`matlab-control-optimization`](skills/matlab-control-optimization) | 🎛️ Control design, identification, MPC, constrained optimization |
+| [`matlab-robotics-autonomy`](skills/matlab-robotics-autonomy) | 🤖 ROS, navigation, UAV, sensor fusion |
+| [`matlab-signal-vision-ai`](skills/matlab-signal-vision-ai) | 👁️ Signal, image, lidar, medical imaging, deep learning |
+| [`matlab-testing-ci`](skills/matlab-testing-ci) | ✅ `matlab.unittest`, Simulink Test, GitHub Actions, acceptance reports |
 
-## Architecture
+## 🏗️ Architecture
 
 ```mermaid
 flowchart LR
@@ -245,8 +152,6 @@ flowchart LR
     D --> S["Skills Layer\norchestrator / runner / simulink / codegen / testing"]
     S --> A["Artifacts\nlogs / models / figures / data / reports / validation"]
 ```
-
-## Workflow
 
 ```mermaid
 flowchart TD
@@ -259,62 +164,16 @@ flowchart TD
     Q --> T["Export artifacts and report"]
 ```
 
-## Skill Suite
+## ⚡ Power-Electronics Demo: 48 V → 12 V Buck
 
-| Skill | Purpose |
-| --- | --- |
-| `matlab-orchestrator` | Entry point and router for MATLAB tasks. |
-| `matlab-runner` | Batch execution, logs, toolbox inventory, smoke tests. |
-| `matlab-data-analysis` | Tables, statistics, fitting, visualization, paper figures. |
-| `matlab-simulink-modeling` | `.slx` creation, topology edits, simulation, signal checks. |
-| `matlab-codegen-deploy` | MEX, C/C++, embedded, GPU, HDL-oriented code generation. |
-| `matlab-control-optimization` | Control design, identification, MPC, constrained optimization. |
-| `matlab-robotics-autonomy` | ROS, robotics, navigation, UAV, sensor fusion workflows. |
-| `matlab-signal-vision-ai` | Signal, image, vision, lidar, medical imaging, deep learning. |
-| `matlab-testing-ci` | `matlab.unittest`, Simulink Test patterns, GitHub Actions, acceptance reports. |
+A closed-loop **48 V → 12 V, 50 kHz Buck converter** (L = 150 µH, C = 220 µF, R = 6 Ω) — the repository's flagship *engineering* example: cascaded dual loop (outer PI voltage → inductor-current command → proportional inner current → duty), load-current feedforward, boundary sampling with analytic half-ripple compensation, and one switching period of computation delay.
 
-## What Validation Checks
-
-The smoke test currently verifies:
-
-- MATLAB R2026a can be launched from the terminal.
-- Installed toolbox inventory can be exported to JSON.
-- Feature probe can distinguish direct-import support, hardware blockset presence, and local agent skill availability.
-- A deterministic numeric fitting task passes tolerance checks.
-- MATLAB Coder can generate standalone C source artifacts in `GenCodeOnly` mode.
-- Figure export produces a nonempty PNG artifact.
-- `.mat` export produces a nonempty data artifact.
-- Simulink can create, save, and simulate a minimal model when licensed.
-- Simulink Coder can generate generic C code from a minimal model when licensed.
-- STM32 / Raspberry Pi hardware support can be probed from MATLAB and exported to JSON.
-- VS Code / STM32CubeMX / Keil can be discovered and checked as an embedded toolchain bundle.
-- Key embedded extensions such as `cortex-debug`, `cpptools`, `keil-assistant`, and STM32 VS Code integration can be audited.
-- STM32 code generation readiness checks MATLAB-registered CubeMX, target hardware names, GNU Tools for STM32, CMSIS, CMSIS-DSP, Cube firmware packages, and `.ioc` binding assumptions.
-
-Artifacts are written under:
-
-```text
-artifacts/
-  logs/
-  validation/
-```
-
-## Power-Electronics Demo: 48 V → 12 V Buck
-
-A closed-loop 48 V → 12 V, 50 kHz Buck converter (L = 150 µH, C = 220 µF, R = 6 Ω) used as
-the repository's flagship *engineering* example: a cascaded dual loop (outer PI voltage loop →
-inductor-current command → proportional inner current loop → duty), load-current feedforward,
-boundary sampling with analytic half-ripple compensation, and one switching period of
-computation delay.
-
-This is a **simulation** demo. It is validated up to switching-level simulation with a
-non-ideal sensor chain. There is no hardware measurement, no device-level (Simscape) model,
-and no DCM operating region in the model — see [Limitations](#limitations-of-this-demo).
+This is a **simulation** demo, validated up to switching-level simulation with a non-ideal sensor chain. No hardware measurement, no device-level model, no DCM region — see [Limitations](#-limitations-of-this-demo).
 
 ### Run it
 
 ```bash
-# 40 s, base MATLAB only: reproduces the published numbers and exits nonzero on failure
+# 40 s, base MATLAB only: reproduces the published numbers, exits nonzero on failure
 matlab -batch "run('matlab/buck/verify/buck_smoke.m')"
 
 # full acceptance matrix (C1-C7 x baseline + stress configs, ~10 min)
@@ -322,15 +181,13 @@ export BUCK_OUT="$PWD/artifacts/validation/buck"
 matlab -batch "run('matlab/buck/verify/buck_a6_task6_accept.m')"
 ```
 
-`BUCK_OUT` is the only knob: every script writes its JSON/MAT/PNG there and reads nothing
-from it that it did not produce itself, so a run in an empty directory is self-contained.
+`BUCK_OUT` is the only knob: every script writes its JSON/MAT/PNG there and reads nothing it did not produce itself — a run in an empty directory is self-contained.
 
-### Toolbox requirements
-
-`matlab.codetools.requiredFilesAndProducts` is the source of truth here, not a guess:
+<details>
+<summary><b>Toolbox requirements (source of truth: <code>requiredFilesAndProducts</code>, not guesses)</b></summary>
 
 | Entry point | Products |
-| --- | --- |
+|---|---|
 | `verify/buck_smoke.m` | MATLAB |
 | `verify/buck_a6_task4_phase.m` | MATLAB |
 | `verify/buck_a6_task5_margin.m` | MATLAB |
@@ -338,16 +195,14 @@ from it that it did not produce itself, so a run in an empty directory is self-c
 | `verify/buck_a6_task1_stability.m` | MATLAB, Control System Toolbox |
 | `build_buck_switching.m` (reference model) | MATLAB, Simulink |
 
-The switching-level acceptance path therefore runs on **base MATLAB**. Control System Toolbox
-is needed only for the average-model design scripts (PM/GM design values, discrete poles), and
-Simulink only for the reference switching model that the fast engine is cross-checked against.
-If a required product is missing, MATLAB fails inside the entry point; the table above tells
-you which one before you start.
+The switching-level acceptance path runs on **base MATLAB**. Control System Toolbox is needed only for average-model design scripts; Simulink only for the reference switching model the fast engine is cross-checked against.
+
+</details>
 
 ### Acceptance criteria (unchanged since Phase 3A.1)
 
 | ID | Criterion | Threshold |
-| --- | --- | --- |
+|---|---|---|
 | S1 | Stability | local asymptotic stability of the periodic orbit (Floquet multipliers < 1) |
 | S2 | Phase margin | ≥ 50° |
 | S3 | Gain margin | ≥ 6 dB |
@@ -358,94 +213,117 @@ you which one before you start.
 | S8 | Duty cycle | 0.05 … 0.85 |
 | S9 | Reproducibility | same seed, bit-identical results |
 
-Verification levels: **A** average model, **B** discrete average model, **C** discrete + sensor
-non-idealities, **D** switching (PWM, ripple, conduction losses), **D+** switching + sensor
-chain, **E** hardware *(not performed)*. Results per level and per criterion are in
-[`docs/PHASE3A6_JOINT_AND_FREEZE_ZH.md`](docs/PHASE3A6_JOINT_AND_FREEZE_ZH.md) and
-[`docs/PHASE3A6B_TASKS4_7_ZH.md`](docs/PHASE3A6B_TASKS4_7_ZH.md).
+Verification levels: **A** average · **B** discrete average · **C** discrete + sensor non-idealities · **D** switching (PWM, ripple, conduction losses) · **D+** switching + sensor chain · **E** hardware *(not performed)*. Per-level results: [PHASE3A6_JOINT_AND_FREEZE_ZH](docs/PHASE3A6_JOINT_AND_FREEZE_ZH.md) · [PHASE3A6B_TASKS4_7_ZH](docs/PHASE3A6B_TASKS4_7_ZH.md).
 
-### Limitations of this demo
+### ⚠️ Limitations of this demo
 
-Read these before quoting any number from the demo:
+Read these before quoting any number:
 
-- **S2 / S3 are average-model design values, not switching-level measurements.** A phase margin
-  is a small-signal LTI quantity; the switching converter is periodic and has no single linear
-  loop to break. Substitutes measured on the switching dynamics are the delay margin (1 period)
-  and the controller-gain margin (×1.253). They are *weaker* claims than PM/GM.
-- **CCM only.** The plant equations continue through zero inductor current, so operation below
-  the CCM boundary (roughly R > 20 Ω at 150 µH, i.e. below ~0.6 A) is **not modelled**.
-  Results in that region are undefined, not "good".
-- **Conduction parameters are placeholders.** `RonSW = 1 mΩ`, `RonD = 2 mΩ`, `Vf = 0.35 V` are
-  not datasheet values for a real 48 V design; the tolerance study in
-  `verify/buck_a6_task5_margin.m` includes a realistic 50 mΩ switch as a sensitivity case.
-- **The current clamp is on the current *command*, not the instantaneous switch current.**
-  `Imax = 12 A` bounds the cycle average; the measured instantaneous peak reaches
-  `Imax + ΔiL/2`, which is 12.04 A at 150 µH. A real protection must be defined on the
-  instantaneous current.
-- **No hardware.** Level E is absent. Nothing here is a statement about a physical board.
-- **L = 220 µH is a simulation candidate, not a selection.** It improves ripple, S4 and S5 but
-  worsens the load-step dip; no candidate dominates on every criterion, and none has been
-  measured.
+- **S2 / S3 are average-model design values, not switching-level measurements.** PM/GM are small-signal LTI quantities; the switching converter is periodic and has no single linear loop to break. Switching-dynamics substitutes: delay margin (1 period), controller-gain margin (×1.253) — *weaker* claims than PM/GM.
+- **CCM only.** Operation below the CCM boundary (≈ R > 20 Ω at 150 µH) is **not modelled**; results there are undefined, not "good".
+- **Conduction parameters are placeholders** (`RonSW = 1 mΩ`, `RonD = 2 mΩ`, `Vf = 0.35 V`); the tolerance study includes a realistic 50 mΩ switch as a sensitivity case.
+- **The current clamp bounds the cycle average** (`Imax = 12 A`); the instantaneous peak reaches `Imax + ΔiL/2` (12.04 A). Real protection must act on instantaneous current.
+- **No hardware.** Level E is absent — nothing here is a statement about a physical board.
 
-## Repository Layout
+## 🧪 Validation Status
+
+Verified on the reference machine (Windows 11 + R2026a, 2026-10-28; details in [WINDOWS_BETA_ZH](docs/WINDOWS_BETA_ZH.md)):
+
+| Item | Status |
+|---|---|
+| Offline free test layer, PowerShell 5.1 **and** 7 | ✅ **413/413** (incl. path-hygiene gate, now green) |
+| Default install (`%USERPROFILE%\.agents\skills`) | ✅ 9 skills; upgrade / idempotent re-sync / rollback / scoped uninstall |
+| Codex CLI 0.147.0 & Desktop 0.163.0-alpha discovery | ✅ 9/9 skills, `discoveryErrors=[]` |
+| MATLAB MCP existing-session acceptance | ✅ 7/7 PASS, level **L4** |
+| MCP cold-launch (`auto` / `new` modes) | ⚠️ can hang on R2026a — use held shared session (see [Quick Start](#-quick-start)) |
+| Autonomous CLI/Desktop task runs · Desktop UI visibility | ❌ not verified this round |
+| `ComDesktop` launch mode | ❌ unsupported under a Windows Job that forbids breakaway |
+| WSL / Linux / macOS | ❌ path-resolution logic only, no real machine |
+
+> No "skills improve the agent" (R1/R2/R3) claim is made: the Codex backend was unreachable from the reference host, so no agent runs — therefore no gain claim.
+
+## 📚 Documentation
+
+| Document | Content |
+|---|---|
+| [SKILLS_INTRO_ZH](docs/SKILLS_INTRO_ZH.md) | 中文项目介绍 |
+| [SKILL_INSTALLATION_ZH](docs/SKILL_INSTALLATION_ZH.md) | CLI / Desktop 共享安装与卸载 |
+| [MCP_EXISTING_SESSION_ZH](docs/MCP_EXISTING_SESSION_ZH.md) | 官方 MATLAB MCP 指南 |
+| [MATLAB_DESKTOP_STARTUP_ZH](docs/MATLAB_DESKTOP_STARTUP_ZH.md) | 可见桌面会话启动说明 |
+| [WINDOWS_BETA_ZH](docs/WINDOWS_BETA_ZH.md) | Windows 测试版说明、验证边界与卸载回滚 |
+| [SUPPORT_MATRIX_ZH](docs/SUPPORT_MATRIX_ZH.md) | 支持环境矩阵（哪些实测、哪些没测） |
+| [TROUBLESHOOTING_ZH](docs/TROUBLESHOOTING_ZH.md) | 故障排查 |
+| [CHANGELOG](CHANGELOG.md) | 变更记录 |
+
+## 📁 Repository Layout
 
 ```text
-skills/                 # Codex skill definitions
+skills/                 # Codex skill definitions (9 skills)
 scripts/                # PowerShell automation wrappers
-matlab/validation/      # MATLAB smoke tests and reproduction templates
-docs/                   # Architecture, sources, validation, release notes
+matlab/                 # MATLAB sources: buck demo, validation, templates
+docs/                   # Architecture, validation, release notes (ZH)
 evals/                  # Skill evaluation prompts
 .github/workflows/      # GitHub Actions validation example
+artifacts/              # Local validation evidence (git-ignored, reproducible)
 ```
 
-## Contributing
+> **Evidence policy.** `artifacts/` holds local validation evidence — console logs, protocol captures, per-phase reports. It is **not distributed with this repository**: those files contain machine-specific paths, so the directory is git-ignored and phase documents refer to them as local artefacts. Reproduce them by running the corresponding phase driver.
 
-Contributions are welcome when they make MATLAB agent workflows more executable, measurable, or reproducible. See [CONTRIBUTING.md](CONTRIBUTING.md) and [ROADMAP.md](ROADMAP.md).
+## 🧪 What Validation Checks
 
-Security policy: [SECURITY.md](SECURITY.md)
+The smoke test verifies, on the real MATLAB:
 
-## Paper Reproduction Mode
+- ✅ Terminal launch of MATLAB R2026a · toolbox inventory exported to JSON
+- ✅ Feature probe distinguishes direct-import support, hardware blocksets, local agent skill availability
+- ✅ Deterministic numeric fitting task passes tolerance checks
+- ✅ MATLAB Coder standalone C generation (`GenCodeOnly`) · nonempty PNG / `.mat` artifacts
+- ✅ Simulink create-save-simulate + Simulink Coder generic C generation (when licensed)
+- ✅ STM32 / Raspberry Pi support probed and exported
+- ✅ VS Code / STM32CubeMX / Keil embedded toolchain bundle audited (`cortex-debug`, `cpptools`, `keil-assistant`, …)
+- ✅ STM32 codegen readiness: registered CubeMX, target names, GNU ARM tools, CMSIS / CMSIS-DSP, firmware packages, `.ioc` binding
 
-For open-source papers and engineering examples, the expected loop is:
+## 🗺️ Roadmap
 
-1. Record paper URL, code URL, dataset URL, commit hash, MATLAB release, and toolbox list.
-2. Run the smallest official example first.
-3. Reproduce one figure or table before scaling up.
-4. Save raw logs, processed results, generated figures, and `manifest.json`.
-5. Report numerical deltas instead of hand-waving visual similarity.
+- [ ] Packaged `.skill` releases
+- [ ] Benchmark viewer outputs for representative MATLAB tasks
+- [ ] Real paper-reproduction examples with public datasets
+- [ ] Simulink model topology diff tooling
+- [ ] Codegen golden-output comparison templates
+- [ ] Self-hosted runner guide for licensed MATLAB/Simulink CI
+- [ ] More R2026a capability probes as MathWorks docs evolve
 
-The helper template is:
+## 🤝 Contributing
+
+Contributions are welcome when they make MATLAB agent workflows more **executable, measurable, or reproducible**. See [CONTRIBUTING.md](CONTRIBUTING.md) and [ROADMAP.md](ROADMAP.md) · Security policy: [SECURITY.md](SECURITY.md).
+
+For open-source paper reproduction, the expected loop is:
+
+1. Record paper / code / dataset URLs, commit hash, MATLAB release, toolbox list
+2. Run the smallest official example first
+3. Reproduce one figure or table before scaling up
+4. Save raw logs, processed results, figures, and `manifest.json`
+5. **Report numerical deltas** instead of hand-waving visual similarity
 
 ```matlab
 manifestPath = reproducible_project_template("project-name", "https://example.com/source");
 ```
 
-## Design Principles
+## 📜 Design Principles
 
-- Task-first skills, not toolbox-name wrappers.
-- Official MathWorks docs and local MATLAB probes beat memory.
-- Forum and blog knowledge is useful only after local verification.
-- Every generated artifact should be inspectable and reproducible.
-- CI should run the same commands a developer runs locally.
+- Task-first skills, not toolbox-name wrappers
+- Official MathWorks docs and local MATLAB probes beat memory
+- Forum and blog knowledge is useful only after local verification
+- Every generated artifact should be inspectable and reproducible
+- CI should run the same commands a developer runs locally
 
-## Roadmap
-
-- Add packaged `.skill` releases.
-- Add benchmark viewer outputs for representative MATLAB tasks.
-- Add real paper reproduction examples with public datasets.
-- Add Simulink model topology diff tooling.
-- Add code generation golden-output comparison templates.
-- Add self-hosted runner guide for licensed MATLAB/Simulink CI.
-- Add more R2026a-specific capability probes as MathWorks documentation evolves.
-
-## Related Work
+## 🔗 Related Work
 
 - [MATLAB Agentic Toolkit](https://github.com/matlab/matlab-agentic-toolkit)
 - [Simulink Agentic Toolkit](https://github.com/matlab/simulink-agentic-toolkit)
 - [MATLAB Actions](https://github.com/matlab-actions)
 
-This project is not an official MathWorks product. It is an independent, developer-oriented skill suite designed to make MATLAB R2026a easier for coding agents to use responsibly.
+> This project is not an official MathWorks product. It is an independent, developer-oriented skill suite designed to make MATLAB R2026a easier for coding agents to use responsibly.
 
 ## License
 
-MIT License. See [LICENSE](LICENSE).
+[MIT](LICENSE) © Contributors
