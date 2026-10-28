@@ -1,5 +1,0 @@
-=== model check tests ===
-  [PASS] real model   -> L3 simulated to 0.01 s, 6 signal(s) finite
-  [PASS] missing file -> L0 file missing: E:\desktop\MATLAB\no_such_model.slx
-
----- 2 / 2 model-check cases passed ----

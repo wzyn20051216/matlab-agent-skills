@@ -297,7 +297,7 @@ C4 的电流在 **0.375~1.63 A** 之间摆动，距 DCM 只有 0.375 A。
 
 ### 4.3 读法：没有一个候选全面更好
 
-![summary](artifacts/validation/buck/a6_summary.png)
+（图 `a6_summary.png` 为本地生成产物；证据目录 `artifacts/` 不随仓库分发）
 
 > 左上：14 个轨道距单位圆的距离，柱高为 0 即失稳；左下：加大 L 的代价；右上/右下：L 的四条
 > 曲线方向不一致。图由 `verify/buck_a6_figure.m` 直接读两个 JSON 绘制，**不重跑仿真**。

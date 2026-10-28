@@ -106,6 +106,11 @@ running these skills requires your own valid MathWorks licence and the relevant 
 
 Verified on the reference machine (details and evidence paths in [WINDOWS_BETA_ZH](docs/WINDOWS_BETA_ZH.md)):
 
+> **Evidence policy.** `artifacts/` holds local validation evidence — console logs, protocol
+> captures and per-phase reports. It is **not distributed with this repository**: those files
+> contain machine-specific paths, so the directory is git-ignored and the phase documents refer
+> to them as local artefacts. Reproduce them by running the corresponding phase driver.
+
 - free test layer **378/379** on Windows PowerShell 5.1 and PowerShell 7 (the single failure is the known
   drive-path hygiene check, not a functional test);
 - default install to `%USERPROFILE%\.agents\skills`: 9 skills, 123 files; 7/9 skills are tree-identical to

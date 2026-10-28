@@ -3,8 +3,8 @@
 分支 `phase5.1-audit`，HEAD `9543f36`（Phase 5.6 冻结点，本轮未提交）。
 探针：[p57_leak_surface_probe.py](matlab/validation/phase57/p57_leak_surface_probe.py)
 与 [p57_isolation_probe.m](matlab/validation/phase57/p57_isolation_probe.m)；
-证据：[leak_surface_probe.json](artifacts/phase57/isolation/leak_surface_probe.json)、
-[matlab_state.json](artifacts/phase57/isolation/matlab_state.json)。
+证据：`artifacts/phase57/isolation/leak_surface_probe.json`、
+`artifacts/phase57/isolation/matlab_state.json`（均为本地证据，不随仓库分发）。
 
 ## 0. 结论
 

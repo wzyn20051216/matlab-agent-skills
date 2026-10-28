@@ -1,1 +1,0 @@
-powershell -NoProfile -ExecutionPolicy Bypass -File E:\desktop\MATLAB\artifacts\s2\pre-fix\installed\matlab-runner\scripts\Test-MatlabMcpExistingSession.ps1 -Json

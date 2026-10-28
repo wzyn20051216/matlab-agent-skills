@@ -1,9 +1,0 @@
-=== grading tests ===
-  [PASS] all good                   -> PASS                   correct=true meets=true
-  [PASS] skipped check              -> FAIL                   correct=true meets=UNDETERMINED
-  [PASS] wrong number               -> FAIL                   correct=false meets=true
-  [PASS] correct but not accepted   -> CORRECT_NOT_ACCEPTED   correct=true meets=false
-  [PASS] no numeric check           -> UNDETERMINED           correct=UNDETERMINED meets=true
-  [PASS] no reference               -> FAIL                   correct=false meets=UNDETERMINED
-
----- 6 / 6 grading cases passed ----

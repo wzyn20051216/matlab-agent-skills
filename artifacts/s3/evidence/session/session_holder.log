@@ -1,5 +1,0 @@
-E:\desktop\MATLAB\scripts\Start-MatlabSharedSession.ps1 : 使用“1”个参数调用“Delete”时发生异常:“文件“E:\desktop\MATLAB\a
-rtifacts\s3\scratch\matlab_shared_session.log”正由另一进程使用，因此该进程无法访问此文件。”
-    + CategoryInfo          : NotSpecified: (:) [Start-MatlabSharedSession.ps1], MethodInvocationException
-    + FullyQualifiedErrorId : IOException,Start-MatlabSharedSession.ps1
- 

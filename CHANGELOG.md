@@ -4,6 +4,19 @@ All notable changes to this project will be documented here.
 
 ## Unreleased
 
+### 证据目录不再随仓库分发
+
+- **`artifacts/` 移出版本库**：994 个验证证据文件（9.9 MB，占跟踪内容 67%）取消 git 跟踪。
+  这些是控制台日志、协议抓包与分阶段报告，含本机用户名、主机名与盘符路径
+  （`C:\Users\…` 一类），不适合随公开仓库分发 —— 而 `.gitignore` 第 1 行本来就写着
+  `artifacts/`，是历史审计交付时用 `git add -f` 强制加进来的。
+- **磁盘产物不受影响**：文件仍在本地，测试与验收照常运行（已核实：测试只把 `artifacts/`
+  当输出目录，不读取已提交的证据）。仓库体积从 14.7 MB 降到约 4.8 MB。
+- **文档改为指向本地产物**：原先 6 处 `artifacts/...` 链接（含 2 张配图）改成行内代码路径
+  并标注"本地证据，不随仓库分发"；README 增加 Evidence policy 说明。
+- 历史提交中的旧证据仍然存在（改写历史会使 30 份文档引用的 75 处提交哈希全部失效，
+  且已有 fork 不受影响，故未执行）。
+
 ### 路径可移植性与测试框架健壮性（S4 后续）
 
 - **仓库内不再有本机绝对路径**：`E:` / `D:` 盘符路径从 **21 个文件 69 行**降到 **0**。
@@ -23,8 +36,8 @@ All notable changes to this project will be documented here.
 - **历史报告中的个人标识已脱敏**：10 份阶段报告里 35 处 Windows 用户档案名与主机名换成
   `<home>` / `<host>` / `<user>`，`p58_install_plan.py` 的四个用户级根改用 `Path.home()`。
   全量扫描非 `artifacts/` 的跟踪文件：内网 IP 与邮箱均为 0 处。
-  **注意**：`matlab/stm32_temp_fan_closed_loop.m` 里的 `rng(2320194668)` 是随机种子、
-  不是个人数据，改它会改变仿真结果，因此保留不动。
+  **注意**：`matlab/stm32_temp_fan_closed_loop.m` 里有一个以本机用户名字串开头的数字
+  实为 `rng(...)` 的**随机种子**，不是个人数据；改它会改变仿真结果，因此保留不动。
 - 结果：**免费层 413/413**（首次全绿）、MATLAB 层 74/74、benchmark harness 11/11。
 
 ### Phase 4.9：main 发布收尾（文档与实际行为对齐）

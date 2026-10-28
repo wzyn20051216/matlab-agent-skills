@@ -1,7 +1,7 @@
 # Phase 5.6 任务 1：Benchmark 强制隔离设计与对抗验证
 
 分支 `phase5.1-audit`，HEAD `572641c`（Phase 5.5 冻结点）。探针数据：
-[artifacts/phase56/isolation/probe_report.json](artifacts/phase56/isolation/probe_report.json)。
+`artifacts/phase56/isolation/probe_report.json`（本地证据，不随仓库分发）。
 本文只回答一个问题：**三臂对照里"某臂看不到某类信息"这句话，现在是靠什么保证的，以及它到底成不成立。**
 
 ## 1. 目标访问矩阵（本轮永久冻结）
@@ -128,7 +128,7 @@ prompt 里不出现 `mas_`、不出现 skill 名、不出现 routing 词汇。�
 
 ### 6.3 测试：43/43，其中 12 条是"必须失败"的负例
 
-日志 [artifacts/phase56/isolation/seal_and_staging.log](artifacts/phase56/isolation/seal_and_staging.log)：
+日志 `artifacts/phase56/isolation/seal_and_staging.log`（本地证据，不随仓库分发）：
 `test_two_phase_seal` 22/22 + `test_p56_stage` 21/21，已注册进质量门禁（`run_all.m` 第 28 个套件）。
 
 负例覆盖：二次发布、脏 bundle 里发布、episode 未跑完就封存、封存后改 prompt、

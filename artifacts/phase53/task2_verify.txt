@@ -1,6 +1,0 @@
-routing          9/9 true
-routingContract  16/16 true
-skillGraph       13/13 true
-capability       CONSISTENT 5/5 consistency checks passed
-tableAudit       11/11 true
-dataContract     118/118 true

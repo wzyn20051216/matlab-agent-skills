@@ -1,2 +1,0 @@
-    + CategoryInfo          : ObjectNotFound: (Get-FileSha256:String) [Invoke-McpStagedProbe], CommandNotFoundExceptio 
-    + FullyQualifiedErrorId : CommandNotFoundException,Invoke-McpStagedProbe

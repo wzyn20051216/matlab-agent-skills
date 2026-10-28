@@ -1,9 +1,0 @@
-技能同步存在失败项（见上面的 failed 与 skills 字段）；失败技能已尝试从备份恢复，请复核后重试。
-所在位置 D:\Temp\mas-s2-acceptance-ba77f767393743458b63504bf7d957bb\installer-repo\scripts\Sync-Skills.ps1:275 字符: 5
-+     throw "技能同步存在失败项（见上面的 failed 与 skills 字段）；失败技能已尝试从备份恢复，请复核后重试。"
-+     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    + CategoryInfo          : OperationStopped: (技能同步存在失败项（见上面的 ...尝试从备份恢复，请复核后重试。:String) 
-[], RuntimeException
-    + FullyQualifiedErrorId : 技能同步存在失败项（见上面的 failed 与 skills 字段）；失败技能已尝试从备份恢复，请复核后
-重试。
- 

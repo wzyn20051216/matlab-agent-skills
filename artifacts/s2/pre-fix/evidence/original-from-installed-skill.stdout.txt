@@ -1,6 +1,0 @@
--File 形式参数的实际参数“.\scripts\Test-MatlabMcpExistingSession.ps1”不存在。请提供现有“.ps1”文件的路径，作为 -File 形式参数的一个实际参数。
-Windows PowerShell
-版权所有（C） Microsoft Corporation。保留所有权利。
-
-安装最新的 PowerShell，了解新功能和改进！https://aka.ms/PSWindows
-

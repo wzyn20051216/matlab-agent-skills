@@ -1,1 +1,0 @@
-{"verdict":"FAIL","fields":{"verdict":"FAIL","state":"sufficient-refutation","z":71.498465499459655,"theoryExpectedEvents":49.085676119749088,"ciWilsonLower95":0.00050592607441144735,"ciWilsonUpper95":0.00059791114406402743},"statistic":"z = (p_hat - p_theory)/sqrt(p_theory*(1-p_theory)/n); claim accepted only if |z| <= 3 at 95% confidence; Wilson 95% score interval reported"}

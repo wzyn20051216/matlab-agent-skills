@@ -1,8 +1,0 @@
-  PASS real matrix is consistent           
-  PASS real inventory is non-trivial       
-  PASS neg: missing tool is caught         
-  PASS neg: ghost tool is caught           
-  PASS neg: wrong owner is caught          
-  PASS neg: stale summary is caught        
-  PASS neg: evidence-free VERIFIED is caught
-test_capability: 7 / 7 passed

@@ -456,7 +456,7 @@ D 级不是「又过了一次」，而是「换了一个刚性的、且不易消
 前馈又把指令推得更高，于是恢复段占空比被打到下限。A 级（无采样延迟）下界 0.216，
 所以这个现象**只在数字实现里出现**。S8 通过，但它是在「刚好等于下限」的位置上通过的。
 
-![level comparison](artifacts/validation/buck/a5_levels_compare.png)
+（图 `a5_levels_compare.png` 为本地生成产物；证据目录 `artifacts/` 不随仓库分发）
 
 > 图由 `verify/buck_a5_figure.m` 直接读取三个 JSON 绘制，**不重跑仿真**——
 > 图与表不可能不一致。C5/C6 是 3Ω→1.5Ω（ΔI = 4 A）的重载阶跃，是所有级别的瓶颈工况。

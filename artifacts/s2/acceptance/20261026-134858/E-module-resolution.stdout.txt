@@ -1,9 +1,0 @@
-{
-    "count":  4,
-    "paths":  [
-                  "D:\\Temp\\mas-s2-acceptance-98b1dce463a74964badfa980213c4530\\clean-install\\installed-skills\\matlab-runner\\scripts\\MatlabAgentSkills.Acceptance.psm1",
-                  "D:\\Temp\\mas-s2-acceptance-98b1dce463a74964badfa980213c4530\\clean-install\\installed-skills\\matlab-runner\\scripts\\MatlabAgentSkills.Core.psm1",
-                  "D:\\Temp\\mas-s2-acceptance-98b1dce463a74964badfa980213c4530\\clean-install\\installed-skills\\matlab-runner\\scripts\\MatlabAgentSkills.Execution.psm1",
-                  "D:\\Temp\\mas-s2-acceptance-98b1dce463a74964badfa980213c4530\\clean-install\\installed-skills\\matlab-runner\\scripts\\MatlabAgentSkills.McpProbe.psm1"
-              ]
-}

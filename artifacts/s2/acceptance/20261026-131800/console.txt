@@ -1,2 +1,0 @@
-OVERALL=PASS PASS=10 FAIL=0 SKIP=0
-REPORT=E:\desktop\MATLAB\artifacts\s2\acceptance\20261026-131800\acceptance-report.json

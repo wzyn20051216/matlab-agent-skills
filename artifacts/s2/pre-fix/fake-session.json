@@ -1,6 +1,0 @@
-{
-    "port":  1,
-    "certificate":  "E:\\desktop\\MATLAB\\artifacts\\s2\\pre-fix\\fake-cert.pem",
-    "apiKey":  "synthetic-s2-fake-not-a-real-credential",
-    "pid":  28100
-}

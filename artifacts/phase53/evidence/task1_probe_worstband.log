@@ -1,8 +1,0 @@
-== probe_worstband | 2026-10-21 21:17:04 | MATLAB 26.1.0.3276743 (R2026a) Update 3 ==
-hand: max |H| = 0.272166 at 366.1398 Hz, attenuation 11.303338 dB
-check h(f366) = 0.272166, null h(250) = 4.33e-17
-grid: edge att near 250 Hz = 61.79 dB; worst over [250,500] = 11.3033 dB at 366.18 Hz
-tool: verdict=FAIL stopbandDb=11.3033 phase=pass ripple=na
-  [na] passbandRipple: passband ripple measured 12.0412 dB but the spec states no apassDb: not graded (no criterion, no pass)
-  [fail] stopband: worst attenuation over 250-500 Hz is 11.30 dB (spec >= 40.00 dB); worst point 366.2 Hz
-kaiser lp: tool=60.102893, independent=60.102445, edge=-0.010016, diff=4.48e-04

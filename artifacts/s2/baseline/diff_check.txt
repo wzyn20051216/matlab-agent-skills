@@ -1,2 +1,0 @@
-warning: in the working copy of 'matlab/validation/phase58/p58_codex_isolated_discovery.py', LF will be replaced by CRLF the next time Git touches it
-warning: in the working copy of 'matlab/validation/phase58/p58_codex_task_probe.py', LF will be replaced by CRLF the next time Git touches it

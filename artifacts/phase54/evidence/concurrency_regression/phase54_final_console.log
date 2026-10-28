@@ -1,9 +1,0 @@
-
-	Sponsored License -- for use in support of a program or activity sponsored by MathWorks.
-	Not for government, commercial or other non-sponsored organizational use.
-
-round 1: [12 12] ([12 12])
-round 2: [12 12] ([12 12])
-round 3: [12 12] ([12 12])
-test_concurrency: 3/3 rounds clean; residue shared=0 mex=0 tempDirs=0
-CONCURRENCY ok=1 rounds=3 procs=2 residue=[0 0 0]
