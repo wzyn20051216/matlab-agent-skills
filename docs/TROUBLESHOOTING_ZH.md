@@ -88,6 +88,29 @@ powershell -ExecutionPolicy Bypass -File .\scripts\Test-MatlabMcpExistingSession
   `existing` 随即指向一个失效会话）；
 - 结束时写 `<Work>\stop_session.flag` 温和退出，实测 15 s 内退出、无残留进程。
 
+**同一现象反复出现：每次都要人工开 MATLAB，任务动不动 BLOCKED**
+这是 `existing` 模式的固有代价，不是配置错了：会话是有寿命的（`-HoldMinutes` 到点即退出），
+而它一旦失效，客户端仍会先成功 `initialize` / `tools/list`，然后在 `tools/call` 上干等
+120 s 才判失败。所以"昨天还能用、今天必然 BLOCKED"是预期行为。
+
+改用一次健康检查把失败提前到几秒：
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\Ensure-MatlabMcpReady.ps1 -Work .\artifacts\runtime
+```
+
+它只认一个证据：`mcp.readonly-exec` = `PASS`（真实 `tools/call` 返回真实数值，默认 20 s 超时）。
+`sessionDetails.json` 存在、pid 存活、端口在听这三项只用来快速短路，**不能单独宣布健康**——
+`pause()` 持有会话时端口照样返回 200，但每次 `tools/call` 都挂死。
+
+`status=NOT_READY` 时，脚本会把两条命令直接打印在 `nextAction` 里：先按 `startCommand`
+**在后台**启动共享会话，等 `<Work>\session_ready.json` 出现（约 30 s），再跑 `recheckCommand`。
+脚本自己不去拉起 MATLAB —— 受管环境里 `Start-Process` 启动解释器会被安全策略拒绝，
+而且持有会话必须是独立长驻进程，脚本活不到那一刻。
+
+建议的用法：任何超过单次调用的 MATLAB 任务，第一步就跑这个门禁；`READY` 再开工，
+`NOT_READY` 照 `nextAction` 执行，不要盲目重试。
+
 两个不要被带偏的现象：
 
 - `Start-MatlabSharedSession.ps1` 产出的 `session_ready.json` 里 `PortProbe` 可能是 `false`，

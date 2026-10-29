@@ -4,6 +4,29 @@ All notable changes to this project will be documented here.
 
 ## Unreleased
 
+### MCP 开工前健康门禁（新增脚本）
+
+- **新增 `scripts/Ensure-MatlabMcpReady.ps1`**：几秒内判断 `existing` 模式的共享会话能不能**真的执行代码**，
+  取代"先开工、在 `tools/call` 上等 120 秒超时、最后由 Agent 请求人工开 MATLAB"的旧流程。
+  - 廉价前置（会话文件存在 / 记录的 pid 是活着的 MATLAB / 端口在听）**只用于短路**；
+    唯一健康证据是探针的 `mcp.readonly-exec = PASS`（真实 `tools/call`，默认 20 s 超时）。
+    这三项都不能单独宣布健康 —— `pause()` 持有的会话端口照样返回 200，但每次调用都挂死。
+  - `status = READY / NOT_READY`，输出 `checks` / `reasons` / `nextAction` / `startCommand` / `recheckCommand`；
+    退出码 0 / 1（`--json` 与 `-OutputPath` 可选）。
+  - 脚本**不自己拉起 MATLAB**：受管环境里 `Start-Process` 启动解释器会被安全策略拒绝，
+    且持有会话必须独立长驻。`nextAction` 给出两条确切命令，由调用方后台执行第一步、再回头复核。
+- **接线**：`matlab-runner` 与 `matlab-orchestrator` 的 SKILL.md 增加"超过单次调用的任务先过门禁"；
+  `docs/TROUBLESHOOTING_ZH.md` 新增「同一现象反复出现：每次都要人工开 MATLAB」条目。
+- **payload 契约同步**：`config/skill-payloads.json` 为两个技能补上 `Ensure-MatlabMcpReady.ps1` 与
+  `Start-MatlabSharedSession.ps1`（后者此前只存在于仓库，安装后的技能按 SKILL.md 指路会找不到），
+  `SkillPayloadContract.Tests.ps1` 的期望清单相应更新（12/12 通过）。
+
+**验证边界（如实记录）**：`NOT_READY` 的两条分支均已实测 —— 无会话（`pid-alive`/`port-listening` FAIL）
+与会话活着但执行不通（三项 PASS、`readonly-exec` SKIP）。`READY` 分支**本轮未能实测**：
+测试机 MATLAB 自 2026-10-29 12:00 起无法启动（LME 5201，`MathWorksServiceHost` 日志反复
+`mwboost::interproc ... 拒绝访问`），与本次改动无关，属机器侧许可服务故障。
+免费层 413 项中与本次相关部分全绿；`READY` 分支待 MATLAB 恢复后补测。
+
 ### 证据目录不再随仓库分发
 
 - **`artifacts/` 移出版本库**：994 个验证证据文件（9.9 MB，占跟踪内容 67%）取消 git 跟踪。

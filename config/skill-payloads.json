@@ -5,6 +5,8 @@
     "matlab-runner": {
       "files": [
         { "source": "scripts/Test-MatlabMcpExistingSession.ps1", "target": "scripts/Test-MatlabMcpExistingSession.ps1" },
+        { "source": "scripts/Ensure-MatlabMcpReady.ps1", "target": "scripts/Ensure-MatlabMcpReady.ps1" },
+        { "source": "scripts/Start-MatlabSharedSession.ps1", "target": "scripts/Start-MatlabSharedSession.ps1" },
         { "source": "scripts/Invoke-MatlabBatch.ps1", "target": "scripts/Invoke-MatlabBatch.ps1" },
         { "source": "scripts/MatlabAgentSkills.Core.psm1", "target": "scripts/MatlabAgentSkills.Core.psm1" },
         { "source": "scripts/MatlabAgentSkills.Acceptance.psm1", "target": "scripts/MatlabAgentSkills.Acceptance.psm1" },
@@ -18,6 +20,8 @@
     "matlab-orchestrator": {
       "files": [
         { "source": "scripts/Test-MatlabMcpExistingSession.ps1", "target": "scripts/Test-MatlabMcpExistingSession.ps1" },
+        { "source": "scripts/Ensure-MatlabMcpReady.ps1", "target": "scripts/Ensure-MatlabMcpReady.ps1" },
+        { "source": "scripts/Start-MatlabSharedSession.ps1", "target": "scripts/Start-MatlabSharedSession.ps1" },
         { "source": "scripts/MatlabAgentSkills.Core.psm1", "target": "scripts/MatlabAgentSkills.Core.psm1" },
         { "source": "scripts/MatlabAgentSkills.Acceptance.psm1", "target": "scripts/MatlabAgentSkills.Acceptance.psm1" },
         { "source": "scripts/MatlabAgentSkills.Execution.psm1", "target": "scripts/MatlabAgentSkills.Execution.psm1" },

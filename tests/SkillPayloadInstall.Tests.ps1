@@ -19,6 +19,8 @@ $script:Skills = @(
 )
 $script:RunnerTargets = @(
     'scripts/Test-MatlabMcpExistingSession.ps1',
+    'scripts/Ensure-MatlabMcpReady.ps1',
+    'scripts/Start-MatlabSharedSession.ps1',
     'scripts/Invoke-MatlabBatch.ps1',
     'scripts/MatlabAgentSkills.Core.psm1',
     'scripts/MatlabAgentSkills.Acceptance.psm1',
@@ -30,6 +32,8 @@ $script:RunnerTargets = @(
 )
 $script:OrchestratorTargets = @(
     'scripts/Test-MatlabMcpExistingSession.ps1',
+    'scripts/Ensure-MatlabMcpReady.ps1',
+    'scripts/Start-MatlabSharedSession.ps1',
     'scripts/MatlabAgentSkills.Core.psm1',
     'scripts/MatlabAgentSkills.Acceptance.psm1',
     'scripts/MatlabAgentSkills.Execution.psm1',

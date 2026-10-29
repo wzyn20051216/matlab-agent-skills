@@ -102,6 +102,29 @@ Before claiming readiness, run the staged probe and read its verdict:
 powershell -ExecutionPolicy Bypass -File $skillRoot\scripts\Test-MatlabMcpExistingSession.ps1 -ProjectRoot (Get-Location).Path -Json
 ```
 
+**Before a long task, run the readiness gate instead — it fails in seconds, not minutes:**
+
+```powershell
+# exit 0 = provably executable; exit 1 = not ready, and nextAction prints the exact two commands
+powershell -ExecutionPolicy Bypass -File $skillRoot\scripts\Ensure-MatlabMcpReady.ps1 -Work (Join-Path (Get-Location).Path 'artifacts\runtime') -Json
+```
+
+`Ensure-MatlabMcpReady.ps1` exists because the failure mode is otherwise very expensive: in
+`existing` mode a dead shared session still completes `initialize` and `tools/list`, then
+`tools/call` blocks silently until the client's timeout (120 s or more) and the task ends
+BLOCKED. The gate therefore treats three cheap conditions (`sessionDetails.json` exists,
+recorded pid is a live MATLAB, recorded port is listening) only as early exits, and
+accepts **one** proof of readiness: `mcp.readonly-exec` = `PASS` from a real `tools/call`
+with `-TimeoutSeconds` (default 20 s). Never report MCP as ready on pid+port alone — a
+`pause()`-held session answers `200` on the port while every `tools/call` hangs.
+
+When the gate reports `NOT_READY`, do not start work and do not silently fall back to
+`matlab -batch`: report the gate's `reasons` verbatim, then run `startCommand` **as a
+background task** (the held session must outlive this shell), wait for
+`<Work>\session_ready.json` (~30 s), and re-run `recheckCommand`. The gate deliberately
+does not spawn MATLAB itself: a managed host rejects `Start-Process` of an interpreter,
+and a script cannot outlive the session it would hold.
+
 The probe writes only into the current project's `artifacts/` directory. It never
 reads the source repository, never needs the caller cwd to be the Skill root, and
 never prints the session credential.

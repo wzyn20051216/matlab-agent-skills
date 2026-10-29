@@ -1,6 +1,6 @@
 ---
 name: matlab-orchestrator
-description: MATLAB agentic workflow router. Use this whenever the user asks for MATLAB, Simulink, .m/.mlx/.slx work, toolbox-driven engineering, paper reproduction, simulation, code generation, data analysis, control, robotics, signal/image/AI workflows, or wants an end-to-end automated MATLAB task with validation. For Simulink tasks on this machine, default to a visible workflow: open MATLAB/Simulink windows first so the user can watch modeling, simulation, tuning, and plotting progress.
+description: "MATLAB agentic workflow router. Use this whenever the user asks for MATLAB, Simulink, .m/.mlx/.slx work, toolbox-driven engineering, paper reproduction, simulation, code generation, data analysis, control, robotics, signal/image/AI workflows, or wants an end-to-end automated MATLAB task with validation. For Simulink tasks on this machine, default to a visible workflow: open MATLAB/Simulink windows first so the user can watch modeling, simulation, tuning, and plotting progress."
 ---
 
 # MATLAB Orchestrator
@@ -84,6 +84,18 @@ Never infer MCP readiness from a config file, a recorded `pid`, or a listening p
 ```powershell
 powershell -ExecutionPolicy Bypass -File $skillRoot\scripts\Test-MatlabMcpExistingSession.ps1 -ProjectRoot (Get-Location).Path -Json
 ```
+
+For any task longer than a single call, use the fast gate instead — it decides in seconds:
+
+```powershell
+# exit 0 = provably executable; exit 1 = not ready, nextAction prints the exact two commands
+powershell -ExecutionPolicy Bypass -File $skillRoot\scripts\Ensure-MatlabMcpReady.ps1 `
+  -Work (Join-Path (Get-Location).Path 'artifacts\runtime') -Json
+```
+
+Why this gate exists: in `existing` mode an expired or overwritten shared session still passes `initialize` and `tools/list`, then `tools/call` blocks for the full client timeout and the task ends BLOCKED after several minutes of silence. The gate accepts exactly one proof — real `tools/call` returning a real value (`mcp.readonly-exec` = `PASS`, 20 s timeout by default) — and treats pid/port checks only as cheap early exits. A `pause()`-held session proves why: the port answers `200` while every call hangs.
+
+On `NOT_READY`, run the printed `startCommand` as a **background task** (the session must outlive this shell), wait for `session_ready.json`, then re-run the gate. Do not start substantive work before it reports `READY`.
 
 The probe grades install, session config, client registration, protocol handshake, read-only execution, and file read-back as **separate checks**. It drives the official MATLAB MCP server over **stdio** by default (`-Transport auto`); the `https` path exists only to observe the connector, whose direct `POST /mcp` answers `403` by design. Run it without `-SkipTlsValidation`, and route the SKIP/FAIL reason it reports rather than inventing a fallback.
 
